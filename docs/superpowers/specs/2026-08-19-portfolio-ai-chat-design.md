@@ -8,8 +8,9 @@
 
 Turn the `Context` chatbot UI (a Replit-extracted Vite/React prototype) into a
 real, deployable portfolio site whose chat actually answers questions about
-Jeremy — grounded in his real background — powered by Claude to start, with a
-clean path to swap in an open-source model later. Deploy to Vercel.
+Jeremy — grounded in his real background — powered by an **open-source
+(open-weights) model via OpenRouter** to start, behind a provider abstraction so
+Claude or any other provider can drop in later via one env var. Deploy to Vercel.
 
 ## Current state
 
@@ -60,28 +61,34 @@ Five workstreams, in dependency order.
 
 - New `api/chat.ts` (Vercel Function). Accepts `POST` with
   `{ messages: {role, content}[] }`, returns a **streamed** text response.
-- Uses the official `@anthropic-ai/sdk` with `client.messages.stream(...)`.
-- **API key lives only in the Vercel env var `ANTHROPIC_API_KEY`** — never
+- Default provider is **OpenRouter**, which is OpenAI-compatible, so the impl
+  uses the `openai` SDK pointed at `https://openrouter.ai/api/v1` with
+  `stream: true` (or plain `fetch` of the SSE endpoint). Sends OpenRouter's
+  optional `HTTP-Referer` / `X-Title` headers for attribution.
+- **API key lives only in the Vercel env var `OPENROUTER_API_KEY`** — never
   shipped to the browser.
-- Model is read from env `CHAT_MODEL`, defaulting to `claude-haiku-4-5`
-  (fast + cheap for a public bio-Q&A demo; bump to Sonnet/Opus by changing one
-  env var).
-- The system prompt (Jeremy's bio, see §4) is sent with `cache_control:
-  {type: 'ephemeral'}` so the fixed bio prefix is cached across requests.
-- Basic guardrails: cap request message count / length, cap `max_tokens`,
+- Model is read from env `CHAT_MODEL`, defaulting to an open-weights model such
+  as `meta-llama/llama-3.3-70b-instruct` (swap models — including free variants
+  — by changing one env var).
+- The bio (see §4) is prepended as a `system` message on each request. (Anthropic
+  prompt caching is provider-specific and applied in the Claude impl only, not
+  OpenRouter.)
+- Basic guardrails: cap request message count / length, cap output tokens,
   return typed errors as JSON. Light in-memory rate note only (no store).
 
-### 3. Provider abstraction (Claude now, OSS later)
+### 3. Provider abstraction (OSS now, Claude/others later)
 
 - A small server-side module `api/_lib/provider.ts` exporting an interface:
   `streamChat(messages, opts): AsyncIterable<string>` (yields text deltas).
-- One implementation now: `claude.ts` (wraps the Anthropic SDK).
-- Selection via env `CHAT_PROVIDER` (default `claude`). Adding an OSS provider
-  later (Ollama / Groq / Together / self-hosted OpenAI-compatible endpoint) means
-  adding one file that implements the same interface and setting
-  `CHAT_PROVIDER` + its endpoint/key env vars. No route or UI changes.
-- The system prompt and message shaping live in provider-neutral code so both
-  providers share grounding.
+- One implementation now: `openrouter.ts` (wraps the OpenAI-compatible SDK
+  pointed at OpenRouter).
+- Selection via env `CHAT_PROVIDER` (default `openrouter`). Adding Claude later
+  means adding `claude.ts` (wraps `@anthropic-ai/sdk`, can enable prompt caching)
+  and setting `CHAT_PROVIDER=claude` + `ANTHROPIC_API_KEY`. Other
+  OpenAI-compatible hosts (Groq, Together, Fireworks) can reuse the OpenRouter
+  impl with a different base URL/key. No route or UI changes.
+- The system prompt and message shaping live in provider-neutral code so every
+  provider shares the same grounding.
 
 ### 4. Grounding content — "Ask me about Jeremy"
 
@@ -112,7 +119,7 @@ Five workstreams, in dependency order.
 
 - `vercel.json` (or framework-detected) config: static build from Vite,
   `api/` as functions.
-- `ANTHROPIC_API_KEY` + optional `CHAT_MODEL`/`CHAT_PROVIDER` set as Vercel env
+- `OPENROUTER_API_KEY` + optional `CHAT_MODEL`/`CHAT_PROVIDER` set as Vercel env
   vars (Jeremy adds the key in the Vercel dashboard — Claude never handles it).
 - Confirm production build, then hook up a custom domain (later, optional).
 
@@ -120,8 +127,8 @@ Five workstreams, in dependency order.
 
 ```
 Browser (composer) --POST /api/chat {messages}--> Vercel Function
-   Function: build system prompt (profile.md, cached) + messages
-             -> provider.streamChat() -> Anthropic SDK stream
+   Function: build system prompt (profile.md) + messages
+             -> provider.streamChat() -> OpenRouter (OpenAI-compatible) stream
    <---------------- streamed text deltas ----------------
 Browser: append deltas to transcript in real time
 ```
@@ -130,10 +137,10 @@ Browser: append deltas to transcript in real time
 
 - Client: network failure / non-200 -> inline error bubble + retry affordance;
   never leave the UI in a stuck "thinking" state.
-- Server: validate payload shape; most-specific-first catch on Anthropic errors
-  (rate limit vs. 4xx vs. connection); return `{ error }` JSON with an
-  appropriate status; never leak the API key or stack traces.
-- Missing `ANTHROPIC_API_KEY` -> clear 500 with a developer-facing message in
+- Server: validate payload shape; map provider errors (rate limit vs. 4xx vs.
+  connection) to appropriate statuses; return `{ error }` JSON; never leak the
+  API key or stack traces.
+- Missing `OPENROUTER_API_KEY` -> clear 500 with a developer-facing message in
   logs and a friendly message to the user.
 
 ## Testing
@@ -157,5 +164,6 @@ Browser: append deltas to transcript in real time
 
 1. **Profile content** — paste, or approve drafting from the resume knowledge
    base. (Blocks §4 final copy, not the build.)
-2. Model default confirmed as `claude-haiku-4-5` unless changed.
+2. Model default: an OpenRouter open-weights model (e.g.
+   `meta-llama/llama-3.3-70b-instruct`) unless changed. Easy to A/B later.
 3. Custom domain — later.
