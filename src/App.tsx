@@ -28,6 +28,7 @@ function Home() {
   const [chatError, setChatError] = useState<string | null>(null);
   const hasConversation = messages.length > 0;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -58,17 +59,23 @@ function Home() {
     setPrompt('');
     setStreaming(true);
 
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
       await sendChat(next, {
+        signal: controller.signal,
         onDelta: (t) =>
           setMessages((cur) => {
+            if (cur.length === 0) return cur;
+            const last = cur[cur.length - 1];
+            if (!last || last.role !== 'assistant') return cur;
             const copy = cur.slice();
-            const last = copy[copy.length - 1];
             copy[copy.length - 1] = { ...last, content: last.content + t };
             return copy;
           }),
       });
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return; // reset/abort, not a real error
       setChatError(err instanceof Error ? err.message : 'Something went wrong.');
       // Drop the empty assistant placeholder on hard failure.
       setMessages((cur) =>
@@ -169,7 +176,7 @@ function Home() {
             <button
               className="chat-reset"
               type="button"
-              onClick={() => { setMessages([]); setChatError(null); }}
+              onClick={() => { abortRef.current?.abort(); setMessages([]); setChatError(null); }}
               data-testid="button-new-chat"
             >
               New chat
