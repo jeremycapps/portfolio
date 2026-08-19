@@ -4,7 +4,7 @@ import type { ChatMessage, ChatRole } from './types.ts';
 
 const MAX_MESSAGES = 40;
 const MAX_CHARS = 8000;
-const ROLES: ChatRole[] = ['system', 'user', 'assistant'];
+const CLIENT_ROLES: ChatRole[] = ['user', 'assistant'];
 
 type ValidResult =
   | { ok: true; messages: ChatMessage[] }
@@ -24,7 +24,7 @@ export function validateChatBody(body: unknown): ValidResult {
   for (const m of messages) {
     if (
       typeof m !== 'object' || m === null ||
-      !ROLES.includes((m as ChatMessage).role) ||
+      !CLIENT_ROLES.includes((m as ChatMessage).role) ||
       typeof (m as ChatMessage).content !== 'string' ||
       (m as ChatMessage).content.length > MAX_CHARS
     ) {
@@ -51,6 +51,9 @@ export async function handleChatRequest(
 ): Promise<Response> {
   if (request.method !== 'POST') return jsonError('Method not allowed.', 405);
 
+  const contentLength = Number(request.headers.get('content-length') ?? 0);
+  if (contentLength > 100_000) return jsonError('Request too large.', 413);
+
   let body: unknown;
   try {
     body = await request.json();
@@ -63,16 +66,27 @@ export async function handleChatRequest(
 
   const stream = deps.stream ?? streamChat;
   const messages = buildMessages(valid.messages);
+  const iterator = stream(messages)[Symbol.asyncIterator]();
+
+  let first: IteratorResult<string>;
+  try {
+    first = await iterator.next();
+  } catch (err) {
+    console.error('chat provider setup error:', err);
+    return jsonError('The assistant is unavailable right now.', 502);
+  }
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const delta of stream(messages)) {
-          controller.enqueue(encoder.encode(delta));
+        if (!first.done && first.value) controller.enqueue(encoder.encode(first.value));
+        while (true) {
+          const { done, value } = await iterator.next();
+          if (done) break;
+          if (value) controller.enqueue(encoder.encode(value));
         }
       } catch (err) {
-        // Stream already started (200 sent); surface a trailing marker.
         controller.enqueue(encoder.encode('\n\n[error] The assistant hit a snag. Please try again.'));
         console.error('chat stream error:', err);
       } finally {

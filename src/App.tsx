@@ -74,6 +74,10 @@ function Home() {
             return copy;
           }),
       });
+      setMessages((cur) => {
+        const last = cur[cur.length - 1];
+        return last && last.role === 'assistant' && last.content === '' ? cur.slice(0, -1) : cur;
+      });
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return; // reset/abort, not a real error
       setChatError(err instanceof Error ? err.message : 'Something went wrong.');
