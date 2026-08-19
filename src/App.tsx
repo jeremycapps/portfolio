@@ -1,0 +1,303 @@
+import { type ChangeEvent, type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
+import { Check, ChevronRight, FileText, Menu, Mic, Paperclip, Search, Send, Slack, Sparkles, X } from 'lucide-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import NotFound from '@/pages/not-found';
+import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+
+const queryClient = new QueryClient();
+
+type ConnectionName = 'Slack' | 'Google';
+
+function Home() {
+  const [prompt, setPrompt] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
+  const [slackConnected, setSlackConnected] = useState(false);
+  const [googleConnected, setGoogleConnected] = useState(true);
+  const [isListening, setIsListening] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [statusTone, setStatusTone] = useState<'normal' | 'error' | 'success'>('normal');
+  const [toastMessage, setToastMessage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timeout = window.setTimeout(() => setToastMessage(''), 3400);
+    return () => window.clearTimeout(timeout);
+  }, [toastMessage]);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+  };
+
+  const handlePromptSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const cleanPrompt = prompt.trim();
+    if (!cleanPrompt) {
+      setStatusTone('error');
+      setStatusMessage('Write a question first, then send it to Context.');
+      return;
+    }
+
+    setStatusTone('success');
+    setStatusMessage(`Drafting a response for “${cleanPrompt}”`);
+    showToast('Your request is queued in this presentation workspace.');
+    setPrompt('');
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const newFiles = Array.from(files).map((file) => file.name);
+    setAttachedFiles((currentFiles) => [...currentFiles, ...newFiles]);
+    setStatusTone('success');
+    setStatusMessage(`${newFiles.length} file${newFiles.length === 1 ? '' : 's'} ready to use as context.`);
+    showToast(`${newFiles.join(', ')} attached.`);
+    event.target.value = '';
+  };
+
+  const handleConnection = (name: ConnectionName) => {
+    if (name === 'Slack') {
+      setSlackConnected((connected) => !connected);
+      showToast(slackConnected ? 'Slack disconnected from this workspace.' : 'Slack is now connected.');
+      return;
+    }
+
+    setGoogleConnected((connected) => !connected);
+    showToast(googleConnected ? 'Google disconnected from this workspace.' : 'Google is now connected.');
+  };
+
+  const handleMicrophone = () => {
+    setIsListening(true);
+    setStatusTone('normal');
+    setStatusMessage('Listening for your next thought…');
+    showToast('Microphone ready. Voice capture is represented in this prototype.');
+    window.setTimeout(() => {
+      setIsListening(false);
+      setStatusMessage('');
+    }, 1900);
+  };
+
+  const removeAttachment = (fileName: string) => {
+    setAttachedFiles((currentFiles) => currentFiles.filter((file) => file !== fileName));
+    showToast(`${fileName} removed.`);
+  };
+
+  return (
+    <main className="app-shell">
+      <header className="topbar">
+        <a className="brand" href="/" data-testid="link-brand">
+          <span className="brand-mark" aria-hidden="true">
+            <Sparkles />
+          </span>
+          <span data-testid="text-brand-name">Context</span>
+        </a>
+
+        <nav className="nav-actions" aria-label="Main navigation">
+          <button className="nav-link" type="button" onClick={() => showToast('A quieter way to work with your context.')} data-testid="button-about">
+            About
+          </button>
+          <button className="nav-link" type="button" onClick={() => showToast('This portfolio is a live interface study.')} data-testid="button-journal">
+            Journal
+          </button>
+          <button className="avatar-button" type="button" onClick={() => showToast('Profile settings are coming with your workspace.')} aria-label="Open profile" data-testid="button-profile">
+            AR
+          </button>
+        </nav>
+
+        <button className="mobile-menu" type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen((open) => !open)} data-testid="button-mobile-menu">
+          {menuOpen ? <X /> : <Menu />}
+        </button>
+      </header>
+
+      {menuOpen && (
+        <div className="mobile-nav" data-testid="menu-mobile">
+          <button type="button" onClick={() => showToast('A quieter way to work with your context.')} data-testid="button-mobile-about">About</button>
+          <button type="button" onClick={() => showToast('This portfolio is a live interface study.')} data-testid="button-mobile-journal">Journal</button>
+          <button type="button" onClick={() => showToast('Profile settings are coming with your workspace.')} data-testid="button-mobile-profile">Profile</button>
+        </div>
+      )}
+
+      <section className="workspace" aria-labelledby="hero-title">
+        <div className="intro">
+          <p className="eyebrow" data-testid="text-eyebrow">A focused assistant for the work ahead</p>
+          <h1 className="hero-title" id="hero-title">
+            Your work has context.<br />
+            <em>Now it has a voice.</em>
+          </h1>
+          <p className="hero-description">
+            Ask for meeting prep, a sharper reply, a thread catch-up, or a report that already knows where to look.
+          </p>
+        </div>
+
+        <div className="composer-wrap">
+          <form className="composer" onSubmit={handlePromptSubmit} data-testid="form-prompt">
+            <div className="composer-prompt">
+              <Search aria-hidden="true" />
+              <textarea
+                className="composer-input"
+                value={prompt}
+                onChange={(event) => setPrompt(event.target.value)}
+                placeholder="Ask anything..."
+                aria-label="Ask Context anything"
+                data-testid="input-prompt"
+              />
+            </div>
+            <div className="composer-toolbar">
+              <div className="toolbar-left">
+                <input ref={fileInputRef} className="visually-hidden" type="file" multiple onChange={handleFileChange} data-testid="input-file" />
+                <button className="toolbar-button" type="button" onClick={() => fileInputRef.current?.click()} data-testid="button-attach">
+                  <Paperclip aria-hidden="true" />
+                  <span>Add tabs or files</span>
+                  {attachedFiles.length > 0 && <span className="attach-count" data-testid="text-attachment-count">{attachedFiles.length}</span>}
+                </button>
+                {attachedFiles.length > 0 && (
+                  <div className="attachment-list" aria-label="Attached files">
+                    {attachedFiles.map((fileName, index) => (
+                      <button
+                        className="attachment-chip"
+                        type="button"
+                        key={`${fileName}-${index}`}
+                        onClick={() => removeAttachment(fileName)}
+                        title={`Remove ${fileName}`}
+                        data-testid={`button-remove-attachment-${index}`}
+                      >
+                        <FileText aria-hidden="true" />
+                        <span>{fileName}</span>
+                        <X aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="toolbar-right">
+                <button className={`toolbar-button microphone-button${isListening ? ' is-listening' : ''}`} type="button" onClick={handleMicrophone} aria-label={isListening ? 'Listening' : 'Use microphone'} data-testid="button-microphone">
+                  <Mic aria-hidden="true" />
+                </button>
+                <button className="submit-button" type="submit" disabled={!prompt.trim()} aria-label="Send prompt" data-testid="button-submit-prompt">
+                  <ArrowUpIcon />
+                </button>
+              </div>
+            </div>
+          </form>
+          <p className={`status-line ${statusTone}`} role="status" data-testid="status-prompt">{statusMessage}</p>
+        </div>
+
+        <section className="connect-section" aria-labelledby="connect-title">
+          <p className="connect-label" id="connect-title">Connect the places where your work already lives.</p>
+          <div className="connection-grid">
+            <div className="connection-item">
+              <span className="connection-name"><Slack className="slack-icon" aria-hidden="true" /> Slack</span>
+              {slackConnected ? (
+                <button className="connected-button" type="button" onClick={() => handleConnection('Slack')} data-testid="button-slack-connected">
+                  <Check aria-hidden="true" /> Connected
+                </button>
+              ) : (
+                <button className="connect-button" type="button" onClick={() => handleConnection('Slack')} data-testid="button-slack-connect">Connect</button>
+              )}
+            </div>
+            <div className="connection-item">
+              <span className="connection-name"><span className="google-icon" aria-hidden="true">G</span> Google</span>
+              {googleConnected ? (
+                <button className="connected-button" type="button" onClick={() => handleConnection('Google')} data-testid="button-google-connected">
+                  <Check aria-hidden="true" /> Connected
+                </button>
+              ) : (
+                <button className="connect-button" type="button" onClick={() => handleConnection('Google')} data-testid="button-google-connect">Connect</button>
+              )}
+            </div>
+          </div>
+          <p className="connection-note">
+            Use other apps? <button type="button" onClick={() => showToast('Tell us what belongs in your context.')} data-testid="button-connect-other">Connect others</button> or <button type="button" onClick={() => showToast('You can connect sources whenever you are ready.')} data-testid="button-dismiss-connect">dismiss</button>.
+          </p>
+        </section>
+
+        <section className="portfolio" aria-labelledby="portfolio-title">
+          <div className="portfolio-header">
+            <div>
+              <p className="portfolio-kicker">Selected work / 03</p>
+              <h2 className="portfolio-title" id="portfolio-title">Made legible by context.</h2>
+            </div>
+            <button className="portfolio-link" type="button" onClick={() => showToast('The full archive is being carefully assembled.')} data-testid="button-view-archive">
+              View archive <ChevronRight aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="document-grid">
+            <button className="document-card" type="button" onClick={() => showToast('Project Stella — Q2 status report opened.')} data-testid="card-project-stella">
+              <div className="document-topline"><span>Internal report</span><span>01 / 03</span></div>
+              <div className="document-body">
+                <h3>Project Stella<br />Q2 Status Report</h3>
+                <div className="document-rule" />
+                <p className="document-copy">A clear read on momentum, decisions, and the few things that need a room.</p>
+                <div className="document-chart" aria-hidden="true"><span /><span /><span /><span /><span /></div>
+              </div>
+            </button>
+
+            <button className="document-card" type="button" onClick={() => showToast('The Friday Brief opened.')} data-testid="card-friday-brief">
+              <div className="document-topline"><span>Weekly editorial</span><span>02 / 03</span></div>
+              <div className="document-body">
+                <div className="brief-image" aria-hidden="true" />
+                <span className="brief-label">The Friday Brief</span>
+                <div className="brief-lines" aria-hidden="true"><span /><span /><span /></div>
+              </div>
+            </button>
+
+            <button className="document-card" type="button" onClick={() => showToast('Q1 2026 analytics review opened.')} data-testid="card-analytics-review">
+              <div className="document-topline"><span>Performance review</span><span>03 / 03</span></div>
+              <div className="document-body">
+                <h3>Q1 2026<br />Analytics Review</h3>
+                <div className="review-meta"><span>Northstar</span><span>03.28.26</span></div>
+                <div className="review-line" />
+                <p className="review-copy">What moved, what stalled, and which signals deserve a closer look.</p>
+                <div className="review-foot" aria-hidden="true"><span /><span /><span /></div>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <p className="footer-note"><Sparkles aria-hidden="true" /> A small surface for big thinking.</p>
+      </section>
+
+      {toastMessage && <div className="toast-message" role="status" data-testid="status-toast">{toastMessage}</div>}
+    </main>
+  );
+}
+
+function ArrowUpIcon() {
+  return <Send aria-hidden="true" />;
+}
+
+function Router() {
+  return (
+    <RoutedErrorBoundary>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route component={NotFound} />
+      </Switch>
+    </RoutedErrorBoundary>
+  );
+}
+
+function RoutedErrorBoundary({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
+  return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+          <Router />
+        </WouterRouter>
+        <Toaster />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
