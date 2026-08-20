@@ -3,13 +3,21 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
+import { resolveSharedEnvPath } from './scripts/worktree-env';
 
-function devApis(): Plugin {
+function devApis(envDir: string): Plugin {
   return {
     name: 'dev-apis',
     configureServer(server) {
-      const env = loadEnv(server.config.mode, process.cwd(), '');
-      for (const k of ['OPENROUTER_API_KEY', 'CHAT_MODEL', 'CHAT_PROVIDER']) {
+      const env = loadEnv(server.config.mode, envDir, '');
+      for (const k of [
+        'OPENROUTER_API_KEY',
+        'CHAT_MODEL',
+        'CHAT_PROVIDER',
+        'CHAT_MAX_OUTPUT_TOKENS',
+        'UPSTASH_REDIS_REST_URL',
+        'UPSTASH_REDIS_REST_TOKEN',
+      ]) {
         if (env[k] && !process.env[k]) process.env[k] = env[k];
       }
       server.middlewares.use('/api/chat', async (req, res) => {
@@ -52,14 +60,22 @@ function devApis(): Plugin {
   };
 }
 
-export default defineConfig({
-  base: process.env.BASE_PATH ?? '/',
-  plugins: [react(), tailwindcss(), devApis()],
-  resolve: {
-    alias: { '@': path.resolve(import.meta.dirname, 'src') },
-    dedupe: ['react', 'react-dom'],
-  },
-  root: path.resolve(import.meta.dirname),
-  build: { outDir: 'dist', emptyOutDir: true },
-  server: { port: Number(process.env.PORT) || 5173 },
+export default defineConfig(({ mode }) => {
+  const root = path.resolve(import.meta.dirname);
+  const sharedEnvPath = resolveSharedEnvPath(root);
+  const envDir = sharedEnvPath === undefined ? root : path.dirname(sharedEnvPath);
+  const fileEnv = loadEnv(mode, envDir, '');
+
+  return {
+    base: process.env.BASE_PATH ?? fileEnv.BASE_PATH ?? '/',
+    envDir,
+    plugins: [react(), tailwindcss(), devApis(envDir)],
+    resolve: {
+      alias: { '@': path.resolve(import.meta.dirname, 'src') },
+      dedupe: ['react', 'react-dom'],
+    },
+    root,
+    build: { outDir: 'dist', emptyOutDir: true },
+    server: { port: Number(process.env.PORT ?? fileEnv.PORT) || 5173 },
+  };
 });

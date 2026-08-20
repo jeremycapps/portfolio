@@ -6,6 +6,7 @@ import { buildMessages } from '../api/_lib/chat-core';
 import { getConfig, systemPrompt } from '../api/_lib/config';
 import { streamChat } from '../api/_lib/provider';
 import type { ChatMessage } from '../api/_lib/types';
+import { loadSharedEnv } from '../scripts/worktree-env';
 import { produceRecords } from './produce';
 import { loadQuestions } from './questions';
 import { estimateRunCost, parseRunOptions, selectQuestions } from './run-options';
@@ -33,6 +34,7 @@ function usage(): string {
 }
 
 async function main(): Promise<void> {
+  loadSharedEnv(resolve(here, '..'));
   const options = parseRunOptions(process.argv.slice(2));
   if (options.help) {
     console.log(usage());

@@ -13,6 +13,10 @@ cp .env.example .env   # then add your OPENROUTER_API_KEY
 npm run dev
 ```
 
+Cyboflow linked worktrees automatically reuse the primary portfolio worktree's
+`.env` when they do not have a local one. Shell variables and a worktree-local
+`.env` take precedence.
+
 Open http://localhost:5173. The chat requires `OPENROUTER_API_KEY`; without it
 the UI loads and returns a friendly error on send.
 

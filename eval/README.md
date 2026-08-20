@@ -22,6 +22,10 @@ export OPENROUTER_API_KEY=...
 npm run eval
 ```
 
+In a Cyboflow linked worktree, the runner automatically reads the primary
+portfolio worktree's `.env` when no worktree-local `.env` exists. Existing shell
+variables always take precedence.
+
 Useful cost controls:
 
 - `--samples <n>` overrides `EVAL_SAMPLES` (default `1`).
