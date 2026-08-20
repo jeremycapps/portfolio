@@ -179,7 +179,7 @@ function Home() {
           <span className="brand-mark" aria-hidden="true">
             <Sparkles />
           </span>
-          <span data-testid="text-brand-name">Context</span>
+          <span data-testid="text-brand-name">Domain</span>
         </a>
 
         <nav className="nav-actions" aria-label="Main navigation">
