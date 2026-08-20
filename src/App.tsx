@@ -68,7 +68,7 @@ function Home() {
     if (!cleanPrompt || streaming) {
       if (!cleanPrompt) {
         setStatusTone('error');
-        setStatusMessage('Write a question first, then send it to Context.');
+        setStatusMessage('Write a question first, then send it to Domain.');
       }
       return;
     }
@@ -255,7 +255,7 @@ function Home() {
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value)}
                 placeholder="Ask anything..."
-                aria-label="Ask Context anything"
+                aria-label="Ask Domain anything"
                 data-testid="input-prompt"
               />
             </div>
