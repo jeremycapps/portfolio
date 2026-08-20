@@ -70,4 +70,16 @@ describe('handleChatRequest', () => {
     expect(res.status).toBe(502);
     expect(res.headers.get('content-type')).toContain('application/json');
   });
+
+  it('returns 429 with Retry-After when rate limited', async () => {
+    const req = new Request('http://x/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'hi' }] }),
+    });
+    const res = await handleChatRequest(req, {
+      checkLimit: async () => ({ ok: false, retryAfter: 42 }),
+    });
+    expect(res.status).toBe(429);
+    expect(res.headers.get('retry-after')).toBe('42');
+  });
 });

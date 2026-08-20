@@ -1,5 +1,6 @@
 import { systemPrompt } from './config';
 import { streamChat } from './provider';
+import { checkRateLimit } from './rate-limit';
 import type { ChatMessage, ChatRole } from './types';
 
 const MAX_MESSAGES = 40;
@@ -38,18 +39,23 @@ export function buildMessages(userMessages: ChatMessage[]): ChatMessage[] {
   return [{ role: 'system', content: systemPrompt() }, ...userMessages];
 }
 
-function jsonError(message: string, status: number): Response {
-  return new Response(JSON.stringify({ error: message }), {
-    status,
-    headers: { 'content-type': 'application/json' },
-  });
+function jsonError(message: string, status: number, retryAfter?: number): Response {
+  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  if (retryAfter !== undefined) headers['retry-after'] = String(retryAfter);
+  return new Response(JSON.stringify({ error: message }), { status, headers });
 }
 
 export async function handleChatRequest(
   request: Request,
-  deps: { stream?: typeof streamChat } = {},
+  deps: { stream?: typeof streamChat; checkLimit?: typeof checkRateLimit } = {},
 ): Promise<Response> {
   if (request.method !== 'POST') return jsonError('Method not allowed.', 405);
+
+  const checkLimit = deps.checkLimit ?? checkRateLimit;
+  const limit = await checkLimit(request);
+  if (!limit.ok) {
+    return jsonError('Too many requests — please slow down.', 429, limit.retryAfter);
+  }
 
   const contentLength = Number(request.headers.get('content-length') ?? 0);
   if (contentLength > 100_000) return jsonError('Request too large.', 413);

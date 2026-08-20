@@ -75,5 +75,9 @@
     "vitest": "^2.1.9",
     "wouter": "^3.3.5",
     "zod": "^3.25.76"
+  },
+  "dependencies": {
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.2"
   }
 }

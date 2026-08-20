@@ -20,6 +20,16 @@ the UI loads and returns a friendly error on send.
 - `OPENROUTER_API_KEY` (required) — server-side only.
 - `CHAT_PROVIDER` — default `openrouter`.
 - `CHAT_MODEL` — default `meta-llama/llama-3.3-70b-instruct`.
+- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optional) — enable rate
+  limiting.
+
+## Rate limiting
+
+`/api/chat` is a public, metered endpoint. To cap abuse, set both Upstash Redis
+REST vars (free tier at [console.upstash.com](https://console.upstash.com)) — the
+chat is then limited to **20 sends/min per client IP** (sliding window) and
+returns `429` with a `Retry-After` header when exceeded. When the vars are unset,
+rate limiting is **off** (fail-open), so local dev works with no extra setup.
 
 ## Grounding content
 
