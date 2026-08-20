@@ -1279,3 +1279,25 @@ textarea:focus-visible {
   width: 14px;
   height: 14px;
 }
+
+.hero-rotator {
+  display: inline-block;
+  animation: heroRotate 0.45s ease;
+}
+
+@keyframes heroRotate {
+  from {
+    opacity: 0;
+    transform: translateY(0.12em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rotator {
+    animation: none;
+  }
+}

@@ -18,6 +18,23 @@ import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
 
+const HERO_PHRASES = ['my experience', 'my projects', 'anything'];
+
+function RotatingPhrase() {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setIndex((current) => (current + 1) % HERO_PHRASES.length);
+    }, 2200);
+    return () => window.clearInterval(id);
+  }, []);
+  return (
+    <em className="hero-rotator" key={index}>
+      {HERO_PHRASES[index]}.
+    </em>
+  );
+}
+
 function Home() {
   const [prompt, setPrompt] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
@@ -194,8 +211,8 @@ function Home() {
         <div className="intro">
           <p className="eyebrow" data-testid="text-eyebrow">The portfolio of Jeremy Capps</p>
           <h1 className="hero-title" id="hero-title">
-            Ask my work anything.<br />
-            <em>It answers with context.</em>
+            Ask me about<br />
+            <RotatingPhrase />
           </h1>
           <p className="hero-description">
             A conversational portfolio. Ask about my experience, the systems I'm building, or how I think about software — and get a straight answer.
