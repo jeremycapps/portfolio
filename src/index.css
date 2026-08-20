@@ -1056,3 +1056,10 @@ textarea:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+.chat-view { display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0; }
+.chat-bubble { padding: 0.75rem 1rem; border-radius: 0.75rem; max-width: 42rem; white-space: pre-wrap; line-height: 1.5; }
+.chat-bubble-user { align-self: flex-end; background: rgba(120,120,140,0.16); }
+.chat-bubble-assistant { align-self: flex-start; background: rgba(120,120,140,0.06); }
+.chat-error { color: #b4232a; font-size: 0.9rem; }
+.chat-reset { align-self: flex-end; background: none; border: 0; cursor: pointer; opacity: 0.7; font: inherit; }
+.chat-reset:hover { opacity: 1; }

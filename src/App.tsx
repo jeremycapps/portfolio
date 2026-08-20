@@ -2,9 +2,11 @@ import { type ChangeEvent, type FormEvent, type ReactNode, useEffect, useRef, us
 import { Check, ChevronRight, FileText, Menu, Mic, Paperclip, Search, Send, Slack, Sparkles, X } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { ChatView } from '@/components/chat-view';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
+import { sendChat, type ClientMessage } from '@/lib/chat';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
@@ -21,7 +23,12 @@ function Home() {
   const [statusMessage, setStatusMessage] = useState('');
   const [statusTone, setStatusTone] = useState<'normal' | 'error' | 'success'>('normal');
   const [toastMessage, setToastMessage] = useState('');
+  const [messages, setMessages] = useState<ClientMessage[]>([]);
+  const [streaming, setStreaming] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const hasConversation = messages.length > 0;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -33,19 +40,54 @@ function Home() {
     setToastMessage(message);
   };
 
-  const handlePromptSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handlePromptSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const cleanPrompt = prompt.trim();
-    if (!cleanPrompt) {
-      setStatusTone('error');
-      setStatusMessage('Write a question first, then send it to Context.');
+    if (!cleanPrompt || streaming) {
+      if (!cleanPrompt) {
+        setStatusTone('error');
+        setStatusMessage('Write a question first, then send it to Context.');
+      }
       return;
     }
 
-    setStatusTone('success');
-    setStatusMessage(`Drafting a response for “${cleanPrompt}”`);
-    showToast('Your request is queued in this presentation workspace.');
+    setStatusMessage('');
+    setChatError(null);
+    const next: ClientMessage[] = [...messages, { role: 'user', content: cleanPrompt }];
+    // Add an empty assistant message we stream into.
+    setMessages([...next, { role: 'assistant', content: '' }]);
     setPrompt('');
+    setStreaming(true);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+    try {
+      await sendChat(next, {
+        signal: controller.signal,
+        onDelta: (t) =>
+          setMessages((cur) => {
+            if (cur.length === 0) return cur;
+            const last = cur[cur.length - 1];
+            if (!last || last.role !== 'assistant') return cur;
+            const copy = cur.slice();
+            copy[copy.length - 1] = { ...last, content: last.content + t };
+            return copy;
+          }),
+      });
+      setMessages((cur) => {
+        const last = cur[cur.length - 1];
+        return last && last.role === 'assistant' && last.content === '' ? cur.slice(0, -1) : cur;
+      });
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return; // reset/abort, not a real error
+      setChatError(err instanceof Error ? err.message : 'Something went wrong.');
+      // Drop the empty assistant placeholder on hard failure.
+      setMessages((cur) =>
+        cur[cur.length - 1]?.content === '' ? cur.slice(0, -1) : cur,
+      );
+    } finally {
+      setStreaming(false);
+    }
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -133,6 +175,20 @@ function Home() {
           </p>
         </div>
 
+        {hasConversation && (
+          <>
+            <button
+              className="chat-reset"
+              type="button"
+              onClick={() => { abortRef.current?.abort(); setMessages([]); setChatError(null); }}
+              data-testid="button-new-chat"
+            >
+              New chat
+            </button>
+            <ChatView messages={messages} streaming={streaming} error={chatError} />
+          </>
+        )}
+
         <div className="composer-wrap">
           <form className="composer" onSubmit={handlePromptSubmit} data-testid="form-prompt">
             <div className="composer-prompt">
@@ -177,7 +233,7 @@ function Home() {
                 <button className={`toolbar-button microphone-button${isListening ? ' is-listening' : ''}`} type="button" onClick={handleMicrophone} aria-label={isListening ? 'Listening' : 'Use microphone'} data-testid="button-microphone">
                   <Mic aria-hidden="true" />
                 </button>
-                <button className="submit-button" type="submit" disabled={!prompt.trim()} aria-label="Send prompt" data-testid="button-submit-prompt">
+                <button className="submit-button" type="submit" disabled={!prompt.trim() || streaming} aria-label="Send prompt" data-testid="button-submit-prompt">
                   <ArrowUpIcon />
                 </button>
               </div>
