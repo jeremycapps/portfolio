@@ -30,8 +30,8 @@ export function loadQuestions(yamlText: string): Question[] {
     }
 
     const turns = value.turns;
-    if (!Array.isArray(turns) || turns.length < 1 || turns.length > 5) {
-      fail(`id ${id}: turns must be a list of 1 to 5 strings`);
+    if (!Array.isArray(turns) || turns.length < 1 || turns.length > 10) {
+      fail(`id ${id}: turns must be a list of 1 to 10 strings`);
     }
     turns.forEach((turn) => {
       if (typeof turn !== 'string' || turn.trim() === '') {

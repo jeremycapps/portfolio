@@ -1,3 +1,4 @@
+import type { ChatMessage } from '../api/_lib/types';
 import { transcriptPrompt } from './produce';
 import { estimateTokens } from './tokens';
 import type { Question } from './types';
@@ -12,7 +13,6 @@ export interface RunOptions {
 
 export interface QuestionSelection {
   selected: Question[];
-  skippedMultiTurn: Question[];
   matched: number;
 }
 
@@ -69,26 +69,38 @@ export function selectQuestions(questions: Question[], options: RunOptions): Que
     throw new Error(`filter matched no questions: ${options.filter}`);
   }
 
-  const skippedMultiTurn = matching.filter((question) => question.turns.length > 1);
-  const eligible = matching.filter((question) => question.turns.length === 1);
   return {
-    selected: options.limit === undefined ? eligible : eligible.slice(0, options.limit),
-    skippedMultiTurn,
+    selected: options.limit === undefined ? matching : matching.slice(0, options.limit),
     matched: matching.length,
   };
 }
 
+/**
+ * Directional token estimate for a run. Each conversation turn is one provider
+ * call whose prompt is the grounding corpus plus the whole conversation so far,
+ * so prompts regrow every turn. Prior assistant replies are unknown ahead of
+ * time and bounded here at maxOutputTokens each — an upper bound, not billing.
+ */
 export function estimateRunCost(
   questions: Question[],
   groundingPrompt: string,
   samples: number,
   maxOutputTokens: number,
 ): RunCostEstimate {
-  const perSamplePromptTokens = questions.reduce(
-    (total, question) => total + estimateTokens(transcriptPrompt(groundingPrompt, question.turns)),
-    0,
-  );
-  const calls = questions.length * samples;
+  let perSamplePromptTokens = 0;
+  let perSampleTurns = 0;
+
+  for (const question of questions) {
+    const userSoFar: ChatMessage[] = [];
+    question.turns.forEach((turn, turnIndex) => {
+      userSoFar.push({ role: 'user', content: turn });
+      perSamplePromptTokens += estimateTokens(transcriptPrompt(groundingPrompt, userSoFar))
+        + turnIndex * maxOutputTokens;
+      perSampleTurns += 1;
+    });
+  }
+
+  const calls = perSampleTurns * samples;
   const promptTokens = perSamplePromptTokens * samples;
   const maxCompletionTokens = calls * maxOutputTokens;
   return {

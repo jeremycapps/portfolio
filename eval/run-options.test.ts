@@ -29,7 +29,7 @@ describe('parseRunOptions', () => {
 });
 
 describe('selectQuestions', () => {
-  it('filters, limits eligible questions, and reports multi-turn skips', () => {
+  it('filters and limits questions, including multi-turn entries', () => {
     const selection = selectQuestions(questions, {
       samples: 1,
       limit: 1,
@@ -37,7 +37,6 @@ describe('selectQuestions', () => {
       help: false,
     });
     expect(selection.selected.map((question) => question.id)).toEqual(['a']);
-    expect(selection.skippedMultiTurn.map((question) => question.id)).toEqual(['c']);
     expect(selection.matched).toBe(3);
   });
 
@@ -53,7 +52,7 @@ describe('selectQuestions', () => {
       filter: 'c',
       dryRun: false,
       help: false,
-    }).skippedMultiTurn).toHaveLength(1);
+    }).selected).toHaveLength(1);
   });
 });
 
@@ -64,5 +63,12 @@ describe('estimateRunCost', () => {
     expect(estimate.promptTokens).toBeGreaterThan(0);
     expect(estimate.maxCompletionTokens).toBe(2400);
     expect(estimate.maxTotalTokens).toBe(estimate.promptTokens + 2400);
+  });
+
+  it('counts every turn of a multi-turn question as its own call', () => {
+    // a (1 turn) + b (1 turn) + c (2 turns) = 4 turns
+    const estimate = estimateRunCost(questions, 'corpus', 1, 400);
+    expect(estimate.calls).toBe(4);
+    expect(estimate.maxCompletionTokens).toBe(1600);
   });
 });

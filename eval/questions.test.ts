@@ -43,9 +43,15 @@ describe('loadQuestions', () => {
     expect(() => loadQuestions(`- id: a\n  persona: hiring-bot\n  turns: ["x"]`)).toThrow(/persona/i);
   });
 
-  it('rejects empty turns and more than five turns', () => {
-    expect(() => loadQuestions(`- id: a\n  persona: peer\n  turns: []`)).toThrow(/1 to 5/i);
-    expect(() => loadQuestions(`- id: a\n  persona: peer\n  turns: ["1","2","3","4","5","6"]`)).toThrow(/1 to 5/i);
+  it('rejects empty turns and more than ten turns', () => {
+    expect(() => loadQuestions(`- id: a\n  persona: peer\n  turns: []`)).toThrow(/1 to 10/i);
+    const eleven = Array.from({ length: 11 }, (_, index) => `"${index}"`).join(',');
+    expect(() => loadQuestions(`- id: a\n  persona: peer\n  turns: [${eleven}]`)).toThrow(/1 to 10/i);
+  });
+
+  it('accepts up to ten turns', () => {
+    const ten = Array.from({ length: 10 }, (_, index) => `"turn ${index}"`).join(',');
+    expect(loadQuestions(`- id: a\n  persona: peer\n  turns: [${ten}]`)[0].turns).toHaveLength(10);
   });
 
   it('rejects a blank turn', () => {

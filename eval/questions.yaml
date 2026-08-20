@@ -1,5 +1,6 @@
-# Curated question set. Each entry is 1-5 turns; single-turn is one item.
-# Multi-turn entries are accepted but reported as skipped by the v1 producer.
+# Curated question set. Each entry is 1-10 turns; single-turn is one item.
+# Multi-turn entries run as real conversations: each user turn sees the
+# assistant's replies from the prior turns.
 - id: zocdoc-work
   persona: recruiter
   turns:
@@ -32,7 +33,7 @@
     - "How can I get in touch with Jeremy?"
 - id: multi-turn-facia
   persona: peer
-  notes: multi-turn — skipped by v1 producer
+  notes: multi-turn — the follow-up depends on the first answer
   turns:
     - "What is Jeremy building right now?"
     - "How does Facia relate to that?"

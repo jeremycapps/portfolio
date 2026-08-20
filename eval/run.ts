@@ -13,9 +13,8 @@ import { estimateRunCost, parseRunOptions, selectQuestions } from './run-options
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-async function chat(turns: string[]): Promise<string> {
-  const userMessages: ChatMessage[] = turns.map((content) => ({ role: 'user', content }));
-  const messages = buildMessages(userMessages);
+async function chat(conversation: ChatMessage[]): Promise<string> {
+  const messages = buildMessages(conversation);
   let output = '';
   for await (const delta of streamChat(messages)) output += delta;
   return output;
@@ -53,13 +52,12 @@ async function main(): Promise<void> {
     config.maxOutputTokens,
   );
 
+  const turnCount = selection.selected.reduce((total, question) => total + question.turns.length, 0);
+
   console.log([
-    `eval plan: ${selection.selected.length} question(s) × ${options.samples} sample(s) = ${estimate.calls} call(s)`,
-    `estimated prompt tokens: ${estimate.promptTokens.toLocaleString()} (characters ÷ 4)`,
+    `eval plan: ${selection.selected.length} question(s), ${turnCount} turn(s) × ${options.samples} sample(s) = ${estimate.calls} call(s)`,
+    `estimated prompt tokens: ${estimate.promptTokens.toLocaleString()} (characters ÷ 4, includes per-turn regrowth)`,
     `maximum completion tokens: ${estimate.maxCompletionTokens.toLocaleString()} (${config.maxOutputTokens}/call)`,
-    `multi-turn skipped: ${selection.skippedMultiTurn.length}${selection.skippedMultiTurn.length > 0
-      ? ` (${selection.skippedMultiTurn.map((question) => question.id).join(', ')})`
-      : ''}`,
   ].join('\n'));
 
   if (options.dryRun) return;

@@ -16,15 +16,19 @@ export interface TokenUsageEstimate {
   method: 'chars-div-4';
 }
 
+export interface TurnRecord {
+  user: string;
+  response: string;
+  usageEstimate: TokenUsageEstimate;
+}
+
 export interface TranscriptRecord {
   id: string;
   producer: ProducerKind;
   persona?: Persona;
   model: string;
-  prompt: string;
-  question: string;
-  response: string;
   sample: number;
   timestamp: string;
+  turns: TurnRecord[];
   usageEstimate: TokenUsageEstimate;
 }

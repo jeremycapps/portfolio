@@ -1,9 +1,11 @@
 # Coverage harness — producer (v1)
 
-Runs curated, single-turn questions through the production chat pipeline and
-appends each prompt/response record to a timestamped transcript. Judging and
-coverage scoring are a later cycle; saved records can be judged repeatedly
-without regenerating answers.
+Runs curated questions through the production chat pipeline and appends each
+conversation to a timestamped transcript. Single- and multi-turn questions are
+both supported: a multi-turn entry runs as a real conversation where each user
+turn sees the assistant's replies from the prior turns. Judging and coverage
+scoring are a later cycle; saved records can be judged repeatedly without
+regenerating answers.
 
 ## Estimate before running
 
@@ -29,7 +31,7 @@ variables always take precedence.
 Useful cost controls:
 
 - `--samples <n>` overrides `EVAL_SAMPLES` (default `1`).
-- `--limit <n>` runs only the first `n` eligible questions.
+- `--limit <n>` runs only the first `n` matching questions.
 - `--filter <persona|id>` selects a persona or exact question id.
 - `CHAT_MAX_OUTPUT_TOKENS` controls the shared production/harness output ceiling
   (default `400`).
@@ -41,5 +43,8 @@ estimate. The reports directory is gitignored.
 ## Add questions
 
 Edit `eval/questions.yaml`. Each entry has an `id`, a `persona` (`recruiter`,
-`peer`, or `curious`), one to five `turns`, and optional `notes`. Multi-turn
-entries are accepted and reported as skipped in v1.
+`peer`, or `curious`), one to ten `turns`, and optional `notes`. A multi-turn
+entry runs as a real conversation and is recorded as one transcript record whose
+`turns` array holds each user turn paired with its response. Every turn is a
+separate provider call, so a ten-turn entry costs ten calls and its prompt
+regrows each turn.
