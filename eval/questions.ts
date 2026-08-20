@@ -1,7 +1,8 @@
 import yaml from 'js-yaml';
-import type { Persona, Question } from './types';
+import type { Persona, Question, QuestionPattern } from './types';
 
 const PERSONAS: readonly Persona[] = ['recruiter', 'peer', 'curious'];
+const PATTERNS: readonly QuestionPattern[] = ['atomic', 'composite', 'operational', 'converging'];
 
 function fail(message: string): never {
   throw new Error(`questions.yaml: ${message}`);
@@ -39,6 +40,11 @@ export function loadQuestions(yamlText: string): Question[] {
       }
     });
 
+    if (value.pattern !== undefined
+      && (typeof value.pattern !== 'string' || !PATTERNS.includes(value.pattern as QuestionPattern))) {
+      fail(`id ${id}: pattern must be one of ${PATTERNS.join(', ')} when present`);
+    }
+
     if (value.notes !== undefined && typeof value.notes !== 'string') {
       fail(`id ${id}: notes must be a string when present`);
     }
@@ -48,6 +54,7 @@ export function loadQuestions(yamlText: string): Question[] {
       persona: value.persona as Persona,
       turns: turns as string[],
     };
+    if (typeof value.pattern === 'string') question.pattern = value.pattern as QuestionPattern;
     if (typeof value.notes === 'string') question.notes = value.notes;
     return question;
   });

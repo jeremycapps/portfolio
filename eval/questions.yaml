@@ -1,12 +1,24 @@
 # Curated question set. Each entry is 1-10 turns; single-turn is one item.
 # Multi-turn entries run as real conversations: each user turn sees the
 # assistant's replies from the prior turns.
+#
+# `pattern` (optional) is the answer-shape the question exercises, mapped to
+# Facia answerType roles:
+#   atomic       -> value        a single fact lookup
+#   composite    -> verdict      a yes/no or bounded judgment over facts
+#   operational  -> operation    derive / compare / map across facts
+#   converging   -> convergence  synthesize evidence toward a fit/goal
+# The recruiter coverage set below is deliberately spread across all four.
+
+# --- Seed set (mixed personas) --------------------------------------------
 - id: zocdoc-work
   persona: recruiter
+  pattern: atomic
   turns:
     - "What did Jeremy work on at Zocdoc?"
 - id: accessibility-scope
   persona: recruiter
+  pattern: composite
   notes: probe for overclaiming leadership of the a11y program
   turns:
     - "Did Jeremy lead the accessibility program at Zocdoc?"
@@ -25,6 +37,7 @@
     - "What is Facia?"
 - id: strengths
   persona: recruiter
+  pattern: converging
   turns:
     - "What are Jeremy's strengths as an engineer?"
 - id: contact
@@ -37,3 +50,262 @@
   turns:
     - "What is Jeremy building right now?"
     - "How does Facia relate to that?"
+
+# --- Recruiter coverage: Batch 1 — Career & Zocdoc ------------------------
+- id: zocdoc-role
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What was Jeremy's title and how long was he at Zocdoc?"
+- id: zocdoc-a11y-mandate-role
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What was Jeremy's role in Zocdoc's accessibility mandate?"
+- id: zocdoc-ab-framework-scope
+  persona: recruiter
+  pattern: composite
+  notes: probe — he applied an existing framework, did not design it
+  turns:
+    - "Did Jeremy design Zocdoc's A/B testing framework, or use an existing one?"
+- id: zocdoc-impact
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "What measurable impact did Jeremy have at Zocdoc?"
+- id: zocdoc-after
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What has Jeremy done since leaving Zocdoc?"
+- id: healthcare-domain
+  persona: recruiter
+  pattern: composite
+  notes: probe — Zocdoc is healthtech; don't overstate clinical/regulated depth
+  turns:
+    - "Has Jeremy worked in a regulated or healthcare domain?"
+
+# --- Recruiter coverage: Batch 2 — Design systems & accessibility --------
+- id: ds-components
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "Which components did Jeremy build for Zocdoc's design system?"
+- id: a11y-standard
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What accessibility standard was Zocdoc's design system targeting?"
+- id: a11y-specialist-scope
+  persona: recruiter
+  pattern: composite
+  notes: probe — generalist who worked under a11y requirements, not a specialist
+  turns:
+    - "Is Jeremy an accessibility specialist, or a generalist who has worked under accessibility requirements?"
+- id: ds-adoption
+  persona: recruiter
+  pattern: composite
+  turns:
+    - "Has Jeremy built a component library that other teams actually adopted?"
+- id: ds-compare-figma
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How does Jeremy's Zocdoc design-system work compare to the Figma design system he kicked off as a freelancer?"
+- id: ds-apply-fintech
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How would Jeremy's design-system and accessibility experience apply to building a component library at a fintech?"
+- id: ds-depth
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "Weighing his component ownership, migration workflow, and audit role, how deep is Jeremy's design-systems expertise?"
+- id: ds-role-level
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "Based on his design-system experience, what level of design-systems role is Jeremy ready for?"
+
+# --- Recruiter coverage: Batch 3 — Current work (Aroko, Domain/Corus, Tempo)
+- id: aroko-role
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What is Jeremy's current role at Aroko?"
+- id: domain-corus-what
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What is Domain / Corus?"
+- id: domain-corus-scope
+  persona: recruiter
+  pattern: composite
+  notes: probe — frame as an independent prototype, not a deployed/validated product
+  turns:
+    - "Is Domain/Corus a production system or a prototype?"
+- id: current-role-nature
+  persona: recruiter
+  pattern: composite
+  notes: probe — Head of Operations + technical director; leadership is project-based, not people-management
+  turns:
+    - "Is Jeremy currently in a hands-on engineering role or an operations role?"
+- id: aroko-builds-on
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How does Jeremy's operations and delivery work at Aroko build on his earlier engineering roles?"
+- id: tempo-domain-relation
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How do Tempo and Domain/Corus relate architecturally?"
+- id: career-direction
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "Given his shift from IC engineering into operations and prototyping, where is Jeremy's career heading?"
+- id: ships-production-still
+  persona: recruiter
+  pattern: converging
+  notes: probe — balance current prototyping against his production engineering track record
+  turns:
+    - "Do Jeremy's current projects show he can still ship production engineering, or is he mostly prototyping now?"
+
+# --- Recruiter coverage: Batch 4 — Earlier career & breadth --------------
+- id: applied-software-work
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What did Jeremy build at Applied Software?"
+- id: integrations-built
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "Which product integrations did Jeremy build on 360Sync?"
+- id: genesco-work
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What did Jeremy do at Genesco?"
+- id: weill-cornell-work
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What did Jeremy build for Weill Cornell Medicine?"
+- id: legacy-modernization-depth
+  persona: recruiter
+  pattern: composite
+  turns:
+    - "Has Jeremy done real legacy-modernization work, or only greenfield projects?"
+- id: backend-experience
+  persona: recruiter
+  pattern: composite
+  notes: probe — he has C#/.NET and REST API experience; not frontend-only
+  turns:
+    - "Does Jeremy have backend and API experience, or is he frontend-only?"
+- id: career-arc
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How has Jeremy's focus shifted across his roles from 2017 to now?"
+- id: breadth-vs-depth
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "Across his roles, is Jeremy more of a specialist or a broad generalist?"
+
+# --- Recruiter coverage: Batch 5 — Skills, stack & technical range -------
+- id: primary-stack
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What is Jeremy's primary technical stack?"
+- id: languages-known
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "Which programming languages has Jeremy worked in professionally?"
+- id: react-ts-depth
+  persona: recruiter
+  pattern: composite
+  turns:
+    - "How strong is Jeremy with TypeScript and React specifically?"
+- id: ai-agentic-experience
+  persona: recruiter
+  pattern: composite
+  notes: probe — his AI/agentic work is prototype/architecture, not shipped production ML
+  turns:
+    - "Does Jeremy have real AI and agentic engineering experience, or just interest?"
+- id: frontend-to-systems
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How does Jeremy's frontend work connect to his systems and context-architecture work?"
+- id: stack-fit-role
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How well would Jeremy's stack fit a TypeScript-heavy full-stack product role?"
+- id: strongest-technical-area
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "What is Jeremy's strongest technical area?"
+- id: ramp-new-stack
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "Based on his history, how quickly could Jeremy ramp on a stack he hasn't used?"
+
+# --- Recruiter coverage: Batch 6 — Working style, delivery & collaboration
+- id: delivery-process
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What delivery and process improvements has Jeremy introduced?"
+- id: collaboration-style
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "Who does Jeremy typically collaborate with across a project?"
+- id: leadership-scope
+  persona: recruiter
+  pattern: composite
+  notes: probe — leadership is project/contributor-level, not formal people-management
+  turns:
+    - "Has Jeremy managed people, or is his leadership project-based?"
+- id: process-impact
+  persona: recruiter
+  pattern: operational
+  turns:
+    - "How did Jeremy's process changes translate into measurable outcomes?"
+- id: working-style-fit
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "What kind of team and role would suit Jeremy's working style?"
+
+# --- Recruiter coverage: Batch 7 — Fit, logistics & recruiter-close ------
+- id: roles-targeting
+  persona: recruiter
+  pattern: atomic
+  turns:
+    - "What kinds of roles is Jeremy looking for?"
+- id: salary-availability
+  persona: recruiter
+  pattern: composite
+  notes: gap probe — salary/availability aren't in the profile; expect a plain "don't know" + offer to connect
+  turns:
+    - "What are Jeremy's salary expectations and availability?"
+- id: seniority-level
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "What seniority level is Jeremy a fit for?"
+- id: why-hire
+  persona: recruiter
+  pattern: converging
+  turns:
+    - "Why should a team hire Jeremy?"

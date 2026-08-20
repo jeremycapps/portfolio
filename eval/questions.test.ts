@@ -61,4 +61,11 @@ describe('loadQuestions', () => {
   it('rejects non-string notes', () => {
     expect(() => loadQuestions(`- id: a\n  persona: peer\n  notes: 42\n  turns: ["x"]`)).toThrow(/notes/i);
   });
+
+  it('parses an optional pattern and rejects an unknown one', () => {
+    const parsed = loadQuestions(`- id: a\n  persona: recruiter\n  pattern: converging\n  turns: ["x"]`);
+    expect(parsed[0].pattern).toBe('converging');
+    expect(() => loadQuestions(`- id: a\n  persona: recruiter\n  pattern: rambling\n  turns: ["x"]`))
+      .toThrow(/pattern/i);
+  });
 });

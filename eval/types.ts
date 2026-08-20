@@ -1,8 +1,14 @@
 export type Persona = 'recruiter' | 'peer' | 'curious';
 
+// Answer-shape a question is meant to exercise, mapped to Facia's answerType
+// roles: atomic=value, composite=verdict, operational=operation,
+// converging=convergence. Lets coverage be reported by pattern, not just persona.
+export type QuestionPattern = 'atomic' | 'composite' | 'operational' | 'converging';
+
 export interface Question {
   id: string;
   persona: Persona;
+  pattern?: QuestionPattern;
   notes?: string;
   turns: string[];
 }
