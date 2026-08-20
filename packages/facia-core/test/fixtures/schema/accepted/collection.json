@@ -1,0 +1,37 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Who owns the open tasks?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Value",
+      "payload": { "owner": "Ada", "task": "contract" },
+      "value": "Ada",
+      "fields": {
+        "priority": {
+          "primary": ["owner", "task"],
+          "secondary": [],
+          "supporting": [],
+          "audit": []
+        }
+      }
+    },
+    {
+      "type": "Value",
+      "payload": { "owner": "Grace", "task": "resolver" },
+      "value": "Grace",
+      "fields": {
+        "priority": {
+          "primary": ["owner", "task"],
+          "secondary": [],
+          "supporting": [],
+          "audit": []
+        }
+      }
+    }
+  ],
+  "operations": []
+}

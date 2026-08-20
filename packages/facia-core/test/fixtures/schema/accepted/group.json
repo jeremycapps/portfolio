@@ -1,0 +1,40 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Which operations are grouped for release?",
+  "answerType": "operation",
+  "path": "execution",
+  "inspection": "available",
+  "actionable": true,
+  "items": [
+    {
+      "type": "Operation",
+      "payload": { "lane": "prepare" },
+      "operation": { "id": "prepare", "name": "Prepare" },
+      "input": { "draft": 1 },
+      "output": { "candidate": 1 }
+    },
+    {
+      "type": "Operation",
+      "payload": { "lane": "publish" },
+      "operation": { "id": "publish", "name": "Publish" },
+      "input": { "candidate": 1 },
+      "output": { "release": 1 }
+    }
+  ],
+  "operations": [
+    {
+      "id": "prepare",
+      "label": "Prepare candidate",
+      "invocation": "model-operation",
+      "reference": "release.prepare"
+    },
+    {
+      "id": "publish",
+      "label": "Publish release",
+      "invocation": "host-callback",
+      "reference": "release.publish",
+      "confirmation": "Publish this release?"
+    }
+  ],
+  "structure": "group"
+}

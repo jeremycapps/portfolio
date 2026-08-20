@@ -1,0 +1,17 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Mismatch?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Verdict",
+      "contract": "LegacyBooleanVerdictV0",
+      "payload": {},
+      "conforms": true
+    }
+  ],
+  "operations": []
+}

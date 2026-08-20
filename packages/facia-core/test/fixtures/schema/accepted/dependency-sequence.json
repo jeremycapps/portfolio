@@ -1,0 +1,15 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Which steps depend on each other?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    { "type": "Value", "payload": { "step": "build", "dependsOn": [] }, "value": "build" },
+    { "type": "Value", "payload": { "step": "publish", "dependsOn": ["build"] }, "value": "publish" }
+  ],
+  "operations": [],
+  "structure": "sequence",
+  "sequenceKind": "dependency"
+}

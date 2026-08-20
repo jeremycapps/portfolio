@@ -3,10 +3,17 @@ import { Check, ChevronRight, FileText, Menu, Mic, Paperclip, Search, Send, Slac
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
+import { SemanticSurface } from '@/components/facia/semantic-surface';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
+import {
+  AnswerApiError,
+  sendStructuredAnswer,
+  type StructuredAnswerResponse,
+} from '@/lib/answer';
 import { sendChat, type ClientMessage } from '@/lib/chat';
+import type { DisclosureDepth } from '@facia/core';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
@@ -24,9 +31,11 @@ function Home() {
   const [statusTone, setStatusTone] = useState<'normal' | 'error' | 'success'>('normal');
   const [toastMessage, setToastMessage] = useState('');
   const [messages, setMessages] = useState<ClientMessage[]>([]);
+  const [structuredAnswer, setStructuredAnswer] = useState<StructuredAnswerResponse | null>(null);
+  const [structuredQuestion, setStructuredQuestion] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
-  const hasConversation = messages.length > 0;
+  const hasConversation = messages.length > 0 || structuredAnswer !== null;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -53,15 +62,31 @@ function Home() {
 
     setStatusMessage('');
     setChatError(null);
-    const next: ClientMessage[] = [...messages, { role: 'user', content: cleanPrompt }];
-    // Add an empty assistant message we stream into.
-    setMessages([...next, { role: 'assistant', content: '' }]);
     setPrompt('');
     setStreaming(true);
 
     const controller = new AbortController();
     abortRef.current = controller;
     try {
+      if (messages.length === 0) {
+        try {
+          const answer = await sendStructuredAnswer(cleanPrompt, 'glance', controller.signal);
+          setStructuredQuestion(cleanPrompt);
+          setStructuredAnswer(answer);
+          setMessages([]);
+          return;
+        } catch (error) {
+          if (!(error instanceof AnswerApiError) || error.code !== 'QUESTION_NOT_MODELED') {
+            throw error;
+          }
+        }
+      }
+
+      setStructuredAnswer(null);
+      setStructuredQuestion('');
+      const next: ClientMessage[] = [...messages, { role: 'user', content: cleanPrompt }];
+      // Add an empty assistant message only after the deterministic route declines the question.
+      setMessages([...next, { role: 'assistant', content: '' }]);
       await sendChat(next, {
         signal: controller.signal,
         onDelta: (t) =>
@@ -85,6 +110,23 @@ function Home() {
       setMessages((cur) =>
         cur[cur.length - 1]?.content === '' ? cur.slice(0, -1) : cur,
       );
+    } finally {
+      setStreaming(false);
+    }
+  };
+
+  const handleDepthChange = async (depth: DisclosureDepth) => {
+    if (!structuredQuestion) return;
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setStreaming(true);
+    try {
+      const answer = await sendStructuredAnswer(structuredQuestion, depth, controller.signal);
+      setStructuredAnswer(answer);
+      setChatError(null);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      setChatError(error instanceof Error ? error.message : 'Could not change disclosure depth.');
     } finally {
       setStreaming(false);
     }
@@ -180,12 +222,25 @@ function Home() {
             <button
               className="chat-reset"
               type="button"
-              onClick={() => { abortRef.current?.abort(); setMessages([]); setChatError(null); }}
+              onClick={() => {
+                abortRef.current?.abort();
+                setMessages([]);
+                setStructuredAnswer(null);
+                setStructuredQuestion('');
+                setChatError(null);
+              }}
               data-testid="button-new-chat"
             >
               New chat
             </button>
-            <ChatView messages={messages} streaming={streaming} error={chatError} />
+            {structuredAnswer ? (
+              <>
+                <SemanticSurface recipe={structuredAnswer.recipe} onDepthChange={handleDepthChange} />
+                {chatError && <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>}
+              </>
+            ) : (
+              <ChatView messages={messages} streaming={streaming} error={chatError} />
+            )}
           </>
         )}
 

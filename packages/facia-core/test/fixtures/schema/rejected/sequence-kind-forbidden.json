@@ -1,0 +1,15 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Dimension?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [
+    { "type": "Value", "payload": {}, "value": 1 },
+    { "type": "Value", "payload": {}, "value": 2 }
+  ],
+  "operations": [],
+  "structure": "dimension",
+  "sequenceKind": "temporal"
+}

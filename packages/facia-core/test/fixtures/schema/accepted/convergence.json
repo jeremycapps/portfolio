@@ -1,0 +1,26 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Are the plans converging?",
+  "answerType": "convergence",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Convergence",
+      "payload": { "gap": 0 },
+      "state": "reached",
+      "goal": "aligned",
+      "from": "draft",
+      "to": "aligned"
+    }
+  ],
+  "operations": [],
+  "trace": {
+    "kind": "direct",
+    "id": "trace-1",
+    "entries": [
+      { "step": "compare", "value": { "gap": 0 } }
+    ]
+  }
+}

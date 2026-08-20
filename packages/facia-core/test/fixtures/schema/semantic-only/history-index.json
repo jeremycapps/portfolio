@@ -1,0 +1,36 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "How did the values evolve?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    { "type": "Value", "payload": { "value": 1 }, "value": 1 },
+    { "type": "Value", "payload": { "value": 2 }, "value": 2 }
+  ],
+  "operations": [],
+  "structure": "sequence",
+  "sequenceKind": "trace",
+  "trace": {
+    "kind": "history",
+    "records": [
+      {
+        "itemIndex": 1,
+        "trace": {
+          "kind": "direct",
+          "id": "trace-1",
+          "entries": [{ "step": "read", "value": 2 }]
+        }
+      },
+      {
+        "itemIndex": 0,
+        "trace": {
+          "kind": "direct",
+          "id": "trace-0",
+          "entries": [{ "step": "read", "value": 1 }]
+        }
+      }
+    ]
+  }
+}

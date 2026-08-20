@@ -1,0 +1,15 @@
+[
+  { "fixture": "value", "shape": "singular-value", "pattern": "detail", "reason": "PATTERN_DENSE_VALUE" },
+  { "fixture": "structured-value", "shape": "singular-value", "pattern": "compact-card", "reason": "PATTERN_COMPACT_OBJECT" },
+  { "fixture": "legacy-verdict", "shape": "singular-verdict", "pattern": "detail", "reason": "PATTERN_ABSENT_VERDICT" },
+  { "fixture": "actionable-verdict", "shape": "singular-verdict", "pattern": "review-panel", "reason": "PATTERN_ACTIONABLE_VERDICT" },
+  { "fixture": "operation", "shape": "singular-operation", "pattern": "action-panel", "reason": "PATTERN_ACTIONABLE_OPERATION" },
+  { "fixture": "convergence", "shape": "singular-convergence", "pattern": "convergence-panel", "reason": "PATTERN_CONVERGENCE_PANEL" },
+  { "fixture": "collection", "shape": "collection", "pattern": "list", "reason": "PATTERN_COLLECTION_LIST" },
+  { "fixture": "dimension", "shape": "dimension", "pattern": "comparison-matrix", "reason": "PATTERN_DIMENSION_MATRIX" },
+  { "fixture": "group", "shape": "group", "pattern": "board", "reason": "PATTERN_OPERATION_BOARD" },
+  { "fixture": "temporal-sequence", "shape": "temporal-sequence", "pattern": "timeline", "reason": "PATTERN_TEMPORAL_TIMELINE" },
+  { "fixture": "dependency-sequence", "shape": "dependency-sequence", "pattern": "dependency-tree", "reason": "PATTERN_DEPENDENCY_ABSENT_TREE" },
+  { "fixture": "trace-sequence", "shape": "trace-sequence", "pattern": "audit-trail", "reason": "PATTERN_TRACE_AUDIT" },
+  { "fixture": "convergence-history", "shape": "trace-sequence", "pattern": "audit-trail", "reason": "PATTERN_TRACE_AUDIT" }
+]

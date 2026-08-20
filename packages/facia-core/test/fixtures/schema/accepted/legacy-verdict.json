@@ -1,0 +1,18 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Does it conform?",
+  "answerType": "verdict",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Verdict",
+      "contract": "LegacyBooleanVerdictV0",
+      "payload": {},
+      "conforms": true,
+      "reason": "All checks passed"
+    }
+  ],
+  "operations": []
+}

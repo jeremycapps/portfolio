@@ -1,0 +1,13 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Which operation?",
+  "answerType": "value",
+  "path": "execution",
+  "inspection": "none",
+  "actionable": true,
+  "items": [{ "type": "Value", "payload": {}, "value": true }],
+  "operations": [
+    { "id": "same", "label": "First", "invocation": "model-operation", "reference": "first" },
+    { "id": "same", "label": "Second", "invocation": "model-operation", "reference": "second" }
+  ]
+}

@@ -58,12 +58,13 @@ export function clientId(request: Request): string {
 export async function checkRateLimit(
   request: Request,
   deps: RateLimitDeps = {},
+  scope = 'chat',
 ): Promise<RateLimitResult> {
   const limiter = deps.limiter !== undefined ? deps.limiter : envLimiter();
   if (!limiter) return { ok: true }; // disabled / unconfigured → allow
 
   const now = deps.now ?? (() => Date.now());
-  const { success, reset } = await limiter.limit(clientId(request));
+  const { success, reset } = await limiter.limit(`${scope}:${clientId(request)}`);
   if (success) return { ok: true };
 
   const retryAfter = Math.max(1, Math.ceil((reset - now()) / 1000));

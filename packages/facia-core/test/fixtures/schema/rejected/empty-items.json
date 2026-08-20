@@ -1,0 +1,10 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Empty?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [],
+  "operations": []
+}

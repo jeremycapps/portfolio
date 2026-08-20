@@ -1,0 +1,12 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Can this run?",
+  "answerType": "value",
+  "path": "execution",
+  "inspection": "none",
+  "actionable": true,
+  "items": [{ "type": "Value", "payload": {}, "value": true }],
+  "operations": [
+    { "id": "run", "label": "Run", "invocation": "host-callback" }
+  ]
+}

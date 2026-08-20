@@ -1,0 +1,36 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "How did the plans converge?",
+  "answerType": "convergence",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    { "type": "Convergence", "payload": { "gap": 2 }, "state": "converging" },
+    { "type": "Convergence", "payload": { "gap": 0 }, "state": "reached" }
+  ],
+  "operations": [],
+  "structure": "sequence",
+  "sequenceKind": "trace",
+  "trace": {
+    "kind": "history",
+    "records": [
+      {
+        "itemIndex": 0,
+        "trace": {
+          "kind": "direct",
+          "id": "plan-0",
+          "entries": [{ "step": "compare", "value": { "gap": 2 } }]
+        }
+      },
+      {
+        "itemIndex": 1,
+        "trace": {
+          "kind": "direct",
+          "id": "plan-1",
+          "entries": [{ "step": "compare", "value": { "gap": 0 } }]
+        }
+      }
+    ]
+  }
+}

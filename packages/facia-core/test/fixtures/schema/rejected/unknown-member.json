@@ -1,0 +1,12 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Unknown?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [
+    { "type": "Value", "payload": {}, "value": true, "extra": 1 }
+  ],
+  "operations": []
+}

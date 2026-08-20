@@ -1,0 +1,16 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "How did ownership change over time?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    { "type": "Value", "payload": { "owner": "Ada", "at": "2026-08-18" }, "value": "Ada" },
+    { "type": "Value", "payload": { "owner": "Grace", "at": "2026-08-19" }, "value": "Grace" }
+  ],
+  "operations": [],
+  "structure": "sequence",
+  "sequenceKind": "temporal",
+  "density": 1
+}

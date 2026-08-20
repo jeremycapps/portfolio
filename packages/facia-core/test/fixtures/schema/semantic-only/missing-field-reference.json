@@ -1,0 +1,24 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Which fields?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Value",
+      "payload": {},
+      "value": null,
+      "fields": {
+        "priority": {
+          "primary": ["missing"],
+          "secondary": [],
+          "supporting": [],
+          "audit": []
+        }
+      }
+    }
+  ],
+  "operations": []
+}

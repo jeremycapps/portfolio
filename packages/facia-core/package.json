@@ -1,0 +1,37 @@
+{
+  "name": "@facia/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic, renderer-neutral AnswerSet v2 validation and recipe resolution.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/facia-answer-set.v2.schema.json": "./schemas/facia-answer-set.v2.schema.json",
+    "./schemas/facia-answer-set.v2.pin.json": "./schemas/facia-answer-set.v2.pin.json"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run --config vitest.config.ts",
+    "test:types": "tsc -p tsconfig.type-tests.json",
+    "schema:pin": "node scripts/schema-pin.mjs --write",
+    "schema:pin:check": "node scripts/schema-pin.mjs --check"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "What changed?",
+  "answerType": "operation",
+  "path": "execution",
+  "inspection": "available",
+  "actionable": true,
+  "items": [
+    {
+      "type": "Operation",
+      "payload": { "status": "complete" },
+      "operation": { "id": "op-1", "name": "Publish" },
+      "input": { "draft": 1 },
+      "output": { "published": 1 },
+      "before": null,
+      "after": true,
+      "evidence": ["receipt-1"]
+    }
+  ],
+  "operations": [
+    {
+      "id": "retry",
+      "label": "Retry publish",
+      "invocation": "model-operation",
+      "reference": "publish.retry",
+      "inputSchema": { "type": "object" },
+      "confirmation": "Retry this publish?"
+    }
+  ]
+}

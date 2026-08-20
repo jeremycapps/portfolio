@@ -8,6 +8,12 @@ experiment from a five-fixture toy into something running on personal data.
 This is not a rewrite. Today's chat is already a working *control*. The plan
 below keeps it live and grows the deterministic core underneath it.
 
+**Implementation status (2026-08-20):** the first Facia v2 vertical slice is
+now in this repository. `@facia/core` is vendored as a workspace package,
+`POST /api/answer` resolves the declared Zocdoc question, and the React client
+renders the returned recipe at glance/inspect/focus/audit depth. `/api/chat`
+remains the Method-A fallback and control.
+
 ---
 
 ## 1. Why this site is the right testbed
@@ -57,8 +63,8 @@ The portfolio slots straight in:
 | `content/profile.md` (flat prose) | **`@jeremy/context`** — a model **Package**: Pages, one per experience unit, carrying evidence and provenance |
 | The résumé KB's `evidence_status` / claim tiers / `avoid_overclaiming` | **Domain** contracts + **Verdicts** (executable guardrails, not prose hopes) |
 | A user question ("what did Jeremy build at Zocdoc?") | A declared **question model** evaluated against the package |
-| The streamed free-text answer | A **Facia AnswerSet** (`facia.answer-set/1`) rendered as a typed surface |
-| `/api/chat` (the boundary) | A Libera **Deployment**: a versioned package behind a usable boundary |
+| The streamed free-text answer | A **Facia AnswerSet** (`facia.answer-set/2`) rendered as a typed surface |
+| `/api/chat` (control) and `/api/answer` (Facia) | A Libera **Deployment**: a versioned package behind a usable boundary |
 | The chat UI | The **Facia** surface — shape/pattern/affordance resolvers + renderer recipes |
 
 The résumé KB is the unlock here. It *already* has the structure Domain wants —
@@ -79,23 +85,25 @@ Facia's release seam (`worktrees/.../docs/facia-contract.md`) is the discipline
 to hold onto: the **AnswerSet is the single serialized boundary** between
 "a question was answered by a model" and "render it as an interface."
 
-`facia.answer-set/1` (from the schema) already has exactly the fields a portfolio
+`facia.answer-set/2` (from the schema) has exactly the fields a portfolio
 answer needs:
 
-- `answerType`: `value` | `verdict` | `transform`
+- `answerType`: `value` | `verdict` | `operation` | `convergence`
 - `path`: `meaning` | `execution`
-- `items[]`: `Value` (with `evidence`), `Verdict` (`BoundedVerdictV1` /
-  `LegacyBooleanVerdictV0`), `Transform`
+- `items[]`: `Value`, `Verdict`, `Operation`, or `Convergence`, with item-local
+  payloads, evidence, field priority, and conditional promotion
 - `structure`: `dimension` | `group` | `sequence` (+ `sequenceKind`:
   `temporal` | `dependency` | `trace`)
 - `inspection`: `none` | `available`
 - `operations[]`: `model-operation` | `host-callback` (e.g. "Email Jeremy",
   "Open the repo")
-- `trace`: the addressed write log
+- `trace`: direct or item-correlated history provenance
+- consumer resolution context: cumulative `glance` | `inspect` | `focus` |
+  `audit` disclosure depth
 
 A career-timeline answer is a `sequence`/`temporal` of `Value` items each with
 `evidence`; a "does Jeremy have X?" answer is a `Verdict`; "contact him" is a
-`Transform`/`operation`. **The boundary rule must be respected**: Libera
+an `Operation`. **The boundary rule must be respected**: Libera
 evaluates the Domain model and normalizes a completed answer through
 `facia_bridge/`; Facia only resolves and renders it. Libera never renders; Facia
 never evaluates.
@@ -122,17 +130,23 @@ corpus's question shapes ("what did X build at Y", "skills in Z", "how to reach
 him", "is X true about him") onto evaluations over the package, each emitting an
 AnswerSet. This is where "meaning" becomes deterministic.
 
-**Phase 3 — The Facia surface.** Add a `facia_bridge` step server-side and swap
-the chat's free-text rendering for **typed answer cards**: `Value` items show
-their evidence; `Verdict`s show state/finding; `operations` become buttons. Add
-an **"inspect" affordance** (`inspection: available`) that reveals the trace —
-*which claim, from which source, at what evidence tier*. This is the visible
-payoff: an answer you can point at.
+**Phase 3a — The Facia surface (first slice done).** The pinned Facia v2 runtime
+now resolves a checked-in Zocdoc AnswerSet through a separate Node endpoint.
+The UI renders the recipe and exposes cumulative disclosure depth, evidence,
+and trace inspection. Unsupported questions explicitly fall through to the
+unchanged chat path.
 
-**Phase 4 — Deployment semantics.** Treat `/api/chat` as a real Libera
-Deployment: pin the live package version, support rollback, record what inputs
-are accepted and what state is admitted. The provider-swap abstraction already
-here (`api/_lib/provider.ts`) is the right shape to extend.
+**Phase 3b — Libera-produced answers.** Migrate `facia_bridge/` into Libera's
+Domain layer, update it to the v2 schema and pin, and replace the checked-in
+portfolio source with released Libera-generated AnswerSets. Because Mojo does
+not run inside the current Vercel function, begin with build-time JSON artifacts
+before introducing a separately deployed Libera service.
+
+**Phase 4 — Deployment semantics.** Treat `/api/answer` as the deterministic
+Libera Deployment while `/api/chat` remains the control: pin the live package
+version, support rollback, and record what inputs and state are admitted. The
+provider-swap abstraction already here (`api/_lib/provider.ts`) remains the
+right shape for the free-text path.
 
 **Phase 5 — Demote the LLM (the key move).** The model becomes the source of
 *meaning*; the LLM is pushed to the **edges only**:
@@ -186,13 +200,14 @@ one only *personal* data with real reputational stakes can motivate.
 
 Pick the **corpus** and freeze the control:
 
-1. Write down ~10 real questions a visitor would ask this site.
+1. Expand the first modeled Zocdoc question into a fixed corpus of ~10 real
+   questions a visitor would ask this site.
 2. Run each against today's live chat; save the answers as the Method-A baseline
    (this is the portfolio's `prompt-only/runs/`).
-3. In `libera`, author the **first** experience unit (say, Zocdoc) as a Page in
-   `@jeremy/context`, with its `Value`s and evidence, and one question model
-   ("what did Jeremy build at Zocdoc?") that emits an AnswerSet.
-4. Diff the AnswerSet-rendered answer against the Method-A baseline on the six
+3. In `libera`, replace the repository's profile-grounded Zocdoc fixture with a
+   Page in `@jeremy/context`, its evidence-bound `Value`s, and the equivalent
+   declared question model emitting the pinned v2 AnswerSet.
+4. Diff the Facia-rendered answer against the Method-A baseline on the six
    rows above.
 
 If that single unit reproduces the experiment's result on real data, the rest of

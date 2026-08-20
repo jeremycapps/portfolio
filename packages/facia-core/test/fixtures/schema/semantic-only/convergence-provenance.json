@@ -1,0 +1,12 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Converged?",
+  "answerType": "convergence",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [
+    { "type": "Convergence", "payload": {}, "state": "stalled" }
+  ],
+  "operations": []
+}

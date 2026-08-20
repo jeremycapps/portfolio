@@ -1,0 +1,25 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "How do the reviews compare?",
+  "answerType": "verdict",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Verdict",
+      "contract": "BoundedVerdictV1",
+      "payload": { "review": "security", "score": 3 },
+      "state": "accepted"
+    },
+    {
+      "type": "Verdict",
+      "contract": "BoundedVerdictV1",
+      "payload": { "review": "usability", "score": 2 },
+      "state": "changes-requested"
+    }
+  ],
+  "operations": [],
+  "structure": "dimension",
+  "density": 3
+}

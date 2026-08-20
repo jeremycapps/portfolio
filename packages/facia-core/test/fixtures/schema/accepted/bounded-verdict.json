@@ -1,0 +1,20 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "What is the review state?",
+  "answerType": "verdict",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Verdict",
+      "contract": "BoundedVerdictV1",
+      "payload": { "policy": "safe" },
+      "state": "accepted",
+      "conforms": true,
+      "expected": { "policy": "safe" },
+      "actual": { "policy": "safe" }
+    }
+  ],
+  "operations": []
+}

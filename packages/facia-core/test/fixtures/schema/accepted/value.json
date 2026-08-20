@@ -1,0 +1,35 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "What should be shown?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Value",
+      "payload": {
+        "name": "Ada",
+        "active": false,
+        "details": ["mathematician"]
+      },
+      "value": "Ada",
+      "evidence": { "source": "record" },
+      "fields": {
+        "priority": {
+          "primary": ["name"],
+          "secondary": ["active"],
+          "supporting": ["details"],
+          "audit": []
+        },
+        "promotion": [
+          { "when": { "field": "active", "isFalse": true }, "promote": ["active"] },
+          { "when": { "field": "details", "isNonEmpty": true }, "promote": ["details"] },
+          { "when": { "field": "name", "equals": "Ada" }, "promote": ["name"] }
+        ]
+      }
+    }
+  ],
+  "operations": [],
+  "density": 2
+}

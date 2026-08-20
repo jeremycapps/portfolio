@@ -1,0 +1,16 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Retired?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Value",
+      "payload": { "nested": { "transform": "forbidden" } },
+      "value": true
+    }
+  ],
+  "operations": []
+}

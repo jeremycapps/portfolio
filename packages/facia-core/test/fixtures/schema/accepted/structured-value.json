@@ -1,0 +1,17 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "What is the release summary?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "none",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Value",
+      "payload": { "release": "v2" },
+      "value": { "name": "v2", "ready": true }
+    }
+  ],
+  "operations": [],
+  "density": 1
+}

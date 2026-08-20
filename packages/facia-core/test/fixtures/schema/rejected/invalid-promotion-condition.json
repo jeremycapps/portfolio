@@ -1,0 +1,30 @@
+{
+  "schema": "facia.answer-set/2",
+  "question": "Promote?",
+  "answerType": "value",
+  "path": "meaning",
+  "inspection": "available",
+  "actionable": false,
+  "items": [
+    {
+      "type": "Value",
+      "payload": { "status": false },
+      "value": false,
+      "fields": {
+        "priority": {
+          "primary": [],
+          "secondary": ["status"],
+          "supporting": [],
+          "audit": []
+        },
+        "promotion": [
+          {
+            "when": { "field": "status", "isFalse": true, "isNonEmpty": true },
+            "promote": ["status"]
+          }
+        ]
+      }
+    }
+  ],
+  "operations": []
+}

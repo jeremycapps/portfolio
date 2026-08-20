@@ -21,9 +21,16 @@ describe('checkRateLimit', () => {
   });
 
   it('allows when the limiter reports success', async () => {
-    const limiter: RateLimiter = { limit: async () => ({ success: true, reset: 0 }) };
-    const r = await checkRateLimit(req(), { limiter });
+    let key = '';
+    const limiter: RateLimiter = {
+      limit: async (id) => {
+        key = id;
+        return { success: true, reset: 0 };
+      },
+    };
+    const r = await checkRateLimit(req({ 'x-real-ip': '1.2.3.4' }), { limiter }, 'answer');
     expect(r.ok).toBe(true);
+    expect(key).toBe('answer:1.2.3.4');
   });
 
   it('blocks with a rounded-up retryAfter when the limiter reports failure', async () => {

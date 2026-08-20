@@ -1,0 +1,5 @@
+{
+  "schema": "facia.answer-set/2",
+  "packagePath": "@facia/core/schemas/facia-answer-set.v2.schema.json",
+  "sha256": "0fa2230a3db63be2684230c9e8b9da490b8705033974afd155856b28388dc45b"
+}
