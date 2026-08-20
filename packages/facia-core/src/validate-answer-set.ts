@@ -1,5 +1,5 @@
 import type { ErrorObject } from "ajv";
-import { Ajv2020 } from "ajv/dist/2020.js";
+import * as Ajv2020Module from "ajv/dist/2020.js";
 
 import answerSetSchema from "../schemas/facia-answer-set.v2.schema.json" with {
   type: "json",
@@ -13,6 +13,11 @@ import type {
   ValidationErrorCode,
   ValidationResult,
 } from "./answer-set-v2.js";
+
+type Ajv2020Constructor = typeof import("ajv/dist/2020.js").default;
+const Ajv2020 = (
+  Ajv2020Module as unknown as { default: Ajv2020Constructor }
+).default;
 
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 const validateCanonicalSchema = ajv.compile(answerSetSchema);
