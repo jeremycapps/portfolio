@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import answerSetSchema from "../src/answer-set-schema.generated.js";
 import {
   ANSWER_SET_SCHEMA_ID,
   ANSWER_SET_SCHEMA_PACKAGE_PATH,
@@ -64,7 +63,6 @@ describe("AnswerSet schema pin", () => {
     expect(ANSWER_SET_SCHEMA_ID).toBe(checkedIn.schema);
     expect(ANSWER_SET_SCHEMA_PACKAGE_PATH).toBe(checkedIn.packagePath);
     expect(ANSWER_SET_SCHEMA_SHA256).toBe(computed);
-    expect(answerSetSchema).toEqual(JSON.parse(schemaBytes.toString("utf8")));
   });
 
   it("would detect any schema-byte change while the recorded pin remains stale", () => {

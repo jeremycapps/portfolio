@@ -22,6 +22,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
+    "pretest": "npm run schema:pin:check",
     "test": "vitest run --config vitest.config.ts",
     "test:types": "tsc -p tsconfig.type-tests.json",
     "schema:pin": "node scripts/schema-pin.mjs --write",
