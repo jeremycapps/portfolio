@@ -11,3 +11,9 @@ export function streamChat(messages: ChatMessage[], deps?: StreamDeps): AsyncGen
       throw new Error(`unknown CHAT_PROVIDER: ${provider}`);
   }
 }
+
+export async function collectChat(messages: ChatMessage[], deps?: StreamDeps): Promise<string> {
+  let output = '';
+  for await (const chunk of streamChat(messages, deps)) output += chunk;
+  return output;
+}

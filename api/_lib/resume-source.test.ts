@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { prerank, tokenize, type RankedBullet } from './resume-source';
+import {
+  assembleResume,
+  computeProvenance,
+  parseIdList,
+  prerank,
+  selectBullets,
+  summarize,
+  tokenize,
+  type RankedBullet,
+  type ResumeView,
+} from './resume-source';
 import { loadResumeCorpus } from './resume-corpus';
 import type { ResumeCorpus } from './resume-corpus';
 
@@ -93,5 +103,159 @@ describe('prerank', () => {
     for (const r of prerank('operations', corpus)) {
       expect(r.text).toBe(byId.get(r.bulletId));
     }
+  });
+});
+
+describe('parseIdList', () => {
+  it('parses a JSON array of strings, ignoring surrounding prose', () => {
+    expect(parseIdList('Here you go: ["ops.b1", "fe.b1"] done')).toEqual(['ops.b1', 'fe.b1']);
+  });
+
+  it('returns an empty list on garbage', () => {
+    expect(parseIdList('no json here')).toEqual([]);
+  });
+});
+
+describe('selectBullets', () => {
+  const ranked = prerank('anything', CORPUS);
+
+  it('uses deterministic order when no model is configured', async () => {
+    const result = await selectBullets('job', CORPUS, ranked, { hasModel: false });
+    expect(result.engine).toBe('deterministic');
+    expect(result.orderedBulletIds).toEqual(ranked.map((bullet) => bullet.bulletId));
+  });
+
+  it('honors model-returned known ids and marks engine model', async () => {
+    const result = await selectBullets('job', CORPUS, ranked, {
+      hasModel: true,
+      collect: async () => '["fe.b1", "ops.b1"]',
+    });
+    expect(result).toEqual({ orderedBulletIds: ['fe.b1', 'ops.b1'], engine: 'model' });
+  });
+
+  it('drops unknown ids and deduplicates', async () => {
+    const result = await selectBullets('job', CORPUS, ranked, {
+      hasModel: true,
+      collect: async () => '["fe.b1", "fe.b1", "nope"]',
+    });
+    expect(result).toEqual({ orderedBulletIds: ['fe.b1'], engine: 'model' });
+  });
+
+  it('falls back to deterministic order on empty or garbage model output', async () => {
+    const result = await selectBullets('job', CORPUS, ranked, {
+      hasModel: true,
+      collect: async () => 'sorry, no ids',
+    });
+    expect(result.engine).toBe('deterministic');
+    expect(result.orderedBulletIds).toEqual(ranked.map((bullet) => bullet.bulletId));
+  });
+
+  it('falls back to deterministic order when the model call throws', async () => {
+    const result = await selectBullets('job', CORPUS, ranked, {
+      hasModel: true,
+      collect: async () => {
+        throw new Error('network');
+      },
+    });
+    expect(result.engine).toBe('deterministic');
+  });
+});
+
+describe('summarize', () => {
+  const selected = prerank('anything', CORPUS);
+
+  it('assembles from source when no model is configured', async () => {
+    const result = await summarize('job', selected, { hasModel: false });
+    expect(result.engine).toBe('deterministic');
+    expect(result.text.length).toBeGreaterThan(0);
+  });
+
+  it('uses trimmed model text when configured', async () => {
+    const result = await summarize('job', selected, {
+      hasModel: true,
+      collect: async () => '  Tailored summary paragraph.  ',
+    });
+    expect(result).toEqual({ text: 'Tailored summary paragraph.', engine: 'model' });
+  });
+
+  it('falls back to deterministic on empty model output', async () => {
+    const result = await summarize('job', selected, {
+      hasModel: true,
+      collect: async () => '   ',
+    });
+    expect(result.engine).toBe('deterministic');
+  });
+
+  it('falls back to deterministic when the model throws', async () => {
+    const result = await summarize('job', selected, {
+      hasModel: true,
+      collect: async () => {
+        throw new Error('network');
+      },
+    });
+    expect(result.engine).toBe('deterministic');
+  });
+});
+
+describe('assembleResume', () => {
+  it('keeps every rendered bullet verbatim from the corpus', async () => {
+    const corpusBullets = new Set(
+      CORPUS.engagements.flatMap((engagement) => engagement.bullets.map((bullet) => bullet.text)),
+    );
+    const { view } = await assembleResume('operations job', CORPUS, { hasModel: false });
+    const rendered = view.experience.flatMap((experience) => experience.bullets);
+    expect(rendered.length).toBeGreaterThan(0);
+    for (const text of rendered) expect(corpusBullets.has(text)).toBe(true);
+  });
+
+  it('groups bullets under their engagement in selection order', async () => {
+    const { view } = await assembleResume('react frontend', CORPUS, { hasModel: false });
+    expect(view.experience[0].organization).toBe('Zocdoc');
+  });
+
+  it('is 100% deterministic with no model', async () => {
+    const { provenance } = await assembleResume('job', CORPUS, { hasModel: false });
+    expect(provenance.deterministicPct).toBe(100);
+    expect(provenance.modelPct).toBe(0);
+    expect(provenance.operations.every((operation) => operation.engine === 'deterministic')).toBe(true);
+  });
+
+  it('attributes model summary text and reports a split', async () => {
+    const collect = async (messages: { content: string }[]) =>
+      messages.some((message) => message.content.includes('professional-summary'))
+        ? 'A tailored summary.'
+        : '["ops.b1", "fe.b1"]';
+    const { provenance, view } = await assembleResume('job', CORPUS, { hasModel: true, collect });
+    expect(view.summary.engine).toBe('model');
+    expect(provenance.modelPct).toBeGreaterThan(0);
+    expect(provenance.deterministicPct + provenance.modelPct).toBe(100);
+    expect(provenance.operations.find((operation) => operation.kind === 'summary')?.engine).toBe('model');
+  });
+});
+
+describe('computeProvenance', () => {
+  it('is 100% deterministic when the summary is source-assembled', () => {
+    const view: ResumeView = {
+      header: { name: 'X', contacts: ['a'] },
+      summary: { text: 'body body', engine: 'deterministic' },
+      experience: [
+        {
+          organization: 'O',
+          roleContext: ['R'],
+          timePeriod: '2024',
+          bullets: ['did a thing'],
+          sourceRefs: ['s'],
+        },
+      ],
+      skills: [],
+      education: [],
+      projects: [],
+    };
+    const provenance = computeProvenance(
+      view,
+      { orderedBulletIds: [], engine: 'deterministic' },
+      view.summary,
+    );
+    expect(provenance.deterministicPct).toBe(100);
   });
 });
