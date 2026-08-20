@@ -5,16 +5,19 @@ import { sendContactMessage } from '@/lib/contact';
 const SUMMARY_PROMPT =
   "Give me a concise summary of Jeremy's experience and background — the highlights someone should know.";
 
-const RESUME_KICKOFF =
-  "I'd like a resume for Jeremy tailored to a specific role. Ask me for the job description or a link to the posting, then draft it from his real experience.";
-
 interface PromptStartersProps {
   onSendPrompt: (text: string) => void;
   onExplainProject: () => void;
+  onArmResume: () => void;
   disabled?: boolean;
 }
 
-export function PromptStarters({ onSendPrompt, onExplainProject, disabled = false }: PromptStartersProps) {
+export function PromptStarters({
+  onSendPrompt,
+  onExplainProject,
+  onArmResume,
+  disabled = false,
+}: PromptStartersProps) {
   const [messageOpen, setMessageOpen] = useState(false);
 
   // Contact panel — the one starter that needs two input fields.
@@ -65,7 +68,7 @@ export function PromptStarters({ onSendPrompt, onExplainProject, disabled = fals
           id="resume"
           active={false}
           disabled={disabled}
-          onClick={() => fire(RESUME_KICKOFF)}
+          onClick={onArmResume}
           icon={<Briefcase aria-hidden="true" />}
           label="Generate a resume"
         />
