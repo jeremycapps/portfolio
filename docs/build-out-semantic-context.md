@@ -1,216 +1,137 @@
-# Building out the portfolio as a deterministic semantic-context testbed
+# Building out the portfolio (Context)
 
-**Goal:** evolve this site from an LLM-that-recites-a-bio into a live **Facia
-deployment of a Libera model of Jeremy's own professional context** — and use it
-as the real-data testbed that pushes the `semantic-reconstruction-cost`
-experiment from a five-fixture toy into something running on personal data.
+This is an interactive portfolio: a site you can talk to, that answers questions
+about Jeremy's work. It doubles as a live testbed for a mostly-deterministic
+answer layer (Facia today, Domain/Libera later) — but the portfolio comes first.
 
-This is not a rewrite. Today's chat is already a working *control*. The plan
-below keeps it live and grows the deterministic core underneath it.
+## Priorities (in order)
 
-**Implementation status (2026-08-20):** the first Facia v2 vertical slice is
-now in this repository. `@facia/core` is vendored as a workspace package,
-`POST /api/answer` resolves the declared Zocdoc question, and the React client
-renders the returned recipe at glance/inspect/focus/audit depth. `/api/chat`
-remains the Method-A fallback and control.
+1. **A seamless UI experience.**
+2. **A portfolio that answers most questions asked about Jeremy.**
+3. **The Facia → UI pattern logic** (a structured `AnswerSet` deterministically
+   resolves to a rendered surface).
+4. **Swapping the backend for a mostly-deterministic model** using Domain and
+   Libera.
 
----
+Everything below serves that order. Provenance, evidence tiers, and
+inspectability are the *direction of travel* (priority 4), not the near-term
+focus — a verdict that renders a paragraph of caveats is a regression against
+priority 1. Keep answers concise; earn depth only where it stays seamless.
 
-## 1. Why this site is the right testbed
+## Where things stand
 
-The reconstruction-cost experiment (`libera/experiments/semantic-reconstruction-cost/`)
-compared two ways of answering the same questions:
+- **Chat (breadth).** `/api/chat` streams answers from an open-weights model
+  grounded in `content/profile.md`. This already covers priority 2 — it can
+  answer most questions.
+- **Structured answers (the Facia seam).** `/api/answer` resolves *modeled*
+  questions through the vendored `@facia/core` runtime into a component recipe,
+  rendered by `semantic-surface`. Unmodeled questions return
+  `QUESTION_NOT_MODELED`, and the UI falls back to chat. One question is modeled
+  today (Zocdoc).
+- **Runtime split.** `/api/chat` is Edge; `/api/answer` is Node (AJV needs a real
+  runtime). Keep new deterministic work on the Node side.
 
-- **Method A — prompt-only.** Restate the rule in the prompt every run.
-- **Method B — the Libera Domain pipeline.** Declare the model once; evaluate;
-  emit an addressed, replayable trace.
-
-Its verdict was *continue*: Method B won 4/5 of §9 and all three §10 dimensions
-(replayability, inspectability, reduced repeated context).
-
-**This portfolio's chat is a textbook Method A system.** `content/profile.md` is
-the "rule," and it is restated in full as the system prompt on *every single
-request* (`api/_lib/config.ts` → `systemPrompt()` → `buildMessages()`). The
-answer is free-text; it can drift; nothing records *which* fact or *which source*
-grounded a claim; there is nothing to replay.
-
-So the experiment already predicts the win — but it proved it on synthetic
-issue-completeness fixtures. The interesting, unproven question is whether the
-same win holds on **messy, provenance-laden personal data**: a résumé knowledge
-base with claim tiers, caution flags, and "do not overclaim" rules. This site is
-the cheapest honest place to find out, because the data is real, the questions
-are real (recruiters, collaborators), and the Method-A baseline is already
-deployed.
+The hybrid is the whole point: **chat gives breadth now; the deterministic layer
+grows underneath it, one pattern at a time, without ever breaking the surface.**
 
 ---
 
-## 2. The mapping (portfolio ↔ Libera ecosystem)
+## Priority 1 — UI
 
-Libera's ecosystem line:
+Keep the current visual language; change what it *says* and *shows*.
 
-```text
-Address defines where motion happened.
-Domain names what the motion means.
-Timpos records observed changes.
-Corus evaluates objective satisfaction.
-Facia routes active state into use.
-```
+- Copy describes the real project (a conversational portfolio), not the old
+  "assistant for your work" framing.
+- The connect-pattern (formerly Slack/Google) is kept as a visual, repurposed to
+  show **context sources** — Profile (live), GitHub and Drive (planned, see
+  priority 2).
+- "Selected work" holds **real project/product/case-study cards** (Libera,
+  Facia, Domain/Corus, …).
 
-The portfolio slots straight in:
+UI changes should stay cheap — a turn or two at a time — because the surface is
+iterated continuously. Don't gold-plate; ship, look, adjust.
 
-| Portfolio thing today | Libera unit it becomes |
-|---|---|
-| `content/profile.md` (flat prose) | **`@jeremy/context`** — a model **Package**: Pages, one per experience unit, carrying evidence and provenance |
-| The résumé KB's `evidence_status` / claim tiers / `avoid_overclaiming` | **Domain** contracts + **Verdicts** (executable guardrails, not prose hopes) |
-| A user question ("what did Jeremy build at Zocdoc?") | A declared **question model** evaluated against the package |
-| The streamed free-text answer | A **Facia AnswerSet** (`facia.answer-set/2`) rendered as a typed surface |
-| `/api/chat` (control) and `/api/answer` (Facia) | A Libera **Deployment**: a versioned package behind a usable boundary |
-| The chat UI | The **Facia** surface — shape/pattern/affordance resolvers + renderer recipes |
+## Priority 2 — Answer most questions (context sources)
 
-The résumé KB is the unlock here. It *already* has the structure Domain wants —
-`source_refs`, `evidence_status` (`source_backed` > `resume_derived` >
-`user_asserted`), claim tiers (`artifact_backed` > `lived` > `asserted` >
-`generated`), and explicit `avoid_overclaiming` rules (e.g. "use the
-source-backed $135K figure, not the unsupported $760K"; "project leadership, not
-formal people management"). Today `profile.md` **flattens all of that into
-prose** and hopes the LLM honors it. Method B keeps it executable: each answer
-item carries its evidence, and the overclaim rules become **verifiers that can
-reject a claim**, not suggestions.
+`profile.md` currently carries everything. It should stay the **canonical,
+curated record of settled experience** — the answer to *"what has Jeremy done."*
 
----
+The next lift is pulling in **GitHub repos** and **Google Drive**, which are rich
+context for *"what is Jeremy working on / how does he think now."* The concern is
+real: those sources contain **iterations of ideas that have morphed over time** —
+rich, but partly stale or self-contradictory. Handle it by contract, not by hope:
 
-## 3. The one contract that governs everything
+- **Two freshness contracts, kept separate.** `profile.md` = settled, canonical.
+  Ingested repo/Drive material = **working context**: timestamped, recency-first,
+  and never allowed to override the canonical record. An answer can say "current
+  thinking, as of <date>" without restating it as established fact.
+- **Supersession is data, not deletion.** Libera already models this
+  (`archive/v1/` keeps the superseded protocol, marked). Mirror it: when a newer
+  doc supersedes an older idea, tag the old one `superseded-by`, don't drop it —
+  so the assistant can say "this evolved from X" instead of confidently citing a
+  dead idea.
+- **Ingest as tagged snapshots.** Pull repo READMEs/docs and selected Drive docs
+  into a context store keyed by `source`, `path`, `last-modified`. Retrieval
+  prefers recent and same-topic; the model gets *material*, not authority.
+- **Route by question, not by blob.** "What did you build?" → canonical profile.
+  "What are you exploring in Libera?" → working context. The
+  `QUESTION_NOT_MODELED` fallback already gives us a clean place to choose the
+  source before it reaches the model.
 
-Facia's release seam (`worktrees/.../docs/facia-contract.md`) is the discipline
-to hold onto: the **AnswerSet is the single serialized boundary** between
-"a question was answered by a model" and "render it as an interface."
+Net: the repos and Drive make the portfolio current and specific without letting
+half-finished ideas speak as finished ones.
 
-`facia.answer-set/2` (from the schema) has exactly the fields a portfolio
-answer needs:
+## Priority 3 — Facia → UI pattern logic
 
-- `answerType`: `value` | `verdict` | `operation` | `convergence`
-- `path`: `meaning` | `execution`
-- `items[]`: `Value`, `Verdict`, `Operation`, or `Convergence`, with item-local
-  payloads, evidence, field priority, and conditional promotion
-- `structure`: `dimension` | `group` | `sequence` (+ `sequenceKind`:
-  `temporal` | `dependency` | `trace`)
-- `inspection`: `none` | `available`
-- `operations[]`: `model-operation` | `host-callback` (e.g. "Email Jeremy",
-  "Open the repo")
-- `trace`: direct or item-correlated history provenance
-- consumer resolution context: cumulative `glance` | `inspect` | `focus` |
-  `audit` disclosure depth
+The workflow to build toward: take **prompts written during development**, use
+them to **generate Facia patterns**, and **test the logic** against the runtime.
 
-A career-timeline answer is a `sequence`/`temporal` of `Value` items each with
-`evidence`; a "does Jeremy have X?" answer is a `Verdict`; "contact him" is a
-an `Operation`. **The boundary rule must be respected**: Libera
-evaluates the Domain model and normalizes a completed answer through
-`facia_bridge/`; Facia only resolves and renders it. Libera never renders; Facia
-never evaluates.
+The stated risk is the important one: **Facia must not degrade into a pile of
+hand-coded rules** — one bespoke special-case per question. Hold this line:
 
----
+- **Patterns vs. data.** Facia's value is the *deterministic resolver*: an
+  `AnswerSet`'s shape (`answerType`, `structure`, `density`, roles, field
+  priorities) resolves to a component recipe the same way every time — that's the
+  reusable logic, guarded by the conformance suite (~98 tests). A hand-authored
+  `AnswerSet` for a new question is **data**, not a new rule, *as long as it
+  reuses existing patterns*. Data can grow freely; the rule-set must not.
+- **New patterns are earned, not added per-question.** A genuinely new *shape*
+  (one the resolvers can't render) is added deliberately — schema + resolver +
+  **conformance fixtures (accepted / rejected / semantic-only)** — and pinned by
+  schema hash. Rarely. If adding a question makes you reach for a new resolver
+  branch, stop: that's the smell the concern is about.
+- **The prompt→pattern harness makes the boundary explicit.** A dev prompt emits
+  a candidate `AnswerSet` → validate against the pinned schema → resolve through
+  Facia → render. The harness's job is to answer one question: *does this reuse
+  an existing pattern (ship it as data), or does it expose a pattern gap (a
+  deliberate, fixture-backed pattern addition)?* Prompts generate **candidates
+  and test cases**, never resolver rules directly.
+- **Determinism is the invariant.** Same `AnswerSet` in → same recipe out, always
+  re-runnable. If a change can't be expressed as (a) new data or (b) a
+  conformance-tested pattern, it doesn't belong in Facia.
 
-## 4. Build-out path (phased, each phase shippable)
+## Priority 4 — Deterministic backend (Domain / Libera)
 
-Mirror the experiment's rigor: small, testable steps, and keep measuring.
+The long game: back the answers with an executable model instead of a prompt.
+The reconstruction-cost experiment
+(`libera/experiments/semantic-reconstruction-cost/`) already argues Method B
+(declare once, evaluate, replayable trace) beats Method A (restate the rule every
+request) on reduced repeated context, consistency, inspectability, and
+replayability — and `profile.md`-as-system-prompt is exactly Method A.
 
-**Phase 0 — Baseline (done).** The Method-A chat is live. Freeze it as the
-control. Capture a fixed set of ~10 real portfolio questions as the shared test
-corpus (the analogue of the five issue fixtures).
-
-**Phase 1 — Author `@jeremy/context` as Libera Pages.** Convert each résumé-KB
-experience unit into a Libera Page: a markdown body + executable metadata
-declaring its `Value`s and their `evidence`/provenance. Port the
-`avoid_overclaiming` rules as Domain `contract`s (fixed verifiers). Package and
-test it the way `models/` are tested today. Output lives in the `libera` repo,
-not here — this site only *deploys* it.
-
-**Phase 2 — Question models.** Declare a handful of question models that map the
-corpus's question shapes ("what did X build at Y", "skills in Z", "how to reach
-him", "is X true about him") onto evaluations over the package, each emitting an
-AnswerSet. This is where "meaning" becomes deterministic.
-
-**Phase 3a — The Facia surface (first slice done).** The pinned Facia v2 runtime
-now resolves a checked-in Zocdoc AnswerSet through a separate Node endpoint.
-The UI renders the recipe and exposes cumulative disclosure depth, evidence,
-and trace inspection. Unsupported questions explicitly fall through to the
-unchanged chat path.
-
-**Phase 3b — Libera-produced answers.** Migrate `facia_bridge/` into Libera's
-Domain layer, update it to the v2 schema and pin, and replace the checked-in
-portfolio source with released Libera-generated AnswerSets. Because Mojo does
-not run inside the current Vercel function, begin with build-time JSON artifacts
-before introducing a separately deployed Libera service.
-
-**Phase 4 — Deployment semantics.** Treat `/api/answer` as the deterministic
-Libera Deployment while `/api/chat` remains the control: pin the live package
-version, support rollback, and record what inputs and state are admitted. The
-provider-swap abstraction already here (`api/_lib/provider.ts`) remains the
-right shape for the free-text path.
-
-**Phase 5 — Demote the LLM (the key move).** The model becomes the source of
-*meaning*; the LLM is pushed to the **edges only**:
-1. **In:** natural-language question → pick/parameterize a declared question
-   model (a router/normalizer).
-2. **Out:** phrase a *finished, deterministic* AnswerSet into fluent prose —
-   without inventing content.
-
-The verdict, the evidence, and the provenance are computed deterministically and
-are replayable; the LLM never decides what's true, only how to word it. That is
-the whole thesis, running on your own data.
+This is where provenance and evidence tiers eventually live. But it lands *after*
+the UI, the coverage, and the Facia pattern logic are solid — and it lands
+without making answers verbose. The `AnswerSet` seam is already the boundary a
+Domain/Libera evaluation would produce; swapping the modeled-answer source from
+hand-authored data to a Libera evaluation is a backend change behind an unchanged
+Facia surface.
 
 ---
 
-## 5. The measurement loop (what makes it a testbed, not a demo)
+## The seam to protect
 
-Re-run the reconstruction-cost scorecard against the portfolio corpus, Method A
-(Phase 0, live) vs Method B (Phases 1–5), on the same §9/§10 dimensions:
-
-- **Reduced repeated context** — `profile.md` reshipped every request vs the
-  package declared once.
-- **Semantic drift / consistency** — does the free-text bio contradict itself
-  across runs vs a fixed verifier.
-- **Inspectability** — "trust me" prose vs an AnswerSet whose every claim points
-  at a source and evidence tier.
-- **Replayability** — nothing vs a trace that rebuilds the settled answer.
-- **Overclaim safety (new, portfolio-specific)** — how often does Method A
-  violate an `avoid_overclaiming` rule under adversarial prompting, vs Method B
-  where the rule is a verifier that structurally can't be bypassed.
-
-That last row is the strongest real-world case for the whole approach, and it's
-one only *personal* data with real reputational stakes can motivate.
-
----
-
-## 6. Boundaries to keep
-
-- **The layering discipline.** A module never imports from a layer above it;
-  Facia never evaluates Domain; Libera never copies Facia's resolvers/renderers.
-  The AnswerSet is the only thing that crosses.
-- **Determinism is the value — not the runtime.** Per the experiment's own
-  §10 note: the win is the reusable, verifiable, inspectable *meaning* (the
-  contract, the fixed verifier, the addressed log), independent of what executes
-  it. Don't let "the LLM sounds good" relaunch Method A by the back door.
-- **The chat stays usable throughout.** Every phase ships behind the working
-  UI; Method B replaces Method A one answer-type at a time.
-
----
-
-## 7. First concrete step
-
-Pick the **corpus** and freeze the control:
-
-1. Expand the first modeled Zocdoc question into a fixed corpus of ~10 real
-   questions a visitor would ask this site.
-2. Run each against today's live chat; save the answers as the Method-A baseline
-   (this is the portfolio's `prompt-only/runs/`).
-3. In `libera`, replace the repository's profile-grounded Zocdoc fixture with a
-   Page in `@jeremy/context`, its evidence-bound `Value`s, and the equivalent
-   declared question model emitting the pinned v2 AnswerSet.
-4. Diff the Facia-rendered answer against the Method-A baseline on the six
-   rows above.
-
-If that single unit reproduces the experiment's result on real data, the rest of
-the build-out is justified — and the portfolio has quietly become the clearest
-possible demo of the thing Jeremy actually builds: deterministic, source-bound,
-inspectable meaning.
+One contract crosses everything: the `AnswerSet`. Libera (or a hand-authored
+source) *produces* it; Facia *resolves and renders* it; neither reaches across.
+Chat covers what isn't modeled yet. Grow the modeled corpus as data, grow the
+pattern rules only by conformance, and keep every answer something a visitor
+would actually want to read.

@@ -1,5 +1,5 @@
 import { type ChangeEvent, type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
-import { Check, ChevronRight, FileText, Menu, Mic, Paperclip, Search, Send, Slack, Sparkles, X } from 'lucide-react';
+import { Check, ChevronRight, FileText, Menu, Mic, Paperclip, Search, Send, Sparkles, X } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
@@ -18,13 +18,9 @@ import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
 
-type ConnectionName = 'Slack' | 'Google';
-
 function Home() {
   const [prompt, setPrompt] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
-  const [slackConnected, setSlackConnected] = useState(false);
-  const [googleConnected, setGoogleConnected] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -143,17 +139,6 @@ function Home() {
     event.target.value = '';
   };
 
-  const handleConnection = (name: ConnectionName) => {
-    if (name === 'Slack') {
-      setSlackConnected((connected) => !connected);
-      showToast(slackConnected ? 'Slack disconnected from this workspace.' : 'Slack is now connected.');
-      return;
-    }
-
-    setGoogleConnected((connected) => !connected);
-    showToast(googleConnected ? 'Google disconnected from this workspace.' : 'Google is now connected.');
-  };
-
   const handleMicrophone = () => {
     setIsListening(true);
     setStatusTone('normal');
@@ -187,8 +172,8 @@ function Home() {
           <button className="nav-link" type="button" onClick={() => showToast('This portfolio is a live interface study.')} data-testid="button-journal">
             Journal
           </button>
-          <button className="avatar-button" type="button" onClick={() => showToast('Profile settings are coming with your workspace.')} aria-label="Open profile" data-testid="button-profile">
-            AR
+          <button className="avatar-button" type="button" onClick={() => showToast("This is Jeremy's portfolio — ask the assistant about his work.")} aria-label="Open profile" data-testid="button-profile">
+            JC
           </button>
         </nav>
 
@@ -207,13 +192,13 @@ function Home() {
 
       <section className="workspace" aria-labelledby="hero-title">
         <div className="intro">
-          <p className="eyebrow" data-testid="text-eyebrow">A focused assistant for the work ahead</p>
+          <p className="eyebrow" data-testid="text-eyebrow">The portfolio of Jeremy Capps</p>
           <h1 className="hero-title" id="hero-title">
-            Your work has context.<br />
-            <em>Now it has a voice.</em>
+            Ask my work anything.<br />
+            <em>It answers with context.</em>
           </h1>
           <p className="hero-description">
-            Ask for meeting prep, a sharper reply, a thread catch-up, or a report that already knows where to look.
+            A conversational portfolio. Ask about my experience, the systems I'm building, or how I think about software — and get a straight answer.
           </p>
         </div>
 
@@ -298,31 +283,23 @@ function Home() {
         </div>
 
         <section className="connect-section" aria-labelledby="connect-title">
-          <p className="connect-label" id="connect-title">Connect the places where your work already lives.</p>
+          <p className="connect-label" id="connect-title">The context behind these answers.</p>
           <div className="connection-grid">
             <div className="connection-item">
-              <span className="connection-name"><Slack className="slack-icon" aria-hidden="true" /> Slack</span>
-              {slackConnected ? (
-                <button className="connected-button" type="button" onClick={() => handleConnection('Slack')} data-testid="button-slack-connected">
-                  <Check aria-hidden="true" /> Connected
-                </button>
-              ) : (
-                <button className="connect-button" type="button" onClick={() => handleConnection('Slack')} data-testid="button-slack-connect">Connect</button>
-              )}
+              <span className="connection-name"><span className="source-dot is-live" aria-hidden="true" /> Profile</span>
+              <span className="source-status is-live" data-testid="source-profile"><Check aria-hidden="true" /> Live</span>
             </div>
             <div className="connection-item">
-              <span className="connection-name"><span className="google-icon" aria-hidden="true">G</span> Google</span>
-              {googleConnected ? (
-                <button className="connected-button" type="button" onClick={() => handleConnection('Google')} data-testid="button-google-connected">
-                  <Check aria-hidden="true" /> Connected
-                </button>
-              ) : (
-                <button className="connect-button" type="button" onClick={() => handleConnection('Google')} data-testid="button-google-connect">Connect</button>
-              )}
+              <span className="connection-name"><span className="source-dot" aria-hidden="true" /> GitHub</span>
+              <span className="source-status" data-testid="source-github">Planned</span>
+            </div>
+            <div className="connection-item">
+              <span className="connection-name"><span className="source-dot" aria-hidden="true" /> Drive</span>
+              <span className="source-status" data-testid="source-drive">Planned</span>
             </div>
           </div>
           <p className="connection-note">
-            Use other apps? <button type="button" onClick={() => showToast('Tell us what belongs in your context.')} data-testid="button-connect-other">Connect others</button> or <button type="button" onClick={() => showToast('You can connect sources whenever you are ready.')} data-testid="button-dismiss-connect">dismiss</button>.
+            Answers draw on a curated profile today; live repositories and documents are on the way.
           </p>
         </section>
 
@@ -330,41 +307,41 @@ function Home() {
           <div className="portfolio-header">
             <div>
               <p className="portfolio-kicker">Selected work / 03</p>
-              <h2 className="portfolio-title" id="portfolio-title">Made legible by context.</h2>
+              <h2 className="portfolio-title" id="portfolio-title">What I'm building.</h2>
             </div>
-            <button className="portfolio-link" type="button" onClick={() => showToast('The full archive is being carefully assembled.')} data-testid="button-view-archive">
-              View archive <ChevronRight aria-hidden="true" />
+            <button className="portfolio-link" type="button" onClick={() => showToast('Ask the assistant about any of these — it knows the details.')} data-testid="button-view-archive">
+              Ask about my work <ChevronRight aria-hidden="true" />
             </button>
           </div>
 
           <div className="document-grid">
-            <button className="document-card" type="button" onClick={() => showToast('Project Stella — Q2 status report opened.')} data-testid="card-project-stella">
-              <div className="document-topline"><span>Internal report</span><span>01 / 03</span></div>
+            <button className="document-card" type="button" onClick={() => showToast('Libera — a page-based platform for executable semantic models.')} data-testid="card-libera">
+              <div className="document-topline"><span>Semantic runtime</span><span>01 / 03</span></div>
               <div className="document-body">
-                <h3>Project Stella<br />Q2 Status Report</h3>
+                <h3>Libera</h3>
                 <div className="document-rule" />
-                <p className="document-copy">A clear read on momentum, decisions, and the few things that need a room.</p>
+                <p className="document-copy">A page-based platform for composing and deploying executable semantic models — Notion + Obsidian + Vercel for meaning.</p>
                 <div className="document-chart" aria-hidden="true"><span /><span /><span /><span /><span /></div>
               </div>
             </button>
 
-            <button className="document-card" type="button" onClick={() => showToast('The Friday Brief opened.')} data-testid="card-friday-brief">
-              <div className="document-topline"><span>Weekly editorial</span><span>02 / 03</span></div>
+            <button className="document-card" type="button" onClick={() => showToast('Facia — the question-to-interface contract powering this page.')} data-testid="card-facia">
+              <div className="document-topline"><span>Interface runtime</span><span>02 / 03</span></div>
               <div className="document-body">
-                <div className="brief-image" aria-hidden="true" />
-                <span className="brief-label">The Friday Brief</span>
-                <div className="brief-lines" aria-hidden="true"><span /><span /><span /></div>
+                <h3>Facia</h3>
+                <div className="document-rule" />
+                <p className="document-copy">The question-to-interface contract: it turns an answered model into a rendered surface — and powers the structured answers on this very page.</p>
+                <div className="document-chart" aria-hidden="true"><span /><span /><span /><span /><span /></div>
               </div>
             </button>
 
-            <button className="document-card" type="button" onClick={() => showToast('Q1 2026 analytics review opened.')} data-testid="card-analytics-review">
-              <div className="document-topline"><span>Performance review</span><span>03 / 03</span></div>
+            <button className="document-card" type="button" onClick={() => showToast('Domain & Corus — source-bound, replayable context for agent workflows.')} data-testid="card-domain-corus">
+              <div className="document-topline"><span>Context infrastructure</span><span>03 / 03</span></div>
               <div className="document-body">
-                <h3>Q1 2026<br />Analytics Review</h3>
-                <div className="review-meta"><span>Northstar</span><span>03.28.26</span></div>
-                <div className="review-line" />
-                <p className="review-copy">What moved, what stalled, and which signals deserve a closer look.</p>
-                <div className="review-foot" aria-hidden="true"><span /><span /><span /></div>
+                <h3>Domain &amp; Corus</h3>
+                <div className="document-rule" />
+                <p className="document-copy">Source-bound, replayable context for agentic workflows: evidence, verdicts, and an audit trail that can rebuild settled state.</p>
+                <div className="document-chart" aria-hidden="true"><span /><span /><span /><span /><span /></div>
               </div>
             </button>
           </div>

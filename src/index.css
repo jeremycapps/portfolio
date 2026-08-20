@@ -1248,3 +1248,34 @@ textarea:focus-visible {
     gap: 3px;
   }
 }
+
+.source-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c9c9d2;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.source-dot.is-live {
+  background: #2f8f5b;
+}
+
+.source-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #9a9aa5;
+}
+
+.source-status.is-live {
+  color: #2f8f5b;
+}
+
+.source-status.is-live svg {
+  width: 14px;
+  height: 14px;
+}
