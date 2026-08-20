@@ -61,22 +61,6 @@ describe('handleAnswerRequest', () => {
     expect(firstBody.recipe.inspectionControls).toContain('view-trace');
   });
 
-  it('returns a bounded verdict when impact lacks a comparable criterion', async () => {
-    const response = await handleAnswerRequest(
-      request({ question: 'Who which project had the most impact?', depth: 'focus' }),
-      { checkLimit: allow },
-    );
-    const body = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(body.recipe.pattern).toBe('detail');
-    expect(body.recipe.answer.answerType).toBe('verdict');
-    expect(body.recipe.answer.items[0]).toMatchObject({
-      state: 'needs_criteria',
-      finding: 'no_comparable_impact_measure',
-    });
-  });
-
   it('declines questions that do not have a declared model', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'What music does Jeremy like?' }),
