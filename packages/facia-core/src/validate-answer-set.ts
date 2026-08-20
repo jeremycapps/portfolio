@@ -1,9 +1,7 @@
 import type { ErrorObject } from "ajv";
 import * as Ajv2020Module from "ajv/dist/2020.js";
 
-import answerSetSchema from "../schemas/facia-answer-set.v2.schema.json" with {
-  type: "json",
-};
+import answerSetSchema from "./answer-set-schema.generated.js";
 import type {
   AnswerSetV2,
   JsonValue,
