@@ -76,5 +76,6 @@ describe('handleAnswerRequest', () => {
     });
     expect(response.status).toBe(429);
     expect(response.headers.get('retry-after')).toBe('12');
+    await expect(response.json()).resolves.toMatchObject({ code: 'RATE_LIMITED' });
   });
 });

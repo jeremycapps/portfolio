@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
+import { jsonError, withApiLogging, type ApiHandler } from './api/_lib/http';
 import { resolveSharedEnvPath } from './scripts/worktree-env';
 
 function devApis(envDir: string): Plugin {
@@ -20,77 +21,58 @@ function devApis(envDir: string): Plugin {
       ]) {
         if (env[k] && !process.env[k]) process.env[k] = env[k];
       }
-      server.middlewares.use('/api/chat', async (req, res) => {
-        const { handleChatRequest } = await server.ssrLoadModule('/api/_lib/chat-core.ts');
-        const chunks: Buffer[] = [];
-        for await (const c of req) chunks.push(c as Buffer);
-        const request = new Request('http://localhost/api/chat', {
-          method: req.method,
-          headers: req.headers as Record<string, string>,
-          body: chunks.length ? Buffer.concat(chunks) : undefined,
-        });
-        const response: Response = await handleChatRequest(request);
-        res.statusCode = response.status;
-        response.headers.forEach((v, k) => res.setHeader(k, v));
-        if (response.body) {
-          const reader = response.body.getReader();
-          for (;;) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            res.write(Buffer.from(value));
-          }
-        }
-        res.end();
-      });
-      server.middlewares.use('/api/answer', async (req, res) => {
-        const { handleAnswerRequest } = await server.ssrLoadModule('/api/_lib/answer-core.ts');
-        const chunks: Buffer[] = [];
-        for await (const c of req) chunks.push(c as Buffer);
-        const request = new Request('http://localhost/api/answer', {
-          method: req.method,
-          headers: req.headers as Record<string, string>,
-          body: chunks.length ? Buffer.concat(chunks) : undefined,
-        });
-        const response: Response = await handleAnswerRequest(request);
-        res.statusCode = response.status;
-        response.headers.forEach((v, k) => res.setHeader(k, v));
-        res.end(Buffer.from(await response.arrayBuffer()));
-      });
-      server.middlewares.use('/api/resume', async (req, res) => {
-        const startedAt = Date.now();
-        const method = req.method ?? 'GET';
-        console.info(`[api/resume] ${method} request`);
 
-        try {
-          const { handleResumeRequest } = await server.ssrLoadModule('/api/_lib/resume-core.ts');
-          const chunks: Buffer[] = [];
-          for await (const chunk of req) chunks.push(chunk as Buffer);
-          const request = new Request('http://localhost/api/resume', {
-            method,
-            headers: req.headers as Record<string, string>,
-            body: chunks.length ? Buffer.concat(chunks) : undefined,
-          });
-          const response: Response = await handleResumeRequest(request);
-          res.statusCode = response.status;
-          response.headers.forEach((value, key) => res.setHeader(key, value));
-          res.end(Buffer.from(await response.arrayBuffer()));
-          console.info(
-            `[api/resume] ${method} ${response.status} ${Date.now() - startedAt}ms`,
-          );
-        } catch (error) {
-          console.error(
-            `[api/resume] ${method} unhandled error after ${Date.now() - startedAt}ms`,
-            error,
-          );
-          res.statusCode = 500;
-          res.setHeader('content-type', 'application/json; charset=utf-8');
-          res.setHeader('cache-control', 'no-store');
-          res.end(JSON.stringify({
-            error: 'The resume service failed unexpectedly.',
-            code: 'RESUME_DEV_SERVER_FAILED',
-          }));
-        }
-      });
+      const registerDevApi = (
+        route: string,
+        modulePath: string,
+        exportName: string,
+      ) => {
+        server.middlewares.use(route, async (req, res) => {
+          try {
+            const module = await server.ssrLoadModule(modulePath);
+            const coreHandler = module[exportName] as ApiHandler;
+            const handler = withApiLogging(route.slice(1), coreHandler);
+            const method = req.method ?? 'GET';
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) chunks.push(chunk as Buffer);
+            const request = new Request(`http://localhost${route}`, {
+              method,
+              headers: req.headers as Record<string, string>,
+              body:
+                method === 'GET' || method === 'HEAD' || chunks.length === 0
+                  ? undefined
+                  : Buffer.concat(chunks),
+            });
+            const response = await handler(request);
+            res.statusCode = response.status;
+            response.headers.forEach((value, key) => res.setHeader(key, value));
+
+            if (response.body) {
+              const reader = response.body.getReader();
+              for (;;) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                res.write(Buffer.from(value));
+              }
+            }
+            res.end();
+          } catch (error) {
+            console.error(`[${route.slice(1)}] development bridge failed`, error);
+            const response = jsonError(
+              'The local API bridge failed unexpectedly.',
+              'DEV_API_FAILED',
+              500,
+            );
+            res.statusCode = response.status;
+            response.headers.forEach((value, key) => res.setHeader(key, value));
+            res.end(Buffer.from(await response.arrayBuffer()));
+          }
+        });
+      };
+
+      registerDevApi('/api/chat', '/api/_lib/chat-core.ts', 'handleChatRequest');
+      registerDevApi('/api/answer', '/api/_lib/answer-core.ts', 'handleAnswerRequest');
+      registerDevApi('/api/resume', '/api/_lib/resume-core.ts', 'handleResumeRequest');
     },
   };
 }

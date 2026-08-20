@@ -1,4 +1,5 @@
 import { getConfig } from './config';
+import { jsonError, jsonResponse } from './http';
 import { collectChat } from './provider';
 import { checkRateLimit } from './rate-limit';
 import { loadResumeCorpus } from './resume-corpus';
@@ -31,16 +32,6 @@ export function validateResumeBody(body: unknown): ValidResult {
   return { ok: true, value: { jobDescription } };
 }
 
-function json(body: unknown, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store',
-    },
-  });
-}
-
 function defaultAssemble(job: string): Promise<ResumeAssembly> {
   return assembleResume(job, loadResumeCorpus(), {
     hasModel: Boolean(getConfig().openRouterKey),
@@ -53,47 +44,48 @@ export async function handleResumeRequest(
   deps: { assemble?: ResumeAssembler; checkLimit?: RateLimitCheck } = {},
 ): Promise<Response> {
   if (request.method !== 'POST') {
-    return json({ error: 'Method not allowed.', code: 'METHOD_NOT_ALLOWED' }, 405);
+    return jsonError('Method not allowed.', 'METHOD_NOT_ALLOWED', 405);
   }
 
   const limit = await (
     deps.checkLimit ?? ((candidate) => checkRateLimit(candidate, {}, 'resume'))
   )(request);
   if (!limit.ok) {
-    const response = json(
-      { error: 'Too many requests — please slow down.', code: 'RATE_LIMITED' },
+    return jsonError(
+      'Too many requests — please slow down.',
+      'RATE_LIMITED',
       429,
+      limit.retryAfter === undefined ? {} : { 'retry-after': String(limit.retryAfter) },
     );
-    response.headers.set('retry-after', String(limit.retryAfter));
-    return response;
   }
 
   const contentLength = Number(request.headers.get('content-length') ?? 0);
   if (contentLength > MAX_REQUEST_BYTES) {
-    return json({ error: 'Request too large.', code: 'REQUEST_TOO_LARGE' }, 413);
+    return jsonError('Request too large.', 'REQUEST_TOO_LARGE', 413);
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return json({ error: 'Invalid JSON.', code: 'INVALID_JSON' }, 400);
+    return jsonError('Invalid JSON.', 'INVALID_JSON', 400);
   }
 
   const validation = validateResumeBody(body);
   if (!validation.ok) {
-    return json({ error: validation.error, code: 'INVALID_REQUEST' }, 400);
+    return jsonError(validation.error, 'INVALID_REQUEST', 400);
   }
 
   try {
     const { view, provenance } = await (deps.assemble ?? defaultAssemble)(
       validation.value.jobDescription,
     );
-    return json({ protocol: 'portfolio.resume/1', view, provenance }, 200);
+    return jsonResponse({ protocol: 'portfolio.resume/1', view, provenance });
   } catch (error) {
     console.error('Resume assembly failed:', error);
-    return json(
-      { error: 'The resume could not be assembled.', code: 'RESUME_ASSEMBLY_FAILED' },
+    return jsonError(
+      'The resume could not be assembled.',
+      'RESUME_ASSEMBLY_FAILED',
       500,
     );
   }

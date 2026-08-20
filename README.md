@@ -43,6 +43,22 @@ a `Retry-After` header when exceeded. When the vars are unset, rate limiting is
 Edit `content/profile.md`, then `npm run gen:profile` (runs automatically on
 `predev`/`prebuild`).
 
+## API routes
+
+All routes use the Web Standard `Request` → `Response` contract in Vercel's
+Edge runtime. Non-streaming failures return
+`{ "error": string, "code": string }`.
+
+- `POST /api/chat` accepts a message history and streams general model-written
+  text grounded by `content/profile.md`.
+- `POST /api/answer` accepts `{ question, depth }` and returns a deterministic
+  Facia recipe when the question has a declared portfolio model.
+- `POST /api/resume` accepts `{ jobDescription }` and returns a typed resume
+  assembled from the baked source corpus with deterministic/model provenance.
+
+The Vite development server registers the same three core handlers used by
+Vercel, so local and deployed behavior share validation and response contracts.
+
 ## Deterministic answers with Facia
 
 `POST /api/answer` accepts `{ question, depth }`, where depth is `glance`,

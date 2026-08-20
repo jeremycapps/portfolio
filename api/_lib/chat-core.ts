@@ -1,4 +1,5 @@
 import { systemPrompt } from './config';
+import { jsonError } from './http';
 import { streamChat } from './provider';
 import { checkRateLimit } from './rate-limit';
 import type { ChatMessage, ChatRole } from './types';
@@ -39,36 +40,39 @@ export function buildMessages(userMessages: ChatMessage[]): ChatMessage[] {
   return [{ role: 'system', content: systemPrompt() }, ...userMessages];
 }
 
-function jsonError(message: string, status: number, retryAfter?: number): Response {
-  const headers: Record<string, string> = { 'content-type': 'application/json' };
-  if (retryAfter !== undefined) headers['retry-after'] = String(retryAfter);
-  return new Response(JSON.stringify({ error: message }), { status, headers });
-}
-
 export async function handleChatRequest(
   request: Request,
   deps: { stream?: typeof streamChat; checkLimit?: typeof checkRateLimit } = {},
 ): Promise<Response> {
-  if (request.method !== 'POST') return jsonError('Method not allowed.', 405);
+  if (request.method !== 'POST') {
+    return jsonError('Method not allowed.', 'METHOD_NOT_ALLOWED', 405);
+  }
 
   const checkLimit = deps.checkLimit ?? checkRateLimit;
   const limit = await checkLimit(request);
   if (!limit.ok) {
-    return jsonError('Too many requests — please slow down.', 429, limit.retryAfter);
+    return jsonError(
+      'Too many requests — please slow down.',
+      'RATE_LIMITED',
+      429,
+      limit.retryAfter === undefined ? {} : { 'retry-after': String(limit.retryAfter) },
+    );
   }
 
   const contentLength = Number(request.headers.get('content-length') ?? 0);
-  if (contentLength > 100_000) return jsonError('Request too large.', 413);
+  if (contentLength > 100_000) {
+    return jsonError('Request too large.', 'REQUEST_TOO_LARGE', 413);
+  }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return jsonError('Invalid JSON.', 400);
+    return jsonError('Invalid JSON.', 'INVALID_JSON', 400);
   }
 
   const valid = validateChatBody(body);
-  if (!valid.ok) return jsonError(valid.error, 400);
+  if (!valid.ok) return jsonError(valid.error, 'INVALID_REQUEST', 400);
 
   const stream = deps.stream ?? streamChat;
   const messages = buildMessages(valid.messages);
@@ -79,7 +83,7 @@ export async function handleChatRequest(
     first = await iterator.next();
   } catch (err) {
     console.error('chat provider setup error:', err);
-    return jsonError('The assistant is unavailable right now.', 502);
+    return jsonError('The assistant is unavailable right now.', 'PROVIDER_UNAVAILABLE', 502);
   }
 
   const encoder = new TextEncoder();

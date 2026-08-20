@@ -4,6 +4,7 @@ import {
   type AnswerSetV2,
   type DisclosureDepth,
 } from '@facia/core';
+import { jsonError, jsonResponse } from './http';
 import { checkRateLimit } from './rate-limit';
 import { answerPortfolioQuestion } from './portfolio-answer-source';
 
@@ -37,16 +38,6 @@ export function validateAnswerBody(body: unknown): ValidResult {
   return { ok: true, value: { question, depth: depth as DisclosureDepth } };
 }
 
-function json(body: unknown, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store',
-    },
-  });
-}
-
 export async function handleAnswerRequest(
   request: Request,
   deps: {
@@ -55,39 +46,43 @@ export async function handleAnswerRequest(
   } = {},
 ): Promise<Response> {
   if (request.method !== 'POST') {
-    return json({ error: 'Method not allowed.', code: 'METHOD_NOT_ALLOWED' }, 405);
+    return jsonError('Method not allowed.', 'METHOD_NOT_ALLOWED', 405);
   }
 
   const limit = await (deps.checkLimit ?? ((candidate) => checkRateLimit(candidate, {}, 'answer')))(request);
   if (!limit.ok) {
-    const response = json({ error: 'Too many requests — please slow down.', code: 'RATE_LIMITED' }, 429);
-    response.headers.set('retry-after', String(limit.retryAfter));
-    return response;
+    return jsonError(
+      'Too many requests — please slow down.',
+      'RATE_LIMITED',
+      429,
+      limit.retryAfter === undefined ? {} : { 'retry-after': String(limit.retryAfter) },
+    );
   }
 
   const contentLength = Number(request.headers.get('content-length') ?? 0);
   if (contentLength > 20_000) {
-    return json({ error: 'Request too large.', code: 'REQUEST_TOO_LARGE' }, 413);
+    return jsonError('Request too large.', 'REQUEST_TOO_LARGE', 413);
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return json({ error: 'Invalid JSON.', code: 'INVALID_JSON' }, 400);
+    return jsonError('Invalid JSON.', 'INVALID_JSON', 400);
   }
 
   const validation = validateAnswerBody(body);
   if (!validation.ok) {
-    return json({ error: validation.error, code: 'INVALID_REQUEST' }, 400);
+    return jsonError(validation.error, 'INVALID_REQUEST', 400);
   }
 
   const answerSet = (deps.answer ?? answerPortfolioQuestion)(validation.value.question);
   if (answerSet === null) {
-    return json({
-      error: 'That question does not have a deterministic portfolio model yet.',
-      code: 'QUESTION_NOT_MODELED',
-    }, 404);
+    return jsonError(
+      'That question does not have a deterministic portfolio model yet.',
+      'QUESTION_NOT_MODELED',
+      404,
+    );
   }
 
   const result = resolveAnswerSet(answerSet, {
@@ -96,12 +91,16 @@ export async function handleAnswerRequest(
   });
   if (!result.ok) {
     console.error('Facia resolution failed:', result);
-    return json({ error: 'The structured answer failed validation.', code: 'FACIA_RESOLUTION_FAILED' }, 500);
+    return jsonError(
+      'The structured answer failed validation.',
+      'FACIA_RESOLUTION_FAILED',
+      500,
+    );
   }
 
-  return json({
+  return jsonResponse({
     protocol: 'portfolio.answer/1',
     schemaPin: ANSWER_SET_SCHEMA_PIN,
     recipe: result.recipe,
-  }, 200);
+  });
 }

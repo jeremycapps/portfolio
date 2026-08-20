@@ -40,6 +40,7 @@ describe('handleChatRequest', () => {
     const res = await handleChatRequest(req);
     expect(res.status).toBe(400);
     expect(res.headers.get('content-type')).toContain('application/json');
+    await expect(res.json()).resolves.toMatchObject({ code: 'INVALID_REQUEST' });
   });
 
   it('streams provider deltas as the response body', async () => {
@@ -69,6 +70,7 @@ describe('handleChatRequest', () => {
     const res = await handleChatRequest(req, { stream: boom as never });
     expect(res.status).toBe(502);
     expect(res.headers.get('content-type')).toContain('application/json');
+    await expect(res.json()).resolves.toMatchObject({ code: 'PROVIDER_UNAVAILABLE' });
   });
 
   it('returns 429 with Retry-After when rate limited', async () => {
