@@ -1,8 +1,9 @@
-import { type ChangeEvent, type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
-import { Check, ChevronRight, FileText, Menu, Mic, Paperclip, Search, Send, Sparkles, X } from 'lucide-react';
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
+import { Check, ChevronRight, Linkedin, Mail, Menu, Mic, Search, Send, Sparkles, X } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
+import { PromptStarters } from '@/components/prompt-starters';
 import { SemanticSurface } from '@/components/facia/semantic-surface';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -12,13 +13,22 @@ import {
   sendStructuredAnswer,
   type StructuredAnswerResponse,
 } from '@/lib/answer';
-import { sendChat, type ClientMessage } from '@/lib/chat';
+import { sendChat, type ClientMessage, type MessageChoice } from '@/lib/chat';
 import type { DisclosureDepth } from '@facia/core';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
 
 const HERO_PHRASES = ['my experience', 'my projects', 'anything'];
+
+const projectPrompt = (project: string) =>
+  `Explain the ${project} project in depth — what it is, how it works, and why it matters.`;
+
+const PROJECT_CHOICES: MessageChoice[] = [
+  { label: 'Libera', prompt: projectPrompt('Libera') },
+  { label: 'Facia', prompt: projectPrompt('Facia') },
+  { label: 'Domain & Corus', prompt: projectPrompt('Domain & Corus') },
+];
 
 function RotatingPhrase() {
   const [index, setIndex] = useState(0);
@@ -37,7 +47,6 @@ function RotatingPhrase() {
 
 function Home() {
   const [prompt, setPrompt] = useState('');
-  const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -49,7 +58,6 @@ function Home() {
   const [streaming, setStreaming] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const hasConversation = messages.length > 0 || structuredAnswer !== null;
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -62,20 +70,26 @@ function Home() {
     setToastMessage(message);
   };
 
-  const handlePromptSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handlePromptSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const cleanPrompt = prompt.trim();
-    if (!cleanPrompt || streaming) {
-      if (!cleanPrompt) {
+    if (!cleanPrompt) {
+      if (!streaming) {
         setStatusTone('error');
         setStatusMessage('Write a question first, then send it to Domain.');
       }
       return;
     }
+    setPrompt('');
+    void submitPrompt(cleanPrompt);
+  };
+
+  const submitPrompt = async (rawPrompt: string) => {
+    const cleanPrompt = rawPrompt.trim();
+    if (!cleanPrompt || streaming) return;
 
     setStatusMessage('');
     setChatError(null);
-    setPrompt('');
     setStreaming(true);
 
     const controller = new AbortController();
@@ -97,7 +111,9 @@ function Home() {
 
       setStructuredAnswer(null);
       setStructuredQuestion('');
-      const next: ClientMessage[] = [...messages, { role: 'user', content: cleanPrompt }];
+      // Consume any pending interactive choices so the picker stops being clickable.
+      const history = messages.map((m) => (m.choices ? { role: m.role, content: m.content } : m));
+      const next: ClientMessage[] = [...history, { role: 'user', content: cleanPrompt }];
       // Add an empty assistant message only after the deterministic route declines the question.
       setMessages([...next, { role: 'assistant', content: '' }]);
       await sendChat(next, {
@@ -128,6 +144,25 @@ function Home() {
     }
   };
 
+  // "Explain a project" synthesizes an assistant turn whose response carries the
+  // interactive picker (the Facia pattern, rendered client-side for now).
+  const handleExplainProject = () => {
+    if (streaming) return;
+    setStatusMessage('');
+    setChatError(null);
+    setStructuredAnswer(null);
+    setStructuredQuestion('');
+    setMessages((cur) => [
+      ...cur.map((m) => (m.choices ? { role: m.role, content: m.content } : m)),
+      { role: 'user', content: 'Can you tell me about one of your projects?' },
+      {
+        role: 'assistant',
+        content: 'Sure — which one would you like to hear about?',
+        choices: PROJECT_CHOICES,
+      },
+    ]);
+  };
+
   const handleDepthChange = async (depth: DisclosureDepth) => {
     if (!structuredQuestion) return;
     const controller = new AbortController();
@@ -145,17 +180,6 @@ function Home() {
     }
   };
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    const newFiles = Array.from(files).map((file) => file.name);
-    setAttachedFiles((currentFiles) => [...currentFiles, ...newFiles]);
-    setStatusTone('success');
-    setStatusMessage(`${newFiles.length} file${newFiles.length === 1 ? '' : 's'} ready to use as context.`);
-    showToast(`${newFiles.join(', ')} attached.`);
-    event.target.value = '';
-  };
-
   const handleMicrophone = () => {
     setIsListening(true);
     setStatusTone('normal');
@@ -165,11 +189,6 @@ function Home() {
       setIsListening(false);
       setStatusMessage('');
     }, 1900);
-  };
-
-  const removeAttachment = (fileName: string) => {
-    setAttachedFiles((currentFiles) => currentFiles.filter((file) => file !== fileName));
-    showToast(`${fileName} removed.`);
   };
 
   return (
@@ -241,7 +260,7 @@ function Home() {
                 {chatError && <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>}
               </>
             ) : (
-              <ChatView messages={messages} streaming={streaming} error={chatError} />
+              <ChatView messages={messages} streaming={streaming} error={chatError} onChoice={(p) => void submitPrompt(p)} />
             )}
           </>
         )}
@@ -260,32 +279,7 @@ function Home() {
               />
             </div>
             <div className="composer-toolbar">
-              <div className="toolbar-left">
-                <input ref={fileInputRef} className="visually-hidden" type="file" multiple onChange={handleFileChange} data-testid="input-file" />
-                <button className="toolbar-button" type="button" onClick={() => fileInputRef.current?.click()} data-testid="button-attach">
-                  <Paperclip aria-hidden="true" />
-                  <span>Add tabs or files</span>
-                  {attachedFiles.length > 0 && <span className="attach-count" data-testid="text-attachment-count">{attachedFiles.length}</span>}
-                </button>
-                {attachedFiles.length > 0 && (
-                  <div className="attachment-list" aria-label="Attached files">
-                    {attachedFiles.map((fileName, index) => (
-                      <button
-                        className="attachment-chip"
-                        type="button"
-                        key={`${fileName}-${index}`}
-                        onClick={() => removeAttachment(fileName)}
-                        title={`Remove ${fileName}`}
-                        data-testid={`button-remove-attachment-${index}`}
-                      >
-                        <FileText aria-hidden="true" />
-                        <span>{fileName}</span>
-                        <X aria-hidden="true" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <div className="toolbar-left" />
               <div className="toolbar-right">
                 <button className={`toolbar-button microphone-button${isListening ? ' is-listening' : ''}`} type="button" onClick={handleMicrophone} aria-label={isListening ? 'Listening' : 'Use microphone'} data-testid="button-microphone">
                   <Mic aria-hidden="true" />
@@ -296,6 +290,7 @@ function Home() {
               </div>
             </div>
           </form>
+          <PromptStarters onSendPrompt={(text) => void submitPrompt(text)} onExplainProject={handleExplainProject} disabled={streaming} />
           <p className={`status-line ${statusTone}`} role="status" data-testid="status-prompt">{statusMessage}</p>
         </div>
 
@@ -363,6 +358,15 @@ function Home() {
             </button>
           </div>
         </section>
+
+        <div className="footer-contact" aria-label="Contact Jeremy">
+          <a href="mailto:jeremy@nycwork.space" data-testid="link-email">
+            <Mail aria-hidden="true" /> jeremy@nycwork.space
+          </a>
+          <a href="https://www.linkedin.com/in/jeremycapps" target="_blank" rel="noreferrer noopener" data-testid="link-linkedin">
+            <Linkedin aria-hidden="true" /> LinkedIn
+          </a>
+        </div>
 
         <p className="footer-note"><Sparkles aria-hidden="true" /> A small surface for big thinking.</p>
       </section>

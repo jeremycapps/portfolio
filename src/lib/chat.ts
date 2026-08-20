@@ -1,6 +1,16 @@
+export interface MessageChoice {
+  label: string;
+  prompt: string;
+}
+
 export interface ClientMessage {
   role: 'user' | 'assistant';
   content: string;
+  /**
+   * UI-only interactive options rendered inside an assistant turn (the Facia
+   * pattern, synthesized client-side). Stripped before messages reach the API.
+   */
+  choices?: MessageChoice[];
 }
 
 export async function readTextStream(
@@ -24,7 +34,8 @@ export async function sendChat(
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ messages }),
+    // Strip UI-only fields (e.g. `choices`) so only the wire shape is sent.
+    body: JSON.stringify({ messages: messages.map(({ role, content }) => ({ role, content })) }),
     signal: opts.signal,
   });
   if (!res.ok) {
