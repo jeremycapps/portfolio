@@ -3,4 +3,8 @@ import { withApiLogging } from './_lib/http';
 
 export const config = { runtime: 'edge' };
 
-export default withApiLogging('api/chat', handleChatRequest);
+const loggedChatHandler = withApiLogging('api/chat', handleChatRequest);
+
+export default function handler(request: Request): Promise<Response> {
+  return loggedChatHandler(request);
+}

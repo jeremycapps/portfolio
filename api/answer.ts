@@ -3,4 +3,8 @@ import { withApiLogging } from './_lib/http';
 
 export const config = { runtime: 'edge' };
 
-export default withApiLogging('api/answer', handleAnswerRequest);
+const loggedAnswerHandler = withApiLogging('api/answer', handleAnswerRequest);
+
+export default function handler(request: Request): Promise<Response> {
+  return loggedAnswerHandler(request);
+}
