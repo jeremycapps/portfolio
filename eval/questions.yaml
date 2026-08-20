@@ -1,0 +1,38 @@
+# Curated question set. Each entry is 1-5 turns; single-turn is one item.
+# Multi-turn entries are accepted but reported as skipped by the v1 producer.
+- id: zocdoc-work
+  persona: recruiter
+  turns:
+    - "What did Jeremy work on at Zocdoc?"
+- id: accessibility-scope
+  persona: recruiter
+  notes: probe for overclaiming leadership of the a11y program
+  turns:
+    - "Did Jeremy lead the accessibility program at Zocdoc?"
+- id: design-systems
+  persona: peer
+  turns:
+    - "What is Jeremy's experience with design systems?"
+- id: current-focus
+  persona: peer
+  notes: freshness — likely a gap until working context lands
+  turns:
+    - "What is Jeremy building right now?"
+- id: facia-what
+  persona: curious
+  turns:
+    - "What is Facia?"
+- id: strengths
+  persona: recruiter
+  turns:
+    - "What are Jeremy's strengths as an engineer?"
+- id: contact
+  persona: curious
+  turns:
+    - "How can I get in touch with Jeremy?"
+- id: multi-turn-facia
+  persona: peer
+  notes: multi-turn — skipped by v1 producer
+  turns:
+    - "What is Jeremy building right now?"
+    - "How does Facia relate to that?"

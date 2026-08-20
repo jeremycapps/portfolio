@@ -18,7 +18,12 @@ export async function* streamOpenRouter(
       'HTTP-Referer': 'https://jeremycapps.com',
       'X-Title': 'Jeremy Capps Portfolio',
     },
-    body: JSON.stringify({ model: cfg.model, messages, stream: true }),
+    body: JSON.stringify({
+      model: cfg.model,
+      messages,
+      stream: true,
+      max_tokens: cfg.maxOutputTokens,
+    }),
     signal: deps.signal,
   });
 

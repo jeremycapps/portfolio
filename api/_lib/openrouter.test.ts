@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { getConfig } from './config';
 import { streamOpenRouter } from './openrouter';
 import type { ChatMessage } from './types';
 
@@ -27,6 +28,18 @@ describe('streamOpenRouter', () => {
     const out: string[] = [];
     for await (const d of streamOpenRouter(msgs, { fetchImpl })) out.push(d);
     expect(out.join('')).toBe('Hello');
+  });
+
+  it('sends a bounded completion request', async () => {
+    let sentBody: Record<string, unknown> | undefined;
+    const fetchImpl = (async (_url: string | URL | Request, init?: RequestInit) => {
+      sentBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      return sseResponse(['data: [DONE]\n\n']);
+    }) as typeof fetch;
+
+    for await (const _ of streamOpenRouter(msgs, { fetchImpl })) { /* drain */ }
+
+    expect(sentBody?.max_tokens).toBe(getConfig().maxOutputTokens);
   });
 
   it('throws a friendly error on non-200', async () => {

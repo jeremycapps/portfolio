@@ -21,6 +21,7 @@ the UI loads and returns a friendly error on send.
 - `OPENROUTER_API_KEY` (required) — server-side only.
 - `CHAT_PROVIDER` — default `openrouter`.
 - `CHAT_MODEL` — default `meta-llama/llama-3.3-70b-instruct`.
+- `CHAT_MAX_OUTPUT_TOKENS` — shared chat/eval output ceiling; default `400`.
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optional) — enable rate
   limiting.
 
