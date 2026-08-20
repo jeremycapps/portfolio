@@ -1,6 +1,6 @@
-import { getConfig } from './config.ts';
-import { streamOpenRouter } from './openrouter.ts';
-import type { ChatMessage, StreamDeps } from './types.ts';
+import { getConfig } from './config';
+import { streamOpenRouter } from './openrouter';
+import type { ChatMessage, StreamDeps } from './types';
 
 export function streamChat(messages: ChatMessage[], deps?: StreamDeps): AsyncGenerator<string> {
   const { provider } = getConfig();

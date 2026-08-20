@@ -1,5 +1,5 @@
-import { getConfig } from './config.ts';
-import type { ChatMessage, StreamDeps } from './types.ts';
+import { getConfig } from './config';
+import type { ChatMessage, StreamDeps } from './types';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 

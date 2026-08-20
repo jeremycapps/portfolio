@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { validateChatBody, buildMessages, handleChatRequest } from './chat-core.ts';
-import type { ChatMessage } from './types.ts';
+import { validateChatBody, buildMessages, handleChatRequest } from './chat-core';
+import type { ChatMessage } from './types';
 
 describe('validateChatBody', () => {
   it('rejects non-object / missing messages', () => {

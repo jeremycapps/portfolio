@@ -1,6 +1,6 @@
-import { systemPrompt } from './config.ts';
-import { streamChat } from './provider.ts';
-import type { ChatMessage, ChatRole } from './types.ts';
+import { systemPrompt } from './config';
+import { streamChat } from './provider';
+import type { ChatMessage, ChatRole } from './types';
 
 const MAX_MESSAGES = 40;
 const MAX_CHARS = 8000;

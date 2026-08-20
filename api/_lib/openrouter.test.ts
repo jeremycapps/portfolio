@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { streamOpenRouter } from './openrouter.ts';
-import type { ChatMessage } from './types.ts';
+import { streamOpenRouter } from './openrouter';
+import type { ChatMessage } from './types';
 
 function sseResponse(chunks: string[]): Response {
   const body = new ReadableStream<Uint8Array>({

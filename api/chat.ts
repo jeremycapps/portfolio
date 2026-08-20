@@ -1,4 +1,4 @@
-import { handleChatRequest } from './_lib/chat-core.ts';
+import { handleChatRequest } from './_lib/chat-core';
 
 export const config = { runtime: 'edge' };
 

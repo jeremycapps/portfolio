@@ -1,4 +1,4 @@
-import { PROFILE } from './profile.generated.ts';
+import { PROFILE } from './profile.generated';
 
 export interface AppConfig {
   provider: string;

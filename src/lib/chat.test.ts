@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readTextStream } from './chat.ts';
+import { readTextStream } from './chat';
 
 function textStream(parts: string[]): Response {
   const body = new ReadableStream<Uint8Array>({
