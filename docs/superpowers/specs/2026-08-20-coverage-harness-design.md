@@ -52,8 +52,10 @@ justified by what the report shows:
 - LLM-generated question sets (curated seed list only, for now).
 - Expected-fact assertions per question (judging is LLM-as-judge on grounding).
 - Any UI / dashboard.
-- Capturing **real visitor** traffic for offline eval (designed-for, see
-  "Future hooks", but not built in v1).
+- **Live logging** of real visitor traffic. The transcript log is the interface
+  and live logging is a *drop-in second producer* for it (see "The transcript
+  log"), but wiring persistence into the Edge chat endpoint — plus the privacy
+  decision that implies — is a later cycle, not v1.
 
 ## Architecture
 
@@ -114,9 +116,46 @@ one-element `turns` list.
 Loader validates: unique `id`, `persona` in the allowed set, `turns` a list of
 1–5 non-empty strings. Invalid files fail fast with a clear message.
 
-## Runner — `eval/run.ts`
+## The transcript log (the interface)
 
-For each question:
+The evaluator's input is a **persisted `(prompt, response)` record**, and it does
+not care where that record came from. This log is the seam between "what was
+said" and "the evaluation":
+
+- **Producers** write records into the log. The v1 producer is the curated runner
+  (below). A future producer is live logging on `/api/chat` — same record shape,
+  no evaluator change. There is **no separate evaluation endpoint**: logging the
+  existing chat traffic is the capture mechanism, and the curated runner writes
+  the same records offline.
+- **The evaluator** (judge + report) reads records from the log offline —
+  decoupled from any live back-and-forth, and re-runnable (re-judge saved records
+  with a different judge or rubric without re-generating answers).
+
+Record shape (one per sampled answer), written as JSON lines / a JSON array under
+`eval/reports/`:
+
+```json
+{
+  "id": "zocdoc-work",
+  "producer": "curated",        // curated | live (future)
+  "persona": "recruiter",       // present for curated; may be absent for live
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "prompt": "<assembled system prompt + user turn(s)>",
+  "question": "<the user question text>",
+  "response": "<model answer>",
+  "sample": 1,                  // which of N samples (curated)
+  "timestamp": "2026-08-20T00:00:00Z"
+}
+```
+
+The judge consumes these records; verdicts are attached to them in the report.
+`prompt` carries the grounding corpus, so the judge grounds against exactly what
+the model was given regardless of producer.
+
+## Runner — `eval/run.ts` (the v1 producer)
+
+The curated runner is the v1 producer: it turns the seed question set into log
+records. For each question:
 
 - Replay its `turns` against the chat pipeline. In v1, only single-turn questions
   (`turns.length === 1`) are executed; multi-turn entries are **skipped with a
@@ -181,14 +220,14 @@ skipped in v1 are excluded from the denominator and counted separately.
 - **`eval/reports/<timestamp>.md`:** table of question → verdict → category →
   one-line rationale, failures first.
 
-### Persisted transcripts (decouples eval from the live chat)
+### Persisted transcripts
 
-Alongside the markdown report, each run writes
-`eval/reports/<timestamp>.json` containing, per question: the assembled prompt,
-every sampled answer, and every judge verdict. This makes **evaluation
-independent of the live back-and-forth** — judging (and re-judging with a
-different judge or rubric) runs over saved transcripts, not during a chat. It is
-also the natural place real-traffic captures would land later.
+The run writes its log records (see "The transcript log") to
+`eval/reports/<timestamp>.json`, and the judge verdicts alongside them. This is
+the same log the evaluator reads — the curated run *is* one producer of it — so
+evaluation is independent of any live back-and-forth and re-judgeable without
+regenerating answers. Live logging later writes the same records to a persistent
+store; the evaluator does not change.
 
 ## Configuration
 
@@ -227,10 +266,13 @@ The live end-to-end run (`npm run eval`) is manual and excluded from CI.
 
 ## Future hooks (not built in v1)
 
-- **Real-traffic capture.** The persisted-transcript format is the landing spot
-  for real visitor Q&A, which would feed the curated seed set with questions
-  actually asked. Requires a logging decision in `chat-core` and a privacy call;
-  out of scope here, but the report/transcript format is designed to receive it.
+- **Live logging as a second producer.** Persisting each real `(prompt,
+  response)` from `/api/chat` into the transcript log makes real visitor Q&A an
+  input to the *same* evaluator — no new endpoint, no evaluator change, and the
+  real questions can graduate into the curated seed set. The two open items are
+  where the log physically lives (the chat endpoint is Edge and cannot write
+  local disk, so it needs a store — KV / blob / small DB) and a privacy decision
+  on persisting visitor data. The record shape above is designed to receive it.
 - **Working-context grounding.** Because the judge grounds against the assembled
   system prompt, adding a working-context layer to that prompt later extends
   grounded-coverage measurement to the new material for free.
