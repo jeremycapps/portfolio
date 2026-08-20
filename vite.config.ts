@@ -56,6 +56,41 @@ function devApis(envDir: string): Plugin {
         response.headers.forEach((v, k) => res.setHeader(k, v));
         res.end(Buffer.from(await response.arrayBuffer()));
       });
+      server.middlewares.use('/api/resume', async (req, res) => {
+        const startedAt = Date.now();
+        const method = req.method ?? 'GET';
+        console.info(`[api/resume] ${method} request`);
+
+        try {
+          const { handleResumeRequest } = await server.ssrLoadModule('/api/_lib/resume-core.ts');
+          const chunks: Buffer[] = [];
+          for await (const chunk of req) chunks.push(chunk as Buffer);
+          const request = new Request('http://localhost/api/resume', {
+            method,
+            headers: req.headers as Record<string, string>,
+            body: chunks.length ? Buffer.concat(chunks) : undefined,
+          });
+          const response: Response = await handleResumeRequest(request);
+          res.statusCode = response.status;
+          response.headers.forEach((value, key) => res.setHeader(key, value));
+          res.end(Buffer.from(await response.arrayBuffer()));
+          console.info(
+            `[api/resume] ${method} ${response.status} ${Date.now() - startedAt}ms`,
+          );
+        } catch (error) {
+          console.error(
+            `[api/resume] ${method} unhandled error after ${Date.now() - startedAt}ms`,
+            error,
+          );
+          res.statusCode = 500;
+          res.setHeader('content-type', 'application/json; charset=utf-8');
+          res.setHeader('cache-control', 'no-store');
+          res.end(JSON.stringify({
+            error: 'The resume service failed unexpectedly.',
+            code: 'RESUME_DEV_SERVER_FAILED',
+          }));
+        }
+      });
     },
   };
 }
