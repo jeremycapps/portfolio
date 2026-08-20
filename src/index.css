@@ -1145,9 +1145,14 @@ textarea:focus-visible {
   box-shadow: 0 2px 8px rgba(39, 61, 83, 0.08);
 }
 
-.semantic-list {
+.semantic-list,
+.semantic-detail {
   display: grid;
   gap: 12px;
+}
+
+.semantic-detail .semantic-item {
+  border-left: 4px solid #8fb4c8;
 }
 
 .semantic-item {

@@ -1,12 +1,30 @@
 import { resolveAnswerSet } from '@facia/core';
 import { describe, expect, it } from 'vitest';
-import { answerPortfolioQuestion, supportsPortfolioQuestion } from './portfolio-answer-source';
+import {
+  answerPortfolioQuestion,
+  supportsImpactQuestion,
+  supportsPortfolioQuestion,
+} from './portfolio-answer-source';
 
 describe('portfolio answer source', () => {
   it('routes only declared Zocdoc question shapes', () => {
     expect(supportsPortfolioQuestion('What did Jeremy build at Zocdoc?')).toBe(true);
     expect(supportsPortfolioQuestion('Tell me about Aroko')).toBe(false);
     expect(supportsPortfolioQuestion('Did Jeremy enjoy Zocdoc?')).toBe(false);
+  });
+
+  it('routes impact-ranking questions without treating company revenue as individual impact', () => {
+    expect(supportsImpactQuestion('Which project had the most impact?')).toBe(true);
+    const answer = answerPortfolioQuestion('Which project had the most impact?');
+    const result = resolveAnswerSet(answer, { depth: 'focus' });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.recipe.pattern).toBe('detail');
+    expect(result.recipe.answer.answerType).toBe('verdict');
+    expect(result.recipe.visibleFields[0].fields).toContainEqual(expect.objectContaining({
+      key: 'companyOutcomeCaveat',
+    }));
   });
 
   it('emits a valid v2 AnswerSet with honest source framing', () => {

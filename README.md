@@ -46,9 +46,12 @@ Edit `content/profile.md`, then `npm run gen:profile` (runs automatically on
 component recipe. Questions without a declared model return
 `QUESTION_NOT_MODELED`, allowing the UI to continue through `/api/chat`.
 
-The first modeled question covers Jeremy's Zocdoc work. Its source lives in
-`api/_lib/portfolio-answer-source.ts`; Facia's renderer-independent runtime is
-vendored as the `packages/facia-core` workspace at upstream commit `9074a67`.
+The first modeled questions cover Jeremy's Zocdoc work and the bounded verdict
+for "which project had the most impact?" The latter refuses to convert Aroko's
+company revenue into individual causality without a declared impact criterion.
+Their source lives in `api/_lib/portfolio-answer-source.ts`; Facia's
+renderer-independent runtime is vendored as the `packages/facia-core` workspace
+at upstream commit `9074a67`.
 The pinned schema SHA-256 is
 `0fa2230a3db63be2684230c9e8b9da490b8705033974afd155856b28388dc45b`.
 

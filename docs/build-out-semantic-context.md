@@ -10,9 +10,10 @@ below keeps it live and grows the deterministic core underneath it.
 
 **Implementation status (2026-08-20):** the first Facia v2 vertical slice is
 now in this repository. `@facia/core` is vendored as a workspace package,
-`POST /api/answer` resolves the declared Zocdoc question, and the React client
-renders the returned recipe at glance/inspect/focus/audit depth. `/api/chat`
-remains the Method-A fallback and control.
+`POST /api/answer` resolves the declared Zocdoc question and a bounded impact
+verdict, and the React client renders the returned list/detail recipe at
+glance/inspect/focus/audit depth. `/api/chat` remains the Method-A fallback and
+control.
 
 ---
 

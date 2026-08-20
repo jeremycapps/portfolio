@@ -46,7 +46,9 @@ export function SemanticSurface({ recipe, onDepthChange }: SemanticSurfaceProps)
   const [changingDepth, setChangingDepth] = useState<DisclosureDepth | null>(null);
   const componentIds = new Set(recipe.components.map((component) => component.id));
   const supportsList = componentIds.has('List');
-  const supportsToolbar = componentIds.has('InspectionToolbar');
+  const supportsDetail = componentIds.has('DetailView');
+  const supportsToolbar = componentIds.has('InspectionToolbar')
+    || recipe.inspectionControls.includes('inspect');
   const audit = recipe.context.depth === 'audit';
 
   const changeDepth = async (depth: DisclosureDepth) => {
@@ -88,6 +90,12 @@ export function SemanticSurface({ recipe, onDepthChange }: SemanticSurfaceProps)
 
       {supportsList ? (
         <div className="semantic-list" data-testid="semantic-list">
+          {recipe.visibleFields.map((item) => (
+            <FieldList key={item.itemIndex} fields={item.fields} />
+          ))}
+        </div>
+      ) : supportsDetail ? (
+        <div className="semantic-detail" data-testid="semantic-detail">
           {recipe.visibleFields.map((item) => (
             <FieldList key={item.itemIndex} fields={item.fields} />
           ))}
