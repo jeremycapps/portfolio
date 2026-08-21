@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
 import { PromptStarters } from '@/components/prompt-starters';
+import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { ResumeSurface } from '@/components/facia/resume-surface';
 import { SemanticSurface } from '@/components/facia/semantic-surface';
 import { Toaster } from '@/components/ui/toaster';
@@ -63,6 +64,13 @@ function Home() {
   const [chatError, setChatError] = useState<string | null>(null);
   const hasConversation =
     messages.length > 0 || structuredAnswer !== null || resumeResult !== null || chatError !== null;
+  // A request is in flight but nothing has rendered yet — show a loader so the
+  // interface never looks idle while the model is calculating.
+  const awaitingAnswer =
+    streaming &&
+    resumeResult === null &&
+    structuredAnswer === null &&
+    !messages.some((m) => m.role === 'assistant' && m.content);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -286,7 +294,7 @@ function Home() {
           </p>
         </div>
 
-        {hasConversation && (
+        {(hasConversation || awaitingAnswer) && (
           <>
             <button
               className="chat-reset"
@@ -314,9 +322,15 @@ function Home() {
                 <SemanticSurface recipe={structuredAnswer.recipe} onDepthChange={handleDepthChange} />
                 {chatError && <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>}
               </>
-            ) : (
+            ) : messages.length > 0 ? (
               <ChatView messages={messages} streaming={streaming} error={chatError} onChoice={(p) => void submitPrompt(p)} />
-            )}
+            ) : awaitingAnswer ? (
+              <div className="loading-surface">
+                <ThinkingIndicator />
+              </div>
+            ) : chatError ? (
+              <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>
+            ) : null}
           </>
         )}
 
@@ -328,6 +342,13 @@ function Home() {
                 className="composer-input"
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value)}
+                onKeyDown={(event) => {
+                  // Cmd+Enter (macOS) / Ctrl+Enter (Windows/Linux) sends the prompt.
+                  if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+                    event.preventDefault();
+                    event.currentTarget.form?.requestSubmit();
+                  }
+                }}
                 placeholder={resumeMode ? 'Paste the job description or a link…' : 'Ask anything...'}
                 aria-label="Ask Domain anything"
                 data-testid="input-prompt"
