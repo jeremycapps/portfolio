@@ -1,4 +1,5 @@
 import type { ClientMessage } from '@/lib/chat';
+import { ThinkingIndicator } from '@/components/thinking-indicator';
 
 interface ChatViewProps {
   messages: ClientMessage[];
@@ -16,7 +17,8 @@ export function ChatView({ messages, streaming, error, onChoice }: ChatViewProps
           className={`chat-bubble chat-bubble-${m.role}`}
           data-testid={`chat-message-${m.role}-${i}`}
         >
-          {m.content || (streaming && i === messages.length - 1 ? '…' : '')}
+          {m.content ||
+            (streaming && i === messages.length - 1 ? <ThinkingIndicator /> : '')}
           {m.choices && m.choices.length > 0 && (
             <div className="chat-choices" role="group" aria-label="Choose an option">
               {m.choices.map((choice) => (
