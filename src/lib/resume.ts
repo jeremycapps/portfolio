@@ -10,7 +10,7 @@ export interface ResumeView {
   }>;
   skills: Array<{ group: string; items: string[] }>;
   education: Array<{ degree: string }>;
-  projects: Array<{ id: string; name: string; timePeriod: string; text: string; sourceRefs: string[] }>;
+  projects: Array<{ id: string; name: string; text: string; sourceRefs: string[] }>;
 }
 
 export interface ResumeProvenance {
