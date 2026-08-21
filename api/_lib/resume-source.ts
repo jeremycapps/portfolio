@@ -11,6 +11,11 @@ export interface RankedBullet {
   bulletId: string;
   text: string;
   score: number;
+  organization: string;
+  roleContext: string[];
+  timePeriod: string;
+  kind: 'experience' | 'project';
+  caution: string[];
 }
 
 export interface AssembleDeps {
@@ -66,6 +71,15 @@ export function tokenize(text: string): string[] {
   return text.toLowerCase().match(/[a-z0-9]+/g) ?? [];
 }
 
+// The source corpus stores independent builds alongside employment engagements
+// because both are useful for retrieval. Resume assembly must keep the two
+// categories explicit so project work cannot silently become career experience.
+const PROJECT_ORG = /^\s*independent\s*\/\s*(domain|tempo)\b/i;
+
+function isProjectOrg(organization: string): boolean {
+  return PROJECT_ORG.test(organization);
+}
+
 export function prerank(job: string, corpus: ResumeCorpus): RankedBullet[] {
   const jobTokens = new Set(tokenize(job));
   const phraseHits = (phrases: string[]) =>
@@ -82,6 +96,11 @@ export function prerank(job: string, corpus: ResumeCorpus): RankedBullet[] {
         bulletId: b.id,
         text: b.text,
         score: themeScore + fitScore + bulletScore,
+        organization: eng.organization,
+        roleContext: eng.roleContext,
+        timePeriod: eng.timePeriod,
+        kind: isProjectOrg(eng.organization) ? 'project' : 'experience',
+        caution: eng.caution,
       });
     }
   }
@@ -106,12 +125,17 @@ export function parseIdList(raw: string): string[] {
 }
 
 function selectionMessages(job: string, ranked: RankedBullet[]): ChatMessage[] {
-  const bullets = ranked.map((bullet) => `${bullet.bulletId}: ${bullet.text}`).join('\n');
+  const bullets = ranked
+    .map((bullet) => {
+      const label = bullet.kind === 'project' ? 'INDEPENDENT PROJECT' : 'CAREER EXPERIENCE';
+      return `${bullet.bulletId} [${label} — ${bullet.organization}]: ${bullet.text}`;
+    })
+    .join('\n');
   return [
     {
       role: 'system',
       content:
-        'You select and order resume bullets for a job posting. Return ONLY a JSON array of bullet id strings, most relevant first. Never invent ids. Never rewrite bullet text.',
+        'You select and order resume bullets for a job posting. Return ONLY a JSON array of bullet id strings, most relevant first. Never invent ids. Never rewrite bullet text. Independent-project bullets are relevant evidence but are not employment, client work, or production deployments.',
     },
     {
       role: 'user',
@@ -143,14 +167,35 @@ export async function selectBullets(
 }
 
 function summaryMessages(job: string, selected: RankedBullet[]): ChatMessage[] {
-  const bullets = selected.map((bullet) => `- ${bullet.text}`).join('\n');
+  const order: string[] = [];
+  const groups = new Map<string, { sample: RankedBullet; bullets: string[] }>();
+  for (const bullet of selected) {
+    let group = groups.get(bullet.engagementId);
+    if (!group) {
+      group = { sample: bullet, bullets: [] };
+      groups.set(bullet.engagementId, group);
+      order.push(bullet.engagementId);
+    }
+    group.bullets.push(bullet.text);
+  }
+  const bullets = order
+    .map((id) => groups.get(id)!)
+    .map(({ sample, bullets: engagementBullets }) => {
+      const label = sample.kind === 'project' ? 'INDEPENDENT PROJECT' : 'CAREER EXPERIENCE';
+      const facts = engagementBullets.map((text) => `\n  - ${text}`).join('');
+      const cautions = sample.caution.length > 0
+        ? `\n  Cautions: ${sample.caution.join(' ')}`
+        : '';
+      return `[${label}] ${sample.organization} — ${sample.roleContext.join(' / ')} (${sample.timePeriod})${facts}${cautions}`;
+    })
+    .join('\n');
   return [
     {
       role: 'system',
       content:
-        'Write ONE short professional-summary paragraph (2-3 sentences) tailoring the candidate to the job. Use only facts present in the provided bullets. No lists, no headers.',
+        'Write ONE short professional-summary paragraph (2-3 sentences) tailoring the candidate to the job. Use only facts present in the provided bullets and obey every caution. Clearly distinguish career experience from independent project work. Never describe an independent project as employment, client work, a commercial or production deployment, team experience, or external-user impact. Prefer the phrase "independent project work" when referring to project evidence. Do not call the person "this candidate." No lists, no headers.',
     },
-    { role: 'user', content: `Job:\n${job}\n\nSelected experience:\n${bullets}` },
+    { role: 'user', content: `Job:\n${job}\n\nSelected source material:\n${bullets}` },
   ];
 }
 
@@ -160,9 +205,13 @@ export async function summarize(
   deps: AssembleDeps = {},
 ): Promise<SummaryResult> {
   const deterministic = (): SummaryResult => ({
-    text:
-      selected.slice(0, 2).map((bullet) => bullet.text).join(' ') ||
-      'Systems-oriented operator and engineer.',
+    text: (() => {
+      const career = selected.find((bullet) => bullet.kind === 'experience');
+      const project = selected.find((bullet) => bullet.kind === 'project');
+      const parts = [career?.text];
+      if (project) parts.push(`Independent project work: ${project.text}`);
+      return parts.filter(Boolean).join(' ') || 'Systems-oriented operator and engineer.';
+    })(),
     engine: 'deterministic',
   });
   if (!deps.hasModel || !deps.collect) return deterministic();
@@ -175,7 +224,52 @@ export async function summarize(
   }
 }
 
-function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): ResumeExperience[] {
+// Curated project display names mirror the tailored CVs. Any independent
+// engagement not listed falls back to its organization label.
+const PROJECT_NAMES: Record<string, string> = {
+  jeremy_domain_ai_multi_provider_llm_orchestration:
+    'Corus — LLM Orchestration & Evaluation Harness',
+  domain_corus_agentic_context_infrastructure: 'Corus — Agentic Context Infrastructure',
+  jeremy_domain_corus_chatbot_filesystem_runtime_contract:
+    'Corus — Chatbot Filesystem Runtime Contract',
+  jeremy_domain_langgraph_reference_runtime: 'Domain — Deterministic Agent Runtime on LangGraph',
+  tempo_stratos_v5_governed_decision_product:
+    'StratOS / Tempo — Governed Executive Decision Product',
+  tempo_strategy_framework_model: 'Tempo — Strategy Framework Model',
+};
+
+// Projects stay lighter than experience: fewer entries, fewer bullets each.
+const MAX_PROJECTS = 3;
+const MAX_PROJECT_BULLETS = 2;
+
+// Project time periods carry verification parentheticals (e.g. "2026-03 – 2026-07
+// (v5.1 validator re-executed …)"); the CVs show only the clean span.
+export function cleanPeriod(timePeriod: string): string {
+  return timePeriod.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
+}
+
+// Most-recent year mentioned in a time period; "Present"/"Current" sorts newest.
+export function recencyKey(timePeriod: string): number {
+  if (/present|current/i.test(timePeriod)) return Number.POSITIVE_INFINITY;
+  const years = timePeriod.match(/\b(?:19|20)\d{2}\b/g);
+  return years ? Math.max(...years.map(Number)) : 0;
+}
+
+interface EngagementGroup {
+  engagementId: string;
+  organization: string;
+  roleContext: string[];
+  timePeriod: string;
+  bullets: string[];
+  sourceRefs: string[];
+  firstIndex: number; // relevance rank of this engagement's first selected bullet
+}
+
+const MAX_EXPERIENCE_BULLETS = 5;
+
+// Group selected bullets under their engagement, preserving each engagement's
+// best (earliest-selected) rank as firstIndex for relevance tie-breaking.
+function groupSelected(orderedBulletIds: string[], corpus: ResumeCorpus): EngagementGroup[] {
   const engagementsById = new Map(corpus.engagements.map((engagement) => [engagement.id, engagement]));
   const bulletsById = new Map<string, { engagementId: string; text: string; sourceRefs: string[] }>();
   for (const engagement of corpus.engagements) {
@@ -188,33 +282,113 @@ function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): Resu
     }
   }
 
-  const engagementOrder: string[] = [];
-  const experienceById = new Map<string, ResumeExperience>();
-  for (const bulletId of orderedBulletIds) {
+  const order: string[] = [];
+  const byId = new Map<string, EngagementGroup>();
+  orderedBulletIds.forEach((bulletId, index) => {
     const bullet = bulletsById.get(bulletId);
-    if (!bullet) continue;
+    if (!bullet) return;
     const engagement = engagementsById.get(bullet.engagementId);
-    if (!engagement) continue;
+    if (!engagement) return;
 
-    if (!experienceById.has(engagement.id)) {
-      engagementOrder.push(engagement.id);
-      experienceById.set(engagement.id, {
+    let group = byId.get(engagement.id);
+    if (!group) {
+      group = {
+        engagementId: engagement.id,
         organization: engagement.organization,
         roleContext: engagement.roleContext,
         timePeriod: engagement.timePeriod,
         bullets: [],
         sourceRefs: [],
-      });
+        firstIndex: index,
+      };
+      byId.set(engagement.id, group);
+      order.push(engagement.id);
     }
 
-    const entry = experienceById.get(engagement.id)!;
-    entry.bullets.push(bullet.text);
+    group.bullets.push(bullet.text);
     for (const sourceRef of bullet.sourceRefs) {
-      if (!entry.sourceRefs.includes(sourceRef)) entry.sourceRefs.push(sourceRef);
+      if (!group.sourceRefs.includes(sourceRef)) group.sourceRefs.push(sourceRef);
+    }
+  });
+
+  return order.map((id) => byId.get(id)!);
+}
+
+// Newest first; ties keep the more relevant engagement (lower firstIndex) ahead.
+function byRecency(a: EngagementGroup, b: EngagementGroup): number {
+  return recencyKey(b.timePeriod) - recencyKey(a.timePeriod) || a.firstIndex - b.firstIndex;
+}
+
+function firstYear(timePeriod: string): number {
+  const match = timePeriod.match(/\b(?:19|20)\d{2}\b/);
+  return match ? Number(match[0]) : Number.POSITIVE_INFINITY;
+}
+
+// The corpus intentionally has multiple evidence records for Aroko and Zocdoc.
+// A resume should present one employer entry, not expose that storage topology.
+function mergeExperienceByOrganization(groups: EngagementGroup[]): EngagementGroup[] {
+  const order: string[] = [];
+  const byOrganization = new Map<string, EngagementGroup>();
+
+  for (const group of groups) {
+    const key = group.organization.trim().toLowerCase();
+    const existing = byOrganization.get(key);
+    if (!existing) {
+      byOrganization.set(key, {
+        ...group,
+        roleContext: [...group.roleContext],
+        bullets: [...group.bullets],
+        sourceRefs: [...group.sourceRefs],
+      });
+      order.push(key);
+      continue;
+    }
+
+    existing.firstIndex = Math.min(existing.firstIndex, group.firstIndex);
+    if (firstYear(group.timePeriod) < firstYear(existing.timePeriod)) {
+      existing.timePeriod = group.timePeriod;
+    }
+    for (const role of group.roleContext) {
+      if (!existing.roleContext.includes(role)) existing.roleContext.push(role);
+    }
+    for (const bullet of group.bullets) {
+      if (!existing.bullets.includes(bullet)) existing.bullets.push(bullet);
+    }
+    for (const sourceRef of group.sourceRefs) {
+      if (!existing.sourceRefs.includes(sourceRef)) existing.sourceRefs.push(sourceRef);
     }
   }
 
-  return engagementOrder.map((id) => experienceById.get(id)!);
+  return order.map((key) => byOrganization.get(key)!);
+}
+
+function buildExperience(groups: EngagementGroup[]): ResumeExperience[] {
+  return mergeExperienceByOrganization(
+    groups.filter((group) => !isProjectOrg(group.organization)),
+  )
+    .sort(byRecency)
+    .map((group) => ({
+      organization: group.organization,
+      roleContext: group.roleContext,
+      timePeriod: group.timePeriod,
+      bullets: group.bullets.slice(0, MAX_EXPERIENCE_BULLETS),
+      sourceRefs: group.sourceRefs,
+    }));
+}
+
+function buildProjects(groups: EngagementGroup[]): ResumeProject[] {
+  return groups
+    .filter((group) => isProjectOrg(group.organization))
+    .sort((a, b) => a.firstIndex - b.firstIndex) // keep the most relevant projects
+    .slice(0, MAX_PROJECTS)
+    .sort(byRecency) // then present them newest first
+    .map((group) => ({
+      id: group.engagementId,
+      name: PROJECT_NAMES[group.engagementId] ?? group.organization,
+      timePeriod: cleanPeriod(group.timePeriod),
+      text: group.bullets.slice(0, MAX_PROJECT_BULLETS).join(' '),
+      sourceRefs: group.sourceRefs,
+    }));
 }
 
 export function computeProvenance(
@@ -239,24 +413,27 @@ export function computeProvenance(
   const totalChars = deterministicChars + modelChars;
   const deterministicPct =
     totalChars === 0 ? 100 : Math.round((deterministicChars / totalChars) * 100);
-  const bulletCount = view.experience.reduce(
-    (count, experience) => count + experience.bullets.length,
-    0,
-  );
-
   return {
     deterministicPct,
     modelPct: 100 - deterministicPct,
     operations: [
       { kind: 'corpus-load', engine: 'deterministic', detail: 'baked snapshot' },
       { kind: 'pre-rank', engine: 'deterministic', detail: 'theme / role_fit match' },
-      { kind: 'selection', engine: selection.engine, detail: `${bulletCount} bullets selected` },
+      {
+        kind: 'selection',
+        engine: selection.engine,
+        detail: `${selection.orderedBulletIds.length} source bullets selected`,
+      },
       {
         kind: 'summary',
         engine: summary.engine,
         detail: summary.engine === 'model' ? '1 model call' : 'assembled from source',
       },
-      { kind: 'emit', engine: 'deterministic', detail: `${view.experience.length} roles` },
+      {
+        kind: 'emit',
+        engine: 'deterministic',
+        detail: `${view.experience.length} roles · ${view.projects.length} projects`,
+      },
     ],
   };
 }
@@ -273,13 +450,14 @@ export async function assembleResume(
     .map((id) => rankedById.get(id))
     .filter((bullet): bullet is RankedBullet => Boolean(bullet));
   const summary = await summarize(job, selected, deps);
+  const groups = groupSelected(selection.orderedBulletIds, corpus);
   const view: ResumeView = {
     header: corpus.header,
     summary,
-    experience: buildExperience(selection.orderedBulletIds, corpus),
+    experience: buildExperience(groups),
     skills: corpus.skills,
     education: corpus.education,
-    projects: corpus.projects,
+    projects: buildProjects(groups),
   };
 
   return { view, provenance: computeProvenance(view, selection, summary) };

@@ -94,6 +94,9 @@ export function ResumeSurface({ view, provenance }: ResumeSurfaceProps) {
             <article className="resume-exp" key={project.id}>
               <div className="resume-exp-head">
                 <span className="resume-exp-org">{project.name}</span>
+                {project.timePeriod && (
+                  <span className="resume-exp-period">{project.timePeriod}</span>
+                )}
               </div>
               <p>{project.text}</p>
             </article>

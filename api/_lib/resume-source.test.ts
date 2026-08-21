@@ -4,6 +4,7 @@ import {
   computeProvenance,
   parseIdList,
   prerank,
+  recencyKey,
   selectBullets,
   summarize,
   tokenize,
@@ -70,6 +71,11 @@ describe('prerank', () => {
       bulletId: 'ops.b1',
       text: 'Built a budgeting and operations system',
       score: expect.any(Number),
+      organization: 'Aroko',
+      roleContext: ['Head of Operations'],
+      timePeriod: '2024',
+      kind: 'experience',
+      caution: [],
     });
   });
 
@@ -178,6 +184,45 @@ describe('summarize', () => {
     expect(result).toEqual({ text: 'Tailored summary paragraph.', engine: 'model' });
   });
 
+  it('labels independent projects and passes their cautions to the summary model', async () => {
+    const projectCorpus: ResumeCorpus = {
+      header: { name: 'Test', contacts: [] },
+      engagements: [
+        {
+          id: 'domain',
+          organization: 'Independent / Domain',
+          roleContext: ['Independent runtime project'],
+          timePeriod: '2026',
+          themes: ['agents'],
+          roleFit: { strongest: [], secondary: [] },
+          caution: ['No client deployment or external users.'],
+          bullets: [
+            {
+              id: 'domain.b1',
+              text: 'Built a deterministic runtime.',
+              evidenceRefs: [],
+              sourceRefs: ['s'],
+            },
+          ],
+        },
+      ],
+      skills: [], education: [], projects: [],
+    };
+    const selected = prerank('agents', projectCorpus);
+    let prompt = '';
+    await summarize('job', selected, {
+      hasModel: true,
+      collect: async (messages) => {
+        prompt = messages.map((message) => message.content).join('\n');
+        return 'Independent project work demonstrates runtime design.';
+      },
+    });
+
+    expect(prompt).toContain('[INDEPENDENT PROJECT]');
+    expect(prompt).toContain('No client deployment or external users.');
+    expect(prompt).toContain('Never describe an independent project as employment');
+  });
+
   it('falls back to deterministic on empty model output', async () => {
     const result = await summarize('job', selected, {
       hasModel: true,
@@ -208,9 +253,14 @@ describe('assembleResume', () => {
     for (const text of rendered) expect(corpusBullets.has(text)).toBe(true);
   });
 
-  it('groups bullets under their engagement in selection order', async () => {
+  it('orders experience by most recent year, newest first', async () => {
+    // Aroko (2024–Present) outranks Zocdoc (2021) even on a frontend job that
+    // ranks Zocdoc's bullet higher — recency, not relevance, drives section order.
     const { view } = await assembleResume('react frontend', CORPUS, { hasModel: false });
-    expect(view.experience[0].organization).toBe('Zocdoc');
+    expect(view.experience.map((experience) => experience.organization)).toEqual([
+      'Aroko',
+      'Zocdoc',
+    ]);
   });
 
   it('is 100% deterministic with no model', async () => {
@@ -230,6 +280,78 @@ describe('assembleResume', () => {
     expect(provenance.modelPct).toBeGreaterThan(0);
     expect(provenance.deterministicPct + provenance.modelPct).toBe(100);
     expect(provenance.operations.find((operation) => operation.kind === 'summary')?.engine).toBe('model');
+  });
+});
+
+describe('recencyKey', () => {
+  it('sorts "Present"/"Current" newest', () => {
+    expect(recencyKey('2024–Present')).toBe(Number.POSITIVE_INFINITY);
+    expect(recencyKey('2026 current')).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it('takes the most recent year in a range', () => {
+    expect(recencyKey('2019–2021')).toBe(2021);
+    expect(recencyKey('2026-03 – 2026-07 (re-inspected 2026-08-02)')).toBe(2026);
+  });
+
+  it('returns 0 when no year is present', () => {
+    expect(recencyKey('recently')).toBe(0);
+  });
+});
+
+describe('project split', () => {
+  const CORPUS_WITH_PROJECT: ResumeCorpus = {
+    header: { name: 'Test', contacts: [] },
+    engagements: [
+      {
+        id: 'aroko', organization: 'Aroko', roleContext: ['Head of Operations'], timePeriod: '2024–Present',
+        themes: ['operations'], roleFit: { strongest: [], secondary: [] }, caution: [],
+        bullets: [{ id: 'aroko.b1', text: 'Built operations tooling.', evidenceRefs: [], sourceRefs: ['s'] }],
+      },
+      {
+        id: 'aroko-web', organization: 'Aroko', roleContext: ['Technical Director'], timePeriod: '2024–Present',
+        themes: ['web'], roleFit: { strongest: [], secondary: [] }, caution: [],
+        bullets: [{ id: 'aroko-web.b1', text: 'Led client web delivery.', evidenceRefs: [], sourceRefs: ['s2'] }],
+      },
+      {
+        id: 'freelance', organization: 'Independent / Freelance', roleContext: ['Freelance Developer'], timePeriod: '2020–2025',
+        themes: ['design'], roleFit: { strongest: [], secondary: [] }, caution: [],
+        bullets: [{ id: 'freelance.b1', text: 'Shipped client sites.', evidenceRefs: [], sourceRefs: ['s'] }],
+      },
+      {
+        id: 'domain', organization: 'Independent / Domain', roleContext: ['Sole architect'], timePeriod: '2026',
+        themes: ['agents'], roleFit: { strongest: [], secondary: [] }, caution: [],
+        bullets: [
+          { id: 'domain.b1', text: 'Built an LLM orchestration system.', evidenceRefs: [], sourceRefs: ['s'] },
+          { id: 'domain.b2', text: 'Added an evaluation harness.', evidenceRefs: [], sourceRefs: ['s'] },
+          { id: 'domain.b3', text: 'Wrote an MCP server.', evidenceRefs: [], sourceRefs: ['s'] },
+        ],
+      },
+    ],
+    skills: [], education: [], projects: [],
+  };
+
+  it('routes Independent Domain/Tempo work to projects and keeps freelance under experience', async () => {
+    const { view } = await assembleResume('job', CORPUS_WITH_PROJECT, { hasModel: false });
+    expect(view.experience.map((experience) => experience.organization)).toEqual([
+      'Aroko',
+      'Independent / Freelance',
+    ]);
+    expect(view.projects.map((project) => project.id)).toEqual(['domain']);
+  });
+
+  it('merges multiple source engagements for the same employer', async () => {
+    const { view } = await assembleResume('job', CORPUS_WITH_PROJECT, { hasModel: false });
+    const aroko = view.experience.find((experience) => experience.organization === 'Aroko');
+    expect(aroko?.roleContext).toEqual(['Head of Operations', 'Technical Director']);
+    expect(aroko?.bullets).toEqual(['Built operations tooling.', 'Led client web delivery.']);
+    expect(view.experience.filter((experience) => experience.organization === 'Aroko')).toHaveLength(1);
+  });
+
+  it('condenses projects to at most two bullets of source text', async () => {
+    const { view } = await assembleResume('job', CORPUS_WITH_PROJECT, { hasModel: false });
+    expect(view.projects[0].text).toBe('Built an LLM orchestration system. Added an evaluation harness.');
+    expect(view.projects[0].timePeriod).toBe('2026');
   });
 });
 

@@ -17,7 +17,9 @@ const view: ResumeView = {
   ],
   skills: [{ group: 'Frontend', items: ['React', 'TypeScript'] }],
   education: [{ degree: 'BFA, Graphic Design' }],
-  projects: [{ id: 'facia', name: 'Facia', text: 'Deterministic answer resolver.', sourceRefs: ['facia-1'] }],
+  projects: [
+    { id: 'facia', name: 'Facia', timePeriod: '2026', text: 'Deterministic answer resolver.', sourceRefs: ['facia-1'] },
+  ],
 };
 
 const provenance: ResumeProvenance = {
