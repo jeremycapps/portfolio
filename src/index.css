@@ -1410,6 +1410,7 @@ textarea:focus-visible {
 .resume-exp ul {
   margin: 0;
   padding-left: 18px;
+  list-style: disc outside;
 }
 
 .resume-exp li {
