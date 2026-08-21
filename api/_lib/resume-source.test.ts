@@ -253,6 +253,20 @@ describe('assembleResume', () => {
     for (const text of rendered) expect(corpusBullets.has(text)).toBe(true);
   });
 
+  it('keeps every employer even when the model selects none of its bullets', async () => {
+    // Model returns only the Zocdoc bullet; Aroko must still appear (its own
+    // bullet as fallback) and lead on recency.
+    const collect = async (messages: { content: string }[]) =>
+      messages.some((message) => message.content.includes('professional-summary'))
+        ? 'A tailored summary.'
+        : '["fe.b1"]';
+    const { view } = await assembleResume('frontend', CORPUS, { hasModel: true, collect });
+    const orgs = view.experience.map((experience) => experience.organization);
+    expect(orgs).toEqual(['Aroko', 'Zocdoc']);
+    const aroko = view.experience.find((experience) => experience.organization === 'Aroko')!;
+    expect(aroko.bullets).toEqual(['Built a budgeting and operations system']);
+  });
+
   it('orders experience by most recent year, newest first', async () => {
     // Aroko (2024–Present) outranks Zocdoc (2021) even on a frontend job that
     // ranks Zocdoc's bullet higher — recency, not relevance, drives section order.
@@ -351,7 +365,6 @@ describe('project split', () => {
   it('condenses projects to at most two bullets of source text', async () => {
     const { view } = await assembleResume('job', CORPUS_WITH_PROJECT, { hasModel: false });
     expect(view.projects[0].text).toBe('Built an LLM orchestration system. Added an evaluation harness.');
-    expect(view.projects[0].timePeriod).toBe('2026');
   });
 });
 

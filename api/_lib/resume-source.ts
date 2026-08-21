@@ -242,12 +242,6 @@ const PROJECT_NAMES: Record<string, string> = {
 const MAX_PROJECTS = 3;
 const MAX_PROJECT_BULLETS = 2;
 
-// Project time periods carry verification parentheticals (e.g. "2026-03 – 2026-07
-// (v5.1 validator re-executed …)"); the CVs show only the clean span.
-export function cleanPeriod(timePeriod: string): string {
-  return timePeriod.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
-}
-
 // Most-recent year mentioned in a time period; "Present"/"Current" sorts newest.
 export function recencyKey(timePeriod: string): number {
   if (/present|current/i.test(timePeriod)) return Number.POSITIVE_INFINITY;
@@ -324,56 +318,91 @@ function firstYear(timePeriod: string): number {
   return match ? Number(match[0]) : Number.POSITIVE_INFINITY;
 }
 
-// The corpus intentionally has multiple evidence records for Aroko and Zocdoc.
-// A resume should present one employer entry, not expose that storage topology.
-function mergeExperienceByOrganization(groups: EngagementGroup[]): EngagementGroup[] {
+// When the model selects no bullet for an employer, we still show the role with
+// its own top bullets — a resume must never drop a real job (e.g. the current
+// one) just because a job posting made its bullets rank low.
+const EXPERIENCE_FALLBACK_BULLETS = 2;
+
+interface OrgAccumulator {
+  organization: string;
+  roleContext: string[];
+  timePeriod: string;
+  selected: { text: string; sourceRefs: string[]; rank: number }[];
+  fallback: { text: string; sourceRefs: string[] }[];
+  bestRank: number;
+}
+
+// Experience membership comes from the corpus, not from model selection: every
+// employer engagement is present, merged into one entry per organization (the
+// corpus stores Aroko and Zocdoc as several evidence records), ordered newest
+// first. Selected bullets are used when the model picked any; otherwise the
+// role falls back to its own leading bullets so it still appears with content.
+function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): ResumeExperience[] {
+  const rank = new Map(orderedBulletIds.map((id, index) => [id, index]));
   const order: string[] = [];
-  const byOrganization = new Map<string, EngagementGroup>();
+  const byOrganization = new Map<string, OrgAccumulator>();
 
-  for (const group of groups) {
-    const key = group.organization.trim().toLowerCase();
-    const existing = byOrganization.get(key);
-    if (!existing) {
-      byOrganization.set(key, {
-        ...group,
-        roleContext: [...group.roleContext],
-        bullets: [...group.bullets],
-        sourceRefs: [...group.sourceRefs],
-      });
+  for (const engagement of corpus.engagements) {
+    if (isProjectOrg(engagement.organization)) continue;
+    const key = engagement.organization.trim().toLowerCase();
+    let entry = byOrganization.get(key);
+    if (!entry) {
+      entry = {
+        organization: engagement.organization,
+        roleContext: [],
+        timePeriod: engagement.timePeriod,
+        selected: [],
+        fallback: [],
+        bestRank: Number.POSITIVE_INFINITY,
+      };
+      byOrganization.set(key, entry);
       order.push(key);
-      continue;
     }
 
-    existing.firstIndex = Math.min(existing.firstIndex, group.firstIndex);
-    if (firstYear(group.timePeriod) < firstYear(existing.timePeriod)) {
-      existing.timePeriod = group.timePeriod;
+    // Keep the period whose start year is earliest so the merged entry shows the
+    // full span (e.g. Zocdoc's 2021–2024 across two records).
+    if (firstYear(engagement.timePeriod) < firstYear(entry.timePeriod)) {
+      entry.timePeriod = engagement.timePeriod;
     }
-    for (const role of group.roleContext) {
-      if (!existing.roleContext.includes(role)) existing.roleContext.push(role);
+    for (const role of engagement.roleContext) {
+      if (!entry.roleContext.includes(role)) entry.roleContext.push(role);
     }
-    for (const bullet of group.bullets) {
-      if (!existing.bullets.includes(bullet)) existing.bullets.push(bullet);
-    }
-    for (const sourceRef of group.sourceRefs) {
-      if (!existing.sourceRefs.includes(sourceRef)) existing.sourceRefs.push(sourceRef);
+    for (const bullet of engagement.bullets) {
+      const selectedRank = rank.get(bullet.id);
+      if (selectedRank === undefined) {
+        entry.fallback.push({ text: bullet.text, sourceRefs: bullet.sourceRefs });
+      } else {
+        entry.selected.push({ text: bullet.text, sourceRefs: bullet.sourceRefs, rank: selectedRank });
+        if (selectedRank < entry.bestRank) entry.bestRank = selectedRank;
+      }
     }
   }
 
-  return order.map((key) => byOrganization.get(key)!);
-}
-
-function buildExperience(groups: EngagementGroup[]): ResumeExperience[] {
-  return mergeExperienceByOrganization(
-    groups.filter((group) => !isProjectOrg(group.organization)),
-  )
-    .sort(byRecency)
-    .map((group) => ({
-      organization: group.organization,
-      roleContext: group.roleContext,
-      timePeriod: group.timePeriod,
-      bullets: group.bullets.slice(0, MAX_EXPERIENCE_BULLETS),
-      sourceRefs: group.sourceRefs,
-    }));
+  return order
+    .map((key) => byOrganization.get(key)!)
+    .map((entry) => {
+      const chosen = entry.selected.length
+        ? [...entry.selected].sort((a, b) => a.rank - b.rank)
+        : entry.fallback.slice(0, EXPERIENCE_FALLBACK_BULLETS);
+      const bullets = chosen.slice(0, MAX_EXPERIENCE_BULLETS);
+      const sourceRefs: string[] = [];
+      for (const bullet of bullets) {
+        for (const sourceRef of bullet.sourceRefs) {
+          if (!sourceRefs.includes(sourceRef)) sourceRefs.push(sourceRef);
+        }
+      }
+      return {
+        organization: entry.organization,
+        roleContext: entry.roleContext,
+        timePeriod: entry.timePeriod,
+        bullets: bullets.map((bullet) => bullet.text),
+        sourceRefs,
+        recency: recencyKey(entry.timePeriod),
+        bestRank: entry.bestRank,
+      };
+    })
+    .sort((a, b) => b.recency - a.recency || a.bestRank - b.bestRank)
+    .map(({ recency: _recency, bestRank: _bestRank, ...experience }) => experience);
 }
 
 function buildProjects(groups: EngagementGroup[]): ResumeProject[] {
@@ -385,7 +414,6 @@ function buildProjects(groups: EngagementGroup[]): ResumeProject[] {
     .map((group) => ({
       id: group.engagementId,
       name: PROJECT_NAMES[group.engagementId] ?? group.organization,
-      timePeriod: cleanPeriod(group.timePeriod),
       text: group.bullets.slice(0, MAX_PROJECT_BULLETS).join(' '),
       sourceRefs: group.sourceRefs,
     }));
@@ -454,7 +482,7 @@ export async function assembleResume(
   const view: ResumeView = {
     header: corpus.header,
     summary,
-    experience: buildExperience(groups),
+    experience: buildExperience(selection.orderedBulletIds, corpus),
     skills: corpus.skills,
     education: corpus.education,
     projects: buildProjects(groups),

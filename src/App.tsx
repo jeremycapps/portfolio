@@ -1,5 +1,5 @@
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
-import { Check, ChevronRight, Linkedin, Mail, Menu, Mic, Search, Send, Sparkles, X } from 'lucide-react';
+import { Check, ChevronRight, Linkedin, Mail, Menu, Search, Send, Sparkles, Trash2, X } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
@@ -50,7 +50,6 @@ function RotatingPhrase() {
 
 function Home() {
   const [prompt, setPrompt] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [statusTone, setStatusTone] = useState<'normal' | 'error' | 'success'>('normal');
@@ -236,15 +235,14 @@ function Home() {
     }
   };
 
-  const handleMicrophone = () => {
-    setIsListening(true);
-    setStatusTone('normal');
-    setStatusMessage('Listening for your next thought…');
-    showToast('Microphone ready. Voice capture is represented in this prototype.');
-    window.setTimeout(() => {
-      setIsListening(false);
-      setStatusMessage('');
-    }, 1900);
+  const handleClearChat = () => {
+    abortRef.current?.abort();
+    setMessages([]);
+    setStructuredAnswer(null);
+    setStructuredQuestion('');
+    setResumeMode(false);
+    setResumeResult(null);
+    setChatError(null);
   };
 
   return (
@@ -290,28 +288,12 @@ function Home() {
             <RotatingPhrase />
           </h1>
           <p className="hero-description">
-            A conversational portfolio. Ask about my experience, the systems I'm building, or how I think about software — and get a straight answer.
+            A conversational portfolio. Ask about my experience, the systems I'm building, or how I think about software.
           </p>
         </div>
 
         {(hasConversation || awaitingAnswer) && (
           <>
-            <button
-              className="chat-reset"
-              type="button"
-              onClick={() => {
-                abortRef.current?.abort();
-                setMessages([]);
-                setStructuredAnswer(null);
-                setStructuredQuestion('');
-                setResumeMode(false);
-                setResumeResult(null);
-                setChatError(null);
-              }}
-              data-testid="button-new-chat"
-            >
-              New chat
-            </button>
             {resumeResult ? (
               <>
                 <ResumeSurface view={resumeResult.view} provenance={resumeResult.provenance} />
@@ -357,8 +339,9 @@ function Home() {
             <div className="composer-toolbar">
               <div className="toolbar-left" />
               <div className="toolbar-right">
-                <button className={`toolbar-button microphone-button${isListening ? ' is-listening' : ''}`} type="button" onClick={handleMicrophone} aria-label={isListening ? 'Listening' : 'Use microphone'} data-testid="button-microphone">
-                  <Mic aria-hidden="true" />
+                <button className="toolbar-button clear-chat-button" type="button" onClick={handleClearChat} disabled={!hasConversation && !awaitingAnswer} aria-label="Clear chat" data-testid="button-clear-chat">
+                  <Trash2 aria-hidden="true" />
+                  Clear chat
                 </button>
                 <button className="submit-button" type="submit" disabled={!prompt.trim() || streaming} aria-label="Send prompt" data-testid="button-submit-prompt">
                   <ArrowUpIcon />
