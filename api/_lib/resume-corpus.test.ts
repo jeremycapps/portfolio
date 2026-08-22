@@ -135,4 +135,24 @@ describe('resume corpus snapshot', () => {
       }
     }
   });
+
+  it('attributes the operating-plan and composable-costing claims to Aroko, not Freelance', () => {
+    const corpus = loadResumeCorpus();
+    expect(
+      corpus.engagements.some((engagement) =>
+        /independent\s*\/\s*freelance/i.test(engagement.organization),
+      ),
+    ).toBe(false);
+
+    const corrected = corpus.engagements.find(
+      (engagement) => engagement.id === 'aroko_design_program_management',
+    );
+    expect(corrected?.organization).toBe('Aroko');
+    expect(corrected?.bullets.map((bullet) => bullet.text)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('90-day operating plan for Aroko'),
+        expect.stringContaining('Composable Costing methodology at Aroko'),
+      ]),
+    );
+  });
 });

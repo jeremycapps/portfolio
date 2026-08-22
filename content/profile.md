@@ -19,6 +19,9 @@ research.
 ## What he's doing now
 
 - **Head of Operations at Aroko (2024–present)** — a cooperative/agency. He
+  joined Aroko as lead web designer for a Shutterstock landing-page engagement,
+  then authored and secured approval for a 90-day operating plan spanning
+  workflows, internal design-system planning, and composable costing. He
   built a Notion-based internal project budgeting and estimating system:
   connecting timesheets to an existing projects board, then writing queries and
   rollups that calculate budget consumption from hours worked, surface remaining
@@ -66,12 +69,6 @@ research.
 - **Weill Cornell Medicine — Freelance Developer (2020–2021).** Built a
   Python-to-Google-Sheets integration to parse, clean, and update admissions
   data.
-- **Freelance Designer & Program Manager (2020–2025).** Oversaw product design of
-  a Shutterstock landing page; built a 90-day program roadmap for a design
-  agency and kicked off its internal Figma design system; created a "Composable
-  Costing" methodology to standardize project quoting and improve client
-  transparency.
-
 ## Selected projects
 
 - **Domain / Corus — AI-assisted context infrastructure (2024–present,

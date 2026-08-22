@@ -534,6 +534,27 @@ describe('assembleResume', () => {
       { name: 'NEW INC Fellowship, Social Architecture', year: 2025 },
     ]);
   });
+
+  it('renders the corrected operating-plan and costing claims under Aroko, never Freelance', async () => {
+    const { view } = await assembleResume(
+      'Aroko 90-day operating plan Figma design system Composable Costing project quoting',
+      loadResumeCorpus(),
+      { hasModel: false },
+    );
+
+    expect(
+      view.experience.some((experience) =>
+        /independent\s*\/\s*freelance/i.test(experience.organization),
+      ),
+    ).toBe(false);
+    const aroko = view.experience.find((experience) => experience.organization === 'Aroko');
+    expect(aroko?.bullets).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('90-day operating plan for Aroko'),
+        expect.stringContaining('Composable Costing methodology at Aroko'),
+      ]),
+    );
+  });
 });
 
 describe('recencyKey', () => {

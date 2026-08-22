@@ -535,12 +535,13 @@ export const RESUME_CORPUS: ResumeCorpus = {
       ]
     },
     {
-      "id": "freelance_design_program_management",
-      "organization": "Independent / Freelance",
+      "id": "aroko_design_program_management",
+      "organization": "Aroko",
       "roleContext": [
-        "Freelance Designer & Program Manager"
+        "Lead Web Designer",
+        "Head of Operations"
       ],
-      "timePeriod": "2020–2025",
+      "timePeriod": "2024–Present",
       "themes": [
         "program_management",
         "web_design",
@@ -565,27 +566,27 @@ export const RESUME_CORPUS: ResumeCorpus = {
       "caution": [],
       "bullets": [
         {
-          "id": "freelance_design_program_management.b1",
-          "text": "Developed a 90-day program roadmap for a design agency to optimize workflows and initiate its internal Figma design system.",
+          "id": "aroko_design_program_management.b1",
+          "text": "Authored a 90-day operating plan for Aroko to optimize workflows and initiate its internal Figma design system.",
           "evidenceRefs": [],
           "sourceRefs": [
-            "engagements.yaml#freelance_design_program_management"
+            "engagements.yaml#aroko_design_program_management"
           ]
         },
         {
-          "id": "freelance_design_program_management.b2",
-          "text": "Implemented a Composable Costing methodology that standardized project quoting and improved client transparency.",
+          "id": "aroko_design_program_management.b2",
+          "text": "Implemented a Composable Costing methodology at Aroko that standardized project quoting and improved client transparency.",
           "evidenceRefs": [],
           "sourceRefs": [
-            "engagements.yaml#freelance_design_program_management"
+            "engagements.yaml#aroko_design_program_management"
           ]
         },
         {
-          "id": "freelance_design_program_management.b3",
-          "text": "Oversaw product design of a Shutterstock landing page, emphasizing key business insights to drive user engagement.",
+          "id": "aroko_design_program_management.b3",
+          "text": "Led product design for Aroko's Shutterstock landing-page engagement, emphasizing key business insights to drive user engagement.",
           "evidenceRefs": [],
           "sourceRefs": [
-            "engagements.yaml#freelance_design_program_management"
+            "engagements.yaml#aroko_design_program_management"
           ]
         }
       ]
