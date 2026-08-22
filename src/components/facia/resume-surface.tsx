@@ -100,6 +100,17 @@ export function ResumeSurface({ view, provenance }: ResumeSurfaceProps) {
           ))}
         </section>
       )}
+
+      {view.awards.length > 0 && (
+        <section className="resume-block">
+          <h3>Awards</h3>
+          {view.awards.map((award, index) => (
+            <p className="resume-award" key={`${award.name}-${index}`}>
+              {award.name} · {award.year}
+            </p>
+          ))}
+        </section>
+      )}
     </section>
   );
 }

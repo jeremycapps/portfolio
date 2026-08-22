@@ -11,6 +11,7 @@ export interface ResumeView {
   skills: Array<{ group: string; items: string[] }>;
   education: Array<{ degree: string }>;
   projects: Array<{ id: string; name: string; text: string; sourceRefs: string[] }>;
+  awards: Array<{ name: string; year: number }>;
 }
 
 export interface ResumeProvenance {

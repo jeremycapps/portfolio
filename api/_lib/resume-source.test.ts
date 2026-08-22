@@ -295,6 +295,14 @@ describe('assembleResume', () => {
     expect(provenance.deterministicPct + provenance.modelPct).toBe(100);
     expect(provenance.operations.find((operation) => operation.kind === 'summary')?.engine).toBe('model');
   });
+
+  it('surfaces NEW INC as an award, never as an experience entry', async () => {
+    const { view } = await assembleResume('anything', loadResumeCorpus(), { hasModel: false });
+    expect(view.experience.some((experience) => /new inc/i.test(experience.organization))).toBe(false);
+    expect(view.awards).toEqual([
+      { name: 'NEW INC Fellowship, Social Architecture', year: 2025 },
+    ]);
+  });
 });
 
 describe('recencyKey', () => {
@@ -385,6 +393,7 @@ describe('computeProvenance', () => {
       skills: [],
       education: [],
       projects: [],
+      awards: [],
     };
     const provenance = computeProvenance(
       view,

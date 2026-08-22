@@ -17,6 +17,7 @@ export interface ResumeEngagement {
 export interface ResumeSkillGroup { group: string; items: string[]; }
 export interface ResumeEducation { degree: string; }
 export interface ResumeProject { id: string; name: string; text: string; sourceRefs: string[]; }
+export interface ResumeAward { name: string; year: number; }
 export interface ResumeCorpus {
   header: { name: string; contacts: string[] };
   engagements: ResumeEngagement[];

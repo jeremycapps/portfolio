@@ -1,4 +1,5 @@
 import type {
+  ResumeAward,
   ResumeCorpus,
   ResumeEducation,
   ResumeProject,
@@ -48,6 +49,7 @@ export interface ResumeView {
   skills: ResumeSkillGroup[];
   education: ResumeEducation[];
   projects: ResumeProject[];
+  awards: ResumeAward[];
 }
 
 export interface ResumeOperation {
@@ -242,6 +244,13 @@ const PROJECT_NAMES: Record<string, string> = {
 const MAX_PROJECTS = 3;
 const MAX_PROJECT_BULLETS = 2;
 
+// NEW INC is a fellowship, not a job — it belongs under Awards, never Experience.
+const AWARDS: ResumeAward[] = [{ name: 'NEW INC Fellowship, Social Architecture', year: 2025 }];
+
+function isAwardEngagement(id: string): boolean {
+  return /^new_inc/i.test(id);
+}
+
 // Most-recent year mentioned in a time period; "Present"/"Current" sorts newest.
 export function recencyKey(timePeriod: string): number {
   if (/present|current/i.test(timePeriod)) return Number.POSITIVE_INFINITY;
@@ -343,7 +352,7 @@ function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): Resu
   const byOrganization = new Map<string, OrgAccumulator>();
 
   for (const engagement of corpus.engagements) {
-    if (isProjectOrg(engagement.organization)) continue;
+    if (isProjectOrg(engagement.organization) || isAwardEngagement(engagement.id)) continue;
     const key = engagement.organization.trim().toLowerCase();
     let entry = byOrganization.get(key);
     if (!entry) {
@@ -486,6 +495,7 @@ export async function assembleResume(
     skills: corpus.skills,
     education: corpus.education,
     projects: buildProjects(groups),
+    awards: AWARDS,
   };
 
   return { view, provenance: computeProvenance(view, selection, summary) };

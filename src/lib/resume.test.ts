@@ -13,6 +13,7 @@ const okBody = {
     skills: [],
     education: [],
     projects: [],
+    awards: [],
   },
   provenance: { deterministicPct: 100, modelPct: 0, operations: [] },
 } satisfies ResumeResponse;
@@ -143,6 +144,7 @@ interface ContractResumeView {
   skills: Array<{ group: string; items: string[] }>;
   education: Array<{ degree: string }>;
   projects: Array<{ id: string; name: string; text: string; sourceRefs: string[] }>;
+  awards: Array<{ name: string; year: number }>;
 }
 
 interface ContractResumeProvenance {

@@ -11,6 +11,7 @@ const stubAssembly: ResumeAssembly = {
     skills: [],
     education: [],
     projects: [],
+    awards: [],
   },
   provenance: { deterministicPct: 100, modelPct: 0, operations: [] },
 };

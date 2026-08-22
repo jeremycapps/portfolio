@@ -20,6 +20,7 @@ const view: ResumeView = {
   projects: [
     { id: 'facia', name: 'Facia', text: 'Deterministic answer resolver.', sourceRefs: ['facia-1'] },
   ],
+  awards: [{ name: 'NEW INC Fellowship, Social Architecture', year: 2025 }],
 };
 
 const provenance: ResumeProvenance = {
@@ -65,19 +66,23 @@ describe('ResumeSurface', () => {
     expect(html).not.toContain('4 bullets scored');
   });
 
-  it('renders skills, education, and projects sections', () => {
+  it('renders skills, education, projects, and awards sections', () => {
     const html = render();
     expect(html).toContain('Frontend');
     expect(html).toContain('React, TypeScript');
     expect(html).toContain('BFA, Graphic Design');
     expect(html).toContain('Deterministic answer resolver.');
+    expect(html).toContain('Awards');
+    expect(html).toContain('NEW INC Fellowship, Social Architecture');
+    expect(html).toContain('2025');
   });
 
   it('drops optional sections that have no entries', () => {
-    const html = render({ view: { ...view, skills: [], education: [], projects: [] } });
+    const html = render({ view: { ...view, skills: [], education: [], projects: [], awards: [] } });
     expect(html).not.toContain('Skills');
     expect(html).not.toContain('Education');
     expect(html).not.toContain('Projects');
+    expect(html).not.toContain('Awards');
     expect(html).toContain('Experience');
   });
 });
