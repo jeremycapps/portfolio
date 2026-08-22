@@ -3,7 +3,11 @@ import { jsonError, jsonResponse } from './http';
 import { collectChat } from './provider';
 import { checkRateLimit } from './rate-limit';
 import { loadResumeCorpus } from './resume-corpus';
-import { assembleResume, type ResumeAssembly } from './resume-source';
+import {
+  assembleResume,
+  type ResumeAssembly,
+  type ResumeDiagnostics,
+} from './resume-source';
 
 const MAX_JOB_CHARS = 20_000;
 const MAX_REQUEST_BYTES = 25_000;
@@ -14,6 +18,7 @@ type ValidResult =
 
 type ResumeAssembler = (job: string) => Promise<ResumeAssembly>;
 type RateLimitCheck = (request: Request) => ReturnType<typeof checkRateLimit>;
+type DiagnosticLogger = (event: { event: 'resume_assembly'; diagnostics: ResumeDiagnostics }) => void;
 
 export function validateResumeBody(body: unknown): ValidResult {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) {
@@ -35,13 +40,17 @@ export function validateResumeBody(body: unknown): ValidResult {
 function defaultAssemble(job: string): Promise<ResumeAssembly> {
   return assembleResume(job, loadResumeCorpus(), {
     hasModel: Boolean(getConfig().openRouterKey),
-    collect: (messages) => collectChat(messages),
+    collect: (messages, deps) => collectChat(messages, deps),
   });
 }
 
 export async function handleResumeRequest(
   request: Request,
-  deps: { assemble?: ResumeAssembler; checkLimit?: RateLimitCheck } = {},
+  deps: {
+    assemble?: ResumeAssembler;
+    checkLimit?: RateLimitCheck;
+    logDiagnostic?: DiagnosticLogger;
+  } = {},
 ): Promise<Response> {
   if (request.method !== 'POST') {
     return jsonError('Method not allowed.', 'METHOD_NOT_ALLOWED', 405);
@@ -77,9 +86,17 @@ export async function handleResumeRequest(
   }
 
   try {
-    const { view, provenance } = await (deps.assemble ?? defaultAssemble)(
+    const { view, provenance, diagnostics } = await (deps.assemble ?? defaultAssemble)(
       validation.value.jobDescription,
     );
+    try {
+      (deps.logDiagnostic ?? ((event) => console.info(event)))({
+        event: 'resume_assembly',
+        diagnostics,
+      });
+    } catch {
+      // Diagnostics are best-effort and must not affect a successful resume.
+    }
     return jsonResponse({ protocol: 'portfolio.resume/1', view, provenance });
   } catch (error) {
     console.error('Resume assembly failed:', error);

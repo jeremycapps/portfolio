@@ -5,7 +5,11 @@ import type {
   ResumeProject,
   ResumeSkillGroup,
 } from './resume-corpus';
-import type { ChatMessage } from './types';
+import type { ChatMessage, StreamDeps } from './types';
+
+export const RESUME_SHORTLIST_LIMIT = 18;
+export const SUMMARY_EVIDENCE_LIMIT = 8;
+export const RESUME_PROVIDER_DEADLINE_MS = 8_000;
 
 export interface RankedBullet {
   engagementId: string;
@@ -20,13 +24,15 @@ export interface RankedBullet {
 }
 
 export interface AssembleDeps {
-  collect?: (messages: ChatMessage[]) => Promise<string>;
+  collect?: (messages: ChatMessage[], deps?: Pick<StreamDeps, 'signal'>) => Promise<string>;
   hasModel?: boolean;
+  providerDeadlineMs?: number;
+  now?: () => number;
 }
 
 export interface SelectionResult {
   orderedBulletIds: string[];
-  engine: 'model' | 'deterministic';
+  engine: 'deterministic';
 }
 
 export interface SummaryResult {
@@ -67,6 +73,23 @@ export interface ResumeProvenance {
 export interface ResumeAssembly {
   view: ResumeView;
   provenance: ResumeProvenance;
+  diagnostics: ResumeDiagnostics;
+}
+
+export type SummaryFallbackReason =
+  | 'no_model'
+  | 'timeout'
+  | 'provider_error'
+  | 'empty_output'
+  | 'none';
+
+export interface ResumeDiagnostics {
+  selectionMs: number;
+  summaryMs: number;
+  shortlistCount: number;
+  summaryEvidenceCount: number;
+  summaryEngine: SummaryResult['engine'];
+  fallbackReason: SummaryFallbackReason;
 }
 
 export function tokenize(text: string): string[] {
@@ -113,59 +136,24 @@ export function prerank(job: string, corpus: ResumeCorpus): RankedBullet[] {
     .map(({ r }) => r);
 }
 
-export function parseIdList(raw: string): string[] {
-  const match = raw.match(/\[[\s\S]*\]/);
-  if (!match) return [];
-  try {
-    const parsed: unknown = JSON.parse(match[0]);
-    return Array.isArray(parsed)
-      ? parsed.filter((value): value is string => typeof value === 'string')
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-function selectionMessages(job: string, ranked: RankedBullet[]): ChatMessage[] {
-  const bullets = ranked
-    .map((bullet) => {
-      const label = bullet.kind === 'project' ? 'INDEPENDENT PROJECT' : 'CAREER EXPERIENCE';
-      return `${bullet.bulletId} [${label} — ${bullet.organization}]: ${bullet.text}`;
-    })
-    .join('\n');
-  return [
-    {
-      role: 'system',
-      content:
-        'You select and order resume bullets for a job posting. Return ONLY a JSON array of bullet id strings, most relevant first. Never invent ids. Never rewrite bullet text. Independent-project bullets are relevant evidence but are not employment, client work, or production deployments.',
-    },
-    {
-      role: 'user',
-      content: `Job:\n${job}\n\nBullets:\n${bullets}\n\nReturn a JSON array of the ids to include, best first.`,
-    },
-  ];
-}
-
-export async function selectBullets(
-  job: string,
-  _corpus: ResumeCorpus,
+export function buildDeterministicShortlist(
+  corpus: ResumeCorpus,
   ranked: RankedBullet[],
-  deps: AssembleDeps = {},
-): Promise<SelectionResult> {
-  const fallback = (): SelectionResult => ({
-    orderedBulletIds: ranked.map((bullet) => bullet.bulletId),
-    engine: 'deterministic',
-  });
-  if (!deps.hasModel || !deps.collect) return fallback();
+): SelectionResult {
+  const knownIds = new Set(
+    corpus.engagements.flatMap((engagement) => engagement.bullets.map((bullet) => bullet.id)),
+  );
+  const seen = new Set<string>();
+  const orderedBulletIds: string[] = [];
 
-  const knownIds = new Set(ranked.map((bullet) => bullet.bulletId));
-  try {
-    const raw = await deps.collect(selectionMessages(job, ranked));
-    const ids = [...new Set(parseIdList(raw).filter((id) => knownIds.has(id)))];
-    return ids.length > 0 ? { orderedBulletIds: ids, engine: 'model' } : fallback();
-  } catch {
-    return fallback();
+  for (const bullet of ranked) {
+    if (!knownIds.has(bullet.bulletId) || seen.has(bullet.bulletId)) continue;
+    seen.add(bullet.bulletId);
+    orderedBulletIds.push(bullet.bulletId);
+    if (orderedBulletIds.length === RESUME_SHORTLIST_LIMIT) break;
   }
+
+  return { orderedBulletIds, engine: 'deterministic' };
 }
 
 function summaryMessages(job: string, selected: RankedBullet[]): ChatMessage[] {
@@ -201,29 +189,76 @@ function summaryMessages(job: string, selected: RankedBullet[]): ChatMessage[] {
   ];
 }
 
+interface SummaryOutcome {
+  summary: SummaryResult;
+  fallbackReason: SummaryFallbackReason;
+}
+
+function deterministicSummary(selected: RankedBullet[]): SummaryResult {
+  const career = selected.find((bullet) => bullet.kind === 'experience');
+  const project = selected.find((bullet) => bullet.kind === 'project');
+  const parts = [career?.text];
+  if (project) parts.push(`Independent project work: ${project.text}`);
+  return {
+    text: parts.filter(Boolean).join(' ') || 'Systems-oriented operator and engineer.',
+    engine: 'deterministic',
+  };
+}
+
+class ResumeSummaryTimeoutError extends Error {
+  constructor() {
+    super('resume summary provider deadline exceeded');
+    this.name = 'ResumeSummaryTimeoutError';
+  }
+}
+
+async function summarizeWithDiagnostics(
+  job: string,
+  selected: RankedBullet[],
+  deps: AssembleDeps = {},
+): Promise<SummaryOutcome> {
+  const evidence = selected.slice(0, SUMMARY_EVIDENCE_LIMIT);
+  const fallback = deterministicSummary(evidence);
+  if (!deps.hasModel || !deps.collect) {
+    return { summary: fallback, fallbackReason: 'no_model' };
+  }
+
+  const controller = new AbortController();
+  const deadlineMs = deps.providerDeadlineMs ?? RESUME_PROVIDER_DEADLINE_MS;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timeoutId = setTimeout(() => {
+      controller.abort();
+      reject(new ResumeSummaryTimeoutError());
+    }, deadlineMs);
+  });
+  try {
+    const collection = Promise.resolve().then(() =>
+      deps.collect!(summaryMessages(job, evidence), { signal: controller.signal }),
+    );
+    const text = (await Promise.race([collection, timeout])).trim();
+    return text
+      ? { summary: { text, engine: 'model' }, fallbackReason: 'none' }
+      : { summary: fallback, fallbackReason: 'empty_output' };
+  } catch (error) {
+    return {
+      summary: fallback,
+      fallbackReason:
+        controller.signal.aborted || error instanceof ResumeSummaryTimeoutError
+          ? 'timeout'
+          : 'provider_error',
+    };
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
+  }
+}
+
 export async function summarize(
   job: string,
   selected: RankedBullet[],
   deps: AssembleDeps = {},
 ): Promise<SummaryResult> {
-  const deterministic = (): SummaryResult => ({
-    text: (() => {
-      const career = selected.find((bullet) => bullet.kind === 'experience');
-      const project = selected.find((bullet) => bullet.kind === 'project');
-      const parts = [career?.text];
-      if (project) parts.push(`Independent project work: ${project.text}`);
-      return parts.filter(Boolean).join(' ') || 'Systems-oriented operator and engineer.';
-    })(),
-    engine: 'deterministic',
-  });
-  if (!deps.hasModel || !deps.collect) return deterministic();
-
-  try {
-    const text = (await deps.collect(summaryMessages(job, selected))).trim();
-    return text ? { text, engine: 'model' } : deterministic();
-  } catch {
-    return deterministic();
-  }
+  return (await summarizeWithDiagnostics(job, selected, deps)).summary;
 }
 
 // Curated project display names mirror the tailored CVs. Any independent
@@ -264,6 +299,7 @@ interface EngagementGroup {
   roleContext: string[];
   timePeriod: string;
   bullets: string[];
+  bulletIds: string[];
   sourceRefs: string[];
   firstIndex: number; // relevance rank of this engagement's first selected bullet
 }
@@ -301,6 +337,7 @@ function groupSelected(orderedBulletIds: string[], corpus: ResumeCorpus): Engage
         roleContext: engagement.roleContext,
         timePeriod: engagement.timePeriod,
         bullets: [],
+        bulletIds: [],
         sourceRefs: [],
         firstIndex: index,
       };
@@ -309,6 +346,7 @@ function groupSelected(orderedBulletIds: string[], corpus: ResumeCorpus): Engage
     }
 
     group.bullets.push(bullet.text);
+    group.bulletIds.push(bulletId);
     for (const sourceRef of bullet.sourceRefs) {
       if (!group.sourceRefs.includes(sourceRef)) group.sourceRefs.push(sourceRef);
     }
@@ -327,7 +365,7 @@ function firstYear(timePeriod: string): number {
   return match ? Number(match[0]) : Number.POSITIVE_INFINITY;
 }
 
-// When the model selects no bullet for an employer, we still show the role with
+// When the bounded shortlist contains no bullet for an employer, we still show the role with
 // its own top bullets — a resume must never drop a real job (e.g. the current
 // one) just because a job posting made its bullets rank low.
 const EXPERIENCE_FALLBACK_BULLETS = 2;
@@ -336,17 +374,22 @@ interface OrgAccumulator {
   organization: string;
   roleContext: string[];
   timePeriod: string;
-  selected: { text: string; sourceRefs: string[]; rank: number }[];
-  fallback: { text: string; sourceRefs: string[] }[];
+  selected: { bulletId: string; text: string; sourceRefs: string[]; rank: number }[];
+  fallback: { bulletId: string; text: string; sourceRefs: string[] }[];
   bestRank: number;
 }
 
-// Experience membership comes from the corpus, not from model selection: every
+interface RenderedExperience {
+  items: ResumeExperience[];
+  bulletIds: string[];
+}
+
+// Experience membership comes from the corpus, not from shortlist membership: every
 // employer engagement is present, merged into one entry per organization (the
 // corpus stores Aroko and Zocdoc as several evidence records), ordered newest
-// first. Selected bullets are used when the model picked any; otherwise the
+// first. Shortlisted bullets are used when present; otherwise the
 // role falls back to its own leading bullets so it still appears with content.
-function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): ResumeExperience[] {
+function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): RenderedExperience {
   const rank = new Map(orderedBulletIds.map((id, index) => [id, index]));
   const order: string[] = [];
   const byOrganization = new Map<string, OrgAccumulator>();
@@ -379,15 +422,20 @@ function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): Resu
     for (const bullet of engagement.bullets) {
       const selectedRank = rank.get(bullet.id);
       if (selectedRank === undefined) {
-        entry.fallback.push({ text: bullet.text, sourceRefs: bullet.sourceRefs });
+        entry.fallback.push({ bulletId: bullet.id, text: bullet.text, sourceRefs: bullet.sourceRefs });
       } else {
-        entry.selected.push({ text: bullet.text, sourceRefs: bullet.sourceRefs, rank: selectedRank });
+        entry.selected.push({
+          bulletId: bullet.id,
+          text: bullet.text,
+          sourceRefs: bullet.sourceRefs,
+          rank: selectedRank,
+        });
         if (selectedRank < entry.bestRank) entry.bestRank = selectedRank;
       }
     }
   }
 
-  return order
+  const rendered = order
     .map((key) => byOrganization.get(key)!)
     .map((entry) => {
       const chosen = entry.selected.length
@@ -408,24 +456,56 @@ function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): Resu
         sourceRefs,
         recency: recencyKey(entry.timePeriod),
         bestRank: entry.bestRank,
+        chosen: bullets,
       };
     })
-    .sort((a, b) => b.recency - a.recency || a.bestRank - b.bestRank)
-    .map(({ recency: _recency, bestRank: _bestRank, ...experience }) => experience);
+    .sort((a, b) => b.recency - a.recency || a.bestRank - b.bestRank);
+
+  return {
+    items: rendered.map(({ recency: _recency, bestRank: _bestRank, chosen: _chosen, ...item }) => item),
+    bulletIds: rendered.flatMap((entry) => entry.chosen.map((bullet) => bullet.bulletId)),
+  };
 }
 
-function buildProjects(groups: EngagementGroup[]): ResumeProject[] {
-  return groups
+interface RenderedProjects {
+  items: ResumeProject[];
+  bulletIds: string[];
+}
+
+function buildProjects(groups: EngagementGroup[]): RenderedProjects {
+  const rendered = groups
     .filter((group) => isProjectOrg(group.organization))
     .sort((a, b) => a.firstIndex - b.firstIndex) // keep the most relevant projects
     .slice(0, MAX_PROJECTS)
-    .sort(byRecency) // then present them newest first
-    .map((group) => ({
+    .sort(byRecency); // then present them newest first
+
+  return {
+    items: rendered.map((group) => ({
       id: group.engagementId,
       name: PROJECT_NAMES[group.engagementId] ?? group.organization,
       text: group.bullets.slice(0, MAX_PROJECT_BULLETS).join(' '),
       sourceRefs: group.sourceRefs,
-    }));
+    })),
+    bulletIds: rendered.flatMap((group) => group.bulletIds.slice(0, MAX_PROJECT_BULLETS)),
+  };
+}
+
+export function buildSummaryEvidence(
+  ranked: RankedBullet[],
+  renderedBulletIds: Iterable<string>,
+): RankedBullet[] {
+  const rendered = new Set(renderedBulletIds);
+  const seen = new Set<string>();
+  const evidence: RankedBullet[] = [];
+
+  for (const bullet of ranked) {
+    if (!rendered.has(bullet.bulletId) || seen.has(bullet.bulletId)) continue;
+    seen.add(bullet.bulletId);
+    evidence.push(bullet);
+    if (evidence.length === SUMMARY_EVIDENCE_LIMIT) break;
+  }
+
+  return evidence;
 }
 
 export function computeProvenance(
@@ -458,8 +538,8 @@ export function computeProvenance(
       { kind: 'pre-rank', engine: 'deterministic', detail: 'theme / role_fit match' },
       {
         kind: 'selection',
-        engine: selection.engine,
-        detail: `${selection.orderedBulletIds.length} source bullets selected`,
+        engine: 'deterministic',
+        detail: `${selection.orderedBulletIds.length} bounded candidates`,
       },
       {
         kind: 'summary',
@@ -480,23 +560,44 @@ export async function assembleResume(
   corpus: ResumeCorpus,
   deps: AssembleDeps = {},
 ): Promise<ResumeAssembly> {
+  const now = deps.now ?? Date.now;
+  const selectionStartedAt = now();
   const ranked = prerank(job, corpus);
-  const selection = await selectBullets(job, corpus, ranked, deps);
-  const rankedById = new Map(ranked.map((bullet) => [bullet.bulletId, bullet]));
-  const selected = selection.orderedBulletIds
-    .map((id) => rankedById.get(id))
-    .filter((bullet): bullet is RankedBullet => Boolean(bullet));
-  const summary = await summarize(job, selected, deps);
+  const selection = buildDeterministicShortlist(corpus, ranked);
+  const selectionMs = Math.max(0, Math.round(now() - selectionStartedAt));
+
   const groups = groupSelected(selection.orderedBulletIds, corpus);
+  const experience = buildExperience(selection.orderedBulletIds, corpus);
+  const projects = buildProjects(groups);
+  const summaryEvidence = buildSummaryEvidence(ranked, [
+    ...experience.bulletIds,
+    ...projects.bulletIds,
+  ]);
+
+  const summaryStartedAt = now();
+  const summaryOutcome = await summarizeWithDiagnostics(job, summaryEvidence, deps);
+  const summaryMs = Math.max(0, Math.round(now() - summaryStartedAt));
+  const summary = summaryOutcome.summary;
   const view: ResumeView = {
     header: corpus.header,
     summary,
-    experience: buildExperience(selection.orderedBulletIds, corpus),
+    experience: experience.items,
     skills: corpus.skills,
     education: corpus.education,
-    projects: buildProjects(groups),
+    projects: projects.items,
     awards: AWARDS,
   };
 
-  return { view, provenance: computeProvenance(view, selection, summary) };
+  return {
+    view,
+    provenance: computeProvenance(view, selection, summary),
+    diagnostics: {
+      selectionMs,
+      summaryMs,
+      shortlistCount: selection.orderedBulletIds.length,
+      summaryEvidenceCount: summaryEvidence.length,
+      summaryEngine: summary.engine,
+      fallbackReason: summaryOutcome.fallbackReason,
+    },
+  };
 }

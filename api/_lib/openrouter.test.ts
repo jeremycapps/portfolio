@@ -42,6 +42,22 @@ describe('streamOpenRouter', () => {
     expect(sentBody?.max_tokens).toBe(getConfig().maxOutputTokens);
   });
 
+  it('passes the caller abort signal to fetch unchanged', async () => {
+    const controller = new AbortController();
+    let sentSignal: AbortSignal | null | undefined;
+    const fetchImpl = (async (_url: string | URL | Request, init?: RequestInit) => {
+      sentSignal = init?.signal;
+      return sseResponse(['data: [DONE]\n\n']);
+    }) as typeof fetch;
+
+    for await (const _ of streamOpenRouter(msgs, {
+      fetchImpl,
+      signal: controller.signal,
+    })) { /* drain */ }
+
+    expect(sentSignal).toBe(controller.signal);
+  });
+
   it('throws a friendly error on non-200', async () => {
     const fetchImpl = (async () =>
       new Response('nope', { status: 401 })) as unknown as typeof fetch;

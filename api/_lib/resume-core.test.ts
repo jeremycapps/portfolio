@@ -14,6 +14,14 @@ const stubAssembly: ResumeAssembly = {
     awards: [],
   },
   provenance: { deterministicPct: 100, modelPct: 0, operations: [] },
+  diagnostics: {
+    selectionMs: 1,
+    summaryMs: 2,
+    shortlistCount: 3,
+    summaryEvidenceCount: 3,
+    summaryEngine: 'deterministic',
+    fallbackReason: 'no_model',
+  },
 };
 
 function post(body: unknown): Request {
@@ -57,9 +65,11 @@ describe('handleResumeRequest', () => {
 
   it('returns the assembled view and provenance', async () => {
     const assemble = vi.fn(async () => stubAssembly);
+    const logDiagnostic = vi.fn();
     const response = await handleResumeRequest(post({ jobDescription: 'ops role' }), {
       checkLimit: okLimit,
       assemble,
+      logDiagnostic,
     });
     expect(response.status).toBe(200);
     expect(assemble).toHaveBeenCalledWith('ops role');
@@ -68,6 +78,65 @@ describe('handleResumeRequest', () => {
       view: { header: { name: 'Jeremy' } },
       provenance: { deterministicPct: 100 },
     });
+    expect(logDiagnostic).toHaveBeenCalledOnce();
+    expect(logDiagnostic).toHaveBeenCalledWith({
+      event: 'resume_assembly',
+      diagnostics: stubAssembly.diagnostics,
+    });
+  });
+
+  it('does not expose diagnostics in the public response', async () => {
+    const response = await handleResumeRequest(post({ jobDescription: 'ops role' }), {
+      checkLimit: okLimit,
+      assemble: async () => stubAssembly,
+      logDiagnostic: vi.fn(),
+    });
+    expect(await response.json()).not.toHaveProperty('diagnostics');
+  });
+
+  it('keeps a successful response successful when diagnostic logging throws', async () => {
+    const response = await handleResumeRequest(post({ jobDescription: 'private sentinel jd' }), {
+      checkLimit: okLimit,
+      assemble: async () => stubAssembly,
+      logDiagnostic: () => {
+        throw new Error('logger unavailable');
+      },
+    });
+    expect(response.status).toBe(200);
+  });
+
+  it('keeps job, source, contact, and model text out of diagnostics', async () => {
+    const logDiagnostic = vi.fn();
+    const privateAssembly: ResumeAssembly = {
+      ...stubAssembly,
+      view: {
+        ...stubAssembly.view,
+        header: { name: 'Jeremy', contacts: ['private-contact-sentinel'] },
+        summary: { text: 'private-model-sentinel', engine: 'model' },
+        experience: [{
+          organization: 'Private Org',
+          roleContext: ['Private Role'],
+          timePeriod: '2026',
+          bullets: ['private-source-sentinel'],
+          sourceRefs: ['private-ref-sentinel'],
+        }],
+      },
+    };
+    const response = await handleResumeRequest(
+      post({ jobDescription: 'private-jd-sentinel' }),
+      {
+        checkLimit: okLimit,
+        assemble: async () => privateAssembly,
+        logDiagnostic,
+      },
+    );
+
+    expect(response.status).toBe(200);
+    const serialized = JSON.stringify(logDiagnostic.mock.calls);
+    expect(serialized).not.toContain('private-jd-sentinel');
+    expect(serialized).not.toContain('private-source-sentinel');
+    expect(serialized).not.toContain('private-contact-sentinel');
+    expect(serialized).not.toContain('private-model-sentinel');
   });
 
   it('rejects an invalid body', async () => {
