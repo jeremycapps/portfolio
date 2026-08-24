@@ -376,7 +376,7 @@ function Home() {
             </button>
           </div>
 
-          <ProjectCards onDescribe={showToast} />
+          <ProjectCards />
         </section>
 
         <div className="footer-contact" aria-label="Contact Jeremy">

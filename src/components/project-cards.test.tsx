@@ -4,14 +4,17 @@ import type { PortfolioProject } from '../lib/projects';
 import { ProjectCards } from './project-cards';
 
 describe('ProjectCards', () => {
-  it('renders repository links from shared project data with safe external behavior', () => {
-    const html = renderToStaticMarkup(<ProjectCards onDescribe={() => undefined} />);
+  it('renders each public project card as its safe external repository link', () => {
+    const html = renderToStaticMarkup(<ProjectCards />);
 
     expect(html).toContain('href="https://github.com/jeremycapps/libera"');
     expect(html).toContain('href="https://github.com/jeremycapps/facia"');
     expect(html).toContain('href="https://github.com/jeremycapps/corus-workbench"');
     expect(html.match(/target="_blank"/g)).toHaveLength(3);
     expect(html.match(/rel="noreferrer noopener"/g)).toHaveLength(3);
+    expect(html.match(/class="document-card"/g)).toHaveLength(3);
+    expect(html).not.toContain('document-repository');
+    expect(html).not.toContain('<button');
   });
 
   it('omits the repository action when a project has no public URL', () => {
@@ -20,13 +23,10 @@ describe('ProjectCards', () => {
       name: 'Private study',
       category: 'Research',
       description: 'Not public.',
-      toast: 'Private study.',
     };
-    const html = renderToStaticMarkup(
-      <ProjectCards projects={[privateProject]} onDescribe={() => undefined} />,
-    );
+    const html = renderToStaticMarkup(<ProjectCards projects={[privateProject]} />);
 
-    expect(html).not.toContain('document-repository');
     expect(html).not.toContain('href=');
+    expect(html).toContain('<article class="document-card"');
   });
 });
