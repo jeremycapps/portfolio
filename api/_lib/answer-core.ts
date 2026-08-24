@@ -4,9 +4,13 @@ import {
   type AnswerSetV2,
   type DisclosureDepth,
 } from '@facia/core';
+import { answerSystemPrompt, getConfig } from './config';
 import { jsonError, jsonResponse } from './http';
+import { produceMarkdownAnswer } from './markdown-answer-producer';
+import { collectChat } from './provider';
 import { checkRateLimit } from './rate-limit';
 import { answerPortfolioQuestion } from './portfolio-answer-source';
+import type { ChatMessage, StreamDeps } from './types';
 
 const MAX_QUESTION_CHARS = 1_000;
 const DEPTHS: DisclosureDepth[] = ['glance', 'inspect', 'focus', 'audit'];
@@ -17,6 +21,7 @@ interface AnswerRequest {
 }
 
 type AnswerSource = (question: string) => AnswerSetV2 | null;
+type CompleteAnswer = (messages: ChatMessage[], deps?: StreamDeps) => Promise<string>;
 type RateLimitCheck = (request: Request) => ReturnType<typeof checkRateLimit>;
 
 type ValidResult =
@@ -38,11 +43,75 @@ export function validateAnswerBody(body: unknown): ValidResult {
   return { ok: true, value: { question, depth: depth as DisclosureDepth } };
 }
 
+export function buildAnswerMessages(question: string): ChatMessage[] {
+  return [
+    { role: 'system', content: answerSystemPrompt() },
+    { role: 'user', content: question },
+  ];
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === 'AbortError';
+}
+
+async function completeModelAnswer(
+  question: string,
+  requestSignal: AbortSignal,
+  complete: CompleteAnswer,
+  timeoutMs: number,
+): Promise<{ ok: true; markdown: string } | { ok: false; response: Response }> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const cancel = () => controller.abort(requestSignal.reason);
+  if (requestSignal.aborted) cancel();
+  else requestSignal.addEventListener('abort', cancel, { once: true });
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort(new DOMException('Answer completion timed out.', 'TimeoutError'));
+  }, timeoutMs);
+
+  try {
+    const markdown = (await complete(buildAnswerMessages(question), {
+      signal: controller.signal,
+    })).trim();
+    if (!markdown) {
+      return {
+        ok: false,
+        response: jsonError('The assistant returned an empty answer.', 'EMPTY_COMPLETION', 502),
+      };
+    }
+    return { ok: true, markdown };
+  } catch (error) {
+    if (timedOut) {
+      return {
+        ok: false,
+        response: jsonError('The answer took too long to complete.', 'ANSWER_TIMEOUT', 504),
+      };
+    }
+    if (requestSignal.aborted || isAbortError(error)) {
+      return {
+        ok: false,
+        response: jsonError('The answer request was cancelled.', 'ANSWER_CANCELLED', 499),
+      };
+    }
+    console.error('Answer provider failed:', error);
+    return {
+      ok: false,
+      response: jsonError('The assistant is unavailable right now.', 'PROVIDER_UNAVAILABLE', 502),
+    };
+  } finally {
+    clearTimeout(timeout);
+    requestSignal.removeEventListener('abort', cancel);
+  }
+}
+
 export async function handleAnswerRequest(
   request: Request,
   deps: {
     answer?: AnswerSource;
+    complete?: CompleteAnswer;
     checkLimit?: RateLimitCheck;
+    timeoutMs?: number;
   } = {},
 ): Promise<Response> {
   if (request.method !== 'POST') {
@@ -76,13 +145,16 @@ export async function handleAnswerRequest(
     return jsonError(validation.error, 'INVALID_REQUEST', 400);
   }
 
-  const answerSet = (deps.answer ?? answerPortfolioQuestion)(validation.value.question);
+  let answerSet = (deps.answer ?? answerPortfolioQuestion)(validation.value.question);
   if (answerSet === null) {
-    return jsonError(
-      'That question does not have a deterministic portfolio model yet.',
-      'QUESTION_NOT_MODELED',
-      404,
+    const completion = await completeModelAnswer(
+      validation.value.question,
+      request.signal,
+      deps.complete ?? ((messages, completionDeps) => collectChat(messages, completionDeps)),
+      deps.timeoutMs ?? getConfig().answerTimeoutMs,
     );
+    if (!completion.ok) return completion.response;
+    answerSet = produceMarkdownAnswer(validation.value.question, completion.markdown);
   }
 
   const result = resolveAnswerSet(answerSet, {

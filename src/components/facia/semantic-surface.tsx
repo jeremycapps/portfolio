@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import type {
   ComponentRecipe,
   DisclosureDepth,
@@ -15,6 +16,55 @@ const DEPTHS: Array<{ depth: DisclosureDepth; label: string }> = [
 interface SemanticSurfaceProps {
   recipe: ComponentRecipe;
   onDepthChange: (depth: DisclosureDepth) => Promise<void>;
+}
+
+type AllowedLink = { protocol: 'https:' | 'mailto:'; href: string };
+
+export function validateMarkdownLink(href: string | undefined): AllowedLink | null {
+  if (!href) return null;
+  try {
+    const url = new URL(href);
+    if (url.protocol !== 'https:' && url.protocol !== 'mailto:') return null;
+    return { protocol: url.protocol, href };
+  } catch {
+    return null;
+  }
+}
+
+function MarkdownDocument({ markdown }: { markdown: string }) {
+  return (
+    <div className="prose max-w-none semantic-markdown" data-testid="semantic-markdown">
+      <ReactMarkdown
+        skipHtml
+        urlTransform={(url) => url}
+        components={{
+          a: ({ node: _node, href, children, ...props }) => {
+            const allowed = validateMarkdownLink(href);
+            if (!allowed) return <>{children}</>;
+            return (
+              <a
+                {...props}
+                href={allowed.href}
+                {...(allowed.protocol === 'https:'
+                  ? { target: '_blank', rel: 'noreferrer noopener' }
+                  : {})}
+              >
+                {children}
+              </a>
+            );
+          },
+        }}
+      >
+        {markdown}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+function markdownFromRecipe(recipe: ComponentRecipe): string | null {
+  if (recipe.pattern !== 'detail' || recipe.answer.items.length !== 1) return null;
+  const markdown = recipe.answer.items[0].payload.markdown;
+  return typeof markdown === 'string' ? markdown : null;
 }
 
 function displayValue(value: unknown): string {
@@ -48,6 +98,7 @@ export function SemanticSurface({ recipe, onDepthChange }: SemanticSurfaceProps)
   const supportsList = componentIds.has('List');
   const supportsToolbar = componentIds.has('InspectionToolbar');
   const audit = recipe.context.depth === 'audit';
+  const markdown = markdownFromRecipe(recipe);
 
   const changeDepth = async (depth: DisclosureDepth) => {
     if (depth === recipe.context.depth || changingDepth !== null) return;
@@ -58,6 +109,17 @@ export function SemanticSurface({ recipe, onDepthChange }: SemanticSurfaceProps)
       setChangingDepth(null);
     }
   };
+
+  if (markdown !== null) {
+    return (
+      <section className="semantic-surface semantic-document" aria-labelledby="semantic-question" data-testid="semantic-surface">
+        <header className="semantic-document-header">
+          <h2 id="semantic-question">{recipe.answer.question}</h2>
+        </header>
+        <MarkdownDocument markdown={markdown} />
+      </section>
+    );
+  }
 
   return (
     <section className="semantic-surface" aria-labelledby="semantic-question" data-testid="semantic-surface">

@@ -26,6 +26,8 @@ the UI loads and returns a friendly error on send.
 - `CHAT_PROVIDER` — default `openrouter`.
 - `CHAT_MODEL` — default `meta-llama/llama-3.3-70b-instruct`.
 - `CHAT_MAX_OUTPUT_TOKENS` — shared chat/eval output ceiling; default `400`.
+- `ANSWER_TIMEOUT_MS` — standalone structured-answer completion deadline;
+  default `15000`.
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optional) — enable rate
   limiting.
 
@@ -51,8 +53,9 @@ Edge runtime. Non-streaming failures return
 
 - `POST /api/chat` accepts a message history and streams general model-written
   text grounded by `content/profile.md`.
-- `POST /api/answer` accepts `{ question, depth }` and returns a deterministic
-  Facia recipe when the question has a declared portfolio model.
+- `POST /api/answer` accepts `{ question, depth }` and returns a structured
+  Facia recipe. Declared questions use deterministic producers; otherwise the
+  endpoint wraps a completed model Markdown document in a detail recipe.
 - `POST /api/resume` accepts `{ jobDescription }` and returns a typed resume
   assembled from the baked source corpus with deterministic/model provenance.
 
@@ -64,8 +67,9 @@ Vercel, so local and deployed behavior share validation and response contracts.
 `POST /api/answer` accepts `{ question, depth }`, where depth is `glance`,
 `inspect`, `focus`, or `audit`. Modeled questions return a
 `portfolio.answer/1` envelope containing the pinned `facia.answer-set/2`
-component recipe. Questions without a declared model return
-`QUESTION_NOT_MODELED`, allowing the UI to continue through `/api/chat`.
+component recipe. Questions without a declared model use an answer-only model
+prompt and return a safe Markdown detail recipe. Multi-turn chat continues to
+use `/api/chat` and its unchanged raw-chat prompt.
 
 The first modeled question covers Jeremy's Zocdoc work. Its source lives in
 `api/_lib/portfolio-answer-source.ts`; Facia's renderer-independent runtime is

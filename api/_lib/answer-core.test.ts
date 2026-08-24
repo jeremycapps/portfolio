@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { handleAnswerRequest, validateAnswerBody } from './answer-core';
+import { describe, expect, it, vi } from 'vitest';
+import { buildAnswerMessages, handleAnswerRequest, validateAnswerBody } from './answer-core';
 
 const allow = async () => ({ ok: true as const });
 
@@ -27,9 +27,10 @@ describe('validateAnswerBody', () => {
 
 describe('handleAnswerRequest', () => {
   it('resolves the modeled Zocdoc question through Facia', async () => {
+    const complete = vi.fn(async () => 'must not run');
     const response = await handleAnswerRequest(
       request({ question: 'What did Jeremy build at Zocdoc?', depth: 'glance' }),
-      { checkLimit: allow },
+      { checkLimit: allow, complete },
     );
     const body = await response.json();
 
@@ -42,6 +43,7 @@ describe('handleAnswerRequest', () => {
       'title',
       'contribution',
     ]);
+    expect(complete).not.toHaveBeenCalled();
   });
 
   it('expands the same answer deterministically at audit depth', async () => {
@@ -61,13 +63,82 @@ describe('handleAnswerRequest', () => {
     expect(firstBody.recipe.inspectionControls).toContain('view-trace');
   });
 
-  it('declines questions that do not have a declared model', async () => {
+  it('wraps a completed model Markdown answer for an unmodeled standalone question', async () => {
+    const complete = vi.fn(async () => '# Music\n\nJeremy likes **careful listening**.');
     const response = await handleAnswerRequest(
       request({ question: 'What music does Jeremy like?' }),
-      { checkLimit: allow },
+      { checkLimit: allow, complete },
     );
-    expect(response.status).toBe(404);
-    expect(await response.json()).toMatchObject({ code: 'QUESTION_NOT_MODELED' });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.recipe.pattern).toBe('detail');
+    expect(body.recipe.answer.items[0].payload.markdown).toContain('**careful listening**');
+    expect(complete).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ role: 'user', content: 'What music does Jeremy like?' }),
+      ]),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  });
+
+  it('returns a controlled error for provider failure', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const response = await handleAnswerRequest(
+      request({ question: 'What music does Jeremy like?' }),
+      {
+        checkLimit: allow,
+        complete: async () => { throw new Error('provider secret'); },
+      },
+    );
+
+    expect(response.status).toBe(502);
+    await expect(response.json()).resolves.toMatchObject({ code: 'PROVIDER_UNAVAILABLE' });
+    consoleError.mockRestore();
+  });
+
+  it('returns a controlled error for an empty completion', async () => {
+    const response = await handleAnswerRequest(
+      request({ question: 'What music does Jeremy like?' }),
+      { checkLimit: allow, complete: async () => '  \n ' },
+    );
+
+    expect(response.status).toBe(502);
+    await expect(response.json()).resolves.toMatchObject({ code: 'EMPTY_COMPLETION' });
+  });
+
+  it('returns a controlled error when completion times out', async () => {
+    const response = await handleAnswerRequest(
+      request({ question: 'What music does Jeremy like?' }),
+      {
+        checkLimit: allow,
+        timeoutMs: 5,
+        complete: (_messages, deps) => new Promise((_resolve, reject) => {
+          deps?.signal?.addEventListener('abort', () => reject(deps.signal?.reason), { once: true });
+        }),
+      },
+    );
+
+    expect(response.status).toBe(504);
+    await expect(response.json()).resolves.toMatchObject({ code: 'ANSWER_TIMEOUT' });
+  });
+
+  it('returns a controlled error for cancellation', async () => {
+    const controller = new AbortController();
+    controller.abort(new DOMException('cancelled', 'AbortError'));
+    const cancelledRequest = new Request('http://localhost/api/answer', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ question: 'What music does Jeremy like?' }),
+      signal: controller.signal,
+    });
+    const response = await handleAnswerRequest(cancelledRequest, {
+      checkLimit: allow,
+      complete: async () => { throw new DOMException('cancelled', 'AbortError'); },
+    });
+
+    expect(response.status).toBe(499);
+    await expect(response.json()).resolves.toMatchObject({ code: 'ANSWER_CANCELLED' });
   });
 
   it('uses the shared rate-limit boundary', async () => {
@@ -77,5 +148,16 @@ describe('handleAnswerRequest', () => {
     expect(response.status).toBe(429);
     expect(response.headers.get('retry-after')).toBe('12');
     await expect(response.json()).resolves.toMatchObject({ code: 'RATE_LIMITED' });
+  });
+});
+
+describe('buildAnswerMessages', () => {
+  it('uses the answer-only Markdown contract', () => {
+    const messages = buildAnswerMessages('Explain Facia.');
+
+    expect(messages).toHaveLength(2);
+    expect(messages[0]).toMatchObject({ role: 'system' });
+    expect(messages[0].content).toContain('Return only the completed reader-facing answer in Markdown');
+    expect(messages[1]).toEqual({ role: 'user', content: 'Explain Facia.' });
   });
 });
