@@ -32,6 +32,17 @@ describe('buildMessages', () => {
     expect(built.filter((m) => m.role === 'system')).toHaveLength(1);
     expect(built[built.length - 1]).toEqual({ role: 'user', content: 'hi' });
   });
+
+  it('includes the Markdown response output contract', () => {
+    const [system] = buildMessages([{ role: 'user', content: 'hi' }]);
+
+    expect(system.content).toContain('<response_output_contract version="1.0">');
+    expect(system.content).toContain('Never emit a bare URL.');
+    expect(system.content).toContain(
+      '[Corus on GitHub](https://github.com/jeremycapps/corus-workbench)',
+    );
+    expect(system.content).toContain('Never invent quotations.');
+  });
 });
 
 describe('handleChatRequest', () => {
