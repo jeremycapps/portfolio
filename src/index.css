@@ -1250,7 +1250,98 @@ textarea:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+.app-shell-chatting {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-chatting {
+  display: flex;
+  width: min(100% - 48px, 1000px);
+  height: calc(100dvh - 78px);
+  min-height: 0;
+  flex-direction: column;
+  padding: 8px 0 max(14px, env(safe-area-inset-bottom));
+  text-align: left;
+}
+
+.workspace-chatting .intro,
+.workspace-chatting .connect-section,
+.workspace-chatting .portfolio,
+.workspace-chatting .footer-contact,
+.workspace-chatting .footer-note {
+  display: none;
+}
+
+.conversation-pane {
+  width: min(100%, 900px);
+  min-height: 0;
+  flex: 1 1 auto;
+  margin: 0 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-color: rgba(104, 126, 148, 0.35) transparent;
+}
+
+.conversation-pane::-webkit-scrollbar {
+  width: 8px;
+}
+
+.conversation-pane::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(104, 126, 148, 0.3);
+  background-clip: padding-box;
+}
+
+.conversation-pane > .chat-error,
+.workspace-chatting .loading-surface {
+  width: min(100% - 24px, 876px);
+  margin: 20px auto;
+}
+
+.workspace-chatting .resume-surface {
+  margin-top: 20px;
+}
+
+.composer-wrap-chatting {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 900px);
+  flex: 0 0 auto;
+  margin: 0 auto;
+  padding: 12px 8px 0;
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0), #f1f5f9 16px);
+  animation: none;
+}
+
+.composer-wrap-chatting .composer {
+  min-height: 104px;
+  background: rgba(252, 254, 255, 0.94);
+  box-shadow:
+    0 18px 45px rgba(52, 73, 96, 0.14),
+    0 2px 5px rgba(52, 73, 96, 0.06),
+    inset 0 1px rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+}
+
+.composer-wrap-chatting .composer-input {
+  min-height: 42px;
+}
+
+.composer-wrap-chatting .prompt-starters {
+  margin-top: 9px;
+}
+
+.composer-wrap-chatting .status-line {
+  margin-bottom: 0;
+}
+
 .chat-view { display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem auto; width: min(100%, 900px); }
+.workspace-chatting .chat-view { margin: 0 auto; padding: 20px 12px 28px; }
 .chat-bubble { padding: 0.75rem 1rem; border-radius: 0.75rem; max-width: 42rem; line-height: 1.5; }
 .chat-bubble-user { align-self: flex-end; background: rgba(120,120,140,0.16); white-space: pre-wrap; }
 .chat-bubble-assistant { align-self: flex-start; background: rgba(120,120,140,0.06); text-align: left; }
@@ -1271,6 +1362,49 @@ textarea:focus-visible {
 .chat-markdown :where(a):focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
 .chat-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .chat-error { color: #b4232a; font-size: 0.9rem; }
+.chat-tail { width: 100%; height: 1px; flex: 0 0 1px; }
+
+@media (max-width: 720px) {
+  .workspace-chatting {
+    width: 100%;
+    height: calc(100dvh - 67px);
+    padding: 0 0 max(8px, env(safe-area-inset-bottom));
+  }
+
+  .conversation-pane {
+    width: 100%;
+    scrollbar-gutter: auto;
+  }
+
+  .workspace-chatting .chat-view {
+    padding: 14px 16px 22px;
+  }
+
+  .composer-wrap-chatting {
+    width: 100%;
+    padding: 10px 16px 0;
+  }
+
+  .composer-wrap-chatting .composer {
+    min-height: 96px;
+    padding: 13px 14px 10px;
+  }
+
+  .composer-wrap-chatting .starter-chips {
+    flex-wrap: nowrap;
+    padding-bottom: 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .composer-wrap-chatting .starter-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .composer-wrap-chatting .starter-chip {
+    flex: 0 0 auto;
+  }
+}
 
 .loading-surface {
   display: flex;

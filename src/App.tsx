@@ -75,6 +75,7 @@ function Home() {
     streaming &&
     resumeResult === null &&
     !messages.some((m) => m.role === 'assistant' && messageHasVisibleContent(m));
+  const chatActive = hasConversation || awaitingAnswer;
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -252,7 +253,7 @@ function Home() {
   };
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell${chatActive ? ' app-shell-chatting' : ''}`}>
       <header className="topbar">
         <a className="brand" href="/" data-testid="link-brand">
           <span className="brand-mark" aria-hidden="true">
@@ -270,7 +271,11 @@ function Home() {
 
       {menuOpen && <MobileNavigation onNotice={showToast} />}
 
-      <section className="workspace" aria-labelledby="hero-title">
+      <section
+        className={`workspace${chatActive ? ' workspace-chatting' : ''}`}
+        aria-label={chatActive ? 'Portfolio assistant' : undefined}
+        aria-labelledby={chatActive ? undefined : 'hero-title'}
+      >
         <div className="intro">
           <p className="eyebrow" data-testid="text-eyebrow">The portfolio of Jeremy Capps</p>
           <h1 className="hero-title" id="hero-title">
@@ -282,8 +287,8 @@ function Home() {
           </p>
         </div>
 
-        {(hasConversation || awaitingAnswer) && (
-          <>
+        {chatActive && (
+          <div className="conversation-pane" role="region" aria-label="Conversation">
             {resumeResult ? (
               <>
                 <ResumeSurface view={resumeResult.view} provenance={resumeResult.provenance} />
@@ -304,10 +309,10 @@ function Home() {
             ) : chatError ? (
               <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>
             ) : null}
-          </>
+          </div>
         )}
 
-        <div className="composer-wrap">
+        <div className={`composer-wrap${chatActive ? ' composer-wrap-chatting' : ''}`}>
           <form className="composer" onSubmit={handlePromptSubmit} data-testid="form-prompt">
             <div className="composer-prompt">
               <Search aria-hidden="true" />

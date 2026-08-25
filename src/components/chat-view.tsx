@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { ClientMessage } from '../lib/chat';
 import type { DisclosureDepth } from '@facia/core';
 import { SemanticSurface } from './facia/semantic-surface';
@@ -13,6 +14,15 @@ interface ChatViewProps {
 }
 
 export function ChatView({ messages, streaming, error, onChoice, onDepthChange }: ChatViewProps) {
+  const tailRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    tailRef.current?.scrollIntoView({
+      block: 'end',
+      behavior: streaming ? 'auto' : 'smooth',
+    });
+  }, [messages, streaming, error]);
+
   return (
     <div className="chat-view" data-testid="chat-view">
       {messages.map((m, i) => (
@@ -57,6 +67,7 @@ export function ChatView({ messages, streaming, error, onChoice, onDepthChange }
           {error}
         </div>
       )}
+      <div className="chat-tail" ref={tailRef} aria-hidden="true" />
     </div>
   );
 }
