@@ -6,6 +6,7 @@ import {
   type PlacedSide, type PoleSide, type Tension,
 } from '@/lib/stratos/ontology';
 import { STRATOS_RECIPES } from '@/lib/stratos/recipes.generated';
+import { SOURCES, lensCitations } from '@/lib/stratos/sources';
 import './stratos.css';
 
 const DEAD_ZONE = 0.05;
@@ -126,21 +127,37 @@ function Pole({ tension, side, open, onToggle }: {
   const own = ownerOf(tension, side);
   const name = poleName(tension, side);
   const loc = LOCUS[side];
+  const citations = lensCitations(lensOf(tension, side));
+  const popoverId = `pole-${tension.id}-${side}-sources`;
   return (
-    <span className={`pole ${side}`}>
-      <button type="button" className="pole-btn" aria-expanded={open}
-        aria-label={`${name}, a ${own.fn} call — tap for what this pole requires`}
+    <div className={`pole ${side}`}>
+      <button type="button" className="pole-btn" aria-expanded={open} aria-controls={popoverId}
+        aria-haspopup="dialog"
+        aria-label={`${name}, a ${own.fn} call — tap for what this pole requires and its sources`}
         onClick={(e) => { e.stopPropagation(); onToggle(); }}>
         <span className="pole-name">{side === 'l' ? '◀ ' : ''}{name}{side === 'r' ? ' ▶' : ''}</span>
       </button>
-      <span className="pole-pop" role="tooltip">
+      <div id={popoverId} className="pole-pop" role="dialog" aria-label={`${name} definition and sources`}>
         <b>{name}</b>
         <em>Owner</em>{own.fn}
         <em>Decisive proof</em>{proofOf(tension, side)}
         <em>Validation locus</em>{loc.where} — protects {loc.protects}
-        <em>Lenses</em><span className="mono">{lensOf(tension, side)}</span>
-      </span>
-    </span>
+        <em>Source {citations.length === 1 ? 'lens' : 'lenses'}</em>
+        <ol className="lens-citations">
+          {citations.map((citation) => (
+            <li key={`${citation.id}-${citation.role}`}>
+              <span className="lens-meta">{citation.role} · {citation.pillar}</span>
+              <a href={citation.url} target="_blank" rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}>
+                {citation.author} ({citation.year}). <cite>{citation.title}</cite>.
+                {citation.publisher ? ` ${citation.publisher}.` : null}
+              </a>
+              <span className="lens-framing">{citation.framing}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
   );
 }
 
@@ -349,12 +366,39 @@ export default function StratosPage() {
             that answer carries them.<br />
             <b>Target-based Coherence</b> was removed in v4.1: scoring the distance to a target the audit
             invented graded our own guesswork.<br />
+            Pole source cards cite the underlying works. Their one-line lens descriptions are attributed
+            framing of the concept StratOS borrows, not verbatim quotations.<br />
             Ontology from <b>_metadata/Tension_Model.md</b> and <b>_metadata/Ownership_Model.md</b>; mandates
             and boardroom questions quoted from <b>StratOS_v5_CSuite_Micro_Reports.docx</b>.
           </p>
         </section>
+
+        <Bibliography />
       </div>
     </div>
+  );
+}
+
+function Bibliography() {
+  const sources = Object.entries(SOURCES)
+    .sort(([, a], [, b]) => a.author.localeCompare(b.author));
+
+  return (
+    <section className="bibliography" aria-labelledby="stratos-references">
+      <h2 id="stratos-references">References</h2>
+      <p className="sub">The underlying works cited by the instrument’s pole lenses.</p>
+      <ol>
+        {sources.map(([id, source]) => (
+          <li id={`source-${id}`} key={id}>
+            <a href={source.url} target="_blank" rel="noreferrer">
+              {source.author} ({source.year}). <cite>{source.title}</cite>.
+              {source.publisher ? ` ${source.publisher}.` : null}
+            </a>
+            <span>{source.pillar}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

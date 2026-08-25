@@ -88,20 +88,30 @@
 .stratos .pole-name { font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.06em;
   text-transform:uppercase; line-height:1.25; border-bottom:1px dotted currentColor; padding-bottom:2px; }
 .stratos .pole-btn:focus-visible { outline:2px solid var(--st-focus); outline-offset:2px; }
-.stratos .pole-pop { display:none; position:absolute; top:calc(100% + 6px); z-index:20; width:min(290px,78vw);
-  background:var(--st-card); border:1px solid var(--st-ink-3); padding:11px 12px;
+.stratos .pole-pop { display:none; position:absolute; top:calc(100% + 6px); z-index:20; width:min(420px,88vw);
+  max-height:min(560px,72vh); overflow-y:auto; background:var(--st-card); border:1px solid var(--st-ink-3); padding:13px 14px;
   font-family:"IBM Plex Sans",sans-serif; font-size:12.5px; letter-spacing:0; text-transform:none;
   line-height:1.45; color:var(--st-ink-2); text-align:left; box-shadow:0 6px 22px rgba(0,0,0,.14); }
 .stratos .pole.l .pole-pop { left:0; }
 .stratos .pole.r .pole-pop { right:0; }
 .stratos .pole-btn:focus-visible + .pole-pop,
 .stratos .pole-btn[aria-expanded="true"] + .pole-pop { display:block; }
-@media (hover:hover){ .stratos .pole-btn:hover + .pole-pop { display:block; } }
+@media (hover:hover){ .stratos .pole:hover .pole-pop { display:block; } }
 .stratos .pole-pop b { display:block; font-family:Spectral,Georgia,serif; font-size:15px; font-weight:600;
   color:var(--st-ink); margin-bottom:7px; }
 .stratos .pole-pop em { display:block; font-family:"IBM Plex Mono",monospace; font-size:9px; font-style:normal;
   letter-spacing:.11em; text-transform:uppercase; color:var(--st-ink-3); margin:8px 0 2px; }
-.stratos .pole-pop .mono { font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--st-ink-3); }
+.stratos .lens-citations { display:grid; gap:10px; list-style:none; margin:0; padding:0; }
+.stratos .lens-citations li + li { border-top:1px solid var(--st-rule-2); padding-top:10px; }
+.stratos .lens-meta { display:block; margin-bottom:2px; font-family:"IBM Plex Mono",monospace;
+  font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--st-ink-3); }
+.stratos .lens-citations a { color:var(--st-ink); text-decoration-color:var(--st-rule);
+  text-decoration-thickness:1px; text-underline-offset:2px; }
+.stratos .lens-citations a:hover { color:var(--st-accent); text-decoration-color:currentColor; }
+.stratos .lens-citations a:focus-visible { outline:2px solid var(--st-focus); outline-offset:2px; }
+.stratos .lens-citations cite { font-family:Spectral,Georgia,serif; font-style:italic; }
+.stratos .lens-framing { display:block; margin-top:4px; color:var(--st-ink-3); font-family:Spectral,Georgia,serif;
+  font-size:12.5px; line-height:1.4; }
 
 .stratos .axis { position:relative; height:72px; background:var(--st-sunk); border:1px solid var(--st-rule);
   cursor:ew-resize; touch-action:none; overflow:hidden; -webkit-tap-highlight-color:transparent; }
@@ -200,6 +210,22 @@
 .stratos .contract li::before { content:"—"; position:absolute; left:0; color:var(--st-right); font-family:"IBM Plex Mono",monospace; }
 .stratos .foot { margin-top:24px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--st-ink-3); line-height:1.85; }
 .stratos .foot b { color:var(--st-ink-2); font-weight:500; }
+
+.stratos .bibliography { margin-top:44px; padding-top:20px; border-top:1px solid var(--st-ink); }
+.stratos .bibliography h2 { margin:0 0 4px; font-family:Spectral,Georgia,serif; font-size:21px;
+  font-weight:400; }
+.stratos .bibliography .sub { margin:0 0 18px; color:var(--st-ink-3); font-size:12.5px; }
+.stratos .bibliography ol { display:grid; gap:0; margin:0; padding:0; list-style:none; }
+.stratos .bibliography li { display:grid; gap:4px; padding:12px 0; border-top:1px solid var(--st-rule-2); }
+.stratos .bibliography li:first-child { border-top:0; padding-top:0; }
+.stratos .bibliography a { color:var(--st-ink-2); font-family:Spectral,Georgia,serif; font-size:14px;
+  line-height:1.45; text-decoration-color:var(--st-rule); text-decoration-thickness:1px;
+  text-underline-offset:3px; }
+.stratos .bibliography a:hover { color:var(--st-accent); text-decoration-color:currentColor; }
+.stratos .bibliography a:focus-visible { outline:2px solid var(--st-focus); outline-offset:3px; }
+.stratos .bibliography cite { color:var(--st-ink); font-style:italic; }
+.stratos .bibliography li > span { font-family:"IBM Plex Mono",monospace; font-size:9px;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--st-ink-3); }
 
 @media (min-width:700px){
   .stratos .wrap { max-width:860px; padding:48px 32px 96px; }
