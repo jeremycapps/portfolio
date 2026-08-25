@@ -71,4 +71,34 @@ describe('SemanticSurface', () => {
     expect(html).not.toContain('facia.answer-set/2');
     expect(html).not.toContain('PATTERN_COLLECTION_LIST');
   });
+
+  it('renders a grounded repo field as a safe external chip link', () => {
+    const answer = answerPortfolioQuestion('What technologies has Jeremy worked with?');
+    const result = resolveAnswerSet(answer, { depth: 'glance' });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const html = renderToStaticMarkup(
+      <SemanticSurface recipe={result.recipe} onDepthChange={async () => undefined} />,
+    );
+
+    expect(html).toContain('class="semantic-repo-chip"');
+    expect(html).toContain('href="https://github.com/jeremycapps/corus-workbench"');
+    expect(html).toContain('rel="noreferrer noopener"');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('jeremycapps/corus-workbench');
+  });
+
+  it('renders a plain list item with no chip when the item has no repo', () => {
+    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const result = resolveAnswerSet(answer, { depth: 'glance' });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const html = renderToStaticMarkup(
+      <SemanticSurface recipe={result.recipe} onDepthChange={async () => undefined} />,
+    );
+
+    expect(html).not.toContain('semantic-repo-chip');
+  });
 });

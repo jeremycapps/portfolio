@@ -5,6 +5,7 @@ import {
   answerPortfolioQuestion,
   generatePortfolioAnswer,
   supportsPortfolioQuestion,
+  supportsTechnologiesQuestion,
 } from './portfolio-answer-source';
 
 describe('portfolio answer source', () => {
@@ -58,5 +59,49 @@ describe('portfolio answer source', () => {
       .resolves.toEqual(expect.objectContaining({ schema: 'facia.answer-set/2' }));
     await expect(generatePortfolioAnswer('What did Jeremy do at Zocdoc?', invalid))
       .rejects.toEqual(expect.objectContaining({ code: 'MODEL_SCHEMA_INVALID' }));
+  });
+});
+
+describe('technologies answer source', () => {
+  it('routes technology questions but not unrelated or Zocdoc-scoped work questions', () => {
+    expect(supportsTechnologiesQuestion('What technologies has Jeremy worked with?')).toBe(true);
+    expect(supportsTechnologiesQuestion('Which languages does Jeremy know?')).toBe(true);
+    expect(supportsTechnologiesQuestion("What's Jeremy's tech stack?")).toBe(true);
+    expect(supportsTechnologiesQuestion('Tell me about Aroko')).toBe(false);
+    expect(supportsTechnologiesQuestion('How do I contact Jeremy?')).toBe(false);
+  });
+
+  it('leaves the Zocdoc work question on the Zocdoc route', () => {
+    const zocdoc = answerPortfolioQuestion('What did Jeremy build at Zocdoc?');
+    expect(zocdoc?.trace?.kind).toBe('direct');
+    if (zocdoc?.trace?.kind !== 'direct') return;
+    expect(zocdoc.trace.id).toBe('portfolio.zocdoc-work.v1');
+  });
+
+  it('emits a valid v2 collection with a grounded repo link on exactly one item', () => {
+    const answer = answerPortfolioQuestion('What technologies has Jeremy worked with?');
+    expect(answer).not.toBeNull();
+    const result = resolveAnswerSet(answer, { depth: 'audit', audience: 'human' });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const repoFields = result.recipe.visibleFields
+      .flatMap((item) => item.fields)
+      .filter((field) => field.key === 'repo');
+    expect(repoFields).toHaveLength(1);
+    expect(repoFields[0].value).toBe('https://github.com/jeremycapps/corus-workbench');
+  });
+
+  it('surfaces the repo link at glance depth so the chip is reachable without expanding', () => {
+    const answer = answerPortfolioQuestion('What languages has Jeremy used?');
+    const result = resolveAnswerSet(answer, { depth: 'glance' });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const hasRepoAtGlance = result.recipe.visibleFields
+      .flatMap((item) => item.fields)
+      .some((field) => field.key === 'repo');
+    expect(hasRepoAtGlance).toBe(true);
   });
 });

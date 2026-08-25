@@ -104,8 +104,109 @@ export function zocdocAnswerSet(): AnswerSetV2 {
   };
 }
 
+const TECHNOLOGY_TERMS = [
+  'technology',
+  'technologies',
+  'tech',
+  'stack',
+  'language',
+  'languages',
+  'skills',
+  'framework',
+  'frameworks',
+];
+
+export function supportsTechnologiesQuestion(question: string): boolean {
+  const normalized = normalizedQuestion(question);
+  const words = new Set(normalized.split(' '));
+  return TECHNOLOGY_TERMS.some((term) => words.has(term)) || normalized.includes('worked with');
+}
+
+function technologyFields(withRepo: boolean): FieldInfoV2 {
+  return {
+    priority: {
+      primary: withRepo ? ['name', 'repo'] : ['name'],
+      secondary: ['category'],
+      supporting: [],
+      audit: ['evidenceTier', 'source'],
+    },
+  };
+}
+
+function technologyItem(entry: {
+  name: string;
+  category: string;
+  repo?: string;
+  sourceRefs: string[];
+}) {
+  const withRepo = typeof entry.repo === 'string';
+  const payload = {
+    name: entry.name,
+    category: entry.category,
+    ...(withRepo ? { repo: entry.repo as string } : {}),
+    evidenceTier: 'profile-grounded',
+    source: entry.sourceRefs.join(', '),
+  };
+
+  return {
+    type: 'Value' as const,
+    payload,
+    value: entry.name,
+    evidence: {
+      status: 'profile-grounded' as const,
+      sourceRefs: entry.sourceRefs,
+    },
+    fields: technologyFields(withRepo),
+  };
+}
+
+function technologiesAnswerSet(): AnswerSetV2 {
+  const skillsRef = 'content/profile.md#skills-tools';
+  return {
+    schema: 'facia.answer-set/2',
+    question: 'What technologies has Jeremy worked with?',
+    answerType: 'value',
+    path: 'meaning',
+    inspection: 'available',
+    actionable: false,
+    items: [
+      technologyItem({ name: 'TypeScript', category: 'Language', sourceRefs: [skillsRef] }),
+      technologyItem({ name: 'React', category: 'UI library', sourceRefs: [skillsRef] }),
+      technologyItem({
+        name: 'Python',
+        category: 'Language',
+        repo: 'https://github.com/jeremycapps/corus-workbench',
+        sourceRefs: [skillsRef, 'content/profile.md#corus-workbench'],
+      }),
+      technologyItem({ name: 'C# / .NET', category: 'Language & runtime', sourceRefs: [skillsRef] }),
+      technologyItem({ name: 'Java', category: 'Language', sourceRefs: [skillsRef] }),
+    ],
+    operations: [],
+    trace: {
+      kind: 'direct',
+      id: 'portfolio.technologies.v1',
+      entries: [
+        { step: 'question.selected', value: 'portfolio.technologies' },
+        { step: 'source.loaded', value: skillsRef },
+        { step: 'answer.emitted', value: 5 },
+      ],
+    },
+  };
+}
+
+interface QuestionMatcher {
+  supports: (question: string) => boolean;
+  build: () => AnswerSetV2;
+}
+
+const MATCHERS: QuestionMatcher[] = [
+  { supports: supportsPortfolioQuestion, build: zocdocAnswerSet },
+  { supports: supportsTechnologiesQuestion, build: technologiesAnswerSet },
+];
+
 export function answerPortfolioQuestion(question: string): AnswerSetV2 | null {
-  return supportsPortfolioQuestion(question) ? zocdocAnswerSet() : null;
+  const match = MATCHERS.find((matcher) => matcher.supports(question));
+  return match ? match.build() : null;
 }
 
 export async function generatePortfolioAnswer(

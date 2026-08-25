@@ -1715,6 +1715,32 @@ textarea:focus-visible {
   white-space: pre-wrap;
 }
 
+.semantic-repo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid rgba(116, 139, 162, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  color: #26374f;
+  font-size: 12px;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.semantic-repo-chip:hover,
+.semantic-repo-chip:focus-visible {
+  border-color: rgba(116, 139, 162, 0.55);
+  color: #16233a;
+}
+
+.semantic-repo-chip svg {
+  flex: none;
+  opacity: 0.75;
+}
+
 .semantic-audit {
   margin-top: 16px;
   padding: 16px;
