@@ -15,6 +15,7 @@ const DEPTHS: Array<{ depth: DisclosureDepth; label: string }> = [
 interface SemanticSurfaceProps {
   recipe: ComponentRecipe;
   onDepthChange: (depth: DisclosureDepth) => Promise<void>;
+  variant?: 'standalone' | 'conversation';
 }
 
 function displayValue(value: unknown): string {
@@ -28,7 +29,6 @@ function FieldList({ fields }: { fields: ResolvedFieldV2[] }) {
   const [heading, ...details] = fields;
   return (
     <article className="semantic-item">
-      <p className="semantic-item-priority">{heading?.effectivePriority ?? 'primary'}</p>
       <h3>{heading ? displayValue(heading.value) : 'Structured answer'}</h3>
       <dl>
         {details.map((field) => (
@@ -42,7 +42,7 @@ function FieldList({ fields }: { fields: ResolvedFieldV2[] }) {
   );
 }
 
-export function SemanticSurface({ recipe, onDepthChange }: SemanticSurfaceProps) {
+export function SemanticSurface({ recipe, onDepthChange, variant = 'standalone' }: SemanticSurfaceProps) {
   const [changingDepth, setChangingDepth] = useState<DisclosureDepth | null>(null);
   const componentIds = new Set(recipe.components.map((component) => component.id));
   const supportsList = componentIds.has('List');
@@ -60,14 +60,16 @@ export function SemanticSurface({ recipe, onDepthChange }: SemanticSurfaceProps)
   };
 
   return (
-    <section className="semantic-surface" aria-labelledby="semantic-question" data-testid="semantic-surface">
-      <header className="semantic-header">
-        <div>
-          <p className="semantic-kicker">Deterministic answer · Facia v2</p>
-          <h2 id="semantic-question">{recipe.answer.question}</h2>
-        </div>
-        <span className="semantic-pattern">{recipe.pattern}</span>
-      </header>
+    <section
+      className={`semantic-surface semantic-surface-${variant}`}
+      aria-label={`Structured answer: ${recipe.answer.question}`}
+      data-testid="semantic-surface"
+    >
+      {variant === 'standalone' && (
+        <header className="semantic-header">
+          <h2>{recipe.answer.question}</h2>
+        </header>
+      )}
 
       {supportsToolbar && (
         <div className="semantic-depths" aria-label="Answer disclosure depth" data-testid="semantic-depth-controls">
@@ -107,19 +109,8 @@ export function SemanticSurface({ recipe, onDepthChange }: SemanticSurfaceProps)
               <pre>{displayValue(item.evidence ?? null)}</pre>
             </details>
           ))}
-          {recipe.answer.trace && (
-            <details>
-              <summary>Resolution trace</summary>
-              <pre>{displayValue(recipe.answer.trace)}</pre>
-            </details>
-          )}
         </div>
       )}
-
-      <footer className="semantic-meta">
-        <span>{recipe.density.source} density: {recipe.density.density}</span>
-        <span>{recipe.patternReasonCode}</span>
-      </footer>
     </section>
   );
 }

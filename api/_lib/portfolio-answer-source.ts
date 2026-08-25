@@ -1,4 +1,9 @@
 import type { AnswerSetV2, FieldInfoV2 } from '@facia/core';
+import { adaptModelAnswer, ModelAnswerContractError } from './model-answer';
+import {
+  generateStructuredPortfolioAnswer,
+  type StructuredProvider,
+} from './structured-provider';
 
 const CANONICAL_QUESTION = 'What did Jeremy work on at Zocdoc?';
 
@@ -16,7 +21,7 @@ export function supportsPortfolioQuestion(question: string): boolean {
   ));
 }
 
-function zocdocAnswerSet(): AnswerSetV2 {
+export function zocdocAnswerSet(): AnswerSetV2 {
   const fields: FieldInfoV2 = {
     priority: {
       primary: ['title', 'contribution'],
@@ -101,4 +106,28 @@ function zocdocAnswerSet(): AnswerSetV2 {
 
 export function answerPortfolioQuestion(question: string): AnswerSetV2 | null {
   return supportsPortfolioQuestion(question) ? zocdocAnswerSet() : null;
+}
+
+export async function generatePortfolioAnswer(
+  question: string,
+  provider: StructuredProvider = generateStructuredPortfolioAnswer,
+): Promise<AnswerSetV2> {
+  try {
+    const answer = await provider(question);
+    return adaptModelAnswer(question, answer);
+  } catch (error) {
+    // Keep the existing source-reviewed fixture as a deliberately narrow rollout fallback.
+    if (
+      supportsPortfolioQuestion(question)
+      && error instanceof ModelAnswerContractError
+      && ['MODEL_PROVIDER_UNAVAILABLE', 'MODEL_PROVIDER_TIMEOUT'].includes(error.code)
+    ) {
+      return zocdocAnswerSet();
+    }
+    if (error instanceof ModelAnswerContractError) throw error;
+    throw new ModelAnswerContractError(
+      'MODEL_PROVIDER_UNAVAILABLE',
+      'Structured generation is unavailable.',
+    );
+  }
 }

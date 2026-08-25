@@ -1,4 +1,4 @@
-import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
+import { ANSWER_SET_SCHEMA_PIN, type ComponentRecipe, type DisclosureDepth } from '@facia/core';
 
 export interface StructuredAnswerResponse {
   protocol: 'portfolio.answer/1';
@@ -19,6 +19,44 @@ export class AnswerApiError extends Error {
     super(message);
     this.name = 'AnswerApiError';
   }
+}
+
+function isStructuredAnswerResponse(body: unknown): body is StructuredAnswerResponse {
+  if (body === null || typeof body !== 'object' || Array.isArray(body)) return false;
+  const candidate = body as Record<string, unknown>;
+  const pin = candidate.schemaPin as Record<string, unknown> | undefined;
+  const recipe = candidate.recipe as Record<string, unknown> | undefined;
+  const answer = recipe?.answer as Record<string, unknown> | undefined;
+  const context = recipe?.context as Record<string, unknown> | undefined;
+  const components = recipe?.components;
+  const visibleFields = recipe?.visibleFields;
+  return candidate.protocol === 'portfolio.answer/1'
+    && pin?.schema === ANSWER_SET_SCHEMA_PIN.schema
+    && pin.packagePath === ANSWER_SET_SCHEMA_PIN.packagePath
+    && pin.sha256 === ANSWER_SET_SCHEMA_PIN.sha256
+    && typeof recipe?.pattern === 'string'
+    && Array.isArray(components)
+    && components.every((component) => (
+      component !== null
+      && typeof component === 'object'
+      && typeof (component as Record<string, unknown>).id === 'string'
+    ))
+    && Array.isArray(recipe.inspectionControls)
+    && Array.isArray(recipe.actionControls)
+    && Array.isArray(visibleFields)
+    && visibleFields.every((item) => (
+      item !== null
+      && typeof item === 'object'
+      && Array.isArray((item as Record<string, unknown>).fields)
+      && ((item as Record<string, unknown>).fields as unknown[]).every((field) => (
+        field !== null
+        && typeof field === 'object'
+        && typeof (field as Record<string, unknown>).key === 'string'
+      ))
+    ))
+    && typeof answer?.question === 'string'
+    && Array.isArray(answer.items)
+    && ['glance', 'inspect', 'focus', 'audit'].includes(String(context?.depth));
 }
 
 export async function sendStructuredAnswer(
@@ -49,5 +87,12 @@ export async function sendStructuredAnswer(
     );
   }
 
-  return body as StructuredAnswerResponse;
+  if (!isStructuredAnswerResponse(body)) {
+    throw new AnswerApiError(
+      'The structured answer service returned an invalid recipe.',
+      'INVALID_RESPONSE',
+      response.status,
+    );
+  }
+  return body;
 }

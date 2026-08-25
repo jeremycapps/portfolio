@@ -1,6 +1,11 @@
 import { resolveAnswerSet } from '@facia/core';
 import { describe, expect, it } from 'vitest';
-import { answerPortfolioQuestion, supportsPortfolioQuestion } from './portfolio-answer-source';
+import { ModelAnswerContractError } from './model-answer';
+import {
+  answerPortfolioQuestion,
+  generatePortfolioAnswer,
+  supportsPortfolioQuestion,
+} from './portfolio-answer-source';
 
 describe('portfolio answer source', () => {
   it('routes only declared Zocdoc question shapes', () => {
@@ -21,5 +26,37 @@ describe('portfolio answer source', () => {
       key: 'evidenceTier',
       value: 'profile-grounded',
     }));
+  });
+
+  it('uses a valid model collection and retains only host-owned provenance', async () => {
+    const answer = await generatePortfolioAnswer('Tell me about Zocdoc', async () => ({
+      schema: 'portfolio.model-answer/1',
+      refusal: null,
+      items: [{
+        title: 'Header migration',
+        contribution: 'Applied the existing experiment framework.',
+        outcome: null,
+        scope: 'Did not design the company-wide framework.',
+        evidenceRefs: ['profile.zocdoc'],
+      }],
+    }));
+
+    expect(answer.items[0].evidence).toEqual(expect.objectContaining({
+      sourceRefs: ['content/profile.md#career-history'],
+    }));
+  });
+
+  it('uses the Zocdoc fixture only for provider availability failures', async () => {
+    const unavailable = async () => {
+      throw new ModelAnswerContractError('MODEL_PROVIDER_TIMEOUT', 'late');
+    };
+    const invalid = async () => {
+      throw new ModelAnswerContractError('MODEL_SCHEMA_INVALID', 'bad schema');
+    };
+
+    await expect(generatePortfolioAnswer('What did Jeremy do at Zocdoc?', unavailable))
+      .resolves.toEqual(expect.objectContaining({ schema: 'facia.answer-set/2' }));
+    await expect(generatePortfolioAnswer('What did Jeremy do at Zocdoc?', invalid))
+      .rejects.toEqual(expect.objectContaining({ code: 'MODEL_SCHEMA_INVALID' }));
   });
 });

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ANSWER_SET_SCHEMA_PIN } from '@facia/core';
 import { AnswerApiError, sendStructuredAnswer } from './answer';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -7,8 +8,16 @@ describe('sendStructuredAnswer', () => {
   it('posts the question and disclosure depth', async () => {
     const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => new Response(JSON.stringify({
       protocol: 'portfolio.answer/1',
-      schemaPin: { schema: 'facia.answer-set/2', packagePath: 'schema.json', sha256: 'abc' },
-      recipe: { pattern: 'list' },
+      schemaPin: ANSWER_SET_SCHEMA_PIN,
+      recipe: {
+        pattern: 'list',
+        components: [],
+        inspectionControls: [],
+        actionControls: [],
+        visibleFields: [],
+        context: { depth: 'inspect' },
+        answer: { question: 'Zocdoc?', items: [] },
+      },
     }), { status: 200, headers: { 'content-type': 'application/json' } }));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -31,5 +40,17 @@ describe('sendStructuredAnswer', () => {
       code: 'QUESTION_NOT_MODELED',
       status: 404,
     } satisfies Partial<AnswerApiError>));
+  });
+
+  it('rejects a success response with an invalid recipe', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
+      protocol: 'portfolio.answer/1',
+      schemaPin: { schema: 'facia.answer-set/2', packagePath: 'schema.json', sha256: 'abc' },
+      recipe: { pattern: 'list' },
+    }), { status: 200, headers: { 'content-type': 'application/json' } })));
+
+    await expect(sendStructuredAnswer('Zocdoc?', 'glance')).rejects.toEqual(expect.objectContaining({
+      code: 'INVALID_RESPONSE',
+    }));
   });
 });

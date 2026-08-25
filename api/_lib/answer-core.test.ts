@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { handleAnswerRequest, validateAnswerBody } from './answer-core';
+import { ModelAnswerContractError } from './model-answer';
 
 const allow = async () => ({ ok: true as const });
 
@@ -61,13 +62,30 @@ describe('handleAnswerRequest', () => {
     expect(firstBody.recipe.inspectionControls).toContain('view-trace');
   });
 
-  it('declines questions that do not have a declared model', async () => {
+  it('documents structured-provider unavailability for Markdown fallback', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'What music does Jeremy like?' }),
       { checkLimit: allow },
     );
-    expect(response.status).toBe(404);
-    expect(await response.json()).toMatchObject({ code: 'QUESTION_NOT_MODELED' });
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({ code: 'MODEL_PROVIDER_UNAVAILABLE' });
+  });
+
+  it.each([
+    ['MODEL_REFUSED', 404],
+    ['MODEL_PROVIDER_TIMEOUT', 504],
+    ['MODEL_MALFORMED_JSON', 502],
+    ['MODEL_SCHEMA_INVALID', 502],
+  ] as const)('returns a bounded %s error', async (code, status) => {
+    const response = await handleAnswerRequest(
+      request({ question: 'Portfolio question?' }),
+      {
+        checkLimit: allow,
+        answer: async () => { throw new ModelAnswerContractError(code, 'bounded'); },
+      },
+    );
+    expect(response.status).toBe(status);
+    await expect(response.json()).resolves.toMatchObject({ code });
   });
 
   it('uses the shared rate-limit boundary', async () => {

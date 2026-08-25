@@ -6,16 +6,22 @@ import { ChatView } from '@/components/chat-view';
 import { PromptStarters } from '@/components/prompt-starters';
 import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { ResumeSurface } from '@/components/facia/resume-surface';
-import { SemanticSurface } from '@/components/facia/semantic-surface';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import {
   AnswerApiError,
   sendStructuredAnswer,
-  type StructuredAnswerResponse,
 } from '@/lib/answer';
-import { sendChat, type ClientMessage, type MessageChoice } from '@/lib/chat';
+import {
+  consumeChoices,
+  markdownContent,
+  messageHasVisibleContent,
+  replaceFaciaAnswer,
+  sendChat,
+  type ClientMessage,
+  type MessageChoice,
+} from '@/lib/chat';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
 import type { DisclosureDepth } from '@facia/core';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
@@ -55,21 +61,18 @@ function Home() {
   const [statusTone, setStatusTone] = useState<'normal' | 'error' | 'success'>('normal');
   const [toastMessage, setToastMessage] = useState('');
   const [messages, setMessages] = useState<ClientMessage[]>([]);
-  const [structuredAnswer, setStructuredAnswer] = useState<StructuredAnswerResponse | null>(null);
-  const [structuredQuestion, setStructuredQuestion] = useState('');
   const [resumeMode, setResumeMode] = useState(false);
   const [resumeResult, setResumeResult] = useState<ResumeResponse | null>(null);
   const [streaming, setStreaming] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const hasConversation =
-    messages.length > 0 || structuredAnswer !== null || resumeResult !== null || chatError !== null;
+    messages.length > 0 || resumeResult !== null || chatError !== null;
   // A request is in flight but nothing has rendered yet — show a loader so the
   // interface never looks idle while the model is calculating.
   const awaitingAnswer =
     streaming &&
     resumeResult === null &&
-    structuredAnswer === null &&
-    !messages.some((m) => m.role === 'assistant' && m.content);
+    !messages.some((m) => m.role === 'assistant' && messageHasVisibleContent(m));
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -113,50 +116,69 @@ function Home() {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      if (messages.length === 0) {
-        try {
-          const answer = await sendStructuredAnswer(cleanPrompt, 'glance', controller.signal);
-          setStructuredQuestion(cleanPrompt);
-          setStructuredAnswer(answer);
-          setMessages([]);
-          return;
-        } catch (error) {
-          if (!(error instanceof AnswerApiError) || error.code !== 'QUESTION_NOT_MODELED') {
-            throw error;
-          }
-        }
+      // Consume any pending interactive choices so the picker stops being clickable.
+      const history = messages.map(consumeChoices);
+      const next: ClientMessage[] = [...history, { role: 'user', content: cleanPrompt }];
+      setMessages([...next, { role: 'assistant', content: markdownContent() }]);
+
+      try {
+        const answer = await sendStructuredAnswer(cleanPrompt, 'glance', controller.signal);
+        setMessages([
+          ...next,
+          {
+            role: 'assistant',
+            content: { kind: 'facia', question: cleanPrompt, answer },
+          },
+        ]);
+        return;
+      } catch (error) {
+        const fallbackCodes = new Set([
+          'QUESTION_NOT_MODELED',
+          'MODEL_REFUSED',
+          'MODEL_PROVIDER_TIMEOUT',
+          'MODEL_MALFORMED_JSON',
+          'MODEL_SCHEMA_INVALID',
+          'MODEL_PROVIDER_UNAVAILABLE',
+          'INVALID_RESPONSE',
+        ]);
+        if (!(error instanceof AnswerApiError) || !fallbackCodes.has(error.code)) throw error;
       }
 
-      setStructuredAnswer(null);
-      setStructuredQuestion('');
-      // Consume any pending interactive choices so the picker stops being clickable.
-      const history = messages.map((m) => (m.choices ? { role: m.role, content: m.content } : m));
-      const next: ClientMessage[] = [...history, { role: 'user', content: cleanPrompt }];
-      // Add an empty assistant message only after the deterministic route declines the question.
-      setMessages([...next, { role: 'assistant', content: '' }]);
       await sendChat(next, {
         signal: controller.signal,
         onDelta: (t) =>
           setMessages((cur) => {
             if (cur.length === 0) return cur;
             const last = cur[cur.length - 1];
-            if (!last || last.role !== 'assistant') return cur;
+            if (!last || last.role !== 'assistant' || last.content.kind !== 'markdown') return cur;
             const copy = cur.slice();
-            copy[copy.length - 1] = { ...last, content: last.content + t };
+            copy[copy.length - 1] = {
+              ...last,
+              content: markdownContent(last.content.markdown + t),
+            };
             return copy;
           }),
       });
       setMessages((cur) => {
         const last = cur[cur.length - 1];
-        return last && last.role === 'assistant' && last.content === '' ? cur.slice(0, -1) : cur;
+        return last && last.role === 'assistant'
+          && last.content.kind === 'markdown'
+          && last.content.markdown === ''
+          ? cur.slice(0, -1)
+          : cur;
       });
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return; // reset/abort, not a real error
       setChatError(err instanceof Error ? err.message : 'Something went wrong.');
       // Drop the empty assistant placeholder on hard failure.
-      setMessages((cur) =>
-        cur[cur.length - 1]?.content === '' ? cur.slice(0, -1) : cur,
-      );
+      setMessages((cur) => {
+        const last = cur[cur.length - 1];
+        return last?.role === 'assistant'
+          && last.content.kind === 'markdown'
+          && last.content.markdown === ''
+          ? cur.slice(0, -1)
+          : cur;
+      });
     } finally {
       setStreaming(false);
     }
@@ -175,8 +197,6 @@ function Home() {
     setResumeResult(null);
     setStatusMessage('');
     setChatError(null);
-    setStructuredAnswer(null);
-    setStructuredQuestion('');
     setMessages([]);
     setStreaming(true);
 
@@ -205,27 +225,27 @@ function Home() {
     setChatError(null);
     setResumeMode(false);
     setResumeResult(null);
-    setStructuredAnswer(null);
-    setStructuredQuestion('');
     setMessages((cur) => [
-      ...cur.map((m) => (m.choices ? { role: m.role, content: m.content } : m)),
+      ...cur.map(consumeChoices),
       { role: 'user', content: 'Can you tell me about one of your projects?' },
       {
         role: 'assistant',
-        content: 'Sure — which one would you like to hear about?',
+        content: markdownContent('Sure — which one would you like to hear about?'),
         choices: PROJECT_CHOICES,
       },
     ]);
   };
 
-  const handleDepthChange = async (depth: DisclosureDepth) => {
-    if (!structuredQuestion) return;
+  const handleDepthChange = async (messageIndex: number, depth: DisclosureDepth) => {
+    const message = messages[messageIndex];
+    if (message?.role !== 'assistant' || message.content.kind !== 'facia') return;
+    const question = message.content.question;
     const controller = new AbortController();
     abortRef.current = controller;
     setStreaming(true);
     try {
-      const answer = await sendStructuredAnswer(structuredQuestion, depth, controller.signal);
-      setStructuredAnswer(answer);
+      const answer = await sendStructuredAnswer(question, depth, controller.signal);
+      setMessages((current) => replaceFaciaAnswer(current, messageIndex, answer));
       setChatError(null);
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return;
@@ -238,8 +258,6 @@ function Home() {
   const handleClearChat = () => {
     abortRef.current?.abort();
     setMessages([]);
-    setStructuredAnswer(null);
-    setStructuredQuestion('');
     setResumeMode(false);
     setResumeResult(null);
     setChatError(null);
@@ -299,13 +317,14 @@ function Home() {
                 <ResumeSurface view={resumeResult.view} provenance={resumeResult.provenance} />
                 {chatError && <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>}
               </>
-            ) : structuredAnswer ? (
-              <>
-                <SemanticSurface recipe={structuredAnswer.recipe} onDepthChange={handleDepthChange} />
-                {chatError && <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>}
-              </>
             ) : messages.length > 0 ? (
-              <ChatView messages={messages} streaming={streaming} error={chatError} onChoice={(p) => void submitPrompt(p)} />
+              <ChatView
+                messages={messages}
+                streaming={streaming}
+                error={chatError}
+                onChoice={(p) => void submitPrompt(p)}
+                onDepthChange={handleDepthChange}
+              />
             ) : awaitingAnswer ? (
               <div className="loading-surface">
                 <ThinkingIndicator />

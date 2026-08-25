@@ -6,7 +6,8 @@ import {
 } from '@facia/core';
 import { jsonError, jsonResponse } from './http';
 import { checkRateLimit } from './rate-limit';
-import { answerPortfolioQuestion } from './portfolio-answer-source';
+import { ModelAnswerContractError } from './model-answer';
+import { generatePortfolioAnswer } from './portfolio-answer-source';
 
 const MAX_QUESTION_CHARS = 1_000;
 const DEPTHS: DisclosureDepth[] = ['glance', 'inspect', 'focus', 'audit'];
@@ -16,7 +17,7 @@ interface AnswerRequest {
   depth: DisclosureDepth;
 }
 
-type AnswerSource = (question: string) => AnswerSetV2 | null;
+type AnswerSource = (question: string) => AnswerSetV2 | null | Promise<AnswerSetV2 | null>;
 type RateLimitCheck = (request: Request) => ReturnType<typeof checkRateLimit>;
 
 type ValidResult =
@@ -76,7 +77,24 @@ export async function handleAnswerRequest(
     return jsonError(validation.error, 'INVALID_REQUEST', 400);
   }
 
-  const answerSet = (deps.answer ?? answerPortfolioQuestion)(validation.value.question);
+  let answerSet: AnswerSetV2 | null;
+  try {
+    answerSet = await (deps.answer ?? generatePortfolioAnswer)(validation.value.question);
+  } catch (error) {
+    if (error instanceof ModelAnswerContractError) {
+      const responses = {
+        MODEL_REFUSED: ['The question is outside the grounded portfolio context.', 404],
+        MODEL_PROVIDER_TIMEOUT: ['Structured generation timed out.', 504],
+        MODEL_MALFORMED_JSON: ['The structured model returned malformed JSON.', 502],
+        MODEL_SCHEMA_INVALID: ['The structured model response failed validation.', 502],
+        MODEL_PROVIDER_UNAVAILABLE: ['Structured generation is unavailable.', 503],
+      } as const;
+      const [message, status] = responses[error.code];
+      return jsonError(message, error.code, status);
+    }
+    console.error('Structured answer generation failed:', error);
+    return jsonError('Structured generation is unavailable.', 'MODEL_PROVIDER_UNAVAILABLE', 503);
+  }
   if (answerSet === null) {
     return jsonError(
       'That question does not have a deterministic portfolio model yet.',

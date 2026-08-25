@@ -1247,6 +1247,8 @@ textarea:focus-visible {
 .chat-bubble { padding: 0.75rem 1rem; border-radius: 0.75rem; max-width: 42rem; white-space: pre-wrap; line-height: 1.5; }
 .chat-bubble-user { align-self: flex-end; background: rgba(120,120,140,0.16); }
 .chat-bubble-assistant { align-self: flex-start; background: rgba(120,120,140,0.06); text-align: left; }
+.chat-bubble-facia { width: min(100%, 42rem); }
+.chat-markdown { white-space: pre-wrap; }
 .chat-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .chat-error { color: #b4232a; font-size: 0.9rem; }
 
@@ -1304,6 +1306,21 @@ textarea:focus-visible {
   background: rgba(250, 252, 255, 0.82);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(16px);
+}
+
+.semantic-surface-conversation {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.semantic-surface-conversation .semantic-depths {
+  margin-top: 0;
 }
 
 .resume-surface {
