@@ -1,5 +1,4 @@
 import type { StructuredAnswerResponse } from './answer';
-import type { DisclosureDepth } from '@facia/core';
 
 export interface MessageChoice {
   label: string;
@@ -55,29 +54,6 @@ export function consumeChoices(message: ClientMessage): ClientMessage {
   return message.role === 'assistant' && message.choices
     ? { role: 'assistant', content: message.content }
     : message;
-}
-
-export function selectFaciaDepth(
-  messages: ClientMessage[],
-  messageIndex: number,
-  depth: DisclosureDepth,
-): ClientMessage[] {
-  return messages.map((message, index) => (
-    index === messageIndex
-      && message.role === 'assistant'
-      && message.content.kind === 'facia'
-      ? {
-          ...message,
-          content: {
-            ...message.content,
-            answer: {
-              ...message.content.answer,
-              recipe: message.content.answer.recipesByDepth[depth],
-            },
-          },
-        }
-      : message
-  ));
 }
 
 export async function readTextStream(

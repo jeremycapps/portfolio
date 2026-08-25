@@ -1473,7 +1473,7 @@ textarea:focus-visible {
   backdrop-filter: none;
 }
 
-.semantic-surface-conversation .semantic-depths {
+.semantic-surface-conversation .semantic-affordances {
   margin-top: 0;
 }
 
@@ -1636,31 +1636,78 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
-.semantic-depths {
-  display: flex;
-  gap: 6px;
+.semantic-affordances {
   margin: 18px 0;
-  padding: 4px;
-  overflow-x: auto;
-  background: rgba(222, 231, 239, 0.52);
-  border-radius: 10px;
 }
 
-.semantic-depths button {
-  flex: 1 0 auto;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 7px;
-  color: #68778b;
-  background: transparent;
-  font-size: 11px;
+.semantic-affordance-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.semantic-affordance-row button,
+.semantic-item-controls button,
+.semantic-item-compare {
+  padding: 7px 10px;
+  border: 1px solid rgba(116, 139, 162, 0.22);
+  border-radius: 8px;
+  color: #5f7085;
+  background: rgba(247, 250, 252, 0.8);
+  font-size: 10px;
   font-weight: 600;
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
 }
 
-.semantic-depths button[aria-pressed='true'] {
-  color: #24354c;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 2px 8px rgba(39, 61, 83, 0.08);
+.semantic-affordance-row button:hover,
+.semantic-item-controls button:hover,
+.semantic-item-compare:hover {
+  color: #26374f;
+  background: #fff;
+  border-color: rgba(91, 119, 142, 0.42);
+}
+
+.semantic-affordance-row button[aria-pressed='true'],
+.semantic-item-compare[aria-pressed='true'] {
+  color: #26415a;
+  background: #dceef1;
+  border-color: #b4d8de;
+}
+
+.semantic-affordance-row .semantic-audit-trigger {
+  margin-left: auto;
+  color: #6e526e;
+  border-color: rgba(126, 94, 130, 0.25);
+}
+
+.semantic-affordance-row .semantic-audit-trigger[aria-pressed='true'] {
+  color: #fff;
+  background: #63506a;
+  border-color: #63506a;
+}
+
+.semantic-filter {
+  display: grid;
+  gap: 6px;
+  margin-top: 9px;
+  color: #7b899b;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.semantic-filter input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid rgba(116, 139, 162, 0.24);
+  border-radius: 9px;
+  color: #26374f;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .semantic-list {
@@ -1673,12 +1720,30 @@ textarea:focus-visible {
   border: 1px solid rgba(116, 139, 162, 0.18);
   border-radius: 13px;
   background: rgba(255, 255, 255, 0.68);
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
 }
 
-.semantic-item-priority {
+.semantic-item.is-compared {
+  border-color: #93bdc4;
+  background: rgba(241, 251, 252, 0.9);
+  box-shadow: 0 0 0 2px rgba(147, 189, 196, 0.12);
+}
+
+.semantic-item-head {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.semantic-item-depth {
   margin: 0 0 6px;
   color: #8291a4;
+  font-family: var(--app-font-mono);
   font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .semantic-item h3 {
@@ -1692,6 +1757,53 @@ textarea:focus-visible {
   display: grid;
   gap: 10px;
   margin: 0;
+}
+
+.semantic-item-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(116, 139, 162, 0.14);
+}
+
+.semantic-item-controls button[data-control='view-evidence'] {
+  margin-left: auto;
+}
+
+.semantic-item-evidence {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  color: #56677c;
+  background: #eef3f7;
+}
+
+.semantic-item-evidence p {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.semantic-item-evidence pre,
+.semantic-trace pre {
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: var(--app-font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.semantic-empty {
+  margin: 0;
+  padding: 22px;
+  border: 1px dashed rgba(116, 139, 162, 0.3);
+  border-radius: 12px;
+  color: #75869a;
+  text-align: center;
+  font-size: 12px;
 }
 
 .semantic-field {
@@ -1768,6 +1880,10 @@ textarea:focus-visible {
   line-height: 1.5;
 }
 
+.semantic-surface.is-auditing .semantic-item {
+  border-color: rgba(126, 94, 130, 0.22);
+}
+
 .semantic-meta {
   display: flex;
   flex-wrap: wrap;
@@ -1790,6 +1906,10 @@ textarea:focus-visible {
   .semantic-field {
     grid-template-columns: 1fr;
     gap: 3px;
+  }
+
+  .semantic-affordance-row .semantic-audit-trigger {
+    margin-left: 0;
   }
 }
 

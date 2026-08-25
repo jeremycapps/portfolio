@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { answerPortfolioQuestion } from '../../../api/_lib/portfolio-answer-source';
 import { ChatView } from '../chat-view';
-import { SemanticSurface } from './semantic-surface';
+import { nextElementDepth, SemanticSurface, updateElementDepth } from './semantic-surface';
 
 describe('SemanticSurface', () => {
   it('renders a Facia list recipe without re-resolving its presentation pattern', () => {
@@ -13,7 +13,7 @@ describe('SemanticSurface', () => {
     if (!result.ok) return;
 
     const html = renderToStaticMarkup(
-      <SemanticSurface recipe={result.recipe} onDepthChange={() => undefined} />,
+      <SemanticSurface recipe={result.recipe} />,
     );
 
     expect(html).toContain('What did Jeremy work on at Zocdoc?');
@@ -22,6 +22,70 @@ describe('SemanticSurface', () => {
     expect(html).not.toContain('Evidence and trace');
     expect(html).not.toContain('PATTERN_COLLECTION_LIST');
     expect(html).not.toContain('derived density');
+    expect(html).toContain('data-testid="button-item-0-inspect"');
+  });
+
+  it('maps inspect and expand affordances to element-owned depth transitions', () => {
+    expect(nextElementDepth('glance', 'inspect')).toBe('inspect');
+    expect(nextElementDepth('inspect', 'inspect')).toBe('glance');
+    expect(nextElementDepth('inspect', 'expand')).toBe('focus');
+    expect(nextElementDepth('focus', 'expand')).toBe('inspect');
+    expect(nextElementDepth('glance', 'drill-down')).toBe('focus');
+
+    const current = { 0: 'glance', 1: 'glance' } as const;
+    expect(updateElementDepth(current, 1, 'inspect')).toEqual({ 0: 'glance', 1: 'inspect' });
+    expect(current).toEqual({ 0: 'glance', 1: 'glance' });
+  });
+
+  it('renders focus collection controls from inspectionControls', () => {
+    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const glance = resolveAnswerSet(answer, { depth: 'glance' });
+    const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
+    const focus = resolveAnswerSet(answer, { depth: 'focus' });
+    const audit = resolveAnswerSet(answer, { depth: 'audit' });
+    expect(glance.ok && inspect.ok && focus.ok && audit.ok).toBe(true);
+    if (!glance.ok || !inspect.ok || !focus.ok || !audit.ok) return;
+
+    const html = renderToStaticMarkup(<SemanticSurface
+      recipe={focus.recipe}
+      recipesByDepth={{
+        glance: glance.recipe,
+        inspect: inspect.recipe,
+        focus: focus.recipe,
+        audit: audit.recipe,
+      }}
+    />);
+
+    expect(html).toContain('data-testid="button-affordance-filter"');
+    expect(html).toContain('data-testid="button-affordance-sort"');
+    expect(html).toContain('data-testid="button-item-0-expand"');
+    expect(html).toContain('data-depth="focus"');
+  });
+
+  it('keeps audit and trace at page level while evidence remains item-owned', () => {
+    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const glance = resolveAnswerSet(answer, { depth: 'glance' });
+    const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
+    const focus = resolveAnswerSet(answer, { depth: 'focus' });
+    const audit = resolveAnswerSet(answer, { depth: 'audit' });
+    expect(glance.ok && inspect.ok && focus.ok && audit.ok).toBe(true);
+    if (!glance.ok || !inspect.ok || !focus.ok || !audit.ok) return;
+
+    const html = renderToStaticMarkup(<SemanticSurface
+      recipe={audit.recipe}
+      recipesByDepth={{
+        glance: glance.recipe,
+        inspect: inspect.recipe,
+        focus: focus.recipe,
+        audit: audit.recipe,
+      }}
+    />);
+
+    expect(html).toContain('data-testid="button-affordance-audit"');
+    expect(html).toContain('Exit audit');
+    expect(html).toContain('data-testid="button-affordance-view-trace"');
+    expect(html).toContain('data-testid="button-item-0-view-evidence"');
+    expect(html).not.toContain('semantic-item-0-evidence');
   });
 
   it('renders mixed Markdown and Facia turns inside normal assistant bubbles', () => {
@@ -68,6 +132,9 @@ describe('SemanticSurface', () => {
     expect(html).toContain('chat-bubble-assistant');
     expect(html).toContain('semantic-surface-conversation');
     expect(html).toContain('Accessible design-system migration');
+    expect(html).toContain('data-testid="button-item-0-inspect"');
+    expect(html).toContain('data-testid="button-affordance-audit"');
+    expect(html).not.toContain('button-depth-glance');
     expect(html).not.toContain('facia.answer-set/2');
     expect(html).not.toContain('PATTERN_COLLECTION_LIST');
   });
@@ -79,7 +146,7 @@ describe('SemanticSurface', () => {
     if (!result.ok) return;
 
     const html = renderToStaticMarkup(
-      <SemanticSurface recipe={result.recipe} onDepthChange={async () => undefined} />,
+      <SemanticSurface recipe={result.recipe} />,
     );
 
     expect(html).toContain('class="semantic-repo-chip"');
@@ -96,7 +163,7 @@ describe('SemanticSurface', () => {
     if (!result.ok) return;
 
     const html = renderToStaticMarkup(
-      <SemanticSurface recipe={result.recipe} onDepthChange={async () => undefined} />,
+      <SemanticSurface recipe={result.recipe} />,
     );
 
     expect(html).not.toContain('semantic-repo-chip');

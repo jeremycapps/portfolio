@@ -1,27 +1,70 @@
+import { useMemo, useState } from 'react';
 import type {
   ComponentRecipe,
   DisclosureDepth,
+  InspectionControl,
   ResolvedFieldV2,
 } from '@facia/core';
 
-const DEPTHS: Array<{ depth: DisclosureDepth; label: string }> = [
-  { depth: 'glance', label: 'Glance' },
-  { depth: 'inspect', label: 'Inspect' },
-  { depth: 'focus', label: 'Focus' },
-  { depth: 'audit', label: 'Audit' },
-];
+type ElementDepth = Exclude<DisclosureDepth, 'audit'>;
+type RecipesByDepth = Record<DisclosureDepth, ComponentRecipe>;
+type SortMode = 'source' | 'ascending' | 'descending';
 
 interface SemanticSurfaceProps {
   recipe: ComponentRecipe;
-  onDepthChange: (depth: DisclosureDepth) => void;
+  recipesByDepth?: RecipesByDepth;
   variant?: 'standalone' | 'conversation';
 }
+
+interface PresentedItem {
+  itemIndex: number;
+  fields: ResolvedFieldV2[];
+  depth: DisclosureDepth;
+  controls: InspectionControl[];
+}
+
+const ELEMENT_CONTROLS = new Set<InspectionControl>([
+  'inspect',
+  'expand',
+  'drill-down',
+  'view-evidence',
+]);
 
 function displayValue(value: unknown): string {
   if (typeof value === 'string') return value;
   if (value === null) return 'None';
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   return JSON.stringify(value, null, 2);
+}
+
+export function nextElementDepth(
+  current: ElementDepth,
+  control: Extract<InspectionControl, 'inspect' | 'expand' | 'drill-down'>,
+): ElementDepth {
+  if (control === 'drill-down') return 'focus';
+  if (control === 'expand') return current === 'focus' ? 'inspect' : 'focus';
+  if (current === 'glance') return 'inspect';
+  return current === 'inspect' ? 'glance' : 'inspect';
+}
+
+export function updateElementDepth(
+  current: Record<number, ElementDepth>,
+  itemIndex: number,
+  control: Extract<InspectionControl, 'inspect' | 'expand' | 'drill-down'>,
+  fallback: ElementDepth = 'glance',
+): Record<number, ElementDepth> {
+  return {
+    ...current,
+    [itemIndex]: nextElementDepth(current[itemIndex] ?? fallback, control),
+  };
+}
+
+function elementControlLabel(control: InspectionControl, depth: DisclosureDepth): string {
+  if (control === 'inspect') return depth === 'glance' ? 'Inspect' : 'Less';
+  if (control === 'expand') return depth === 'focus' ? 'Collapse' : 'Expand';
+  if (control === 'drill-down') return 'Drill down';
+  if (control === 'view-evidence') return 'Evidence';
+  return control.replace('-', ' ');
 }
 
 // A repo/url field carries authored data (never model output), but we still
@@ -47,11 +90,56 @@ function RepoChip({ url }: { url: string }) {
   );
 }
 
-function FieldList({ fields }: { fields: ResolvedFieldV2[] }) {
-  const [heading, ...details] = fields;
+interface FieldListProps {
+  item: PresentedItem;
+  evidence: unknown;
+  auditMode: boolean;
+  evidenceOpen: boolean;
+  compareMode: boolean;
+  compared: boolean;
+  onControl: (control: InspectionControl) => void;
+  onCompare: () => void;
+}
+
+function FieldList({
+  item,
+  evidence,
+  auditMode,
+  evidenceOpen,
+  compareMode,
+  compared,
+  onControl,
+  onCompare,
+}: FieldListProps) {
+  const [heading, ...details] = item.fields;
+  const controls = item.controls.filter((control) => (
+    ELEMENT_CONTROLS.has(control)
+    && (!auditMode || control === 'view-evidence')
+  ));
+
   return (
-    <article className="semantic-item">
-      <h3>{heading ? displayValue(heading.value) : 'Structured answer'}</h3>
+    <article
+      className={`semantic-item${compared ? ' is-compared' : ''}`}
+      data-depth={item.depth}
+      data-testid={`semantic-item-${item.itemIndex}`}
+    >
+      <div className="semantic-item-head">
+        <div>
+          <p className="semantic-item-depth">{item.depth}</p>
+          <h3>{heading ? displayValue(heading.value) : 'Structured answer'}</h3>
+        </div>
+        {compareMode && (
+          <button
+            className="semantic-item-compare"
+            type="button"
+            aria-pressed={compared}
+            onClick={onCompare}
+            data-testid={`button-item-${item.itemIndex}-compare`}
+          >
+            {compared ? 'Selected' : 'Compare'}
+          </button>
+        )}
+      </div>
       <dl>
         {details.map((field) => {
           const link = repoLink(field);
@@ -63,24 +151,132 @@ function FieldList({ fields }: { fields: ResolvedFieldV2[] }) {
           );
         })}
       </dl>
+      {controls.length > 0 && (
+        <div className="semantic-item-controls" aria-label={`Inspect item ${item.itemIndex + 1}`}>
+          {controls.map((control) => (
+            <button
+              key={control}
+              type="button"
+              aria-expanded={control === 'view-evidence' ? evidenceOpen : undefined}
+              onClick={() => onControl(control)}
+              data-control={control}
+              data-testid={`button-item-${item.itemIndex}-${control}`}
+            >
+              {elementControlLabel(control, item.depth)}
+            </button>
+          ))}
+        </div>
+      )}
+      {evidenceOpen && (
+        <div className="semantic-item-evidence" data-testid={`semantic-item-${item.itemIndex}-evidence`}>
+          <p>Evidence</p>
+          <pre>{displayValue(evidence ?? null)}</pre>
+        </div>
+      )}
     </article>
   );
 }
 
-export function SemanticSurface({ recipe, onDepthChange, variant = 'standalone' }: SemanticSurfaceProps) {
+function fieldsForItem(recipe: ComponentRecipe, itemIndex: number): ResolvedFieldV2[] {
+  return recipe.visibleFields.find((item) => item.itemIndex === itemIndex)?.fields ?? [];
+}
+
+function headingValue(item: PresentedItem): string {
+  return item.fields.length > 0 ? displayValue(item.fields[0].value) : '';
+}
+
+export function SemanticSurface({ recipe, recipesByDepth, variant = 'standalone' }: SemanticSurfaceProps) {
   const componentIds = new Set(recipe.components.map((component) => component.id));
   const supportsList = componentIds.has('List');
   const supportsToolbar = componentIds.has('InspectionToolbar');
-  const audit = recipe.context.depth === 'audit';
+  const startingDepth: ElementDepth = recipe.context.depth === 'audit' ? 'glance' : recipe.context.depth;
+  const itemIndices = recipe.answer.items.map((_, itemIndex) => itemIndex);
+  const [itemDepths, setItemDepths] = useState<Record<number, ElementDepth>>(() => (
+    Object.fromEntries(itemIndices.map((itemIndex) => [itemIndex, startingDepth]))
+  ));
+  const [auditMode, setAuditMode] = useState(recipe.context.depth === 'audit');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterQuery, setFilterQuery] = useState('');
+  const [sortMode, setSortMode] = useState<SortMode>('source');
+  const [traceOpen, setTraceOpen] = useState(false);
+  const [evidenceItems, setEvidenceItems] = useState<Set<number>>(() => new Set());
+  const [compareMode, setCompareMode] = useState(false);
+  const [comparedItems, setComparedItems] = useState<Set<number>>(() => new Set());
 
-  const changeDepth = (depth: DisclosureDepth) => {
-    if (depth === recipe.context.depth) return;
-    onDepthChange(depth);
+  const recipeAt = (depth: DisclosureDepth): ComponentRecipe => recipesByDepth?.[depth] ?? recipe;
+  const auditRecipe = recipesByDepth?.audit;
+  const auditAvailable = supportsToolbar && auditRecipe !== undefined
+    && auditRecipe.inspectionControls.length > 0;
+
+  const presentedItems = useMemo<PresentedItem[]>(() => itemIndices.map((itemIndex) => {
+    const depth: DisclosureDepth = auditMode ? 'audit' : (itemDepths[itemIndex] ?? startingDepth);
+    const activeRecipe = recipeAt(depth);
+    return {
+      itemIndex,
+      depth,
+      fields: fieldsForItem(activeRecipe, itemIndex),
+      controls: [...activeRecipe.inspectionControls],
+    };
+  }), [auditMode, itemDepths, itemIndices.join(','), recipe, recipesByDepth, startingDepth]);
+
+  const activeControls = new Set(presentedItems.flatMap((item) => item.controls));
+  const filterAvailable = activeControls.has('filter');
+  const sortAvailable = activeControls.has('sort');
+  const compareAvailable = activeControls.has('compare');
+  const traceAvailable = auditMode && activeControls.has('view-trace');
+
+  const visibleItems = useMemo(() => {
+    const normalizedQuery = filterQuery.trim().toLowerCase();
+    const filtered = filterAvailable && normalizedQuery
+      ? presentedItems.filter((item) => item.fields.some((field) => (
+          displayValue(field.value).toLowerCase().includes(normalizedQuery)
+        )))
+      : [...presentedItems];
+    if (!sortAvailable || sortMode === 'source') return filtered;
+    const direction = sortMode === 'ascending' ? 1 : -1;
+    return filtered.sort((a, b) => headingValue(a).localeCompare(headingValue(b)) * direction);
+  }, [filterAvailable, filterQuery, presentedItems, sortAvailable, sortMode]);
+
+  const setElementDepth = (
+    itemIndex: number,
+    control: Extract<InspectionControl, 'inspect' | 'expand' | 'drill-down'>,
+  ) => {
+    setItemDepths((current) => updateElementDepth(current, itemIndex, control, startingDepth));
+  };
+
+  const toggleSetMember = (
+    setter: React.Dispatch<React.SetStateAction<Set<number>>>,
+    itemIndex: number,
+  ) => setter((current) => {
+    const next = new Set(current);
+    if (next.has(itemIndex)) next.delete(itemIndex);
+    else next.add(itemIndex);
+    return next;
+  });
+
+  const handleElementControl = (itemIndex: number, control: InspectionControl) => {
+    if (control === 'inspect' || control === 'expand' || control === 'drill-down') {
+      setElementDepth(itemIndex, control);
+      return;
+    }
+    if (control === 'view-evidence') toggleSetMember(setEvidenceItems, itemIndex);
+  };
+
+  const cycleSort = () => {
+    setSortMode((current) => (
+      current === 'source' ? 'ascending' : current === 'ascending' ? 'descending' : 'source'
+    ));
+  };
+
+  const toggleAudit = () => {
+    setAuditMode((current) => !current);
+    setTraceOpen(false);
+    setEvidenceItems(new Set());
   };
 
   return (
     <section
-      className={`semantic-surface semantic-surface-${variant}`}
+      className={`semantic-surface semantic-surface-${variant}${auditMode ? ' is-auditing' : ''}`}
       aria-label={`Structured answer: ${recipe.answer.question}`}
       data-testid="semantic-surface"
     >
@@ -90,43 +286,109 @@ export function SemanticSurface({ recipe, onDepthChange, variant = 'standalone' 
         </header>
       )}
 
-      {supportsToolbar && (
-        <div className="semantic-depths" aria-label="Answer disclosure depth" data-testid="semantic-depth-controls">
-          {DEPTHS.map(({ depth, label }) => (
-            <button
-              key={depth}
-              type="button"
-              aria-pressed={recipe.context.depth === depth}
-              onClick={() => changeDepth(depth)}
-              data-testid={`button-depth-${depth}`}
-            >
-              {label}
-            </button>
-          ))}
+      {supportsToolbar && (auditAvailable || filterAvailable || sortAvailable || compareAvailable) && (
+        <div className="semantic-affordances" data-testid="semantic-inspection-controls">
+          <div className="semantic-affordance-row" aria-label="Answer inspection controls">
+            {filterAvailable && (
+              <button
+                type="button"
+                aria-pressed={filterOpen}
+                onClick={() => setFilterOpen((open) => !open)}
+                data-control="filter"
+                data-testid="button-affordance-filter"
+              >
+                Filter
+              </button>
+            )}
+            {sortAvailable && (
+              <button
+                type="button"
+                onClick={cycleSort}
+                data-control="sort"
+                data-testid="button-affordance-sort"
+              >
+                {sortMode === 'source' ? 'Sort' : sortMode === 'ascending' ? 'A–Z' : 'Z–A'}
+              </button>
+            )}
+            {compareAvailable && (
+              <button
+                type="button"
+                aria-pressed={compareMode}
+                onClick={() => setCompareMode((active) => !active)}
+                data-control="compare"
+                data-testid="button-affordance-compare"
+              >
+                Compare{comparedItems.size > 0 ? ` (${comparedItems.size})` : ''}
+              </button>
+            )}
+            {traceAvailable && (
+              <button
+                type="button"
+                aria-expanded={traceOpen}
+                onClick={() => setTraceOpen((open) => !open)}
+                data-control="view-trace"
+                data-testid="button-affordance-view-trace"
+              >
+                Trace
+              </button>
+            )}
+            {auditAvailable && (
+              <button
+                className="semantic-audit-trigger"
+                type="button"
+                aria-pressed={auditMode}
+                onClick={toggleAudit}
+                data-testid="button-affordance-audit"
+              >
+                {auditMode ? 'Exit audit' : 'Audit'}
+              </button>
+            )}
+          </div>
+          {filterAvailable && filterOpen && (
+            <label className="semantic-filter">
+              <span>Filter results</span>
+              <input
+                type="search"
+                value={filterQuery}
+                onChange={(event) => setFilterQuery(event.target.value)}
+                placeholder="Type to narrow this answer…"
+                data-testid="input-affordance-filter"
+              />
+            </label>
+          )}
         </div>
       )}
 
       {supportsList ? (
-        <div className="semantic-list" data-testid="semantic-list">
-          {recipe.visibleFields.map((item) => (
-            <FieldList key={item.itemIndex} fields={item.fields} />
-          ))}
-        </div>
+        visibleItems.length > 0 ? (
+          <div className="semantic-list" data-testid="semantic-list">
+            {visibleItems.map((item) => (
+              <FieldList
+                key={item.itemIndex}
+                item={item}
+                evidence={recipe.answer.items[item.itemIndex]?.evidence}
+                auditMode={auditMode}
+                evidenceOpen={evidenceItems.has(item.itemIndex)}
+                compareMode={compareMode && compareAvailable}
+                compared={comparedItems.has(item.itemIndex)}
+                onControl={(control) => handleElementControl(item.itemIndex, control)}
+                onCompare={() => toggleSetMember(setComparedItems, item.itemIndex)}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="semantic-empty" data-testid="semantic-empty">No items match that filter.</p>
+        )
       ) : (
         <p className="semantic-unsupported" role="alert">
           This renderer does not support the {recipe.pattern} recipe yet.
         </p>
       )}
 
-      {audit && (
-        <div className="semantic-audit" data-testid="semantic-audit">
-          <h3>Evidence and trace</h3>
-          {recipe.answer.items.map((item, index) => (
-            <details key={index}>
-              <summary>Item {index + 1} evidence</summary>
-              <pre>{displayValue(item.evidence ?? null)}</pre>
-            </details>
-          ))}
+      {traceOpen && (
+        <div className="semantic-audit semantic-trace" data-testid="semantic-trace">
+          <h3>Decision trace</h3>
+          <pre>{displayValue(recipe.answer.trace ?? null)}</pre>
         </div>
       )}
     </section>

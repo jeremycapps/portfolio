@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import type { ClientMessage } from '../lib/chat';
-import type { DisclosureDepth } from '@facia/core';
 import { SemanticSurface } from './facia/semantic-surface';
 import { MarkdownContent } from './markdown-content';
 import { ThinkingIndicator } from './thinking-indicator';
@@ -10,10 +9,9 @@ interface ChatViewProps {
   streaming: boolean;
   error: string | null;
   onChoice?: (prompt: string) => void;
-  onDepthChange?: (messageIndex: number, depth: DisclosureDepth) => void;
 }
 
-export function ChatView({ messages, streaming, error, onChoice, onDepthChange }: ChatViewProps) {
+export function ChatView({ messages, streaming, error, onChoice }: ChatViewProps) {
   const tailRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,8 +34,8 @@ export function ChatView({ messages, streaming, error, onChoice, onDepthChange }
           {m.role === 'user' ? m.content : m.content.kind === 'facia' ? (
             <SemanticSurface
               recipe={m.content.answer.recipe}
+              recipesByDepth={m.content.answer.recipesByDepth}
               variant="conversation"
-              onDepthChange={(depth) => onDepthChange?.(i, depth)}
             />
           ) : m.content.markdown ? (
             <MarkdownContent content={m.content.markdown} />

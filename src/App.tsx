@@ -19,13 +19,11 @@ import {
   consumeChoices,
   markdownContent,
   messageHasVisibleContent,
-  selectFaciaDepth,
   sendChat,
   type ClientMessage,
   type MessageChoice,
 } from '@/lib/chat';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
-import type { DisclosureDepth } from '@facia/core';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
@@ -239,11 +237,6 @@ function Home() {
     ]);
   };
 
-  const handleDepthChange = (messageIndex: number, depth: DisclosureDepth) => {
-    setMessages((current) => selectFaciaDepth(current, messageIndex, depth));
-    setChatError(null);
-  };
-
   const handleClearChat = () => {
     abortRef.current?.abort();
     setMessages([]);
@@ -300,7 +293,6 @@ function Home() {
                 streaming={streaming}
                 error={chatError}
                 onChoice={(p) => void submitPrompt(p)}
-                onDepthChange={handleDepthChange}
               />
             ) : awaitingAnswer ? (
               <div className="loading-surface">

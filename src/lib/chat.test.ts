@@ -1,7 +1,7 @@
 import { ANSWER_SET_SCHEMA_PIN, resolveAnswerSet } from '@facia/core';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { answerPortfolioQuestion } from '../../api/_lib/portfolio-answer-source';
-import { compactMessageText, readTextStream, selectFaciaDepth, sendChat } from './chat';
+import { compactMessageText, readTextStream, sendChat } from './chat';
 
 function resolvedRecipes(question: string) {
   const answer = answerPortfolioQuestion(question);
@@ -95,36 +95,5 @@ describe('structured chat history', () => {
     expect(requestBody.messages[1].content).toContain('Structured answer to:');
     expect(requestBody.messages[1].content).not.toContain('patternReasonCode');
     expect(requestBody.messages[1].content).not.toContain('schemaPin');
-  });
-
-  it('selects disclosure state only on the owning structured message', () => {
-    const recipesByDepth = resolvedRecipes('What did Jeremy do at Zocdoc?');
-    const answer = {
-      protocol: 'portfolio.answer/1' as const,
-      schemaPin: ANSWER_SET_SCHEMA_PIN,
-      recipe: recipesByDepth.glance,
-      recipesByDepth,
-    };
-    const messages = [
-      { role: 'user' as const, content: 'Earlier turn' },
-      {
-        role: 'assistant' as const,
-        content: { kind: 'facia' as const, question: 'First?', answer },
-      },
-      { role: 'assistant' as const, content: { kind: 'markdown' as const, markdown: 'Still here.' } },
-      {
-        role: 'assistant' as const,
-        content: { kind: 'facia' as const, question: 'Second?', answer },
-      },
-    ];
-
-    const updated = selectFaciaDepth(messages, 3, 'audit');
-    expect(updated[0]).toBe(messages[0]);
-    expect(updated[1]).toBe(messages[1]);
-    expect(updated[2]).toBe(messages[2]);
-    expect(updated[3]).not.toBe(messages[3]);
-    expect(updated[3].role === 'assistant' && updated[3].content.kind === 'facia'
-      ? updated[3].content.answer.recipe.context.depth
-      : null).toBe('audit');
   });
 });
