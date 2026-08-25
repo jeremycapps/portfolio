@@ -17,6 +17,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./schema-pin": {
+      "types": "./dist/schema-pin.generated.d.ts",
+      "import": "./dist/schema-pin.generated.js"
+    },
     "./schemas/facia-answer-set.v2.schema.json": "./schemas/facia-answer-set.v2.schema.json",
     "./schemas/facia-answer-set.v2.pin.json": "./schemas/facia-answer-set.v2.pin.json"
   },

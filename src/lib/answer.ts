@@ -1,4 +1,5 @@
-import { ANSWER_SET_SCHEMA_PIN, type ComponentRecipe, type DisclosureDepth } from '@facia/core';
+import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
+import { ANSWER_SET_SCHEMA_PIN } from '@facia/core/schema-pin';
 
 export interface StructuredAnswerResponse {
   protocol: 'portfolio.answer/1';
