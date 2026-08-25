@@ -20,6 +20,7 @@ describe('generateOpenRouterStructured', () => {
 
     await expect(generateOpenRouterStructured(request, { fetchImpl })).resolves.toBe('{"ok":true}');
     expect(body?.stream).toBe(false);
+    expect(body?.max_tokens).toBe(1_000);
     expect(body?.response_format).toEqual(expect.objectContaining({
       type: 'json_schema',
       json_schema: expect.objectContaining({ strict: true, name: request.name }),

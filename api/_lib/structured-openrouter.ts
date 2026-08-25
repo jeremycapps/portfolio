@@ -68,7 +68,7 @@ export async function generateOpenRouterStructured(
         model: config.model,
         messages: request.messages,
         stream: false,
-        max_tokens: config.maxOutputTokens,
+        max_tokens: config.structuredMaxOutputTokens,
         response_format: {
           type: 'json_schema',
           json_schema: {

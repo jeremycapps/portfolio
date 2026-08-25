@@ -5,10 +5,12 @@ export interface AppConfig {
   model: string;
   openRouterKey: string | undefined;
   maxOutputTokens: number;
+  structuredMaxOutputTokens: number;
   structuredTimeoutMs: number;
 }
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 400;
+const DEFAULT_STRUCTURED_MAX_OUTPUT_TOKENS = 1_000;
 const DEFAULT_STRUCTURED_TIMEOUT_MS = 8_000;
 
 function positiveInteger(value: string | undefined, fallback: number): number {
@@ -22,6 +24,10 @@ export function getConfig(env: Record<string, string | undefined> = process.env)
     model: env.CHAT_MODEL ?? 'meta-llama/llama-3.3-70b-instruct',
     openRouterKey: env.OPENROUTER_API_KEY,
     maxOutputTokens: positiveInteger(env.CHAT_MAX_OUTPUT_TOKENS, DEFAULT_MAX_OUTPUT_TOKENS),
+    structuredMaxOutputTokens: positiveInteger(
+      env.STRUCTURED_ANSWER_MAX_OUTPUT_TOKENS,
+      DEFAULT_STRUCTURED_MAX_OUTPUT_TOKENS,
+    ),
     structuredTimeoutMs: positiveInteger(
       env.STRUCTURED_ANSWER_TIMEOUT_MS,
       DEFAULT_STRUCTURED_TIMEOUT_MS,
