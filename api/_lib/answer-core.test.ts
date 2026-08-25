@@ -39,6 +39,8 @@ describe('handleAnswerRequest', () => {
     expect(body.schemaPin.schema).toBe('facia.answer-set/2');
     expect(body.recipe.pattern).toBe('list');
     expect(body.recipe.context.depth).toBe('glance');
+    expect(Object.keys(body.recipesByDepth)).toEqual(['glance', 'inspect', 'focus', 'audit']);
+    expect(body.recipesByDepth.audit.context.depth).toBe('audit');
     expect(body.recipe.visibleFields[0].fields.map((field: { key: string }) => field.key)).toEqual([
       'title',
       'contribution',

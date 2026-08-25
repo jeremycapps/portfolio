@@ -19,7 +19,7 @@ import {
   consumeChoices,
   markdownContent,
   messageHasVisibleContent,
-  replaceFaciaAnswer,
+  selectFaciaDepth,
   sendChat,
   type ClientMessage,
   type MessageChoice,
@@ -238,23 +238,9 @@ function Home() {
     ]);
   };
 
-  const handleDepthChange = async (messageIndex: number, depth: DisclosureDepth) => {
-    const message = messages[messageIndex];
-    if (message?.role !== 'assistant' || message.content.kind !== 'facia') return;
-    const question = message.content.question;
-    const controller = new AbortController();
-    abortRef.current = controller;
-    setStreaming(true);
-    try {
-      const answer = await sendStructuredAnswer(question, depth, controller.signal);
-      setMessages((current) => replaceFaciaAnswer(current, messageIndex, answer));
-      setChatError(null);
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') return;
-      setChatError(error instanceof Error ? error.message : 'Could not change disclosure depth.');
-    } finally {
-      setStreaming(false);
-    }
+  const handleDepthChange = (messageIndex: number, depth: DisclosureDepth) => {
+    setMessages((current) => selectFaciaDepth(current, messageIndex, depth));
+    setChatError(null);
   };
 
   const handleClearChat = () => {

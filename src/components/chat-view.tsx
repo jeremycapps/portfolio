@@ -9,7 +9,7 @@ interface ChatViewProps {
   streaming: boolean;
   error: string | null;
   onChoice?: (prompt: string) => void;
-  onDepthChange?: (messageIndex: number, depth: DisclosureDepth) => Promise<void>;
+  onDepthChange?: (messageIndex: number, depth: DisclosureDepth) => void;
 }
 
 export function ChatView({ messages, streaming, error, onChoice, onDepthChange }: ChatViewProps) {
@@ -27,7 +27,7 @@ export function ChatView({ messages, streaming, error, onChoice, onDepthChange }
             <SemanticSurface
               recipe={m.content.answer.recipe}
               variant="conversation"
-              onDepthChange={(depth) => onDepthChange?.(i, depth) ?? Promise.resolve()}
+              onDepthChange={(depth) => onDepthChange?.(i, depth)}
             />
           ) : m.content.markdown ? (
             <MarkdownContent content={m.content.markdown} />

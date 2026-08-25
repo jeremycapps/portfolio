@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type {
   ComponentRecipe,
   DisclosureDepth,
@@ -14,7 +13,7 @@ const DEPTHS: Array<{ depth: DisclosureDepth; label: string }> = [
 
 interface SemanticSurfaceProps {
   recipe: ComponentRecipe;
-  onDepthChange: (depth: DisclosureDepth) => Promise<void>;
+  onDepthChange: (depth: DisclosureDepth) => void;
   variant?: 'standalone' | 'conversation';
 }
 
@@ -43,20 +42,14 @@ function FieldList({ fields }: { fields: ResolvedFieldV2[] }) {
 }
 
 export function SemanticSurface({ recipe, onDepthChange, variant = 'standalone' }: SemanticSurfaceProps) {
-  const [changingDepth, setChangingDepth] = useState<DisclosureDepth | null>(null);
   const componentIds = new Set(recipe.components.map((component) => component.id));
   const supportsList = componentIds.has('List');
   const supportsToolbar = componentIds.has('InspectionToolbar');
   const audit = recipe.context.depth === 'audit';
 
-  const changeDepth = async (depth: DisclosureDepth) => {
-    if (depth === recipe.context.depth || changingDepth !== null) return;
-    setChangingDepth(depth);
-    try {
-      await onDepthChange(depth);
-    } finally {
-      setChangingDepth(null);
-    }
+  const changeDepth = (depth: DisclosureDepth) => {
+    if (depth === recipe.context.depth) return;
+    onDepthChange(depth);
   };
 
   return (
@@ -78,11 +71,10 @@ export function SemanticSurface({ recipe, onDepthChange, variant = 'standalone' 
               key={depth}
               type="button"
               aria-pressed={recipe.context.depth === depth}
-              disabled={changingDepth !== null}
-              onClick={() => void changeDepth(depth)}
+              onClick={() => changeDepth(depth)}
               data-testid={`button-depth-${depth}`}
             >
-              {changingDepth === depth ? 'Loading…' : label}
+              {label}
             </button>
           ))}
         </div>

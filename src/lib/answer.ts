@@ -9,6 +9,7 @@ export interface StructuredAnswerResponse {
     sha256: string;
   };
   recipe: ComponentRecipe;
+  recipesByDepth: Record<DisclosureDepth, ComponentRecipe>;
 }
 
 export class AnswerApiError extends Error {
@@ -22,20 +23,16 @@ export class AnswerApiError extends Error {
   }
 }
 
-function isStructuredAnswerResponse(body: unknown): body is StructuredAnswerResponse {
-  if (body === null || typeof body !== 'object' || Array.isArray(body)) return false;
-  const candidate = body as Record<string, unknown>;
-  const pin = candidate.schemaPin as Record<string, unknown> | undefined;
-  const recipe = candidate.recipe as Record<string, unknown> | undefined;
+const DEPTHS: DisclosureDepth[] = ['glance', 'inspect', 'focus', 'audit'];
+
+function isComponentRecipe(value: unknown, expectedDepth?: DisclosureDepth): value is ComponentRecipe {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const recipe = value as Record<string, unknown>;
   const answer = recipe?.answer as Record<string, unknown> | undefined;
   const context = recipe?.context as Record<string, unknown> | undefined;
   const components = recipe?.components;
   const visibleFields = recipe?.visibleFields;
-  return candidate.protocol === 'portfolio.answer/1'
-    && pin?.schema === ANSWER_SET_SCHEMA_PIN.schema
-    && pin.packagePath === ANSWER_SET_SCHEMA_PIN.packagePath
-    && pin.sha256 === ANSWER_SET_SCHEMA_PIN.sha256
-    && typeof recipe?.pattern === 'string'
+  return typeof recipe.pattern === 'string'
     && Array.isArray(components)
     && components.every((component) => (
       component !== null
@@ -57,7 +54,25 @@ function isStructuredAnswerResponse(body: unknown): body is StructuredAnswerResp
     ))
     && typeof answer?.question === 'string'
     && Array.isArray(answer.items)
-    && ['glance', 'inspect', 'focus', 'audit'].includes(String(context?.depth));
+    && DEPTHS.includes(context?.depth as DisclosureDepth)
+    && (expectedDepth === undefined || context?.depth === expectedDepth);
+}
+
+function isStructuredAnswerResponse(
+  body: unknown,
+  requestedDepth: DisclosureDepth,
+): body is StructuredAnswerResponse {
+  if (body === null || typeof body !== 'object' || Array.isArray(body)) return false;
+  const candidate = body as Record<string, unknown>;
+  const pin = candidate.schemaPin as Record<string, unknown> | undefined;
+  const recipesByDepth = candidate.recipesByDepth as Record<string, unknown> | undefined;
+  return candidate.protocol === 'portfolio.answer/1'
+    && pin?.schema === ANSWER_SET_SCHEMA_PIN.schema
+    && pin.packagePath === ANSWER_SET_SCHEMA_PIN.packagePath
+    && pin.sha256 === ANSWER_SET_SCHEMA_PIN.sha256
+    && isComponentRecipe(candidate.recipe, requestedDepth)
+    && recipesByDepth !== undefined
+    && DEPTHS.every((depth) => isComponentRecipe(recipesByDepth[depth], depth));
 }
 
 export async function sendStructuredAnswer(
@@ -88,7 +103,7 @@ export async function sendStructuredAnswer(
     );
   }
 
-  if (!isStructuredAnswerResponse(body)) {
+  if (!isStructuredAnswerResponse(body, depth)) {
     throw new AnswerApiError(
       'The structured answer service returned an invalid recipe.',
       'INVALID_RESPONSE',

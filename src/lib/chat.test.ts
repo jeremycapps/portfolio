@@ -1,7 +1,24 @@
 import { ANSWER_SET_SCHEMA_PIN, resolveAnswerSet } from '@facia/core';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { answerPortfolioQuestion } from '../../api/_lib/portfolio-answer-source';
-import { compactMessageText, readTextStream, replaceFaciaAnswer, sendChat } from './chat';
+import { compactMessageText, readTextStream, selectFaciaDepth, sendChat } from './chat';
+
+function resolvedRecipes(question: string) {
+  const answer = answerPortfolioQuestion(question);
+  const glance = resolveAnswerSet(answer, { depth: 'glance' });
+  const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
+  const focus = resolveAnswerSet(answer, { depth: 'focus' });
+  const audit = resolveAnswerSet(answer, { depth: 'audit' });
+  if (!glance.ok || !inspect.ok || !focus.ok || !audit.ok) {
+    throw new Error('Expected the portfolio answer to resolve at every depth.');
+  }
+  return {
+    glance: glance.recipe,
+    inspect: inspect.recipe,
+    focus: focus.recipe,
+    audit: audit.recipe,
+  };
+}
 
 function textStream(parts: string[]): Response {
   const body = new ReadableStream<Uint8Array>({
@@ -26,12 +43,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('structured chat history', () => {
   it('uses compact semantic answer text without renderer metadata', () => {
-    const result = resolveAnswerSet(
-      answerPortfolioQuestion('What did Jeremy do at Zocdoc?'),
-      { depth: 'glance' },
-    );
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    const recipesByDepth = resolvedRecipes('What did Jeremy do at Zocdoc?');
     const text = compactMessageText({
       role: 'assistant',
       content: {
@@ -40,7 +52,8 @@ describe('structured chat history', () => {
         answer: {
           protocol: 'portfolio.answer/1',
           schemaPin: ANSWER_SET_SCHEMA_PIN,
-          recipe: result.recipe,
+          recipe: recipesByDepth.glance,
+          recipesByDepth,
         },
       },
     });
@@ -54,12 +67,7 @@ describe('structured chat history', () => {
   });
 
   it('sends compact structured history to later model calls', async () => {
-    const result = resolveAnswerSet(
-      answerPortfolioQuestion('What did Jeremy do at Zocdoc?'),
-      { depth: 'glance' },
-    );
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    const recipesByDepth = resolvedRecipes('What did Jeremy do at Zocdoc?');
     let requestBody: any;
     vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => {
       requestBody = JSON.parse(String(init?.body));
@@ -76,7 +84,8 @@ describe('structured chat history', () => {
           answer: {
             protocol: 'portfolio.answer/1',
             schemaPin: ANSWER_SET_SCHEMA_PIN,
-            recipe: result.recipe,
+            recipe: recipesByDepth.glance,
+            recipesByDepth,
           },
         },
       },
@@ -88,21 +97,13 @@ describe('structured chat history', () => {
     expect(requestBody.messages[1].content).not.toContain('schemaPin');
   });
 
-  it('replaces disclosure state only on the owning structured message', () => {
-    const glance = resolveAnswerSet(
-      answerPortfolioQuestion('What did Jeremy do at Zocdoc?'),
-      { depth: 'glance' },
-    );
-    const audit = resolveAnswerSet(
-      answerPortfolioQuestion('What did Jeremy do at Zocdoc?'),
-      { depth: 'audit' },
-    );
-    expect(glance.ok && audit.ok).toBe(true);
-    if (!glance.ok || !audit.ok) return;
+  it('selects disclosure state only on the owning structured message', () => {
+    const recipesByDepth = resolvedRecipes('What did Jeremy do at Zocdoc?');
     const answer = {
       protocol: 'portfolio.answer/1' as const,
       schemaPin: ANSWER_SET_SCHEMA_PIN,
-      recipe: glance.recipe,
+      recipe: recipesByDepth.glance,
+      recipesByDepth,
     };
     const messages = [
       { role: 'user' as const, content: 'Earlier turn' },
@@ -117,7 +118,7 @@ describe('structured chat history', () => {
       },
     ];
 
-    const updated = replaceFaciaAnswer(messages, 3, { ...answer, recipe: audit.recipe });
+    const updated = selectFaciaDepth(messages, 3, 'audit');
     expect(updated[0]).toBe(messages[0]);
     expect(updated[1]).toBe(messages[1]);
     expect(updated[2]).toBe(messages[2]);

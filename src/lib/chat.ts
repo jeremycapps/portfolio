@@ -1,4 +1,5 @@
 import type { StructuredAnswerResponse } from './answer';
+import type { DisclosureDepth } from '@facia/core';
 
 export interface MessageChoice {
   label: string;
@@ -56,10 +57,10 @@ export function consumeChoices(message: ClientMessage): ClientMessage {
     : message;
 }
 
-export function replaceFaciaAnswer(
+export function selectFaciaDepth(
   messages: ClientMessage[],
   messageIndex: number,
-  answer: StructuredAnswerResponse,
+  depth: DisclosureDepth,
 ): ClientMessage[] {
   return messages.map((message, index) => (
     index === messageIndex
@@ -67,7 +68,13 @@ export function replaceFaciaAnswer(
       && message.content.kind === 'facia'
       ? {
           ...message,
-          content: { ...message.content, answer },
+          content: {
+            ...message.content,
+            answer: {
+              ...message.content.answer,
+              recipe: message.content.answer.recipesByDepth[depth],
+            },
+          },
         }
       : message
   ));

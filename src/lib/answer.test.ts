@@ -6,17 +6,24 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('sendStructuredAnswer', () => {
   it('posts the question and disclosure depth', async () => {
+    const recipe = (depth: 'glance' | 'inspect' | 'focus' | 'audit') => ({
+      pattern: 'list',
+      components: [],
+      inspectionControls: [],
+      actionControls: [],
+      visibleFields: [],
+      context: { depth },
+      answer: { question: 'Zocdoc?', items: [] },
+    });
     const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => new Response(JSON.stringify({
       protocol: 'portfolio.answer/1',
       schemaPin: ANSWER_SET_SCHEMA_PIN,
-      recipe: {
-        pattern: 'list',
-        components: [],
-        inspectionControls: [],
-        actionControls: [],
-        visibleFields: [],
-        context: { depth: 'inspect' },
-        answer: { question: 'Zocdoc?', items: [] },
+      recipe: recipe('inspect'),
+      recipesByDepth: {
+        glance: recipe('glance'),
+        inspect: recipe('inspect'),
+        focus: recipe('focus'),
+        audit: recipe('audit'),
       },
     }), { status: 200, headers: { 'content-type': 'application/json' } }));
     vi.stubGlobal('fetch', fetchMock);
@@ -47,6 +54,7 @@ describe('sendStructuredAnswer', () => {
       protocol: 'portfolio.answer/1',
       schemaPin: { schema: 'facia.answer-set/2', packagePath: 'schema.json', sha256: 'abc' },
       recipe: { pattern: 'list' },
+      recipesByDepth: {},
     }), { status: 200, headers: { 'content-type': 'application/json' } })));
 
     await expect(sendStructuredAnswer('Zocdoc?', 'glance')).rejects.toEqual(expect.objectContaining({

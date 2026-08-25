@@ -2,6 +2,7 @@ import {
   ANSWER_SET_SCHEMA_PIN,
   resolveAnswerSet,
   type AnswerSetV2,
+  type ComponentRecipe,
   type DisclosureDepth,
 } from '@facia/core';
 import { jsonError, jsonResponse } from './http';
@@ -103,22 +104,24 @@ export async function handleAnswerRequest(
     );
   }
 
-  const result = resolveAnswerSet(answerSet, {
-    depth: validation.value.depth,
-    audience: 'human',
-  });
-  if (!result.ok) {
-    console.error('Facia resolution failed:', result);
-    return jsonError(
-      'The structured answer failed validation.',
-      'FACIA_RESOLUTION_FAILED',
-      500,
-    );
+  const recipesByDepth = {} as Record<DisclosureDepth, ComponentRecipe>;
+  for (const depth of DEPTHS) {
+    const result = resolveAnswerSet(answerSet, { depth, audience: 'human' });
+    if (!result.ok) {
+      console.error('Facia resolution failed:', result);
+      return jsonError(
+        'The structured answer failed validation.',
+        'FACIA_RESOLUTION_FAILED',
+        500,
+      );
+    }
+    recipesByDepth[depth] = result.recipe;
   }
 
   return jsonResponse({
     protocol: 'portfolio.answer/1',
     schemaPin: ANSWER_SET_SCHEMA_PIN,
-    recipe: result.recipe,
+    recipe: recipesByDepth[validation.value.depth],
+    recipesByDepth,
   });
 }

@@ -13,7 +13,7 @@ describe('SemanticSurface', () => {
     if (!result.ok) return;
 
     const html = renderToStaticMarkup(
-      <SemanticSurface recipe={result.recipe} onDepthChange={async () => undefined} />,
+      <SemanticSurface recipe={result.recipe} onDepthChange={() => undefined} />,
     );
 
     expect(html).toContain('What did Jeremy work on at Zocdoc?');
@@ -26,9 +26,18 @@ describe('SemanticSurface', () => {
 
   it('renders mixed Markdown and Facia turns inside normal assistant bubbles', () => {
     const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
-    const result = resolveAnswerSet(answer, { depth: 'glance' });
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    const glance = resolveAnswerSet(answer, { depth: 'glance' });
+    const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
+    const focus = resolveAnswerSet(answer, { depth: 'focus' });
+    const audit = resolveAnswerSet(answer, { depth: 'audit' });
+    expect(glance.ok && inspect.ok && focus.ok && audit.ok).toBe(true);
+    if (!glance.ok || !inspect.ok || !focus.ok || !audit.ok) return;
+    const recipesByDepth = {
+      glance: glance.recipe,
+      inspect: inspect.recipe,
+      focus: focus.recipe,
+      audit: audit.recipe,
+    };
 
     const html = renderToStaticMarkup(<ChatView
       messages={[
@@ -43,7 +52,8 @@ describe('SemanticSurface', () => {
             answer: {
               protocol: 'portfolio.answer/1',
               schemaPin: ANSWER_SET_SCHEMA_PIN,
-              recipe: result.recipe,
+              recipe: recipesByDepth.glance,
+              recipesByDepth,
             },
           },
         },
