@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
+import { type FormEvent, type ReactNode, Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Check, ChevronRight, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -402,11 +402,18 @@ function ArrowUpIcon() {
   return <Send aria-hidden="true" />;
 }
 
+// Lazy-loaded so the StratOS instrument (and its recipe map) ships in its own
+// chunk, never in the homepage bundle.
+const StratosPage = lazy(() => import('@/pages/stratos'));
+
 function Router() {
   return (
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/stratos">
+          {() => <Suspense fallback={null}><StratosPage /></Suspense>}
+        </Route>
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>

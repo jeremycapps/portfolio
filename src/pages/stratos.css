@@ -1,0 +1,215 @@
+/* StratOS instrument — scoped under .stratos so it never touches the rest of
+   the site. Its own visual identity (Spectral / IBM Plex, slate vs. bronze). */
+.stratos {
+  --st-paper:#EDEFEE; --st-card:#F7F8F7; --st-sunk:#E3E6E5;
+  --st-ink:#15181A; --st-ink-2:#3D4548; --st-ink-3:#6B7477;
+  --st-rule:#CDD2D1; --st-rule-2:#DDE1E0;
+  --st-left:#2E4A6B; --st-left-soft:#2E4A6B1F;
+  --st-right:#8F6212; --st-right-soft:#8F62121F;
+  --st-accent:#11605B; --st-accent-soft:#11605B14; --st-focus:#11605B;
+
+  background:var(--st-paper); color:var(--st-ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  min-height:100dvh;
+}
+@media (prefers-color-scheme:dark){
+  .stratos:not([data-theme="light"]){
+    --st-paper:#0F1214; --st-card:#171B1E; --st-sunk:#0B0E10;
+    --st-ink:#E8EBEA; --st-ink-2:#B3BBBC; --st-ink-3:#7E8789;
+    --st-rule:#2A3134; --st-rule-2:#212729;
+    --st-left:#7FA5D4; --st-left-soft:#7FA5D424;
+    --st-right:#D9A441; --st-right-soft:#D9A44124;
+    --st-accent:#4FBFB4; --st-accent-soft:#4FBFB414; --st-focus:#4FBFB4;
+  }
+}
+.stratos * { box-sizing:border-box; }
+.stratos .wrap { max-width:640px; margin:0 auto; padding:26px 18px 72px; }
+
+.stratos .eyebrow { font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--st-ink-3); margin:0 0 12px; }
+.stratos h1 { font-family:Spectral,Georgia,serif; font-weight:300; font-size:34px; line-height:1.05;
+  letter-spacing:-.02em; margin:0 0 12px; text-wrap:balance; }
+.stratos .lede { font-family:Spectral,Georgia,serif; font-size:16.5px; line-height:1.45; color:var(--st-ink-2); margin:0 0 18px; }
+.stratos .lede em { color:var(--st-ink); font-style:italic; }
+.stratos .back { font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.06em;
+  color:var(--st-accent); text-decoration:none; }
+.stratos .back:hover { text-decoration:underline; }
+
+.stratos .bar { display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:11px 13px; background:var(--st-card); border:1px solid var(--st-rule); margin:16px 0 24px; }
+.stratos .bar .lbl { font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--st-ink-3); }
+.stratos .bar .lbl b { display:block; color:var(--st-ink-2); font-weight:400; letter-spacing:0;
+  text-transform:none; font-size:11px; margin-top:3px; }
+.stratos .audit-btn { font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; padding:9px 14px; min-height:40px; cursor:pointer;
+  background:transparent; color:var(--st-ink-2); border:1px solid var(--st-rule); }
+.stratos .audit-btn[aria-pressed="true"] { background:var(--st-accent); color:var(--st-paper); border-color:var(--st-accent); }
+.stratos .audit-btn:focus-visible { outline:2px solid var(--st-focus); outline-offset:2px; }
+
+.stratos .tiles { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--st-rule);
+  border:1px solid var(--st-rule); margin-bottom:30px; }
+.stratos .tile { background:var(--st-card); padding:13px 14px; }
+.stratos .tile h3 { font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--st-ink-3); margin:0 0 7px; font-weight:400; }
+.stratos .tile .val { font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
+  font-size:26px; line-height:1; color:var(--st-ink); }
+.stratos .tile .note { font-size:11.5px; color:var(--st-ink-3); margin:7px 0 0; line-height:1.4; }
+
+.stratos .badge-wrap { margin-bottom:30px; padding:14px 16px; border:1px solid var(--st-right);
+  background:var(--st-right-soft); display:grid; gap:5px; }
+.stratos .badge-wrap .p { font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--st-ink-3); }
+.stratos .badge-wrap .s { font-family:Spectral,Georgia,serif; font-size:18px; color:var(--st-ink); }
+.stratos .badge-wrap .w { font-size:12.5px; color:var(--st-ink-2); }
+
+.stratos .pair { margin-bottom:32px; }
+.stratos .pair-head { border-bottom:1px solid var(--st-ink); padding-bottom:7px; margin-bottom:4px; }
+.stratos .pair-head h2 { font-family:Spectral,Georgia,serif; font-weight:400; font-size:21px; margin:0; }
+.stratos .pair-head .q { display:block; font-family:Spectral,Georgia,serif; font-style:italic;
+  font-size:13px; color:var(--st-ink-3); margin-top:2px; }
+
+.stratos .tension { border-bottom:1px solid var(--st-rule-2); padding:20px 0; }
+.stratos[data-focused] .tension[data-dim="1"] { opacity:.42; }
+.stratos[data-focused] .tension[data-dim="1"] .t-q { display:none; }
+.stratos .t-name { font-family:Spectral,Georgia,serif; font-size:19px; font-weight:600; letter-spacing:-.01em; }
+.stratos .t-q { font-family:Spectral,Georgia,serif; font-style:italic; color:var(--st-ink-2);
+  font-size:14px; margin:4px 0 14px; line-height:1.4; }
+
+.stratos .poles { display:flex; justify-content:space-between; gap:10px; margin-bottom:6px;
+  font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.06em; text-transform:uppercase; line-height:1.3; }
+.stratos .pole { position:relative; max-width:48%; }
+.stratos .pole.l { color:var(--st-left); }
+.stratos .pole.r { color:var(--st-right); }
+.stratos .pole-btn { display:inline-flex; align-items:flex-start; background:transparent; border:0;
+  margin:-13px -6px; padding:13px 6px; cursor:pointer; color:inherit; text-align:left; }
+.stratos .pole.r .pole-btn { text-align:right; }
+.stratos .pole-name { font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.06em;
+  text-transform:uppercase; line-height:1.25; border-bottom:1px dotted currentColor; padding-bottom:2px; }
+.stratos .pole-btn:focus-visible { outline:2px solid var(--st-focus); outline-offset:2px; }
+.stratos .pole-pop { display:none; position:absolute; top:calc(100% + 6px); z-index:20; width:min(290px,78vw);
+  background:var(--st-card); border:1px solid var(--st-ink-3); padding:11px 12px;
+  font-family:"IBM Plex Sans",sans-serif; font-size:12.5px; letter-spacing:0; text-transform:none;
+  line-height:1.45; color:var(--st-ink-2); text-align:left; box-shadow:0 6px 22px rgba(0,0,0,.14); }
+.stratos .pole.l .pole-pop { left:0; }
+.stratos .pole.r .pole-pop { right:0; }
+.stratos .pole-btn:focus-visible + .pole-pop,
+.stratos .pole-btn[aria-expanded="true"] + .pole-pop { display:block; }
+@media (hover:hover){ .stratos .pole-btn:hover + .pole-pop { display:block; } }
+.stratos .pole-pop b { display:block; font-family:Spectral,Georgia,serif; font-size:15px; font-weight:600;
+  color:var(--st-ink); margin-bottom:7px; }
+.stratos .pole-pop em { display:block; font-family:"IBM Plex Mono",monospace; font-size:9px; font-style:normal;
+  letter-spacing:.11em; text-transform:uppercase; color:var(--st-ink-3); margin:8px 0 2px; }
+.stratos .pole-pop .mono { font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--st-ink-3); }
+
+.stratos .axis { position:relative; height:72px; background:var(--st-sunk); border:1px solid var(--st-rule);
+  cursor:ew-resize; touch-action:none; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+.stratos .axis:focus-visible { outline:2px solid var(--st-focus); outline-offset:2px; }
+.stratos .axis .fill { position:absolute; top:0; bottom:0; transition:left .09s,width .09s; }
+.stratos .axis .fill.l { background:var(--st-left-soft); }
+.stratos .axis .fill.r { background:var(--st-right-soft); }
+.stratos .axis .grid i { position:absolute; bottom:0; width:1px; height:6px; background:var(--st-rule); }
+.stratos .axis .fn { position:absolute; top:6px; font-family:"IBM Plex Mono",monospace; font-size:9px; line-height:1;
+  letter-spacing:.1em; text-transform:uppercase; pointer-events:none; opacity:.75; }
+.stratos .axis .fn.l { left:10px; color:var(--st-left); }
+.stratos .axis .fn.r { right:10px; color:var(--st-right); }
+.stratos .axis .zero { position:absolute; top:0; bottom:0; left:50%; width:1px; background:var(--st-rule); }
+.stratos .axis .tick { position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; background:var(--st-ink-3);
+  transition:left .09s,background .12s; }
+.stratos .axis .tick.l { background:var(--st-left); }
+.stratos .axis .tick.r { background:var(--st-right); }
+.stratos .axis .knob { position:absolute; top:50%; min-width:56px; height:28px; margin:-14px 0 0 -28px;
+  border-radius:14px; background:var(--st-paper); border:2px solid var(--st-ink-3);
+  display:flex; align-items:center; justify-content:center;
+  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-size:12px; font-weight:500;
+  color:var(--st-ink-3); transition:left .09s,border-color .12s,color .12s; pointer-events:none; }
+.stratos .axis .knob.l { border-color:var(--st-left); color:var(--st-left); }
+.stratos .axis .knob.r { border-color:var(--st-right); color:var(--st-right); }
+.stratos .axis .knob.empty { min-width:26px; width:26px; margin-left:-13px; }
+.stratos .axis .knob.empty span { display:none; }
+.stratos .axis .hint { position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center;
+  padding-bottom:6px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--st-ink-3); pointer-events:none; transition:opacity .2s; }
+
+.stratos .panel { margin-top:14px; border-left:2px solid var(--st-rule); padding:2px 0 2px 14px;
+  cursor:pointer; transition:background .15s,border-color .15s,padding .15s; }
+.stratos .panel:focus-visible { outline:2px solid var(--st-focus); outline-offset:3px; }
+.stratos .panel.l { border-left-color:var(--st-left); }
+.stratos .panel.r { border-left-color:var(--st-right); }
+.stratos .panel[data-depth="inspect"] { background:var(--st-accent-soft); }
+.stratos .panel[data-depth="focus"], .stratos .panel[data-depth="audit"] {
+  background:var(--st-card); border:1px solid var(--st-rule); border-left-width:2px; padding:14px; }
+.stratos .panel[data-depth="focus"].l, .stratos .panel[data-depth="audit"].l { border-left-color:var(--st-left); }
+.stratos .panel[data-depth="focus"].r, .stratos .panel[data-depth="audit"].r { border-left-color:var(--st-right); }
+.stratos .panel-meta { display:flex; flex-wrap:wrap; gap:5px 8px; align-items:center; margin-bottom:10px; }
+.stratos .chip { font-family:"IBM Plex Mono",monospace; font-size:9px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--st-ink-3); border:1px solid var(--st-rule); padding:2px 6px; }
+.stratos .chip.pat { color:var(--st-accent); border-color:var(--st-accent); }
+.stratos .chip.depth { color:var(--st-ink); border-color:var(--st-ink); }
+.stratos .flds { display:grid; gap:9px; margin:0; }
+.stratos .fld { display:grid; gap:2px; }
+.stratos .fld dt { font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--st-ink-3); }
+.stratos .fld dd { margin:0; color:var(--st-ink-2); font-size:13.5px; line-height:1.45; }
+.stratos .fld[data-p="primary"] dd { color:var(--st-ink); font-size:15px; }
+.stratos .fld[data-k="mandate"] dd { font-family:Spectral,Georgia,serif; font-size:16.5px; line-height:1.4; color:var(--st-ink); }
+.stratos .fld[data-k="growthLens"] dd { font-family:Spectral,Georgia,serif; font-style:italic; font-size:15px; }
+.stratos .fld[data-p="supporting"] dd { font-family:Spectral,Georgia,serif; font-size:15px; }
+.stratos .affs { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; align-items:center; }
+.stratos .aff { font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.09em; text-transform:uppercase;
+  padding:4px 8px; border:1px solid var(--st-rule); background:transparent; color:var(--st-ink-3); cursor:default; }
+.stratos .aff.live { color:var(--st-accent); border-color:var(--st-accent); cursor:pointer; }
+.stratos .aff.live[aria-pressed="true"] { background:var(--st-accent); color:var(--st-paper); }
+.stratos .aff.act { color:var(--st-ink-2); border-style:dashed; }
+.stratos .reveal { margin-top:11px; padding-top:10px; border-top:1px solid var(--st-rule);
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--st-ink-3); line-height:1.75; }
+.stratos .reveal b { color:var(--st-ink-2); font-weight:500; }
+
+.stratos .balance { margin-top:14px; padding:11px 13px; font-size:12.5px; color:var(--st-ink-2);
+  background:var(--st-card); border:1px solid var(--st-rule); line-height:1.45; }
+.stratos .balance.quiet { color:var(--st-ink-3); background:transparent; border-style:dashed; }
+.stratos .balance b { color:var(--st-ink); font-weight:600; }
+.stratos .balance .d { font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; color:var(--st-ink); }
+
+.stratos .agenda { margin-top:40px; border:1px solid var(--st-accent); background:var(--st-card); padding:18px 16px; }
+.stratos .agenda h2 { font-family:Spectral,Georgia,serif; font-weight:400; font-size:23px; margin:0 0 3px; }
+.stratos .agenda .sub { font-family:Spectral,Georgia,serif; font-style:italic; color:var(--st-ink-3);
+  font-size:13.5px; margin:0 0 14px; }
+.stratos .agenda-empty { font-family:Spectral,Georgia,serif; font-style:italic; color:var(--st-ink-3); font-size:15px; }
+.stratos .officers { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+.stratos .officers .panel { margin-top:0; flex:0 1 auto; max-width:100%; }
+.stratos .officers .panel[data-pattern="stat"] { padding:9px 12px; border:1px solid var(--st-rule);
+  border-left-width:2px; background:var(--st-paper); }
+.stratos .officers .panel[data-pattern="stat"] .panel-meta { margin-bottom:6px; }
+.stratos .officers .panel[data-pattern="stat"] .fld[data-k="function"] dd { font-family:Spectral,Georgia,serif; font-size:16px; font-weight:600; }
+.stratos .officers .panel[data-pattern="stat"] .fld dt { display:none; }
+.stratos .officers .panel[data-pattern="detail"] { flex:1 1 100%; background:var(--st-paper); }
+.stratos .qs { margin:0; padding:0; list-style:none; display:grid; gap:5px; }
+.stratos .qs li { font-family:Spectral,Georgia,serif; font-size:14.5px; color:var(--st-ink-2);
+  padding-left:15px; position:relative; line-height:1.4; }
+.stratos .qs li::before { content:"?"; position:absolute; left:0; top:1px; color:var(--st-accent);
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; }
+
+.stratos .contract { margin-top:44px; border-top:1px solid var(--st-ink); padding-top:20px; }
+.stratos .contract h2 { font-family:Spectral,Georgia,serif; font-weight:400; font-size:21px; margin:0 0 4px; }
+.stratos .contract p.sub { color:var(--st-ink-3); font-size:12.5px; margin:0 0 16px; }
+.stratos .contract ul { margin:0; padding:0; list-style:none; display:grid; gap:8px; }
+.stratos .contract li { font-family:Spectral,Georgia,serif; font-size:15px; color:var(--st-ink-2);
+  padding-left:20px; position:relative; line-height:1.4; }
+.stratos .contract li::before { content:"—"; position:absolute; left:0; color:var(--st-right); font-family:"IBM Plex Mono",monospace; }
+.stratos .foot { margin-top:24px; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--st-ink-3); line-height:1.85; }
+.stratos .foot b { color:var(--st-ink-2); font-weight:500; }
+
+@media (min-width:700px){
+  .stratos .wrap { max-width:860px; padding:48px 32px 96px; }
+  .stratos h1 { font-size:56px; }
+  .stratos .lede { font-size:19px; max-width:56ch; }
+  .stratos .tiles { grid-template-columns:1fr 1fr 1fr; }
+  .stratos .axis { height:84px; }
+  .stratos .poles { font-size:11px; }
+  .stratos .panel[data-depth="focus"] .flds, .stratos .panel[data-depth="audit"] .flds { grid-template-columns:1fr 1fr; gap:13px 20px; }
+  .stratos .panel[data-depth="focus"] .fld[data-k="mandate"], .stratos .panel[data-depth="audit"] .fld[data-k="mandate"],
+  .stratos .panel[data-depth="focus"] .fld[data-p="supporting"], .stratos .panel[data-depth="audit"] .fld[data-p="supporting"] { grid-column:1/-1; }
+}
+@media (prefers-reduced-motion:reduce){ .stratos * { transition:none !important; } }
