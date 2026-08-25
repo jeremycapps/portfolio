@@ -50,7 +50,8 @@ Edge runtime. Non-streaming failures return
 `{ "error": string, "code": string }`.
 
 - `POST /api/chat` accepts a message history and streams general model-written
-  text grounded by `content/profile.md`.
+  Markdown grounded by `content/profile.md`. Assistant responses render as
+  safe Markdown inside their chat bubbles.
 - `POST /api/answer` accepts `{ question, depth }` and returns a deterministic
   Facia recipe when the question has a declared portfolio model.
 - `POST /api/resume` accepts `{ jobDescription }` and returns a typed resume
@@ -65,7 +66,8 @@ Vercel, so local and deployed behavior share validation and response contracts.
 `inspect`, `focus`, or `audit`. Modeled questions return a
 `portfolio.answer/1` envelope containing the pinned `facia.answer-set/2`
 component recipe. Questions without a declared model return
-`QUESTION_NOT_MODELED`, allowing the UI to continue through `/api/chat`.
+`QUESTION_NOT_MODELED`, allowing the UI to continue through `/api/chat`, where
+the streamed assistant response is rendered as safe Markdown in the chat.
 
 The first modeled question covers Jeremy's Zocdoc work. Its source lives in
 `api/_lib/portfolio-answer-source.ts`; Facia's renderer-independent runtime is

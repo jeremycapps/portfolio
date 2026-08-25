@@ -839,10 +839,17 @@ textarea:focus-visible {
   overflow: hidden;
   text-align: left;
   font: inherit;
+  color: inherit;
+  text-decoration: none;
   border: 1px solid rgba(169, 186, 198, 0.62);
   border-radius: 10px;
   box-shadow: 0 13px 24px rgba(59, 77, 95, 0.14);
   transition: transform 280ms cubic-bezier(.2, .75, .25, 1), box-shadow 280ms ease;
+}
+
+.document-card:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 4px;
 }
 
 .document-card:hover {
@@ -1244,11 +1251,24 @@ textarea:focus-visible {
   }
 }
 .chat-view { display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem auto; width: min(100%, 900px); }
-.chat-bubble { padding: 0.75rem 1rem; border-radius: 0.75rem; max-width: 42rem; white-space: pre-wrap; line-height: 1.5; }
-.chat-bubble-user { align-self: flex-end; background: rgba(120,120,140,0.16); }
+.chat-bubble { padding: 0.75rem 1rem; border-radius: 0.75rem; max-width: 42rem; line-height: 1.5; }
+.chat-bubble-user { align-self: flex-end; background: rgba(120,120,140,0.16); white-space: pre-wrap; }
 .chat-bubble-assistant { align-self: flex-start; background: rgba(120,120,140,0.06); text-align: left; }
 .chat-bubble-facia { width: min(100%, 42rem); }
-.chat-markdown { white-space: pre-wrap; }
+.chat-markdown {
+  font-size: inherit;
+  --tw-prose-body: #3f5065;
+  --tw-prose-headings: #213149;
+  --tw-prose-links: #315f80;
+  --tw-prose-bold: #26374f;
+  --tw-prose-quotes: #51677d;
+  --tw-prose-quote-borders: #9cb7c7;
+  --tw-prose-code: #26374f;
+  --tw-prose-pre-bg: #202c42;
+}
+.chat-markdown > :first-child { margin-top: 0; }
+.chat-markdown > :last-child { margin-bottom: 0; }
+.chat-markdown :where(a):focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
 .chat-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .chat-error { color: #b4232a; font-size: 0.9rem; }
 

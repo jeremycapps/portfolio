@@ -1,9 +1,11 @@
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
-import { Check, ChevronRight, Linkedin, Mail, Menu, Search, Send, Sparkles, Trash2, X } from 'lucide-react';
+import { Check, ChevronRight, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
 import { PromptStarters } from '@/components/prompt-starters';
+import { ProjectCards } from '@/components/project-cards';
+import { MobileNavigation, SiteNavigation } from '@/components/site-navigation';
 import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { ResumeSurface } from '@/components/facia/resume-surface';
 import { Toaster } from '@/components/ui/toaster';
@@ -273,30 +275,14 @@ function Home() {
           <span data-testid="text-brand-name">Domain</span>
         </a>
 
-        <nav className="nav-actions" aria-label="Main navigation">
-          <button className="nav-link" type="button" onClick={() => showToast('A quieter way to work with your context.')} data-testid="button-about">
-            About
-          </button>
-          <button className="nav-link" type="button" onClick={() => showToast('This portfolio is a live interface study.')} data-testid="button-journal">
-            Journal
-          </button>
-          <button className="avatar-button" type="button" onClick={() => showToast("This is Jeremy's portfolio — ask the assistant about his work.")} aria-label="Open profile" data-testid="button-profile">
-            JC
-          </button>
-        </nav>
-
-        <button className="mobile-menu" type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen((open) => !open)} data-testid="button-mobile-menu">
-          {menuOpen ? <X /> : <Menu />}
-        </button>
+        <SiteNavigation
+          menuOpen={menuOpen}
+          onMenuToggle={() => setMenuOpen((open) => !open)}
+          onNotice={showToast}
+        />
       </header>
 
-      {menuOpen && (
-        <div className="mobile-nav" data-testid="menu-mobile">
-          <button type="button" onClick={() => showToast('A quieter way to work with your context.')} data-testid="button-mobile-about">About</button>
-          <button type="button" onClick={() => showToast('This portfolio is a live interface study.')} data-testid="button-mobile-journal">Journal</button>
-          <button type="button" onClick={() => showToast('Profile settings are coming with your workspace.')} data-testid="button-mobile-profile">Profile</button>
-        </div>
-      )}
+      {menuOpen && <MobileNavigation onNotice={showToast} />}
 
       <section className="workspace" aria-labelledby="hero-title">
         <div className="intro">
@@ -409,37 +395,7 @@ function Home() {
             </button>
           </div>
 
-          <div className="document-grid">
-            <button className="document-card" type="button" onClick={() => showToast('Libera — a page-based platform for executable semantic models.')} data-testid="card-libera">
-              <div className="document-topline"><span>Semantic runtime</span><span>01 / 03</span></div>
-              <div className="document-body">
-                <h3>Libera</h3>
-                <div className="document-rule" />
-                <p className="document-copy">A page-based platform for composing and deploying executable semantic models — Notion + Obsidian + Vercel for meaning.</p>
-                <div className="document-chart" aria-hidden="true"><span /><span /><span /><span /><span /></div>
-              </div>
-            </button>
-
-            <button className="document-card" type="button" onClick={() => showToast('Facia — the question-to-interface contract powering this page.')} data-testid="card-facia">
-              <div className="document-topline"><span>Interface runtime</span><span>02 / 03</span></div>
-              <div className="document-body">
-                <h3>Facia</h3>
-                <div className="document-rule" />
-                <p className="document-copy">The question-to-interface contract: it turns an answered model into a rendered surface — and powers the structured answers on this very page.</p>
-                <div className="document-chart" aria-hidden="true"><span /><span /><span /><span /><span /></div>
-              </div>
-            </button>
-
-            <button className="document-card" type="button" onClick={() => showToast('Domain & Corus — source-bound, replayable context for agent workflows.')} data-testid="card-domain-corus">
-              <div className="document-topline"><span>Context infrastructure</span><span>03 / 03</span></div>
-              <div className="document-body">
-                <h3>Domain &amp; Corus</h3>
-                <div className="document-rule" />
-                <p className="document-copy">Source-bound, replayable context for agentic workflows: evidence, verdicts, and an audit trail that can rebuild settled state.</p>
-                <div className="document-chart" aria-hidden="true"><span /><span /><span /><span /><span /></div>
-              </div>
-            </button>
-          </div>
+          <ProjectCards />
         </section>
 
         <div className="footer-contact" aria-label="Contact Jeremy">

@@ -1,7 +1,8 @@
 import type { ClientMessage } from '../lib/chat';
-import { ThinkingIndicator } from './thinking-indicator';
-import { SemanticSurface } from './facia/semantic-surface';
 import type { DisclosureDepth } from '@facia/core';
+import { SemanticSurface } from './facia/semantic-surface';
+import { MarkdownContent } from './markdown-content';
+import { ThinkingIndicator } from './thinking-indicator';
 
 interface ChatViewProps {
   messages: ClientMessage[];
@@ -29,7 +30,7 @@ export function ChatView({ messages, streaming, error, onChoice, onDepthChange }
               onDepthChange={(depth) => onDepthChange?.(i, depth) ?? Promise.resolve()}
             />
           ) : m.content.markdown ? (
-            <div className="chat-markdown">{m.content.markdown}</div>
+            <MarkdownContent content={m.content.markdown} />
           ) : streaming && i === messages.length - 1 ? (
             <ThinkingIndicator />
           ) : null}
