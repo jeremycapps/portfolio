@@ -47,14 +47,19 @@ describe('SemanticSurface', () => {
     expect(html).toContain('data-testid="semantic-timeline"');
     expect(html).not.toContain('does not support');
     expect(html).toContain('data-testid="timeline-entry-0"');
-    // Identity fields are visible at glance; the rail carries the sequence.
+    // Identity plus focus and highlight — the whole content of a timeline entry.
     expect(html).toContain('Head of Operations');
     expect(html).toContain('Aroko');
     expect(html).toContain('2024–present');
-    // Supporting detail stays hidden until a deeper depth is requested.
-    expect(html).not.toContain('90-day operating plan');
-    // Per-element inspection is wired.
-    expect(html).toContain('data-testid="button-item-0-inspect"');
+    expect(html).toContain('Leads operations and client web delivery');
+    expect(html).toContain('90-day operating plan');
+    // No Facia tags: no control buttons, no field labels, no audit/provenance.
+    expect(html).not.toContain('button-item-0-inspect');
+    expect(html).not.toContain('button-affordance-audit');
+    expect(html).not.toContain('semantic-inspection-controls');
+    expect(html).not.toContain('Evidence Tier');
+    expect(html).not.toContain('content/profile.md');
+    expect(html).not.toMatch(/<dt>/);
   });
 
   it('maps inspect and expand affordances to element-owned depth transitions', () => {

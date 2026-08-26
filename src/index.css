@@ -1812,10 +1812,18 @@ textarea:focus-visible {
   font-size: 12.5px;
 }
 
-.timeline-detail {
-  display: grid;
-  gap: 10px;
+.timeline-focus {
   margin: 0;
+  color: #4d5d72;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.timeline-highlight {
+  margin: 8px 0 0;
+  color: #56677c;
+  font-size: 12.5px;
+  line-height: 1.55;
 }
 
 .semantic-item {
