@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -72,6 +73,58 @@ describe("AnswerSet schema pin", () => {
     const changed = Buffer.concat([schemaBytes, Buffer.from("\n")]);
     expect(createHash("sha256").update(changed).digest("hex"))
       .not.toBe(ANSWER_SET_SCHEMA_SHA256);
+  });
+});
+
+describe("generated validator ESM compatibility", () => {
+  const generatedUrl = new URL("src/answer-set-validator.generated.ts", packageRoot);
+
+  it("carries no CommonJS require and no node:module shim", () => {
+    const source = readFileSync(generatedUrl, "utf8");
+
+    // A bare `require(...)` throws in any real ESM environment (the Vite dev SSR
+    // bridge, plain `node`). A `createRequire` shim fixes those but breaks the
+    // edge runtime, which has no `node:module`. Only static imports satisfy both.
+    expect(source).not.toMatch(/\brequire\s*\(/);
+    expect(source).not.toContain("node:module");
+    expect(source).not.toContain("createRequire");
+  });
+
+  it("loads and validates the built validator under real Node ESM resolution", () => {
+    // The dev SSR bridge, the edge runtime, and production all consume the built
+    // `dist` artifact through Node's own ESM resolver — not vitest's, which
+    // silently resolves extensionless deep imports and would mask a real
+    // ERR_MODULE_NOT_FOUND. Spawn a real `node` process that imports the built
+    // file exactly as a consumer would, so this test can't be fooled.
+    const builtUrl = new URL("dist/answer-set-validator.generated.js", packageRoot);
+    if (!existsSync(builtUrl)) {
+      throw new Error(
+        "dist/answer-set-validator.generated.js is missing — run `npm run build` "
+          + "in packages/facia-core before this test.",
+      );
+    }
+    const acceptedName = readdirSync(acceptedRoot)
+      .filter((name) => name.endsWith(".json"))
+      .sort()[0];
+    const acceptedPath = new URL(acceptedName, acceptedRoot);
+    const probeUrl = new URL(`.esm-load-probe.${process.pid}.mjs`, packageRoot);
+    const runner = `import { validate } from ${JSON.stringify(builtUrl.href)};
+import { readFileSync as __read } from "node:fs";
+const __answer = JSON.parse(__read(${JSON.stringify(acceptedPath.pathname)}, "utf8"));
+if (validate(__answer) !== true) { console.error("VALIDATION_FALSE"); process.exit(3); }
+console.log("OK");
+`;
+    writeFileSync(probeUrl, runner);
+    try {
+      const result = spawnSync(process.execPath, [probeUrl.pathname], {
+        cwd: new URL(packageRoot).pathname,
+        encoding: "utf8",
+      });
+      expect(result.status, result.stderr).toBe(0);
+      expect(result.stdout).toContain("OK");
+    } finally {
+      rmSync(probeUrl, { force: true });
+    }
   });
 });
 
