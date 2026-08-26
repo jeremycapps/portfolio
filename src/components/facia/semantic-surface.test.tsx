@@ -1,7 +1,11 @@
 import { ANSWER_SET_SCHEMA_PIN, resolveAnswerSet } from '@facia/core';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { answerPortfolioQuestion } from '../../../api/_lib/portfolio-answer-source';
+import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
+import {
+  answerPortfolioQuestion,
+  careerHistoryAnswerSet,
+} from '../../../api/_lib/portfolio-answer-source';
 import { ChatView } from '../chat-view';
 import { nextElementDepth, SemanticSurface, updateElementDepth } from './semantic-surface';
 
@@ -22,6 +26,34 @@ describe('SemanticSurface', () => {
     expect(html).not.toContain('Evidence and trace');
     expect(html).not.toContain('PATTERN_COLLECTION_LIST');
     expect(html).not.toContain('derived density');
+    expect(html).toContain('data-testid="button-item-0-inspect"');
+  });
+
+  it('renders a temporal-sequence as a timeline, not the unsupported fallback', () => {
+    const answer = careerHistoryAnswerSet();
+    const depths: DisclosureDepth[] = ['glance', 'inspect', 'focus', 'audit'];
+    const recipesByDepth = {} as Record<DisclosureDepth, ComponentRecipe>;
+    for (const depth of depths) {
+      const result = resolveAnswerSet(answer, { depth });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      recipesByDepth[depth] = result.recipe;
+    }
+
+    const html = renderToStaticMarkup(
+      <SemanticSurface recipe={recipesByDepth.glance} recipesByDepth={recipesByDepth} />,
+    );
+
+    expect(html).toContain('data-testid="semantic-timeline"');
+    expect(html).not.toContain('does not support');
+    expect(html).toContain('data-testid="timeline-entry-0"');
+    // Identity fields are visible at glance; the rail carries the sequence.
+    expect(html).toContain('Head of Operations');
+    expect(html).toContain('Aroko');
+    expect(html).toContain('2024–present');
+    // Supporting detail stays hidden until a deeper depth is requested.
+    expect(html).not.toContain('90-day operating plan');
+    // Per-element inspection is wired.
     expect(html).toContain('data-testid="button-item-0-inspect"');
   });
 

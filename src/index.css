@@ -1727,6 +1727,97 @@ textarea:focus-visible {
   gap: 12px;
 }
 
+.semantic-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.timeline-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+
+.timeline-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.timeline-rail::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: -6px;
+  width: 2px;
+  background: linear-gradient(rgba(116, 139, 162, 0.34), rgba(116, 139, 162, 0.1));
+}
+
+.timeline-entry:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-entry:last-child .timeline-rail::before {
+  display: none;
+}
+
+.timeline-node {
+  position: relative;
+  z-index: 1;
+  margin-top: 3px;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #93bdc4;
+  box-shadow: 0 0 0 3px rgba(147, 189, 196, 0.14);
+}
+
+/* The current role reads as the live head of the sequence. */
+.timeline-entry:first-child .timeline-node {
+  background: #93bdc4;
+}
+
+.timeline-content {
+  min-width: 0;
+}
+
+.timeline-head {
+  margin-bottom: 10px;
+}
+
+.timeline-period {
+  margin: 0 0 3px;
+  color: #8291a4;
+  font-family: var(--app-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.timeline-role {
+  margin: 0;
+  color: #26374f;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.timeline-org {
+  margin: 2px 0 0;
+  color: #56677c;
+  font-size: 12.5px;
+}
+
+.timeline-detail {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
 .semantic-item {
   padding: 18px;
   border: 1px solid rgba(116, 139, 162, 0.18);

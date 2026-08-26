@@ -194,6 +194,133 @@ function technologiesAnswerSet(): AnswerSetV2 {
   };
 }
 
+const CAREER_TERMS = [
+  'career',
+  'history',
+  'experience',
+  'background',
+  'resume',
+  'cv',
+  'timeline',
+  'title',
+  'titles',
+  'roles',
+  'jobs',
+  'worked',
+];
+
+export function supportsCareerQuestion(question: string): boolean {
+  const normalized = normalizedQuestion(question);
+  const words = new Set(normalized.split(' '));
+  // A Zocdoc-specific "what did you do" belongs to the richer Zocdoc model, not
+  // the whole-career spine.
+  if (supportsPortfolioQuestion(question)) return false;
+  if (CAREER_TERMS.some((term) => words.has(term))) return true;
+  return normalized.includes('current')
+    && (words.has('role') || words.has('job') || words.has('position'));
+}
+
+const CAREER_REF = 'content/profile.md#career-history';
+
+function careerFields(): FieldInfoV2 {
+  return {
+    priority: {
+      primary: ['role', 'organization', 'period'],
+      secondary: ['focus'],
+      supporting: ['highlight'],
+      audit: ['evidenceTier', 'source'],
+    },
+  };
+}
+
+function careerItem(entry: {
+  role: string;
+  organization: string;
+  period: string;
+  focus: string;
+  highlight: string;
+  sourceRef: string;
+}) {
+  return {
+    type: 'Value' as const,
+    payload: {
+      role: entry.role,
+      organization: entry.organization,
+      period: entry.period,
+      focus: entry.focus,
+      highlight: entry.highlight,
+      evidenceTier: 'profile-grounded',
+      source: entry.sourceRef,
+    },
+    value: entry.role,
+    evidence: {
+      status: 'profile-grounded' as const,
+      sourceRefs: [entry.sourceRef],
+    },
+    fields: careerFields(),
+  };
+}
+
+// Reverse-chronological spine of full-time roles — the answer a recruiter scans
+// for "current and last title" and drills into for the arc. Freelance and
+// cultural work live in their own models, not on this timeline.
+export function careerHistoryAnswerSet(): AnswerSetV2 {
+  return {
+    schema: 'facia.answer-set/2',
+    question: "What is Jeremy's career history?",
+    answerType: 'value',
+    path: 'meaning',
+    inspection: 'available',
+    actionable: false,
+    structure: 'sequence',
+    sequenceKind: 'temporal',
+    items: [
+      careerItem({
+        role: 'Head of Operations',
+        organization: 'Aroko',
+        period: '2024–present',
+        focus: 'Leads operations and client web delivery at a cooperative agency.',
+        highlight: 'Authored an approved 90-day operating plan and built a Notion budgeting and estimating system.',
+        sourceRef: 'content/profile.md#what-hes-doing-now',
+      }),
+      careerItem({
+        role: 'Design Systems / Frontend Engineer',
+        organization: 'Zocdoc',
+        period: '2021–2024',
+        focus: 'Rebuilt and migrated an outdated TypeScript/React design system under an accessibility mandate.',
+        highlight: "Ran the design-system team's first frontend A/B experiment and cut average merge time by about a workday.",
+        sourceRef: CAREER_REF,
+      }),
+      careerItem({
+        role: 'Software / Product Engineer, C#',
+        organization: 'Applied Software',
+        period: '2019–2021',
+        focus: 'Built construction-data integrations end to end on the 360Sync product.',
+        highlight: 'Authored 5+ REST API wrapper libraries and trace logging that cut customer troubleshooting by 3–4 days.',
+        sourceRef: CAREER_REF,
+      }),
+      careerItem({
+        role: 'Software Engineer, legacy modernization',
+        organization: 'Genesco',
+        period: '2017–2019',
+        focus: 'Modernized legacy COBOL systems into Java-based replacement workflows.',
+        highlight: 'Translated embedded business logic and legacy data flows without disrupting operational continuity.',
+        sourceRef: CAREER_REF,
+      }),
+    ],
+    operations: [],
+    trace: {
+      kind: 'direct',
+      id: 'portfolio.career-history.v1',
+      entries: [
+        { step: 'question.selected', value: 'portfolio.career-history' },
+        { step: 'source.loaded', value: CAREER_REF },
+        { step: 'answer.emitted', value: 4 },
+      ],
+    },
+  };
+}
+
 interface QuestionMatcher {
   supports: (question: string) => boolean;
   build: () => AnswerSetV2;
@@ -202,6 +329,7 @@ interface QuestionMatcher {
 const MATCHERS: QuestionMatcher[] = [
   { supports: supportsPortfolioQuestion, build: zocdocAnswerSet },
   { supports: supportsTechnologiesQuestion, build: technologiesAnswerSet },
+  { supports: supportsCareerQuestion, build: careerHistoryAnswerSet },
 ];
 
 export function answerPortfolioQuestion(question: string): AnswerSetV2 | null {
@@ -213,6 +341,10 @@ export async function generatePortfolioAnswer(
   question: string,
   provider: StructuredProvider = generateStructuredPortfolioAnswer,
 ): Promise<AnswerSetV2> {
+  // The career spine is a temporal sequence; the model adapter only emits
+  // singular values, so this answer is authored deterministically and never
+  // routed through the provider.
+  if (supportsCareerQuestion(question)) return careerHistoryAnswerSet();
   try {
     const answer = await provider(question);
     return adaptModelAnswer(question, answer);

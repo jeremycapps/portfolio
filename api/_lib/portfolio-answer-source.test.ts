@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { ModelAnswerContractError } from './model-answer';
 import {
   answerPortfolioQuestion,
+  careerHistoryAnswerSet,
   generatePortfolioAnswer,
+  supportsCareerQuestion,
   supportsPortfolioQuestion,
   supportsTechnologiesQuestion,
 } from './portfolio-answer-source';
@@ -59,6 +61,51 @@ describe('portfolio answer source', () => {
       .resolves.toEqual(expect.objectContaining({ schema: 'facia.answer-set/2' }));
     await expect(generatePortfolioAnswer('What did Jeremy do at Zocdoc?', invalid))
       .rejects.toEqual(expect.objectContaining({ code: 'MODEL_SCHEMA_INVALID' }));
+  });
+});
+
+describe('career history answer source', () => {
+  it('routes whole-career questions but not Zocdoc-scoped or unrelated ones', () => {
+    expect(supportsCareerQuestion("What is Jeremy's career history?")).toBe(true);
+    expect(supportsCareerQuestion('Walk me through his experience')).toBe(true);
+    expect(supportsCareerQuestion('current role and last one')).toBe(true);
+    expect(supportsCareerQuestion('What did Jeremy do at Zocdoc?')).toBe(false);
+    expect(supportsCareerQuestion('How do I contact Jeremy?')).toBe(false);
+  });
+
+  it('resolves to the timeline pattern from a temporal sequence at every depth', () => {
+    const answer = careerHistoryAnswerSet();
+    for (const depth of ['glance', 'inspect', 'focus', 'audit'] as const) {
+      const result = resolveAnswerSet(answer, { depth, audience: 'human' });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.recipe.pattern).toBe('timeline');
+      expect(result.recipe.components.map((c) => c.id)).toContain('Timeline');
+      expect(result.recipe.answer.items).toHaveLength(4);
+    }
+  });
+
+  it('discloses more fields as depth deepens, ending with audit provenance', () => {
+    const answer = careerHistoryAnswerSet();
+    const keysAt = (depth: 'glance' | 'inspect' | 'focus' | 'audit') => {
+      const result = resolveAnswerSet(answer, { depth });
+      if (!result.ok) throw new Error('resolution failed');
+      return new Set(result.recipe.visibleFields[0].fields.map((f) => f.key));
+    };
+    const glance = keysAt('glance');
+    expect(glance).toEqual(new Set(['role', 'organization', 'period']));
+    expect(keysAt('inspect').has('focus')).toBe(true);
+    expect(keysAt('focus').has('highlight')).toBe(true);
+    expect(keysAt('audit').has('source')).toBe(true);
+  });
+
+  it('is served deterministically without touching the structured provider', async () => {
+    const provider = async () => {
+      throw new Error('provider should not be called for career questions');
+    };
+    const answer = await generatePortfolioAnswer("What's your career history?", provider);
+    expect(answer.structure).toBe('sequence');
+    expect(answer.sequenceKind).toBe('temporal');
   });
 });
 

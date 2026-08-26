@@ -177,6 +177,81 @@ function FieldList({
   );
 }
 
+// A temporal-sequence entry: the period anchors it on the rail, role and
+// organization are the always-visible identity, and everything the depth
+// discloses beyond that becomes description. No depth badge — the rail already
+// reads as a sequence.
+const TIMELINE_IDENTITY_KEYS = new Set(['role', 'organization', 'period']);
+
+interface TimelineEntryProps {
+  item: PresentedItem;
+  evidence: unknown;
+  auditMode: boolean;
+  evidenceOpen: boolean;
+  onControl: (control: InspectionControl) => void;
+}
+
+function TimelineEntry({ item, evidence, auditMode, evidenceOpen, onControl }: TimelineEntryProps) {
+  const controls = item.controls.filter((control) => (
+    ELEMENT_CONTROLS.has(control) && (!auditMode || control === 'view-evidence')
+  ));
+  const role = item.fields.find((field) => field.key === 'role');
+  const organization = item.fields.find((field) => field.key === 'organization');
+  const period = item.fields.find((field) => field.key === 'period');
+  const details = item.fields.filter((field) => !TIMELINE_IDENTITY_KEYS.has(field.key));
+
+  return (
+    <li
+      className="timeline-entry"
+      data-depth={item.depth}
+      data-testid={`timeline-entry-${item.itemIndex}`}
+    >
+      <span className="timeline-rail" aria-hidden="true">
+        <span className="timeline-node" />
+      </span>
+      <div className="timeline-content">
+        <div className="timeline-head">
+          {period && <p className="timeline-period">{displayValue(period.value)}</p>}
+          <h3 className="timeline-role">{role ? displayValue(role.value) : 'Role'}</h3>
+          {organization && <p className="timeline-org">{displayValue(organization.value)}</p>}
+        </div>
+        {details.length > 0 && (
+          <dl className="timeline-detail">
+            {details.map((field) => (
+              <div key={field.key} className="semantic-field">
+                <dt>{field.key.replace(/([A-Z])/g, ' $1')}</dt>
+                <dd>{displayValue(field.value)}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {controls.length > 0 && (
+          <div className="semantic-item-controls" aria-label={`Inspect period ${item.itemIndex + 1}`}>
+            {controls.map((control) => (
+              <button
+                key={control}
+                type="button"
+                aria-expanded={control === 'view-evidence' ? evidenceOpen : undefined}
+                onClick={() => onControl(control)}
+                data-control={control}
+                data-testid={`button-item-${item.itemIndex}-${control}`}
+              >
+                {elementControlLabel(control, item.depth)}
+              </button>
+            ))}
+          </div>
+        )}
+        {evidenceOpen && (
+          <div className="semantic-item-evidence" data-testid={`semantic-item-${item.itemIndex}-evidence`}>
+            <p>Evidence</p>
+            <pre>{displayValue(evidence ?? null)}</pre>
+          </div>
+        )}
+      </div>
+    </li>
+  );
+}
+
 function fieldsForItem(recipe: ComponentRecipe, itemIndex: number): ResolvedFieldV2[] {
   return recipe.visibleFields.find((item) => item.itemIndex === itemIndex)?.fields ?? [];
 }
@@ -188,6 +263,7 @@ function headingValue(item: PresentedItem): string {
 export function SemanticSurface({ recipe, recipesByDepth, variant = 'standalone' }: SemanticSurfaceProps) {
   const componentIds = new Set(recipe.components.map((component) => component.id));
   const supportsList = componentIds.has('List');
+  const supportsTimeline = componentIds.has('Timeline');
   const supportsToolbar = componentIds.has('InspectionToolbar');
   const startingDepth: ElementDepth = recipe.context.depth === 'audit' ? 'glance' : recipe.context.depth;
   const itemIndices = recipe.answer.items.map((_, itemIndex) => itemIndex);
@@ -359,7 +435,24 @@ export function SemanticSurface({ recipe, recipesByDepth, variant = 'standalone'
         </div>
       )}
 
-      {supportsList ? (
+      {supportsTimeline ? (
+        visibleItems.length > 0 ? (
+          <ol className="semantic-timeline" data-testid="semantic-timeline">
+            {visibleItems.map((item) => (
+              <TimelineEntry
+                key={item.itemIndex}
+                item={item}
+                evidence={recipe.answer.items[item.itemIndex]?.evidence}
+                auditMode={auditMode}
+                evidenceOpen={evidenceItems.has(item.itemIndex)}
+                onControl={(control) => handleElementControl(item.itemIndex, control)}
+              />
+            ))}
+          </ol>
+        ) : (
+          <p className="semantic-empty" data-testid="semantic-empty">No periods match that filter.</p>
+        )
+      ) : supportsList ? (
         visibleItems.length > 0 ? (
           <div className="semantic-list" data-testid="semantic-list">
             {visibleItems.map((item) => (
