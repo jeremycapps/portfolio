@@ -1,3 +1,5 @@
+import type { MessageChoice } from './chat';
+
 export interface PortfolioProject {
   id: 'libera' | 'facia' | 'domain-corus';
   name: string;
@@ -5,6 +7,16 @@ export interface PortfolioProject {
   description: string;
   repositoryUrl?: `https://github.com/${string}`;
 }
+
+const projectPrompt = (project: string) =>
+  `Explain the ${project} project in depth — what it is, how it works, and why it matters.`;
+
+export const EXPLAIN_PROJECT_CHOICES: MessageChoice[] = [
+  { label: 'Libera', prompt: projectPrompt('Libera') },
+  { label: 'Facia', prompt: projectPrompt('Facia') },
+  { label: 'Domain & Corus', prompt: projectPrompt('Domain & Corus') },
+  { label: 'StratOS', prompt: projectPrompt('StratOS') },
+];
 
 export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
   {
@@ -29,6 +41,6 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     category: 'Context infrastructure',
     description:
       'Source-bound, replayable context for agentic workflows: evidence, verdicts, and an audit trail that can rebuild settled state.',
-    repositoryUrl: 'https://github.com/jeremycapps/corus-workbench',
+    repositoryUrl: 'https://github.com/jeremycapps/corus',
   },
 ] as const;

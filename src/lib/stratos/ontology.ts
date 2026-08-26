@@ -29,6 +29,8 @@ export interface Tension {
   readonly question: string;
   readonly left: string;
   readonly right: string;
+  readonly blurbLeft: string;
+  readonly blurbRight: string;
   readonly leftOwner: RoleKey;
   readonly rightOwner: RoleKey;
   readonly proofLeft: string;
@@ -93,6 +95,8 @@ export const TENSIONS: readonly Tension[] = [
   { id: 'advantage', pair: 'Economics', layer: 'StratOps', name: 'Advantage',
     question: 'Does advantage come from assets the firm controls or interactions it enables?',
     left: 'Controlled value chain', right: 'Orchestrated ecosystem', leftOwner: 'CSO', rightOwner: 'CMO',
+    blurbLeft: `Advantage here is something the firm owns and defends — proprietary capability, controlled activities, and the economics they produce. The claim is proven by evidence inside the enterprise, protecting the conditions the firm needs in order to act.`,
+    blurbRight: `Advantage here comes from interactions the firm enables rather than assets it owns — partner-produced value, participant activity, and the network effects they generate. The claim is proven at the firm's boundary and beyond, in how outside participants actually behave.`,
     proofLeft: 'Controlled activities, proprietary capability, owned economics',
     proofRight: 'Partner-produced value, participant activity, network effects',
     metric: 'External Value Creation Share',
@@ -100,6 +104,8 @@ export const TENSIONS: readonly Tension[] = [
   { id: 'resource', pair: 'Economics', layer: 'BizOps', name: 'Resource',
     question: 'Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?',
     left: 'Workforce capacity', right: 'Capital return', leftOwner: 'CPO', rightOwner: 'CFO',
+    blurbLeft: `This treats the firm's people as the capacity that produces value — skill coverage, a real staffing buffer, retention, and readiness to learn. The claim is proven by evidence inside the enterprise, protecting the capability the firm needs in order to act.`,
+    blurbRight: `This asks whether that capacity earns a durable financial return — ROIC, free cash flow, economic profit, and capital productivity that lasts. The claim is proven in realized results at the firm's boundary, in the returns actually thrown off.`,
     proofLeft: 'Skill coverage, capacity buffer, retention, learning readiness',
     proofRight: 'ROIC, free cash flow, economic profit, durable capital productivity',
     metric: 'Extraction Balance',
@@ -107,6 +113,8 @@ export const TENSIONS: readonly Tension[] = [
   { id: 'discernment', pair: 'Commitment', layer: 'StratOps', name: 'Discernment',
     question: 'When should the firm impose a clear answer, and when keep the problem open?',
     left: 'Structured conviction', right: 'Open inquiry', leftOwner: 'CEO', rightOwner: 'CDO',
+    blurbLeft: `This is the firm imposing a clear answer — decision rights, a sharp thesis, and the discipline to commit. The claim is proven by evidence inside the enterprise, protecting its ability to act with conviction.`,
+    blurbRight: `This is the firm keeping the problem open — making sure disconfirming evidence is taken in before commitment locks. The claim is proven at the firm's boundary, in whether outside evidence genuinely changed the conclusion.`,
     proofLeft: 'Decision rights, thesis clarity, commitment discipline',
     proofRight: 'Disconfirming evidence incorporated before commitment',
     metric: 'Discovery Before Commitment Rate',
@@ -114,6 +122,8 @@ export const TENSIONS: readonly Tension[] = [
   { id: 'execution', pair: 'Commitment', layer: 'BizOps', name: 'Execution',
     question: 'What must be assured inside the firm, and what is ready to be released into the environment?',
     left: 'Risk friction', right: 'Release', leftOwner: 'CRO', rightOwner: 'CTO',
+    blurbLeft: `This is what the firm must assure before it acts — effective controls, bounded exposure, and the ability to reverse. The claim is proven by evidence inside the enterprise, protecting the conditions that make acting safe.`,
+    blurbRight: `This is what's ready to go out into the world — production releases that get adopted and deliver real time-to-value. The claim is proven at the firm's boundary and beyond, in what actually ships and lands.`,
     proofLeft: 'Control effectiveness, bounded exposure, reversibility',
     proofRight: 'Production release, adoption, and realized time-to-value',
     metric: 'Delivery Assurance Balance',
@@ -121,6 +131,8 @@ export const TENSIONS: readonly Tension[] = [
   { id: 'invention', pair: 'Renewal', layer: 'StratOps', name: 'Invention',
     question: 'Does renewal come from deepening what the firm knows, or creating what the market has not seen?',
     left: 'Codified fluency', right: 'Novel offering creation', leftOwner: 'CKO', rightOwner: 'CGO',
+    blurbLeft: `Renewal here comes from deepening what the firm already knows — knowledge that's reused, redundant across people, and fluent in practice. The claim is proven by evidence inside the enterprise, protecting the mastery the firm depends on to act.`,
+    blurbRight: `Renewal here comes from creating what the market hasn't seen — offerings that win adoption and revenue by setting a new category. The claim is proven at the firm's boundary and beyond, in whether customers actually recategorize around it.`,
     proofLeft: 'Knowledge reuse, redundancy, practitioner fluency',
     proofRight: 'Adoption and revenue from genuinely category-setting offers',
     metric: 'Renewal Balance',
@@ -128,6 +140,8 @@ export const TENSIONS: readonly Tension[] = [
   { id: 'operations', pair: 'Renewal', layer: 'BizOps', name: 'Operations',
     question: 'Does output come from applied effort or from systems that remove the need for it?',
     left: 'Execution discipline', right: 'Systems and flow', leftOwner: 'COO', rightOwner: 'CIO',
+    blurbLeft: `Output here comes from applied human effort — reliable execution and people who can handle the exceptions. The claim is proven by evidence inside the enterprise, protecting the firm's ability to deliver consistently.`,
+    blurbRight: `Output here comes from systems that remove the need for effort — customer-visible flow, faster cycle time, and reliability. The claim is proven at the firm's boundary, in the end-to-end experience the customer actually gets.`,
     proofLeft: 'Reliable human execution and exception handling',
     proofRight: 'Customer-visible end-to-end flow, cycle time, and reliability',
     metric: 'Systematisation Balance',
@@ -155,7 +169,11 @@ export const counterweightOf = (t: Tension, side: PlacedSide): Role =>
   ROLES[side === 'l' ? t.rightOwner : t.leftOwner];
 export const poleName = (t: Tension, side: PlacedSide): string =>
   side === 'l' ? t.left : t.right;
+export const blurbOf = (t: Tension, side: PlacedSide): string =>
+  side === 'l' ? t.blurbLeft : t.blurbRight;
 export const proofOf = (t: Tension, side: PlacedSide): string =>
   side === 'l' ? t.proofLeft : t.proofRight;
 export const lensOf = (t: Tension, side: PlacedSide): string =>
   side === 'l' ? t.lensLeft : t.lensRight;
+export const poleSideFor = (position: number): PoleSide =>
+  position < 0 ? 'l' : position > 0 ? 'r' : 'neutral';

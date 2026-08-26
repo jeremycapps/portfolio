@@ -39,7 +39,7 @@ describe('buildMessages', () => {
     expect(system.content).toContain('<response_output_contract version="1.0">');
     expect(system.content).toContain('Never emit a bare URL.');
     expect(system.content).toContain(
-      '[Corus on GitHub](https://github.com/jeremycapps/corus-workbench)',
+      '[Corus on GitHub](https://github.com/jeremycapps/corus)',
     );
     expect(system.content).toContain('Never invent quotations.');
   });

@@ -5,7 +5,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
 import { PromptStarters } from '@/components/prompt-starters';
 import { ProjectCards } from '@/components/project-cards';
-import { MobileNavigation, SiteNavigation } from '@/components/site-navigation';
+import { MobileNavigation, SiteBrand, SiteNavigation } from '@/components/site-navigation';
 import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { ResumeSurface } from '@/components/facia/resume-surface';
 import { Toaster } from '@/components/ui/toaster';
@@ -21,23 +21,14 @@ import {
   messageHasVisibleContent,
   sendChat,
   type ClientMessage,
-  type MessageChoice,
 } from '@/lib/chat';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
+import { EXPLAIN_PROJECT_CHOICES } from '@/lib/projects';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
 
 const HERO_PHRASES = ['my experience', 'my projects', 'anything'];
-
-const projectPrompt = (project: string) =>
-  `Explain the ${project} project in depth — what it is, how it works, and why it matters.`;
-
-const PROJECT_CHOICES: MessageChoice[] = [
-  { label: 'Libera', prompt: projectPrompt('Libera') },
-  { label: 'Facia', prompt: projectPrompt('Facia') },
-  { label: 'Domain & Corus', prompt: projectPrompt('Domain & Corus') },
-];
 
 function RotatingPhrase() {
   const [index, setIndex] = useState(0);
@@ -232,7 +223,7 @@ function Home() {
       {
         role: 'assistant',
         content: markdownContent('Sure — which one would you like to hear about?'),
-        choices: PROJECT_CHOICES,
+        choices: EXPLAIN_PROJECT_CHOICES,
       },
     ]);
   };
@@ -248,12 +239,7 @@ function Home() {
   return (
     <main className={`app-shell${chatActive ? ' app-shell-chatting' : ''}`}>
       <header className="topbar">
-        <a className="brand" href="/" data-testid="link-brand">
-          <span className="brand-mark" aria-hidden="true">
-            <Sparkles />
-          </span>
-          <span data-testid="text-brand-name">Domain</span>
-        </a>
+        <SiteBrand />
 
         <SiteNavigation
           menuOpen={menuOpen}

@@ -90,7 +90,7 @@ describe('technologies answer source', () => {
       .flatMap((item) => item.fields)
       .filter((field) => field.key === 'repo');
     expect(repoFields).toHaveLength(1);
-    expect(repoFields[0].value).toBe('https://github.com/jeremycapps/corus-workbench');
+    expect(repoFields[0].value).toBe('https://github.com/jeremycapps/corus');
   });
 
   it('surfaces the repo link at glance depth so the chip is reachable without expanding', () => {

@@ -49,7 +49,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "growthLens": "Define the minimum viable control position: own the differentiators; open the rest."
       },
       "operation": {
@@ -71,11 +70,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -122,8 +119,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect the activities, assets, and economics the firm must own to remain defensible.",
+       "key": "growthLens",
+       "value": "Define the minimum viable control position: own the differentiators; open the rest.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -176,7 +173,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "growthLens": "Define the minimum viable control position: own the differentiators; open the rest."
       },
       "operation": {
@@ -198,11 +194,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -249,17 +243,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect the activities, assets, and economics the firm must own to remain defensible.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Define the minimum viable control position: own the differentiators; open the rest.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -310,7 +297,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "growthLens": "Define the minimum viable control position: own the differentiators; open the rest."
       },
       "operation": {
@@ -332,11 +318,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -383,17 +367,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect the activities, assets, and economics the firm must own to remain defensible.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Define the minimum viable control position: own the differentiators; open the rest.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -446,7 +423,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "growthLens": "Define the minimum viable control position: own the differentiators; open the rest."
       },
       "operation": {
@@ -468,11 +444,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -519,17 +493,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect the activities, assets, and economics the firm must own to remain defensible.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Define the minimum viable control position: own the differentiators; open the rest.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -1000,7 +967,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "growthLens": "Move from partnership announcements to participant economics."
       },
       "operation": {
@@ -1022,11 +988,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -1073,8 +1037,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
+       "key": "growthLens",
+       "value": "Move from partnership announcements to participant economics.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -1127,7 +1091,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "growthLens": "Move from partnership announcements to participant economics."
       },
       "operation": {
@@ -1149,11 +1112,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -1200,17 +1161,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Move from partnership announcements to participant economics.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -1261,7 +1215,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "growthLens": "Move from partnership announcements to participant economics."
       },
       "operation": {
@@ -1283,11 +1236,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -1334,17 +1285,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Move from partnership announcements to participant economics.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -1397,7 +1341,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "growthLens": "Move from partnership announcements to participant economics."
       },
       "operation": {
@@ -1419,11 +1362,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -1470,17 +1411,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Move from partnership announcements to participant economics.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -1514,7 +1448,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Strategy",
-       "because": "Advantage −0.50 · Controlled value chain",
+       "because": "Advantage · Controlled value chain",
        "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
@@ -1617,7 +1551,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Strategy",
-       "because": "Advantage −0.50 · Controlled value chain",
+       "because": "Advantage · Controlled value chain",
        "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
@@ -1692,7 +1626,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Advantage −0.50 · Controlled value chain",
+       "value": "Advantage · Controlled value chain",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -1730,7 +1664,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Strategy",
-       "because": "Advantage −0.50 · Controlled value chain",
+       "because": "Advantage · Controlled value chain",
        "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
@@ -1805,7 +1739,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Advantage −0.50 · Controlled value chain",
+       "value": "Advantage · Controlled value chain",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -1859,7 +1793,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Strategy",
-       "because": "Advantage −0.50 · Controlled value chain",
+       "because": "Advantage · Controlled value chain",
        "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
        "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
@@ -1934,7 +1868,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Advantage −0.50 · Controlled value chain",
+       "value": "Advantage · Controlled value chain",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -1984,7 +1918,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Marketing",
-       "because": "Advantage 0.50 · Orchestrated ecosystem",
+       "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
       },
@@ -2087,7 +2021,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Marketing",
-       "because": "Advantage 0.50 · Orchestrated ecosystem",
+       "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
       },
@@ -2162,7 +2096,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Advantage 0.50 · Orchestrated ecosystem",
+       "value": "Advantage · Orchestrated ecosystem",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -2200,7 +2134,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Marketing",
-       "because": "Advantage 0.50 · Orchestrated ecosystem",
+       "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
       },
@@ -2275,7 +2209,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Advantage 0.50 · Orchestrated ecosystem",
+       "value": "Advantage · Orchestrated ecosystem",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -2329,7 +2263,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Marketing",
-       "because": "Advantage 0.50 · Orchestrated ecosystem",
+       "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
        "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
       },
@@ -2404,7 +2338,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Advantage 0.50 · Orchestrated ecosystem",
+       "value": "Advantage · Orchestrated ecosystem",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -2472,7 +2406,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "growthLens": "Treat workforce capacity as a strategic asset, not a utilization pool."
       },
       "operation": {
@@ -2493,11 +2426,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -2544,8 +2475,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
+       "key": "growthLens",
+       "value": "Treat workforce capacity as a strategic asset, not a utilization pool.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -2598,7 +2529,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "growthLens": "Treat workforce capacity as a strategic asset, not a utilization pool."
       },
       "operation": {
@@ -2619,11 +2549,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -2670,17 +2598,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Treat workforce capacity as a strategic asset, not a utilization pool.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -2731,7 +2652,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "growthLens": "Treat workforce capacity as a strategic asset, not a utilization pool."
       },
       "operation": {
@@ -2752,11 +2672,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -2803,17 +2721,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Treat workforce capacity as a strategic asset, not a utilization pool.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -2866,7 +2777,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "growthLens": "Treat workforce capacity as a strategic asset, not a utilization pool."
       },
       "operation": {
@@ -2887,11 +2797,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -2938,17 +2846,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Treat workforce capacity as a strategic asset, not a utilization pool.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -3415,7 +3316,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "growthLens": "Use RPE diagnostically — never as a standalone target."
       },
       "operation": {
@@ -3436,11 +3336,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -3487,8 +3385,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
+       "key": "growthLens",
+       "value": "Use RPE diagnostically — never as a standalone target.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -3541,7 +3439,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "growthLens": "Use RPE diagnostically — never as a standalone target."
       },
       "operation": {
@@ -3562,11 +3459,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -3613,17 +3508,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Use RPE diagnostically — never as a standalone target.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -3674,7 +3562,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "growthLens": "Use RPE diagnostically — never as a standalone target."
       },
       "operation": {
@@ -3695,11 +3582,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -3746,17 +3631,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Use RPE diagnostically — never as a standalone target.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -3809,7 +3687,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "growthLens": "Use RPE diagnostically — never as a standalone target."
       },
       "operation": {
@@ -3830,11 +3707,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -3881,17 +3756,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Use RPE diagnostically — never as a standalone target.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -3925,7 +3793,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "People",
-       "because": "Resource −0.50 · Workforce capacity",
+       "because": "Resource · Workforce capacity",
        "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "questions": "Which capabilities are becoming scarce? · How is AI changing apprenticeship? · Is RPE rising because capability is increasing or being depleted?"
       },
@@ -4028,7 +3896,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "People",
-       "because": "Resource −0.50 · Workforce capacity",
+       "because": "Resource · Workforce capacity",
        "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "questions": "Which capabilities are becoming scarce? · How is AI changing apprenticeship? · Is RPE rising because capability is increasing or being depleted?"
       },
@@ -4103,7 +3971,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Resource −0.50 · Workforce capacity",
+       "value": "Resource · Workforce capacity",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -4141,7 +4009,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "People",
-       "because": "Resource −0.50 · Workforce capacity",
+       "because": "Resource · Workforce capacity",
        "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "questions": "Which capabilities are becoming scarce? · How is AI changing apprenticeship? · Is RPE rising because capability is increasing or being depleted?"
       },
@@ -4216,7 +4084,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Resource −0.50 · Workforce capacity",
+       "value": "Resource · Workforce capacity",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -4270,7 +4138,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "People",
-       "because": "Resource −0.50 · Workforce capacity",
+       "because": "Resource · Workforce capacity",
        "mandate": "Protect skill coverage, retention, learning, resilience, and readiness as RPE and automation pressures rise.",
        "questions": "Which capabilities are becoming scarce? · How is AI changing apprenticeship? · Is RPE rising because capability is increasing or being depleted?"
       },
@@ -4345,7 +4213,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Resource −0.50 · Workforce capacity",
+       "value": "Resource · Workforce capacity",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -4395,7 +4263,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Finance",
-       "because": "Resource 0.50 · Capital return",
+       "because": "Resource · Capital return",
        "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "questions": "What drives RPE? · Is return recurring or engagement-dependent? · Does system investment reduce marginal delivery cost?"
       },
@@ -4498,7 +4366,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Finance",
-       "because": "Resource 0.50 · Capital return",
+       "because": "Resource · Capital return",
        "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "questions": "What drives RPE? · Is return recurring or engagement-dependent? · Does system investment reduce marginal delivery cost?"
       },
@@ -4573,7 +4441,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Resource 0.50 · Capital return",
+       "value": "Resource · Capital return",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -4611,7 +4479,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Finance",
-       "because": "Resource 0.50 · Capital return",
+       "because": "Resource · Capital return",
        "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "questions": "What drives RPE? · Is return recurring or engagement-dependent? · Does system investment reduce marginal delivery cost?"
       },
@@ -4686,7 +4554,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Resource 0.50 · Capital return",
+       "value": "Resource · Capital return",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -4740,7 +4608,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Finance",
-       "because": "Resource 0.50 · Capital return",
+       "because": "Resource · Capital return",
        "mandate": "Convert workforce, systems, IP, acquisitions, relationships, and data into durable economic return.",
        "questions": "What drives RPE? · Is return recurring or engagement-dependent? · Does system investment reduce marginal delivery cost?"
       },
@@ -4815,7 +4683,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Resource 0.50 · Capital return",
+       "value": "Resource · Capital return",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -4883,7 +4751,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "growthLens": "Distinguish productive conviction from premature closure."
       },
       "operation": {
@@ -4905,11 +4772,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -4956,8 +4821,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Set clear theses, decision rights, and commitment discipline without premature closure.",
+       "key": "growthLens",
+       "value": "Distinguish productive conviction from premature closure.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -5010,7 +4875,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "growthLens": "Distinguish productive conviction from premature closure."
       },
       "operation": {
@@ -5032,11 +4896,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -5083,17 +4945,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Set clear theses, decision rights, and commitment discipline without premature closure.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Distinguish productive conviction from premature closure.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -5144,7 +4999,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "growthLens": "Distinguish productive conviction from premature closure."
       },
       "operation": {
@@ -5166,11 +5020,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -5217,17 +5069,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Set clear theses, decision rights, and commitment discipline without premature closure.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Distinguish productive conviction from premature closure.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -5280,7 +5125,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "growthLens": "Distinguish productive conviction from premature closure."
       },
       "operation": {
@@ -5302,11 +5146,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -5353,17 +5195,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Set clear theses, decision rights, and commitment discipline without premature closure.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Distinguish productive conviction from premature closure.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -5834,7 +5669,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "growthLens": "Make uncertainty visible before executive commitment."
       },
       "operation": {
@@ -5856,11 +5690,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -5907,8 +5739,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
+       "key": "growthLens",
+       "value": "Make uncertainty visible before executive commitment.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -5961,7 +5793,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "growthLens": "Make uncertainty visible before executive commitment."
       },
       "operation": {
@@ -5983,11 +5814,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -6034,17 +5863,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Make uncertainty visible before executive commitment.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -6095,7 +5917,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "growthLens": "Make uncertainty visible before executive commitment."
       },
       "operation": {
@@ -6117,11 +5938,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -6168,17 +5987,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Make uncertainty visible before executive commitment.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -6231,7 +6043,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "growthLens": "Make uncertainty visible before executive commitment."
       },
       "operation": {
@@ -6253,11 +6064,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -6304,17 +6113,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Make uncertainty visible before executive commitment.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -6348,7 +6150,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Executive",
-       "because": "Discernment −0.50 · Structured conviction",
+       "because": "Discernment · Structured conviction",
        "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "questions": "What must be decided now? · What evidence would justify delaying commitment? · Which decisions are reversible, and who owns reversal?"
       },
@@ -6451,7 +6253,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Executive",
-       "because": "Discernment −0.50 · Structured conviction",
+       "because": "Discernment · Structured conviction",
        "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "questions": "What must be decided now? · What evidence would justify delaying commitment? · Which decisions are reversible, and who owns reversal?"
       },
@@ -6526,7 +6328,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Discernment −0.50 · Structured conviction",
+       "value": "Discernment · Structured conviction",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -6564,7 +6366,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Executive",
-       "because": "Discernment −0.50 · Structured conviction",
+       "because": "Discernment · Structured conviction",
        "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "questions": "What must be decided now? · What evidence would justify delaying commitment? · Which decisions are reversible, and who owns reversal?"
       },
@@ -6639,7 +6441,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Discernment −0.50 · Structured conviction",
+       "value": "Discernment · Structured conviction",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -6693,7 +6495,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Executive",
-       "because": "Discernment −0.50 · Structured conviction",
+       "because": "Discernment · Structured conviction",
        "mandate": "Set clear theses, decision rights, and commitment discipline without premature closure.",
        "questions": "What must be decided now? · What evidence would justify delaying commitment? · Which decisions are reversible, and who owns reversal?"
       },
@@ -6768,7 +6570,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Discernment −0.50 · Structured conviction",
+       "value": "Discernment · Structured conviction",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -6818,7 +6620,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Data",
-       "because": "Discernment 0.50 · Open inquiry",
+       "because": "Discernment · Open inquiry",
        "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "questions": "What evidence could change the current thesis? · Is disconfirming evidence visible before resource commitment? · Where do incentives encourage confirmation?"
       },
@@ -6921,7 +6723,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Data",
-       "because": "Discernment 0.50 · Open inquiry",
+       "because": "Discernment · Open inquiry",
        "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "questions": "What evidence could change the current thesis? · Is disconfirming evidence visible before resource commitment? · Where do incentives encourage confirmation?"
       },
@@ -6996,7 +6798,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Discernment 0.50 · Open inquiry",
+       "value": "Discernment · Open inquiry",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -7034,7 +6836,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Data",
-       "because": "Discernment 0.50 · Open inquiry",
+       "because": "Discernment · Open inquiry",
        "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "questions": "What evidence could change the current thesis? · Is disconfirming evidence visible before resource commitment? · Where do incentives encourage confirmation?"
       },
@@ -7109,7 +6911,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Discernment 0.50 · Open inquiry",
+       "value": "Discernment · Open inquiry",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -7163,7 +6965,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Data",
-       "because": "Discernment 0.50 · Open inquiry",
+       "because": "Discernment · Open inquiry",
        "mandate": "Ensure external evidence, disconfirming data, and alternative interpretations can change commitments before lock-in.",
        "questions": "What evidence could change the current thesis? · Is disconfirming evidence visible before resource commitment? · Where do incentives encourage confirmation?"
       },
@@ -7238,7 +7040,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Discernment 0.50 · Open inquiry",
+       "value": "Discernment · Open inquiry",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -7306,7 +7108,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "growthLens": "Build differentiated control paths by risk level."
       },
       "operation": {
@@ -7329,11 +7130,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -7380,8 +7179,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
+       "key": "growthLens",
+       "value": "Build differentiated control paths by risk level.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -7434,7 +7233,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "growthLens": "Build differentiated control paths by risk level."
       },
       "operation": {
@@ -7457,11 +7255,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -7508,17 +7304,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Build differentiated control paths by risk level.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -7569,7 +7358,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "growthLens": "Build differentiated control paths by risk level."
       },
       "operation": {
@@ -7592,11 +7380,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -7643,17 +7429,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Build differentiated control paths by risk level.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -7706,7 +7485,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "growthLens": "Build differentiated control paths by risk level."
       },
       "operation": {
@@ -7729,11 +7507,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -7780,17 +7556,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Build differentiated control paths by risk level.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -8265,7 +8034,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "growthLens": "Create bounded release velocity."
       },
       "operation": {
@@ -8288,11 +8056,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -8339,8 +8105,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
+       "key": "growthLens",
+       "value": "Create bounded release velocity.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -8393,7 +8159,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "growthLens": "Create bounded release velocity."
       },
       "operation": {
@@ -8416,11 +8181,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -8467,17 +8230,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Create bounded release velocity.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -8528,7 +8284,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "growthLens": "Create bounded release velocity."
       },
       "operation": {
@@ -8551,11 +8306,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -8602,17 +8355,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Create bounded release velocity.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -8665,7 +8411,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "growthLens": "Create bounded release velocity."
       },
       "operation": {
@@ -8688,11 +8433,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -8739,17 +8482,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Create bounded release velocity.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -8783,7 +8519,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Risk",
-       "because": "Execution −0.50 · Risk friction",
+       "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
       },
@@ -8886,7 +8622,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Risk",
-       "because": "Execution −0.50 · Risk friction",
+       "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
       },
@@ -8961,7 +8697,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Execution −0.50 · Risk friction",
+       "value": "Execution · Risk friction",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -8999,7 +8735,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Risk",
-       "because": "Execution −0.50 · Risk friction",
+       "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
       },
@@ -9074,7 +8810,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Execution −0.50 · Risk friction",
+       "value": "Execution · Risk friction",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -9128,7 +8864,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Risk",
-       "because": "Execution −0.50 · Risk friction",
+       "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
        "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
       },
@@ -9203,7 +8939,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Execution −0.50 · Risk friction",
+       "value": "Execution · Risk friction",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -9253,7 +8989,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Technology",
-       "because": "Execution 0.50 · Release",
+       "because": "Execution · Release",
        "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "questions": "What can safely ship now? · Is the release reversible? · Did deployment create adoption and measurable value?"
       },
@@ -9356,7 +9092,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Technology",
-       "because": "Execution 0.50 · Release",
+       "because": "Execution · Release",
        "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "questions": "What can safely ship now? · Is the release reversible? · Did deployment create adoption and measurable value?"
       },
@@ -9431,7 +9167,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Execution 0.50 · Release",
+       "value": "Execution · Release",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -9469,7 +9205,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Technology",
-       "because": "Execution 0.50 · Release",
+       "because": "Execution · Release",
        "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "questions": "What can safely ship now? · Is the release reversible? · Did deployment create adoption and measurable value?"
       },
@@ -9544,7 +9280,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Execution 0.50 · Release",
+       "value": "Execution · Release",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -9598,7 +9334,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Technology",
-       "because": "Execution 0.50 · Release",
+       "because": "Execution · Release",
        "mandate": "Ship reversible, observable improvements fast enough to create adoption, feedback, and measurable value.",
        "questions": "What can safely ship now? · Is the release reversible? · Did deployment create adoption and measurable value?"
       },
@@ -9673,7 +9409,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Execution 0.50 · Release",
+       "value": "Execution · Release",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -9741,7 +9477,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "growthLens": "Codify what improves quality, speed, and resilience."
       },
       "operation": {
@@ -9763,11 +9498,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -9814,8 +9547,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn experience into reusable institutional capability without flattening expert judgment.",
+       "key": "growthLens",
+       "value": "Codify what improves quality, speed, and resilience.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -9868,7 +9601,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "growthLens": "Codify what improves quality, speed, and resilience."
       },
       "operation": {
@@ -9890,11 +9622,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -9941,17 +9671,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn experience into reusable institutional capability without flattening expert judgment.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Codify what improves quality, speed, and resilience.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -10002,7 +9725,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "growthLens": "Codify what improves quality, speed, and resilience."
       },
       "operation": {
@@ -10024,11 +9746,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -10075,17 +9795,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn experience into reusable institutional capability without flattening expert judgment.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Codify what improves quality, speed, and resilience.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -10138,7 +9851,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "growthLens": "Codify what improves quality, speed, and resilience."
       },
       "operation": {
@@ -10160,11 +9872,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -10211,17 +9921,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Turn experience into reusable institutional capability without flattening expert judgment.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Codify what improves quality, speed, and resilience.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -10692,7 +10395,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "growthLens": "Validate renewal through adoption, revenue, and repeatability."
       },
       "operation": {
@@ -10714,11 +10416,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -10765,8 +10465,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
+       "key": "growthLens",
+       "value": "Validate renewal through adoption, revenue, and repeatability.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -10819,7 +10519,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "growthLens": "Validate renewal through adoption, revenue, and repeatability."
       },
       "operation": {
@@ -10841,11 +10540,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -10892,17 +10589,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Validate renewal through adoption, revenue, and repeatability.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -10953,7 +10643,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "growthLens": "Validate renewal through adoption, revenue, and repeatability."
       },
       "operation": {
@@ -10975,11 +10664,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -11026,17 +10713,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Validate renewal through adoption, revenue, and repeatability.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -11089,7 +10769,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "growthLens": "Validate renewal through adoption, revenue, and repeatability."
       },
       "operation": {
@@ -11111,11 +10790,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -11162,17 +10839,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Validate renewal through adoption, revenue, and repeatability.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -11206,7 +10876,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Knowledge",
-       "because": "Invention −0.50 · Codified fluency",
+       "because": "Invention · Codified fluency",
        "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "questions": "What knowledge is strategically reusable? · Which expertise cannot be separated from practitioner judgment? · How quickly does this knowledge become obsolete?"
       },
@@ -11309,7 +10979,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Knowledge",
-       "because": "Invention −0.50 · Codified fluency",
+       "because": "Invention · Codified fluency",
        "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "questions": "What knowledge is strategically reusable? · Which expertise cannot be separated from practitioner judgment? · How quickly does this knowledge become obsolete?"
       },
@@ -11384,7 +11054,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Invention −0.50 · Codified fluency",
+       "value": "Invention · Codified fluency",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -11422,7 +11092,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Knowledge",
-       "because": "Invention −0.50 · Codified fluency",
+       "because": "Invention · Codified fluency",
        "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "questions": "What knowledge is strategically reusable? · Which expertise cannot be separated from practitioner judgment? · How quickly does this knowledge become obsolete?"
       },
@@ -11497,7 +11167,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Invention −0.50 · Codified fluency",
+       "value": "Invention · Codified fluency",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -11551,7 +11221,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Knowledge",
-       "because": "Invention −0.50 · Codified fluency",
+       "because": "Invention · Codified fluency",
        "mandate": "Turn experience into reusable institutional capability without flattening expert judgment.",
        "questions": "What knowledge is strategically reusable? · Which expertise cannot be separated from practitioner judgment? · How quickly does this knowledge become obsolete?"
       },
@@ -11626,7 +11296,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Invention −0.50 · Codified fluency",
+       "value": "Invention · Codified fluency",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -11676,7 +11346,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Growth",
-       "because": "Invention 0.50 · Novel offering creation",
+       "because": "Invention · Novel offering creation",
        "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "questions": "What proves an offering is genuinely new? · Has the market adopted or renewed it? · Does it create repeatable economics?"
       },
@@ -11779,7 +11449,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Growth",
-       "because": "Invention 0.50 · Novel offering creation",
+       "because": "Invention · Novel offering creation",
        "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "questions": "What proves an offering is genuinely new? · Has the market adopted or renewed it? · Does it create repeatable economics?"
       },
@@ -11854,7 +11524,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Invention 0.50 · Novel offering creation",
+       "value": "Invention · Novel offering creation",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -11892,7 +11562,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Growth",
-       "because": "Invention 0.50 · Novel offering creation",
+       "because": "Invention · Novel offering creation",
        "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "questions": "What proves an offering is genuinely new? · Has the market adopted or renewed it? · Does it create repeatable economics?"
       },
@@ -11967,7 +11637,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Invention 0.50 · Novel offering creation",
+       "value": "Invention · Novel offering creation",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -12021,7 +11691,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Growth",
-       "because": "Invention 0.50 · Novel offering creation",
+       "because": "Invention · Novel offering creation",
        "mandate": "Create offerings that customers adopt, pay for, renew, or use to define a new category of need.",
        "questions": "What proves an offering is genuinely new? · Has the market adopted or renewed it? · Does it create repeatable economics?"
       },
@@ -12096,7 +11766,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Invention 0.50 · Novel offering creation",
+       "value": "Invention · Novel offering creation",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -12164,7 +11834,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "growthLens": "Automate avoidable effort while preserving expert intervention."
       },
       "operation": {
@@ -12186,11 +11855,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -12237,8 +11904,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
+       "key": "growthLens",
+       "value": "Automate avoidable effort while preserving expert intervention.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -12291,7 +11958,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "growthLens": "Automate avoidable effort while preserving expert intervention."
       },
       "operation": {
@@ -12313,11 +11979,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -12364,17 +12028,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Automate avoidable effort while preserving expert intervention.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -12425,7 +12082,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "growthLens": "Automate avoidable effort while preserving expert intervention."
       },
       "operation": {
@@ -12447,11 +12103,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -12498,17 +12152,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Automate avoidable effort while preserving expert intervention.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -12561,7 +12208,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "growthLens": "Automate avoidable effort while preserving expert intervention."
       },
       "operation": {
@@ -12583,11 +12229,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -12634,17 +12278,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Automate avoidable effort while preserving expert intervention.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -13115,7 +12752,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "growthLens": "Prioritize client-visible flow, not tool installation."
       },
       "operation": {
@@ -13137,11 +12773,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -13188,8 +12822,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
+       "key": "growthLens",
+       "value": "Prioritize client-visible flow, not tool installation.",
        "declaredPriority": "primary",
        "effectivePriority": "primary",
        "promotionRuleIndices": []
@@ -13242,7 +12876,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "growthLens": "Prioritize client-visible flow, not tool installation."
       },
       "operation": {
@@ -13264,11 +12897,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -13315,17 +12946,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Prioritize client-visible flow, not tool installation.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -13376,7 +13000,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "growthLens": "Prioritize client-visible flow, not tool installation."
       },
       "operation": {
@@ -13398,11 +13021,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -13449,17 +13070,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Prioritize client-visible flow, not tool installation.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -13512,7 +13126,6 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      {
       "type": "Operation",
       "payload": {
-       "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "growthLens": "Prioritize client-visible flow, not tool installation."
       },
       "operation": {
@@ -13534,11 +13147,9 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "fields": {
        "priority": {
         "primary": [
-         "mandate"
-        ],
-        "secondary": [
          "growthLens"
         ],
+        "secondary": [],
         "supporting": [],
         "audit": []
        }
@@ -13585,17 +13196,10 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
      "itemIndex": 0,
      "fields": [
       {
-       "key": "mandate",
-       "value": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
-       "declaredPriority": "primary",
-       "effectivePriority": "primary",
-       "promotionRuleIndices": []
-      },
-      {
        "key": "growthLens",
        "value": "Prioritize client-visible flow, not tool installation.",
-       "declaredPriority": "secondary",
-       "effectivePriority": "secondary",
+       "declaredPriority": "primary",
+       "effectivePriority": "primary",
        "promotionRuleIndices": []
       }
      ]
@@ -13629,7 +13233,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Operations",
-       "because": "Operations −0.50 · Execution discipline",
+       "because": "Operations · Execution discipline",
        "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "questions": "Which tasks require professional judgment? · Where are exceptions concentrated? · Can the operation recover when automated systems fail?"
       },
@@ -13732,7 +13336,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Operations",
-       "because": "Operations −0.50 · Execution discipline",
+       "because": "Operations · Execution discipline",
        "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "questions": "Which tasks require professional judgment? · Where are exceptions concentrated? · Can the operation recover when automated systems fail?"
       },
@@ -13807,7 +13411,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Operations −0.50 · Execution discipline",
+       "value": "Operations · Execution discipline",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -13845,7 +13449,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Operations",
-       "because": "Operations −0.50 · Execution discipline",
+       "because": "Operations · Execution discipline",
        "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "questions": "Which tasks require professional judgment? · Where are exceptions concentrated? · Can the operation recover when automated systems fail?"
       },
@@ -13920,7 +13524,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Operations −0.50 · Execution discipline",
+       "value": "Operations · Execution discipline",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -13974,7 +13578,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Operations",
-       "because": "Operations −0.50 · Execution discipline",
+       "because": "Operations · Execution discipline",
        "mandate": "Preserve reliable human execution, exception handling, and quality as delivery systems automate.",
        "questions": "Which tasks require professional judgment? · Where are exceptions concentrated? · Can the operation recover when automated systems fail?"
       },
@@ -14049,7 +13653,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Operations −0.50 · Execution discipline",
+       "value": "Operations · Execution discipline",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -14099,7 +13703,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Information",
-       "because": "Operations 0.50 · Systems and flow",
+       "because": "Operations · Systems and flow",
        "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "questions": "Where is the true end-to-end constraint? · What evidence proves flow improved? · Are systems interoperable across units and partners?"
       },
@@ -14202,7 +13806,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Information",
-       "because": "Operations 0.50 · Systems and flow",
+       "because": "Operations · Systems and flow",
        "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "questions": "Where is the true end-to-end constraint? · What evidence proves flow improved? · Are systems interoperable across units and partners?"
       },
@@ -14277,7 +13881,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Operations 0.50 · Systems and flow",
+       "value": "Operations · Systems and flow",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -14315,7 +13919,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Information",
-       "because": "Operations 0.50 · Systems and flow",
+       "because": "Operations · Systems and flow",
        "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "questions": "Where is the true end-to-end constraint? · What evidence proves flow improved? · Are systems interoperable across units and partners?"
       },
@@ -14390,7 +13994,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Operations 0.50 · Systems and flow",
+       "value": "Operations · Systems and flow",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []
@@ -14444,7 +14048,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "type": "Value",
       "payload": {
        "function": "Information",
-       "because": "Operations 0.50 · Systems and flow",
+       "because": "Operations · Systems and flow",
        "mandate": "Use systems to remove avoidable effort and improve end-to-end client-visible speed, reliability, and quality.",
        "questions": "Where is the true end-to-end constraint? · What evidence proves flow improved? · Are systems interoperable across units and partners?"
       },
@@ -14519,7 +14123,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "because",
-       "value": "Operations 0.50 · Systems and flow",
+       "value": "Operations · Systems and flow",
        "declaredPriority": "secondary",
        "effectivePriority": "secondary",
        "promotionRuleIndices": []

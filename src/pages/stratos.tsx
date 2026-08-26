@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
+import { CircleHelp } from 'lucide-react';
+import { SiteBrand } from '@/components/site-navigation';
 import {
-  LOCUS, PAIR_QUESTION, TENSIONS,
-  counterweightOf, lensOf, ownerOf, poleName, proofOf,
-  type PlacedSide, type PoleSide, type Tension,
+  PAIR_QUESTION, TENSIONS,
+  blurbOf, lensOf, ownerOf, poleName, poleSideFor,
+  type PlacedSide, type Tension,
 } from '@/lib/stratos/ontology';
 import { STRATOS_RECIPES } from '@/lib/stratos/recipes.generated';
 import { SOURCES, lensCitations } from '@/lib/stratos/sources';
 import './stratos.css';
 
-const DEAD_ZONE = 0.05;
 const fmt = (n: number): string => (n < 0 ? '−' : '') + Math.abs(n).toFixed(2);
-const poleSide = (p: number): PoleSide => (p <= -DEAD_ZONE ? 'l' : p >= DEAD_ZONE ? 'r' : 'neutral');
 
 type Positions = Record<string, number>;
 type Reveals = Record<string, { evidence: boolean; trace: boolean }>;
@@ -28,13 +28,17 @@ interface PanelProps {
   sideClass: '' | 'l' | 'r';
   reveal: { evidence: boolean; trace: boolean };
   live?: { position: number; pole: string; owner: string };
-  onExpand: () => void;
   onToggleReveal: (which: 'evidence' | 'trace') => void;
+  showAffordances?: boolean;
 }
 
-function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onExpand, onToggleReveal }: PanelProps) {
+function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onToggleReveal,
+  showAffordances = true }: PanelProps) {
   const fields = recipe.visibleFields[0]?.fields ?? [];
-  const controls = recipe.inspectionControls;
+  const controls = recipe.inspectionControls.filter((control) =>
+    control !== 'inspect' && control !== 'expand');
+  const actions = recipe.actionControls.filter((action) =>
+    action.operation?.label !== 'Carried to the board agenda');
   const hasEvidence = controls.includes('view-evidence');
   const hasTrace = controls.includes('view-trace');
 
@@ -58,12 +62,6 @@ function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onExpand, o
       role="group"
       aria-label={`${recipe.answer.question} — ${depth}`}
     >
-      <div className="panel-meta">
-        <span className="chip pat">{recipe.pattern}</span>
-        <span className="chip depth">{depth}</span>
-        <span className="chip">density {recipe.density.density}</span>
-      </div>
-
       {fields.length > 0 && (
         <dl className="flds">
           {fields.map((f) => (
@@ -81,29 +79,24 @@ function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onExpand, o
         </dl>
       )}
 
-      <div className="affs">
-        {controls.map((c) => {
-          if (c === 'expand') {
-            return (
-              <button key={c} type="button" className="aff live" data-aff="expand"
-                aria-pressed={depth === 'focus'}
-                onClick={(e) => { e.stopPropagation(); onExpand(); }}>expand</button>
-            );
-          }
-          if (c === 'view-evidence' || c === 'view-trace') {
-            const which = c === 'view-evidence' ? 'evidence' : 'trace';
-            return (
-              <button key={c} type="button" className="aff live" data-aff={c}
-                aria-pressed={reveal[which]}
-                onClick={(e) => { e.stopPropagation(); onToggleReveal(which); }}>{c}</button>
-            );
-          }
-          return <span key={c} className="aff">{c}</span>;
-        })}
-        {recipe.actionControls.map((a, i) => (
-          <span key={`act-${i}`} className="aff act">{a.operation?.label ?? 'action'}</span>
-        ))}
-      </div>
+      {showAffordances && (controls.length > 0 || actions.length > 0) && (
+        <div className="affs">
+          {controls.map((c) => {
+            if (c === 'view-evidence' || c === 'view-trace') {
+              const which = c === 'view-evidence' ? 'evidence' : 'trace';
+              return (
+                <button key={c} type="button" className="aff live" data-aff={c}
+                  aria-pressed={reveal[which]}
+                  onClick={(e) => { e.stopPropagation(); onToggleReveal(which); }}>{c}</button>
+              );
+            }
+            return <span key={c} className="aff">{c}</span>;
+          })}
+          {actions.map((a, i) => (
+            <span key={`act-${i}`} className="aff act">{a.operation?.label ?? 'action'}</span>
+          ))}
+        </div>
+      )}
 
       {hasEvidence && reveal.evidence && evidence && (
         <p className="reveal"><b>evidence</b> {evidence.status}<br />
@@ -126,7 +119,6 @@ function Pole({ tension, side, open, onToggle }: {
 }) {
   const own = ownerOf(tension, side);
   const name = poleName(tension, side);
-  const loc = LOCUS[side];
   const citations = lensCitations(lensOf(tension, side));
   const popoverId = `pole-${tension.id}-${side}-sources`;
   return (
@@ -139,9 +131,7 @@ function Pole({ tension, side, open, onToggle }: {
       </button>
       <div id={popoverId} className="pole-pop" role="dialog" aria-label={`${name} definition and sources`}>
         <b>{name}</b>
-        <em>Owner</em>{own.fn}
-        <em>Decisive proof</em>{proofOf(tension, side)}
-        <em>Validation locus</em>{loc.where} — protects {loc.protects}
+        <p className="pole-definition">{blurbOf(tension, side)}</p>
         <em>Source {citations.length === 1 ? 'lens' : 'lenses'}</em>
         <ol className="lens-citations">
           {citations.map((citation) => (
@@ -164,16 +154,16 @@ function Pole({ tension, side, open, onToggle }: {
 // ---- one tension: name, question, poles, the axis, the answer panel ----
 
 function TensionRow({ tension, position, depth, focused, reveal, openPole,
-  onDrag, onFocusToggle, onHover, onExpand, onToggleReveal, onPoleToggle }: {
+  onDrag, onFocusToggle, onHover, onToggleReveal, onPoleToggle }: {
   tension: Tension; position: number; depth: DisclosureDepth; focused: boolean;
   reveal: { evidence: boolean; trace: boolean }; openPole: PlacedSide | null;
   onDrag: (v: number) => void; onFocusToggle: () => void; onHover: (on: boolean) => void;
-  onExpand: () => void; onToggleReveal: (which: 'evidence' | 'trace') => void;
+  onToggleReveal: (which: 'evidence' | 'trace') => void;
   onPoleToggle: (side: PlacedSide) => void;
 }) {
   const axisRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
-  const side = poleSide(position);
+  const side = poleSideFor(position);
   const pct = (position + 1) / 2 * 100;
   const key = `tension:${tension.id}:${side}`;
   const recipe = recipeFor(key, depth);
@@ -185,7 +175,6 @@ function TensionRow({ tension, position, depth, focused, reveal, openPole,
     const r = el.getBoundingClientRect();
     let v = (cx - r.left) / r.width * 2 - 1;
     v = Math.max(-1, Math.min(1, v));
-    if (Math.abs(v) < 0.04) v = 0;
     onDrag(Math.round(v * 100) / 100);
   }, [onDrag]);
 
@@ -219,8 +208,6 @@ function TensionRow({ tension, position, depth, focused, reveal, openPole,
         }}>
         <div className={`fill ${sideClass}`.trim()} style={side === 'l' ? { left: `${pct}%`, width: `${50 - pct}%` } : side === 'r' ? { left: '50%', width: `${pct - 50}%` } : { width: 0 }} />
         <div className="grid">{[0, 25, 50, 75, 100].map((p) => <i key={p} style={{ left: `${p}%` }} />)}</div>
-        <span className="fn l">{ownerOf(tension, 'l').fn}</span>
-        <span className="fn r">{ownerOf(tension, 'r').fn}</span>
         <div className="zero" />
         <div className={`tick ${sideClass}`.trim()} style={{ left: `${pct}%` }} />
         <div className={`knob ${sideClass || 'empty'}`.trim()} style={{ left: `${pct}%` }}><span>{fmt(position)}</span></div>
@@ -232,7 +219,7 @@ function TensionRow({ tension, position, depth, focused, reveal, openPole,
           <AnswerPanel elId={tension.id} recipe={recipe} depth={depth} sideClass={sideClass}
             reveal={reveal}
             live={own ? { position, pole: poleName(tension, side as PlacedSide), owner: own.fn } : undefined}
-            onExpand={onExpand} onToggleReveal={onToggleReveal} />
+            onToggleReveal={onToggleReveal} />
         </div>
       )}
     </div>
@@ -277,58 +264,52 @@ export default function StratosPage() {
   }, [openPole]);
 
   const placements = useMemo(
-    () => TENSIONS.map((t) => ({ t, p: positions[t.id], side: poleSide(positions[t.id]) }))
+    () => TENSIONS.map((t) => ({ t, p: positions[t.id], side: poleSideFor(positions[t.id]) }))
       .filter((x) => x.side !== 'neutral') as { t: Tension; p: number; side: PlacedSide }[],
     [positions],
   );
 
-  const { commitment, spread } = useMemo(() => {
-    const vals = TENSIONS.map((t) => positions[t.id]);
-    const mass = vals.reduce((a, v) => a + Math.abs(v), 0);
-    let H = 0;
-    if (mass > 1e-9) vals.forEach((v) => { const q = Math.abs(v) / mass; if (q > 0) H -= q * Math.log(q); });
-    return { commitment: mass / 6, spread: mass > 1e-9 ? H / Math.log(6) : null };
-  }, [positions]);
-
-  const verdictRecipe = commitment < 0.20 ? recipeFor('verdict', auditMode ? 'audit' : 'glance') : undefined;
-
   return (
-    <div className="stratos" data-focused={focused !== null ? '' : undefined}>
-      <div className="wrap">
-        <p className="eyebrow">StratOS v5.1 · rendered by facia.answer-set/2</p>
-        <h1>Place your firm.</h1>
-        <p className="lede">
-          Drag each axis to set a position — you hold the interior knowledge. Each answer carries its own
-          depth: it rests at <em>glance</em>, opens to <em>inspect</em> on hover, and to <em>focus</em> when
-          you click it. Every panel is a recipe the Facia resolver produced; nothing here is generated on the fly.
-        </p>
-        <a className="back" href="/">← back to the portfolio</a>
-
-        <div className="bar">
-          <span className="lbl">Provenance<b>audit depth adds view-evidence and view-trace, where the answer has them</b></span>
-          <button type="button" className="audit-btn" aria-pressed={auditMode}
-            onClick={() => setAuditMode((a) => !a)}>Audit</button>
+    <div className="app-shell stratos" data-focused={focused !== null ? '' : undefined}>
+      <header className="topbar">
+        <SiteBrand />
+        <nav className="nav-actions stratos-nav-actions" aria-label="StratOS navigation">
+          <a className="nav-link" href="/">Portfolio</a>
+          <a className="nav-link" href="/stratos" aria-current="page">StratOS</a>
+          <span className="avatar-button stratos-avatar" aria-hidden="true">JC</span>
+        </nav>
+      </header>
+      <main className="workspace stratos-workspace">
+        <div className="intro stratos-intro">
+          <p className="eyebrow">StratOS v5.1 · strategy tension instrument</p>
+          <h1 className="hero-title">Place your <em>firm.</em></h1>
+          <p className="hero-description stratos-lede">
+            Drag each axis to set a position — you hold the interior knowledge. Any movement away from center
+            selects that pole’s recommendation. Hover a pole label to view its definition and sources;
+            select an answer to open its supporting detail.
+          </p>
         </div>
 
-        {verdictRecipe && (
-          <div className="badge-wrap">
-            <span className="p">{verdictRecipe.pattern} · {verdictRecipe.patternReasonCode}</span>
-            {verdictRecipe.visibleFields[0]?.fields.map((f) => (
-              <span key={f.key} className={f.effectivePriority === 'primary' ? 's' : 'w'}>{String(f.value)}</span>
-            ))}
-          </div>
-        )}
-
-        <div className="tiles">
-          <div className="tile"><h3>Commitment</h3><div className="val">{commitment.toFixed(2)}</div>
-            <p className="note">{commitment < 0.20 ? 'Below 0.20 — see the verdict above.' : 'How far from neutral the firm sits. Every tension counts one sixth.'}</p></div>
-          <div className="tile"><h3>Spread</h3><div className="val">{spread === null ? '—' : spread.toFixed(2)}</div>
-            <p className="note">{spread === null ? 'No commitment mass to distribute.' : spread < 0.75 ? 'Concentrated — a few real bets.' : 'Thin — commitment spread across all six.'}</p></div>
+        <div className="bar semantic-affordance-row">
+          <span className="lbl">Provenance<b>Audit reveals evidence and decision traces where available.</b></span>
+          <button type="button" className="audit-btn semantic-audit-trigger" aria-pressed={auditMode}
+            onClick={() => setAuditMode((a) => !a)}>Audit</button>
         </div>
 
         {(['Economics', 'Commitment', 'Renewal'] as const).map((pair) => (
           <section className="pair" key={pair}>
-            <div className="pair-head"><h2>{pair}</h2><span className="q">{PAIR_QUESTION[pair]}</span></div>
+            <div className="pair-head">
+              <h2>{pair}</h2>
+              <span className="pair-help">
+                <button type="button" className="pair-help-btn"
+                  aria-label={`About ${pair}`} aria-describedby={`pair-${pair.toLowerCase()}-description`}>
+                  <CircleHelp aria-hidden="true" />
+                </button>
+                <span className="pair-tooltip" role="tooltip" id={`pair-${pair.toLowerCase()}-description`}>
+                  {PAIR_QUESTION[pair]}
+                </span>
+              </span>
+            </div>
             {TENSIONS.filter((t) => t.pair === pair).map((t) => (
               <TensionRow key={t.id} tension={t} position={positions[t.id]} depth={depthFor(t.id)}
                 focused={focused === t.id} reveal={revealOf(t.id)}
@@ -336,45 +317,43 @@ export default function StratosPage() {
                 onDrag={(v) => setPositions((s) => ({ ...s, [t.id]: v }))}
                 onFocusToggle={() => toggleFocus(t.id)}
                 onHover={(on) => setHovered(on ? t.id : null)}
-                onExpand={() => toggleFocus(t.id)}
                 onToggleReveal={(which) => toggleReveal(t.id, which)}
                 onPoleToggle={(sd) => setOpenPole((o) => (o === `${t.id}:${sd}` ? null : `${t.id}:${sd}`))} />
             ))}
-            <LayerBalance pair={pair} positions={positions} />
           </section>
         ))}
 
         <Agenda placements={placements} depthFor={depthFor} revealOf={revealOf}
           toggleReveal={toggleReveal} toggleFocus={toggleFocus} setHovered={setHovered} />
 
-        <section className="contract">
-          <h2>Claims this instrument does not make</h2>
-          <p className="sub">Stated by the model itself, not discovered by a reviewer.</p>
-          <ul>
-            <li>That the model objectively measures strategy</li>
-            <li>That a position or a commitment can pass or fail a firm</li>
-            <li>That neutral is failure, or that either pole is the better place to stand</li>
-            <li>That any verdict is rendered on a firm — no gates, no floors, no RPE are computed here</li>
-            <li>That it knows how well you know. Confidence is not asked for, so no interval is drawn</li>
-          </ul>
-          <p className="foot">
-            <b>Depth is per element, and it comes from the resolver.</b> Each placement is a facia.answer-set/2
-            document resolved at build time by the real resolver; the browser only looks the recipe up. The
-            pattern comes from the decision manifest; which fields appear comes from declared field priority;
-            the affordances are recipe.inspectionControls — glance offers only inspect, inspect adds expand,
-            focus adds filter and sort to collections, and audit adds view-evidence and view-trace only where
-            that answer carries them.<br />
-            <b>Target-based Coherence</b> was removed in v4.1: scoring the distance to a target the audit
-            invented graded our own guesswork.<br />
-            Pole source cards cite the underlying works. Their one-line lens descriptions are attributed
-            framing of the concept StratOS borrows, not verbatim quotations.<br />
-            Ontology from <b>_metadata/Tension_Model.md</b> and <b>_metadata/Ownership_Model.md</b>; mandates
-            and boardroom questions quoted from <b>StratOS_v5_CSuite_Micro_Reports.docx</b>.
-          </p>
-        </section>
+        {auditMode && (
+          <section className="contract">
+            <h2>Claims this instrument does not make</h2>
+            <p className="sub">Stated by the model itself, not discovered by a reviewer.</p>
+            <ul>
+              <li>That the model objectively measures strategy</li>
+              <li>That a position or a commitment can pass or fail a firm</li>
+              <li>That neutral is failure, or that either pole is the better place to stand</li>
+              <li>That any verdict is rendered on a firm — no gates, no floors, no RPE are computed here</li>
+              <li>That it knows how well you know. Confidence is not asked for, so no interval is drawn</li>
+            </ul>
+            <p className="foot">
+              <b>Depth is per element, and it comes from the resolver.</b> Each placement is a facia.answer-set/2
+              document resolved at build time by the real resolver; the browser only looks the recipe up. The
+              pattern comes from the decision manifest; which fields appear comes from declared field priority;
+              audit adds view-evidence and view-trace only where that answer carries them.<br />
+              <b>Target-based Coherence</b> was removed in v4.1: scoring the distance to a target the audit
+              invented graded our own guesswork.<br />
+              Pole source cards cite the underlying works. Their one-line lens descriptions are attributed
+              framing of the concept StratOS borrows, not verbatim quotations.<br />
+              Ontology from <b>_metadata/Tension_Model.md</b> and <b>_metadata/Ownership_Model.md</b>; mandates
+              and boardroom questions quoted from <b>StratOS_v5_CSuite_Micro_Reports.docx</b>.
+            </p>
+          </section>
+        )}
 
         <Bibliography />
-      </div>
+      </main>
     </div>
   );
 }
@@ -402,22 +381,6 @@ function Bibliography() {
   );
 }
 
-function LayerBalance({ pair, positions }: { pair: Tension['pair']; positions: Positions }) {
-  const [a, b] = TENSIONS.filter((t) => t.pair === pair);
-  const strat = a.layer === 'StratOps' ? a : b;
-  const ops = a.layer === 'StratOps' ? b : a;
-  const d = Math.abs(positions[strat.id]) - Math.abs(positions[ops.id]);
-  if (Math.abs(d) <= 0.25) {
-    return <div className="balance quiet">Layer balance <span className="d">Δ {fmt(d)}</span> — within ±0.25, not reported.</div>;
-  }
-  const neutral = d > 0 ? ops : strat;
-  return (
-    <div className="balance">Layer balance <span className="d">Δ {fmt(d)}</span> — commitment sits on the{' '}
-      <b>{d > 0 ? 'strategic' : 'operational'}</b> side of {pair}.{' '}
-      <b>{ownerOf(neutral, 'l').fn}</b> and <b>{ownerOf(neutral, 'r').fn}</b> are accountable for explaining why {neutral.name} carries no matching position.</div>
-  );
-}
-
 function Agenda({ placements, depthFor, revealOf, toggleReveal, toggleFocus, setHovered }: {
   placements: { t: Tension; p: number; side: PlacedSide }[];
   depthFor: (id: string) => DisclosureDepth;
@@ -436,10 +399,10 @@ function Agenda({ placements, depthFor, revealOf, toggleReveal, toggleFocus, set
     );
   }
   return (
-    <section className="agenda">
-      <h2>Board agenda</h2>
-      <p className="sub">{placements.length} function{placements.length === 1 ? '' : 's'} carried here by the
-        positions you took — each one its own answer, at its own depth.</p>
+      <section className="agenda">
+        <h2>Board agenda</h2>
+        <p className="sub">{placements.length} function{placements.length === 1 ? '' : 's'} carried here by the
+          positions you took.</p>
       <div className="officers">
         {placements.map(({ t, p, side }) => {
           const elId = `officer:${t.id}`;
@@ -454,8 +417,8 @@ function Agenda({ placements, depthFor, revealOf, toggleReveal, toggleFocus, set
               <AnswerPanel elId={elId} recipe={recipe} depth={depth}
                 sideClass={side} reveal={revealOf(elId)}
                 live={{ position: p, pole: poleName(t, side), owner: own.fn }}
-                onExpand={() => toggleFocus(elId)}
-                onToggleReveal={(which) => toggleReveal(elId, which)} />
+                onToggleReveal={(which) => toggleReveal(elId, which)}
+                showAffordances={false} />
             </div>
           );
         })}

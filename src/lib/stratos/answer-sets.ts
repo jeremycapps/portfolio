@@ -13,7 +13,6 @@ import {
 // Representative position for a side; the live value is injected client-side
 // into the displayed trace. Only the sign matters to resolution.
 const repr = (side: PoleSide): number => (side === 'l' ? -0.5 : side === 'r' ? 0.5 : 0);
-const fmt = (n: number): string => (n < 0 ? '−' : '') + Math.abs(n).toFixed(2);
 
 function tensionEvidence(t: Tension) {
   const lensRefs = `${t.lensLeft} ◀ · ▶ ${t.lensRight}`
@@ -35,7 +34,8 @@ function tensionTrace(t: Tension, side: PoleSide) {
 }
 
 /** A placement on one tension. Neutral = an operation with nothing to act on;
- *  a real placement = an actionable operation carrying its owner's mandate. */
+ *  a real placement surfaces the selected pole's recommendation. The owner's
+ *  full mandate is reserved for the board-agenda answer. */
 export function buildTensionAnswerSet(t: Tension, side: PoleSide): AnswerSetV2 {
   const evidence = tensionEvidence(t);
   const trace = tensionTrace(t, side);
@@ -61,10 +61,10 @@ export function buildTensionAnswerSet(t: Tension, side: PoleSide): AnswerSetV2 {
     path: 'meaning', inspection: 'available', actionable: true,
     items: [{
       type: 'Operation',
-      payload: { mandate: own.mandate, growthLens: own.lens },
+      payload: { growthLens: own.lens },
       operation: { id: `stratos.place.${t.id}`, name: `Place position on ${t.name}` },
       input: repr(side), output: poleName(t, side), evidence,
-      fields: { priority: { primary: ['mandate'], secondary: ['growthLens'], supporting: [], audit: [] } },
+      fields: { priority: { primary: ['growthLens'], secondary: [], supporting: [], audit: [] } },
     }],
     operations: [{ id: `stratos.agenda.${t.id}`, label: 'Carried to the board agenda', invocation: 'host-callback', reference: 'agenda.add' }],
     trace,
@@ -84,7 +84,7 @@ export function buildOfficerAnswerSet(t: Tension, side: PlacedSide): AnswerSetV2
       type: 'Value',
       payload: {
         function: own.fn,
-        because: `${t.name} ${fmt(p)} · ${poleName(t, side)}`,
+        because: `${t.name} · ${poleName(t, side)}`,
         mandate: own.mandate,
         questions: own.questions.join(' · '),
       },

@@ -175,8 +175,8 @@ function technologiesAnswerSet(): AnswerSetV2 {
       technologyItem({
         name: 'Python',
         category: 'Language',
-        repo: 'https://github.com/jeremycapps/corus-workbench',
-        sourceRefs: [skillsRef, 'content/profile.md#corus-workbench'],
+        repo: 'https://github.com/jeremycapps/corus',
+        sourceRefs: [skillsRef, 'content/profile.md#domain-corus'],
       }),
       technologyItem({ name: 'C# / .NET', category: 'Language & runtime', sourceRefs: [skillsRef] }),
       technologyItem({ name: 'Java', category: 'Language', sourceRefs: [skillsRef] }),

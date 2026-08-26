@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ChatView } from './chat-view';
+import { validateMarkdownLink } from './markdown-content';
 
 describe('ChatView', () => {
   it('renders every assistant response as safe Markdown inside its chat bubble', () => {
@@ -30,7 +31,7 @@ describe('ChatView', () => {
     expect(html).toContain('Show **literal input**.');
   });
 
-  it('drops raw HTML and makes only HTTPS and mailto links clickable', () => {
+  it('drops raw HTML and makes HTTPS, mailto, and safe portfolio links clickable', () => {
     const html = renderToStaticMarkup(
       <ChatView
         messages={[{
@@ -44,6 +45,7 @@ describe('ChatView', () => {
               '[http](http://example.com)',
               '[script](javascript:alert(2))',
               '[relative](/internal)',
+              '[protocol-relative](//evil.example)',
             ].join('\n\n'),
           },
         }]}
@@ -55,8 +57,10 @@ describe('ChatView', () => {
     expect(html).not.toContain('<script');
     expect(html).toContain('href="https://example.com" target="_blank" rel="noreferrer noopener"');
     expect(html).toContain('href="mailto:hello@example.com"');
-    expect(html.match(/<a /g)).toHaveLength(2);
+    expect(html).toContain('href="/internal"');
+    expect(html.match(/<a /g)).toHaveLength(3);
     expect(html).not.toContain('href="http:');
-    expect(html).not.toContain('href="/internal"');
+    expect(html).not.toContain('href="//evil.example"');
+    expect(validateMarkdownLink('/\\evil.example')).toBeNull();
   });
 });

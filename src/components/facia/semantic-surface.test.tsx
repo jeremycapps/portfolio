@@ -150,10 +150,10 @@ describe('SemanticSurface', () => {
     );
 
     expect(html).toContain('class="semantic-repo-chip"');
-    expect(html).toContain('href="https://github.com/jeremycapps/corus-workbench"');
+    expect(html).toContain('href="https://github.com/jeremycapps/corus"');
     expect(html).toContain('rel="noreferrer noopener"');
     expect(html).toContain('target="_blank"');
-    expect(html).toContain('jeremycapps/corus-workbench');
+    expect(html).toContain('jeremycapps/corus');
   });
 
   it('renders a plain list item with no chip when the item has no repo', () => {
