@@ -23,7 +23,7 @@ import {
   type ClientMessage,
 } from '@/lib/chat';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
-import { EXPLAIN_PROJECT_CHOICES } from '@/lib/projects';
+import { EXPLAIN_PROJECT_CHOICES, PORTFOLIO_PROJECTS } from '@/lib/projects';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
@@ -356,7 +356,9 @@ function Home() {
         <section className="portfolio" aria-labelledby="portfolio-title">
           <div className="portfolio-header">
             <div>
-              <p className="portfolio-kicker">Selected work / 03</p>
+              <p className="portfolio-kicker">
+                Selected work / {String(PORTFOLIO_PROJECTS.length).padStart(2, '0')}
+              </p>
               <h2 className="portfolio-title" id="portfolio-title">What I'm building.</h2>
             </div>
             <button className="portfolio-link" type="button" onClick={() => showToast('Ask the assistant about any of these — it knows the details.')} data-testid="button-view-archive">

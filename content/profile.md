@@ -30,8 +30,9 @@ roughly nine years of experience across engineering, operations, and product.
   engineering are adjacent fits that draw on the same modeling instinct.
 - **What he most wants to do.** Ontology building and mapping — turning ambiguous
   sources into explicit, auditable structure. This is the literal subject of
-  Domain/Corus (Source/Process/Program/Product/Authority, evidence-bound claims),
-  StratOS (paired-tension ontology), and Tempo. It is the work he optimizes for.
+  Libera (an executable runtime for semantic models), Facia (the answer-to-
+  interface contract), and StratOS (paired-tension ontology). It is the work he
+  optimizes for.
 - **Company size & stage.** Works best in small-to-mid and early-stage teams
   where one person spans product, operations, and engineering. He is a 0-to-1 and
   "across the seams" person, not a narrow-lane IC at a large organization —
@@ -100,19 +101,128 @@ that you don't have that detail and offer to connect them with Jeremy directly.
   data.
 ## Selected projects
 
-- **Domain / Corus — AI-assisted context infrastructure (2024–present,
-  independent).** A prototype for preserving workflow state and context across
-  sources, tasks, claims, evidence, handoffs, decisions, permissions, and
-  approval gates — with source manifests, evidence-bound claims,
-  candidate/admitted/rejected states, verification commands, audit logs, and
-  checkpoint-style recovery. The Corus workbench is a Python local-first tool for
-  source ingestion, validation, reconstruction, auditing, and artifact
-  generation; a repository review recorded 227 tests (182 passing, 45
-  intentionally expected failures) covering ledger behavior, reconstruction,
-  malformed fixtures, and product boundaries. Frame as an independent
-  prototype/architecture project — not a deployed or production multi-agent
-  platform. Public protocol repo: github.com/jeremycapps/corus
-- **StratOS / Tempo — strategy tension instrument (2026, independent).** An
+### How these fit together — read this first
+
+Jeremy's independent work is one system, not a set of unrelated side projects.
+The spine, in his own words: **a question maps to a deterministic path, which
+produces a checkable answer, which renders as a deterministic interface.** The
+intent is that the surface looks like an ordinary chat answer while the
+mechanism underneath stays deterministic and auditable.
+
+Facia's ratified design document draws that same boundary as one line, and it is
+the clearest single description of the whole system:
+
+```text
+question → [ Libera: question → query ] → answer → [ Facia: answer → recipe ] → interface
+```
+
+Libera is the left half. Facia is the right half. Three smaller protocols sit
+between them, each answering exactly one question:
+
+| Piece | The question it answers | Build status |
+|---|---|---|
+| **Libera** | Where did state move? (address grammar, runtime, platform) | Runtime built and tested; platform layers designed, not built |
+| **Domain** | What does that motion mean? | Built, as a layer inside Libera |
+| **Timpos** | When and where was it observed? | v1 protocol spec (YAML-first); no implementation yet |
+| **Corus** | Did we get what we said we wanted? | v1 protocol spec; no implementation yet |
+| **Facia** | How does that become something usable? | Shipped as `@facia/core` |
+
+**This portfolio is the live proof of the right half only.** Its structured
+answers are validated and resolved by Facia — the `@facia/core` package running
+this site is the same package published in the Facia repository. Nothing on the
+site is a Libera deployment; Libera's page/package/deployment layers are not
+built yet. Do not claim otherwise.
+
+The throughline Jeremy names for all of it is **accountability** — in his words,
+"we can build faster, but are we approaching what we said we wanted to do or
+moving further away from it." That sentiment is encoded in the system rather
+than just stated about it: Facia's fourth answer role, `convergence`, exists to
+answer "did this move us closer or further?", and Corus exists to evaluate
+whether declared objectives have been satisfied.
+
+### The projects
+
+- **Libera — platform for executable semantic models (2026–present,
+  independent; actively developed).** A page-based platform for composing,
+  sharing, and deploying executable semantic models — "write the model once,
+  share the meaning, deploy the behavior." These are semantic models and
+  ontologies, not machine-learning weights: they describe meaning, structure,
+  rules, roles, states, transitions, evidence, and authority. The product shape
+  is page → package → deployment. A page is a markdown body plus executable
+  metadata declaring what it imports, exports, and verifies; a package is a
+  versioned, forkable collection of pages, schemas, examples, and tests; a
+  deployment is a package running behind an API, MCP server, CLI, or workspace.
+  Jeremy's shorthand for the product is "Notion plus Obsidian plus Vercel for
+  semantic models." What exists today is the deterministic runtime underneath
+  that surface: layered kernel, modelir, address, domain, and strategy, resting
+  on `Value_out = Evaluate(Expression, Props)`, with a layering test enforcing
+  that no module imports from a layer above it. The Address protocol records
+  where state motion happened and under what pressure
+  (`{pressure}/{operation}/{slot}`) without knowing what the motion means;
+  Domain is one protocol compiled onto the runtime (Contract → Result → Verdict
+  → CurrentState → Snapshot). Written in Mojo, 898 test assertions, no
+  dependencies. A repository experiment ("semantic reconstruction cost") tested
+  whether an executable semantic model reduces the cost of reconstructing
+  meaning versus restating a rule in a prompt every run, across five fixtures;
+  the recorded verdict was *continue* — Libera won four of five scored
+  dimensions plus all three of replayability, inspectability, and reduced
+  repeated context. Frame as an independent prototype and architecture project,
+  not a deployed or commercially validated product. Public repo:
+  github.com/jeremycapps/libera
+- **Facia — the answer-to-interface contract (2026–present, independent;
+  shipped).** Facia turns an answer into a UI recipe, deterministically:
+  `answer → shape → pattern → affordances → component recipe`. Every stage is a
+  pure, total function, so the same AnswerSet always resolves to the same
+  recipe. Its input contract, `facia.answer-set/2`, defines four answer roles
+  that form a ladder — **value** (what is known), **verdict** (what has been
+  judged), **operation** (what change is enacted or offered), and
+  **convergence** (whether repeated motion approaches the goal, the only role
+  that judges a history over time rather than a current state). Ten shape
+  outcomes and a fixed pattern table map those roles onto surfaces — a badge, a
+  timeline, an audit trail, a comparison matrix. Disclosure depth
+  (`glance` / `inspect` / `focus` / `audit`) is supplied by the consumer at
+  resolve time, so the same answer can be shown at a glance or opened all the
+  way down to its evidence. The boundary is strict and deliberate: producers
+  supply classified answer data, renderers consume recipe data, and Facia itself
+  never interprets questions, evaluates domain truth, executes operations, or
+  paints pixels — compiling a question into a query is Libera's job, on the far
+  side of the boundary. Shipped as a standalone TypeScript package
+  (`@facia/core`, Node 20+, JSON Schema validation its only runtime dependency,
+  released against a SHA-256 schema pin). **This portfolio runs it** — the copy
+  of `@facia/core` in this repository is the same package published in the Facia
+  repository. Public repo: github.com/jeremycapps/facia
+- **Domain, Timpos, and Corus — the supporting protocols (2026, independent).**
+  Three small, deliberately narrow protocols that connect Libera to Facia. Each
+  is domain-agnostic by design and refuses to do the neighbouring layer's job.
+  - **Domain** binds addresses to meaning: Contract → Result → Verdict →
+    CurrentState → Snapshot. It is *built*, as a compiled protocol inside the
+    Libera runtime rather than a separate repository. It is the layer that says
+    what a state change means, which the kernel deliberately does not know.
+  - **Timpos** ("time position") is a YAML-first protocol for recording
+    source-located state changes at addressable paths — a locator registry
+    binds a source location to time, moments record values at paths, and the
+    recorded history supports replay and diff. It does not interpret meaning,
+    define types, assign ownership, or render anything. **v1 specification;
+    reference implementations are future work.** Public repo:
+    github.com/jeremycapps/timpos
+  - **Corus** is the accountability layer, and the smallest of the three: a
+    protocol for coordinating objective state. A **requirement** declares an
+    anticipated value at a Libera path; an **objective** relates requirements
+    within a program and carries completion criteria. Satisfaction is *derived*,
+    never authored — requirements are satisfied or waiting, objectives are
+    waiting, ready-for-completion, or complete. Corus is what answers "did we
+    get what we said we wanted?" **v1 specification; no implementation yet.**
+    Public repo: github.com/jeremycapps/corus
+  - **Important correction for the assistant.** There are two things named
+    Corus. An earlier 2026 prototype — a Python context-orchestration kernel and
+    workbench built around contracts, moments, and artifacts, alongside sibling
+    projects then spelled "Timpos" and "Fasia" — is **superseded and dormant**,
+    and is not on GitHub. The public `corus` repository is the current, much
+    smaller objective-satisfaction protocol described above. When asked about
+    Corus, describe the current protocol. Do not describe it as a Python
+    workbench, do not cite test counts from the old prototype, and do not
+    present it as a large system.
+- **StratOS — strategy tension instrument (2026, independent).** An
   active 0-to-1 prototype for making strategic tradeoffs explicit across six
   paired tensions. A user declares a direction on each axis; the instrument
   resolves that direction into a pole-specific recommendation and compiles the
@@ -127,30 +237,38 @@ that you don't have that detail and offer to connect them with Jeremy directly.
   structured logic sources applied to organizational profiles via explicit
   protocols, triggers, interrogation questions, weighted attributes, and
   validation references. It separated source, subject profile, protocol,
-  program instance, output, and validator — an architecture that became a
-  precursor to Domain's Source/Process/Program/Product/Authority separation. An
-  exploratory prototype; its heuristic weights are not validated business
-  measures.
+  program instance, output, and validator — the separation-of-layers instinct
+  that Libera's runtime later formalized as kernel, modelir, address, domain,
+  and strategy. Superseded and no longer developed; an exploratory prototype
+  whose heuristic weights are not validated business measures.
 
 ## Signature work — proudest project and hardest problem
 
-- **Most proud of: Domain / Corus.** Working independently, Jeremy designed the
-  whole ontology and evidence layer from zero — the Source/Process/Program/
-  Product/Authority separation, candidate/admitted/rejected claim states,
-  source manifests, evidence-bound claims, verification commands, audit logs, and
-  checkpoint-style recovery — and built the Corus workbench that ingests,
-  validates, reconstructs, and audits it (a repository review recorded 227 tests:
-  182 passing, 45 intentionally expected failures). It's the clearest expression
-  of his throughline. Frame it as an independent prototype and architecture
-  project, not a deployed or validated product.
-- **Hardest technical problem: context reconstruction with integrity.**
-  Representing scattered workflow state so it can be reconstructed and audited
-  across sources without losing provenance — every claim bound to evidence, gated
-  through candidate → admitted → rejected, and recoverable from checkpoints. The
-  hard part was modeling truth and uncertainty explicitly instead of flattening
-  them into a single "current state." An earlier-career runner-up: at Genesco,
-  translating embedded business logic out of legacy COBOL into Java-based
-  workflows without disrupting operational continuity.
+- **Most proud of: Libera.** Working independently, Jeremy designed and built an
+  entire deterministic runtime and its ontology from zero — the kernel reduced
+  to `Value_out = Evaluate(Expression, Props)`, the layered separation of
+  kernel, modelir, address, domain, and strategy, the Address protocol that
+  records state motion without naming what it means, and the Domain protocol
+  compiled onto it as Contract → Result → Verdict → CurrentState → Snapshot. It
+  carries 898 test assertions, a layering test that mechanically enforces its
+  own architecture, and a recorded experiment that put the core premise to the
+  test rather than asserting it. It is the clearest expression of his
+  throughline, and it absorbed the ontology and evidence work he had started in
+  the earlier Corus prototype. Frame it as an independent prototype and
+  architecture project, not a deployed or commercially validated product.
+- **Hardest technical problem: keeping meaning out of the machinery.** The
+  central difficulty across Libera and Facia is drawing boundaries that hold
+  under pressure — building a kernel that executes state motion while knowing
+  nothing about what a contract or a verdict *means*, so that meaning stays
+  replaceable and the runtime stays generic. The temptation is always to let a
+  useful domain type leak downward into the layer beneath it. An earlier
+  version of the Address protocol did exactly that, naming twelve workflow types
+  like `task` and `decision`; removing them is what `archive/v1/` records, and
+  the layering test now fails the build if a module imports from a layer above
+  it. The same cut appears in Facia, which refuses to interpret questions or
+  evaluate truth even though it holds the answer. An earlier-career runner-up:
+  at Genesco, translating embedded business logic out of legacy COBOL into
+  Java-based workflows without disrupting operational continuity.
 
 ## Influence beyond his own team
 
@@ -209,9 +327,13 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
   what you can help with.
 - **Never overclaim.** Do not upgrade "contributed to" into "built/led." Do not
   frame Jeremy as a formal people-manager (his leadership is project/contributor
-  leadership). Don't present the prototypes (Domain/Corus, StratOS, Tempo) as
-  deployed or validated products. Use the $135K company revenue figure, never a
-  higher one.
+  leadership). Don't present the prototypes (Libera, Facia, StratOS, and the
+  Timpos/Corus protocols) as deployed or commercially validated products, and
+  keep each one's build status straight: Libera's runtime and Facia's package
+  are built and tested, while Libera's page/package/deployment layers, Timpos,
+  and Corus are specifications without implementations. Facia running this
+  portfolio is a real, checkable claim; a Libera deployment is not. Use the
+  $135K company revenue figure, never a higher one.
 - **When you don't know:** say so plainly and offer to connect them with Jeremy
   directly, rather than inventing details.
 

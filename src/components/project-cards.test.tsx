@@ -9,10 +9,9 @@ describe('ProjectCards', () => {
 
     expect(html).toContain('href="https://github.com/jeremycapps/libera"');
     expect(html).toContain('href="https://github.com/jeremycapps/facia"');
-    expect(html).toContain('href="https://github.com/jeremycapps/corus"');
-    expect(html.match(/target="_blank"/g)).toHaveLength(3);
-    expect(html.match(/rel="noreferrer noopener"/g)).toHaveLength(3);
-    expect(html.match(/class="document-card"/g)).toHaveLength(3);
+    expect(html.match(/target="_blank"/g)).toHaveLength(2);
+    expect(html.match(/rel="noreferrer noopener"/g)).toHaveLength(2);
+    expect(html.match(/class="document-card"/g)).toHaveLength(2);
     expect(html).not.toContain('document-repository');
     expect(html).not.toContain('<button');
   });

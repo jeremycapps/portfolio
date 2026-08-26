@@ -1,7 +1,7 @@
 import type { MessageChoice } from './chat';
 
 export interface PortfolioProject {
-  id: 'libera' | 'facia' | 'domain-corus';
+  id: 'libera' | 'facia';
   name: string;
   category: string;
   description: string;
@@ -14,33 +14,26 @@ const projectPrompt = (project: string) =>
 export const EXPLAIN_PROJECT_CHOICES: MessageChoice[] = [
   { label: 'Libera', prompt: projectPrompt('Libera') },
   { label: 'Facia', prompt: projectPrompt('Facia') },
-  { label: 'Domain & Corus', prompt: projectPrompt('Domain & Corus') },
   { label: 'StratOS', prompt: projectPrompt('StratOS') },
 ];
 
+// The two substantial builds. Domain, Timpos, and Corus are the supporting
+// protocols between them — explained by the assistant, not surfaced as cards.
 export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
   {
     id: 'libera',
     name: 'Libera',
     category: 'Semantic runtime',
     description:
-      'A page-based platform for composing and deploying executable semantic models — Notion + Obsidian + Vercel for meaning.',
+      'Where a question becomes a deterministic path. A page-based platform for executable semantic models, on a runtime whose kernel executes state motion without knowing what that motion means.',
     repositoryUrl: 'https://github.com/jeremycapps/libera',
   },
   {
     id: 'facia',
     name: 'Facia',
-    category: 'Interface runtime',
+    category: 'Interface contract',
     description:
-      'The question-to-interface contract: it turns an answered model into a rendered surface — and powers the structured answers on this very page.',
+      'Where an answered model becomes a surface. It turns a validated answer into a renderer-neutral component recipe — and it renders the structured answers on this page.',
     repositoryUrl: 'https://github.com/jeremycapps/facia',
-  },
-  {
-    id: 'domain-corus',
-    name: 'Domain & Corus',
-    category: 'Context infrastructure',
-    description:
-      'Source-bound, replayable context for agentic workflows: evidence, verdicts, and an audit trail that can rebuild settled state.',
-    repositoryUrl: 'https://github.com/jeremycapps/corus',
   },
 ] as const;
