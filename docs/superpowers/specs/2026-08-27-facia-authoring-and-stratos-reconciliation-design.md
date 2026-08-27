@@ -1,7 +1,7 @@
 # Facia authoring surface and StratOS reconciliation — design
 
 - Date: 2026-08-27
-- Status: proposed
+- Status: approved; implementation plan at `docs/superpowers/plans/2026-08-27-facia-authoring-and-stratos-reconciliation.md`
 - Scope: `~/Dev/facia` (upstream), `packages/facia-core` (vendored), `src/lib/stratos/`, `src/pages/stratos.tsx`
 - Out of scope: the Facia UI layer (see "Deferred" below)
 
@@ -78,9 +78,19 @@ nothing.
 
 ### Location and shape
 
-A new `src/authoring.ts` in `~/Dev/facia`, re-exported from `src/index.ts`.
-`packages/facia-core/scripts/build.mjs` is a plain `tsc -p tsconfig.json` over
+A new `src/authoring.ts` in `~/Dev/facia/packages/facia-core` (upstream is a
+monorepo whose package sits at the same path as the vendored copy), re-exported
+from `src/index.ts`. `scripts/build.mjs` is a plain `tsc -p tsconfig.json` over
 `src/`, so no entry list needs updating.
+
+It is also published on its own `@facia/core/authoring` subpath. `authoring.ts`
+imports types only, so that subpath pulls in neither the resolver nor AJV. This
+matters because `src/lib/stratos/answer-sets.ts` documents a guarantee that it
+"never pulls the Facia runtime (or its ajv validator) into any bundle" — today
+that holds only because nothing in the browser graph happens to import it. Using
+a types-only subpath makes the guarantee structural rather than incidental.
+`src/lib/answer.ts` already imports `@facia/core/schema-pin` the same way, so
+the resolution path is proven.
 
 ### API
 
@@ -158,14 +168,31 @@ module is a new artifact class. Add one paragraph declaring authoring helpers
 non-normative constructors over the normative types, so a later reader does not
 mistake them for contract surface.
 
-### Re-vendoring
+### Re-vendoring — the vendored package is a fork
 
-Vendoring is manual — there is no vendor script. The steps are: commit upstream
-in `~/Dev/facia`, copy `src/` and `schemas/` into `packages/facia-core/`, update
-the commit SHA in `packages/facia-core/UPSTREAM.md`, and document the new
-exports in `packages/facia-core/README.md` under "Public API".
+Vendoring is manual, and `UPSTREAM.md` is misleading about it. It states the
+package "was imported from ... at commit `9074a67`" and mentions no local
+changes, but diffing the two trees shows the portfolio has added a
+precompiled-AJV pipeline that upstream does not have:
 
-Writing a vendor script is a reasonable follow-up but is not in this scope.
+| Path | State |
+|---|---|
+| `src/answer-set-validator.generated.ts` | portfolio only |
+| `src/validate-answer-set.ts` | differs — imports the generated validator rather than compiling AJV at runtime |
+| `scripts/schema-pin.mjs` | differs — also emits the generated validator |
+| `test/schema-pin-conformance.test.ts` | differs |
+| `package.json` | differs — adds the `./schema-pin` export and a `pretest` hook |
+
+Everything else is identical. **Re-vendoring must therefore never be a directory
+copy** — copying `src/` over would delete the generated validator and revert
+`validate-answer-set.ts`. The sync is: copy the two genuinely new files
+(`src/authoring.ts`, `test/authoring.test.ts`), hand-apply the same edits to
+`index.ts`, `package.json`, the contract doc, and the README, and leave the five
+diverged files untouched.
+
+`UPSTREAM.md` is corrected as part of this work to record the fork, so the next
+person is not misled into a destructive copy. Writing a vendor script that
+understands the fork is a reasonable follow-up but is not in this scope.
 
 ## Section 2 — Re-authoring StratOS
 
@@ -175,7 +202,7 @@ and are verified together.
 
 | # | File | Change |
 |---|---|---|
-| 1 | `src/lib/stratos/answer-sets.ts` | `tensionTrace()` drops the `position.declared` entry and keeps `pole.resolved` and `owner.resolved`. Both traces are built with `directTrace()` |
+| 1 | `src/lib/stratos/answer-sets.ts` | `tensionTrace()` drops the `position.declared` entry and keeps `pole.resolved` and `owner.resolved`. Both traces are built with `directTrace()`. The officer trace drops its `position.declared` entry on the same grounds |
 | 2 | `src/pages/stratos.tsx` | `traceValue()` and the `live` prop are deleted. `live` has no other consumer — it is read only by `traceValue` — so both call sites (`TensionRow` and `Agenda`) drop it. The live position stays on the knob, where it already is |
 | 3 | `src/lib/stratos/answer-sets.ts` | Placed-tension payload becomes `{ pole, growthLens }` with `priority({ primary: ['pole'], secondary: ['growthLens'] })`. `output` keeps the pole as legitimate operation output; it is simply no longer its only home |
 | 4 | `src/pages/stratos.tsx` | The `label !== 'Carried to the board agenda'` filter is deleted. The agenda action renders as a live control that calls `toggleFocus('officer:<tension id>')` and scrolls that officer's panel into view. Both hooks already exist: `Agenda` builds its panels with `elId = 'officer:' + t.id` and `AnswerPanel` stamps it as `data-el`, so the target is `[data-el="officer:<id>"]` and focusing it lifts that card to `focus` depth |
