@@ -59,3 +59,17 @@ export type {
   ManifestAuditError,
   ManifestAuditErrorCode,
 } from "./presentation-manifests.js";
+export {
+  FaciaAuthoringError,
+  convergenceAnswerSet,
+  directTrace,
+  fields,
+  historyTrace,
+  nonEmpty,
+  operationAnswerSet,
+  priority,
+  promotionRule,
+  valueAnswerSet,
+  verdictAnswerSet,
+} from "./authoring.js";
+export type { AnswerSetInput } from "./authoring.js";

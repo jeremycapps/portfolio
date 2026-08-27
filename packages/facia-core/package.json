@@ -17,6 +17,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./authoring": {
+      "types": "./dist/authoring.d.ts",
+      "import": "./dist/authoring.js"
+    },
     "./schema-pin": {
       "types": "./dist/schema-pin.generated.d.ts",
       "import": "./dist/schema-pin.generated.js"

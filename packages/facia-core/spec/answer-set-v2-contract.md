@@ -11,6 +11,14 @@ Those artifacts may refine types or diagnostics, but may not add fields, accept
 aliases, or choose behavior not stated here. In a conflict, this document and
 the canonical schema must be reconciled before implementation continues.
 
+Authoring constructors (`src/authoring.ts`, published as
+`@facia/core/authoring`) are explicitly **not** normative contract surface. They
+are producer-side convenience constructors over the normative types above: they
+add no members, accept no aliases, and check nothing beyond the cardinality
+rules the tuple types already encode. Every semantic invariant remains owned by
+`validateAnswerSet` as specified below. A change to a constructor is not a
+contract change and does not move the schema pin.
+
 ## Canonical schema identity and pin
 
 - Schema identifier: `facia.answer-set/2`

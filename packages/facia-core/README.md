@@ -88,6 +88,12 @@ The package entry point exports:
 - normative shape, pattern, inspection, and component manifests plus audits
 - the reviewed v2 TypeScript types
 - the schema identity, package path, and SHA-256 pin constants
+- authoring constructors on the `@facia/core/authoring` subpath —
+  `valueAnswerSet`, `verdictAnswerSet`, `operationAnswerSet`,
+  `convergenceAnswerSet`, `directTrace`, `historyTrace`, `fields`, `priority`,
+  `promotionRule`, `nonEmpty`, and `FaciaAuthoringError`. They construct the
+  normative types and are not contract surface; the subpath imports types only,
+  so it pulls in neither the resolver nor AJV.
 
 Every shape, pattern, and inspection decision carries a stable reason code and
 explanation. Actions contain operation descriptors exactly as supplied and in
