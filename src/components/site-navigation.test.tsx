@@ -11,7 +11,7 @@ describe('SiteNavigation', () => {
     expect(brand).toContain('link-brand');
   });
 
-  it('omits the placeholder Journal action from desktop and mobile navigation', () => {
+  it('links to StratOS and the blog from desktop and mobile navigation', () => {
     const desktop = renderToStaticMarkup(
       <SiteNavigation menuOpen={false} onMenuToggle={() => undefined} onNotice={() => undefined} />,
     );
@@ -25,5 +25,9 @@ describe('SiteNavigation', () => {
     expect(desktop).toContain('link-stratos');
     expect(mobile).toContain('href="/stratos"');
     expect(mobile).toContain('link-mobile-stratos');
+    expect(desktop).toContain('href="/blog"');
+    expect(desktop).toContain('link-blog');
+    expect(mobile).toContain('href="/blog"');
+    expect(mobile).toContain('link-mobile-blog');
   });
 });

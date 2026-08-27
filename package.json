@@ -8,11 +8,12 @@
   ],
   "scripts": {
     "gen:profile": "node scripts/gen-profile.mjs",
+    "gen:blog": "node scripts/gen-blog.mjs",
     "gen:stratos": "node --import tsx scripts/gen-stratos-recipes.ts",
     "build:facia": "npm run build --workspace packages/facia-core",
-    "predev": "npm run gen:profile && npm run build:facia && npm run gen:stratos",
+    "predev": "npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos",
     "dev": "vite",
-    "prebuild": "npm run gen:profile && npm run build:facia && npm run gen:stratos",
+    "prebuild": "npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos",
     "build": "vite build",
     "preview": "vite preview",
     "pretypecheck": "npm run build:facia",
@@ -96,6 +97,7 @@
     "@facia/core": "0.1.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   }
 }

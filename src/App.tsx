@@ -393,6 +393,8 @@ function ArrowUpIcon() {
 // Lazy-loaded so the StratOS instrument (and its recipe map) ships in its own
 // chunk, never in the homepage bundle.
 const StratosPage = lazy(() => import('@/pages/stratos'));
+const BlogPage = lazy(() => import('@/pages/blog'));
+const BlogPostPage = lazy(() => import('@/pages/blog-post'));
 
 function Router() {
   return (
@@ -401,6 +403,12 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/stratos">
           {() => <Suspense fallback={null}><StratosPage /></Suspense>}
+        </Route>
+        <Route path="/blog">
+          {() => <Suspense fallback={null}><BlogPage /></Suspense>}
+        </Route>
+        <Route path="/blog/:slug">
+          {(params) => <Suspense fallback={null}><BlogPostPage slug={params.slug} /></Suspense>}
         </Route>
         <Route component={NotFound} />
       </Switch>
