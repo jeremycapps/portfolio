@@ -10,8 +10,8 @@ copies have started to drift. Four stylesheets independently re-solve the same
 four UI patterns, landing on nearly identical numbers each time — which is the
 strongest possible evidence that the patterns are real and should exist once.
 
-Roughly 60 lines of CSS can be deleted with no visual change beyond two alpha
-values converging.
+The win is that 21 copy-pasted values become three tokens that can only drift
+once. Net line count barely moves — this is substitution, not deletion.
 
 ## What was measured
 
@@ -73,8 +73,10 @@ Same radius, same two colours, two independently drifted alphas.
 
 `.stratos .aff` is declared twice in `stratos.css` — at line 511 with
 `border-radius: 999px`, and again at line 565 with `border-radius: 8px`. There
-is no media query between them, so the first radius never applies. It is dead
-CSS, and it is why the pill count above says two for StratOS when only one is live.
+is no media query between them, so the first rule's `border-radius` never
+applies. Only that one declaration is dead — the rule's other eight properties
+are live, so the pair needs merging rather than deleting. It is also why the
+pill count above says two for StratOS when only one is real.
 
 ## Proposal
 
@@ -86,7 +88,10 @@ Tight scope. Three changes, no new vocabulary, no new dependencies.
    already driving the app shell rather than inventing a second one. The
    `0.055`/`0.06` shadow drift resolves to one value; the difference is not
    perceptible.
-2. **One shared surface class** replacing the six card rule bodies.
+2. **No shared surface class.** The four cards share a radius and a shadow but
+   their backgrounds genuinely differ (`0.44 / 0.58 / 0.68 / 0.8`) — that is
+   deliberate translucency per surface, not drift. Tokenize what is shared and
+   leave the rest alone.
 3. **Pills and control chips get the tokens, not a shared class.** They vary
    too much in padding, type, and colour to share a rule body, but none of them
    should hardcode `999px` or a one-off grey again.
@@ -110,9 +115,11 @@ This is the part worth pausing on.
 
 Facia's `ComponentRecipe` carries a `components` array of semantic ids —
 `Card`, `StateBadge`, `EvidenceDisclosure`, `InspectionToolbar`, `Stat`,
-`DetailView`, and twenty more. **Nothing in the codebase reads that field.**
-`AnswerPanel` in `stratos.tsx` ignores it entirely; `SemanticSurface` honours
-three of the twenty-one manifest rows.
+`DetailView`, and twenty more. **Nothing renders from that field.** `AnswerPanel`
+in `stratos.tsx` ignores it entirely. `SemanticSurface` does read it, but only as
+a capability check — `componentIds.has('List')`, `has('Timeline')`,
+`has('InspectionToolbar')` — so it branches on three of the twenty-five ids and
+maps none of them to a component.
 
 Now line the duplication clusters up against those ids:
 
@@ -154,3 +161,27 @@ them. That question does not need answering to delete duplicated CSS.
 The useful order is therefore: consolidate first, decide about `recipe.components`
 after. Doing it the other way round would mean building a renderer against four
 stylesheets that disagree with each other by an alpha value.
+
+
+---
+
+## Postscript — what implementation changed
+
+Written after the consolidation landed (`933e3ec`), correcting this document
+against what the code turned out to be.
+
+- **The shared surface class was dropped.** See the corrected item 2 above: the
+  four card backgrounds differ on purpose.
+- **A `--panel-radius` token was dropped too.** The eight `9px` sites are a form
+  field, a submit button, and a disclosure panel that happen to agree on a
+  number. Tokenizing them would assert a shared concept that is not there.
+- **The control-chip colours were left alone.** `.stratos .aff` and
+  `.semantic-affordance-row button` drifted on two alphas, but StratOS's border
+  comes from `--st-rule`, which is used 77 times for unrelated things. Merging
+  the chips would have moved all of them.
+- **Verification note.** The first browser check was invalid: a dev server was
+  running from `worktrees/silent-comet-20260827`, so both the before and after
+  measurements read files that were never edited. The check that actually worked
+  was textual — expand each token back to its literal value and diff against
+  `HEAD`. `blog.css` and `about.css` came out byte-identical. Prefer that check;
+  it cannot be fooled by a stale server.
