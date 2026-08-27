@@ -14,8 +14,8 @@ describe('SiteHeader', () => {
     expect(markup).toContain('link-mobile-portfolio');
     expect(markup).toContain('link-mobile-stratos');
     expect(markup).toContain('link-mobile-blog');
-    expect(markup).toContain('button-about');
-    expect(markup).toContain('button-mobile-about');
+    expect(markup).toContain('link-about');
+    expect(markup).toContain('link-mobile-about');
   });
 
   it('marks only the current section in both navigation variants', () => {

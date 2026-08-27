@@ -384,12 +384,16 @@ function ArrowUpIcon() {
 const StratosPage = lazy(() => import('@/pages/stratos'));
 const BlogPage = lazy(() => import('@/pages/blog'));
 const BlogPostPage = lazy(() => import('@/pages/blog-post'));
+const AboutPage = lazy(() => import('@/pages/about'));
 
 function Router() {
   return (
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/about">
+          {() => <Suspense fallback={null}><AboutPage /></Suspense>}
+        </Route>
         <Route path="/stratos">
           {() => <Suspense fallback={null}><StratosPage /></Suspense>}
         </Route>

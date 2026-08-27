@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Menu, Sparkles, X } from 'lucide-react';
 
-export type SiteSection = 'portfolio' | 'stratos' | 'blog';
+export type SiteSection = 'portfolio' | 'stratos' | 'blog' | 'about';
 
 interface SiteHeaderProps {
   current?: SiteSection;
   onNotice?: (message: string) => void;
 }
 
-const ABOUT_NOTICE = 'A quieter way to work with your context.';
 const PROFILE_NOTICE = "This is Jeremy's portfolio — ask the assistant about his work.";
 
 export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
@@ -43,9 +42,7 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
           <a className="nav-link" href="/" data-testid="link-portfolio" {...currentPage('portfolio')}>Portfolio</a>
           <a className="nav-link" href="/stratos" data-testid="link-stratos" {...currentPage('stratos')}>StratOS</a>
           <a className="nav-link" href="/blog" data-testid="link-blog" {...currentPage('blog')}>Blog</a>
-          <button className="nav-link" type="button" onClick={() => showNotice(ABOUT_NOTICE)} data-testid="button-about">
-            About
-          </button>
+          <a className="nav-link" href="/about" data-testid="link-about" {...currentPage('about')}>About</a>
           <button className="avatar-button" type="button" onClick={() => showNotice(PROFILE_NOTICE)} aria-label="Open profile" data-testid="button-profile">
             JC
           </button>
@@ -74,7 +71,7 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
         <a href="/" data-testid="link-mobile-portfolio" {...currentPage('portfolio')}>Portfolio</a>
         <a href="/stratos" data-testid="link-mobile-stratos" {...currentPage('stratos')}>StratOS</a>
         <a href="/blog" data-testid="link-mobile-blog" {...currentPage('blog')}>Blog</a>
-        <button type="button" onClick={() => showNotice(ABOUT_NOTICE)} data-testid="button-mobile-about">About</button>
+        <a href="/about" data-testid="link-mobile-about" {...currentPage('about')}>About</a>
         <button type="button" onClick={() => showNotice(PROFILE_NOTICE)} data-testid="button-mobile-profile">Profile</button>
       </nav>
 
