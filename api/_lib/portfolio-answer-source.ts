@@ -1,5 +1,6 @@
 import type { AnswerSetV2, FieldInfoV2 } from '@facia/core';
 import { adaptModelAnswer, ModelAnswerContractError } from './model-answer';
+import { supportsTensionQuestion, tensionAnswerSet } from './tension-answer-source';
 import {
   generateStructuredPortfolioAnswer,
   type StructuredProvider,
@@ -323,10 +324,14 @@ export function careerHistoryAnswerSet(): AnswerSetV2 {
 
 interface QuestionMatcher {
   supports: (question: string) => boolean;
-  build: () => AnswerSetV2;
+  build: (question: string) => AnswerSetV2;
 }
 
 const MATCHERS: QuestionMatcher[] = [
+  // A two-pole question is a bounded verdict and must be recognised before the
+  // career keyword matcher, which would otherwise claim it on "experience",
+  // "roles", or "worked" and answer it with a timeline.
+  { supports: supportsTensionQuestion, build: (q) => tensionAnswerSet(q)! },
   { supports: supportsPortfolioQuestion, build: zocdocAnswerSet },
   { supports: supportsTechnologiesQuestion, build: technologiesAnswerSet },
   { supports: supportsCareerQuestion, build: careerHistoryAnswerSet },
@@ -334,13 +339,17 @@ const MATCHERS: QuestionMatcher[] = [
 
 export function answerPortfolioQuestion(question: string): AnswerSetV2 | null {
   const match = MATCHERS.find((matcher) => matcher.supports(question));
-  return match ? match.build() : null;
+  return match ? match.build(question) : null;
 }
 
 export async function generatePortfolioAnswer(
   question: string,
   provider: StructuredProvider = generateStructuredPortfolioAnswer,
 ): Promise<AnswerSetV2> {
+  // Role before keyword. A two-pole question opens a two-place answer space and
+  // picks one — a bounded verdict, answered from the tension index. Without
+  // this the career matcher claims it and returns the career timeline.
+  if (supportsTensionQuestion(question)) return tensionAnswerSet(question)!;
   // The career spine is a temporal sequence; the model adapter only emits
   // singular values, so this answer is authored deterministically and never
   // routed through the provider.

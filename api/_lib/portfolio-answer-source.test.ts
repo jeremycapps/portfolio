@@ -1,4 +1,5 @@
 import { resolveAnswerSet } from '@facia/core';
+import { verdictTensions } from './tension-answer-source';
 import { describe, expect, it } from 'vitest';
 import { ModelAnswerContractError } from './model-answer';
 import {
@@ -150,5 +151,37 @@ describe('technologies answer source', () => {
       .flatMap((item) => item.fields)
       .some((field) => field.key === 'repo');
     expect(hasRepoAtGlance).toBe(true);
+  });
+});
+
+describe('two-pole questions route by role, not by keyword', () => {
+  it('no longer answers a two-pole question with the career timeline', async () => {
+    const misrouted: string[] = [];
+    for (const t of verdictTensions()) {
+      const answer = await generatePortfolioAnswer(t.question, async () => {
+        throw new Error('the provider must not be reached for a tension question');
+      });
+      if (answer.question !== t.question) misrouted.push(`${t.id} → "${answer.question}"`);
+    }
+    expect(misrouted).toEqual([]);
+  });
+
+  it('answers them as verdicts rather than values', async () => {
+    const roles = new Set<string>();
+    for (const t of verdictTensions()) {
+      const answer = await generatePortfolioAnswer(t.question, async () => {
+        throw new Error('unreachable');
+      });
+      roles.add(answer.answerType);
+    }
+    expect([...roles]).toEqual(['verdict']);
+  });
+
+  it('still routes a genuine career question to the career spine', async () => {
+    const answer = await generatePortfolioAnswer("What is Jeremy's career history?", async () => {
+      throw new Error('unreachable');
+    });
+    expect(answer.answerType).toBe('value');
+    expect(answer.structure).toBe('sequence');
   });
 });
