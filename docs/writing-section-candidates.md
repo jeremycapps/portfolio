@@ -5,6 +5,8 @@ Survey date: 2026-08-26. Sources searched:
 - `~/Downloads/AI Chat History/Drive` (112 files) — the Google Drive export
 - `~/Downloads/AI Chat History/claude/conversations.json` (228 conversations)
 - `~/Downloads/AI Chat History/GeminiChatHistory.html` (31 MB)
+- `~/Downloads/AI Chat History/ChatGPT` (151 conversations, 264 canvas documents) —
+  added 2026-08-26; see Appendix C
 - `~/Downloads` (loose PDFs referenced by the Gemini export but absent from Drive)
 - All repos under `~/Dev` (`facia`, `libera`, `timpos`, `cord-mcp`, `domain-v1`,
   `domain.os`, `domain-sketch.ai`, `jeremy.domain.ai`, …)
@@ -533,3 +535,61 @@ next to the email, not just an attachment.
 - **Dates and status.** Several carry honest status lines ("draft", "working model",
   "epoch unresolved"). Keeping those is consistent with the never-overclaim rule in
   `profile.md` — worth surfacing as post metadata rather than hiding.
+
+---
+
+# Appendix C: The ChatGPT export (added 2026-08-26)
+
+151 conversations, 264 distinct canvas documents (`:::writing{variant="document"}`
+blocks). This is where most of the Domain / Corus / Facia / Timpos writing was actually
+authored. It changes the survey in three ways — none of which adds a new front-page
+whitepaper, and one of which complicates an existing decision.
+
+## 1. The Domain flagship version conflict is three-way, not two
+
+The Tier 1.1 note flagged two July-13 revisions. The ChatGPT canvas holds a **third**,
+also July 2026, in the "Domain: Domain (product)" / "Domain: Domain (architecture)"
+conversations (canvas `52dcb8d3`, 32.8 KB):
+
+| Source | Subtitle | Abstract's third sentence |
+|---|---|---|
+| Drive `domain-white-paper.md` (Jul 13, 13:48) | A Local-First **Program Cloud** for Proprietary Organizational **Services** | proprietary organizational **programs** available on demand |
+| `~/Downloads/domain-white-paper (1).md` (Jul 13, 15:52) | A Local-First **Program Runtime** for Generating Proprietary **Products** | company-specific **products** generated from company-specific programs |
+| ChatGPT canvas `52dcb8d3` (Jul 13) | A Local-First **Application Cloud** for Proprietary Organizational **Services** | proprietary organizational **services** available on demand |
+
+The paper was being revised live in ChatGPT canvas on July 13; the three variants trade
+**Program / Application / Runtime** against **Cloud / Runtime** and **Services /
+Products / Programs**. This does not change the recommendation (still the flagship), but
+open decision #1 in the spec — "which revision is canonical" — is now a **three-way**
+choice, and the honest answer may be that none of the three is final. Pick the framing
+deliberately before publishing.
+
+## 2. Provenance, not new artifacts
+
+The ChatGPT canvas is the origin of several pieces already in the survey — it confirms
+authorship rather than adding candidates:
+
+- **Corus Origin Domain** (canvas `1a8cab40`, May 28) — the source of
+  `~/Downloads/Corus Origin Domain.pdf` (Tier 2 #7).
+- **TIMPOS** architecture docs (canvases `9db864c2`, `2b541dca`, `5dcd9499`, May 28) —
+  the origin of the TIMPOS whitepaper lineage. **Still held out** (Appendix B): patent
+  overlap and the three-referent naming collision are unchanged by this source.
+- **Organizational Acceleration** (7/30) — an outline that became the Second-Order
+  Convergence paper (Tier 1 #2); it names its two source Google Docs.
+- **Human-Led Automation** (8/3) — the naming/positioning conversation behind the
+  Drive doc (Tier 2 #6). Confirms the title and framing; not a separate artifact.
+
+## 3. New *supporting* material (not whitepapers)
+
+A body of market/positioning writing exists here that could inform the site's framing or
+a future essay, but is not launch-set blog material:
+
+- **StratOS v5 C-Suite Micro-Report Series** (canvas `3268fe17`, 40 KB, 7/26) — the
+  largest single canvas doc; benchmark/market analysis around StratOS.
+- **Competitive Positioning Analysis** (8/23), **Corus: Market Research** (7/8),
+  **FDE Tooling Market Analysis** (8/8) — market scans, useful as background for how the
+  work is described, not as posts.
+
+**Net effect on the blog spec:** none structurally. The launch set stands; open
+decision #1 widens from two candidates to three. Everything TIMPOS/UTID-related remains
+excluded for the same reasons.
