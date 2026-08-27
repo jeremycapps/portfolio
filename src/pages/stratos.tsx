@@ -27,12 +27,11 @@ interface PanelProps {
   depth: DisclosureDepth;
   sideClass: '' | 'l' | 'r';
   reveal: { evidence: boolean; trace: boolean };
-  live?: { position: number; pole: string; owner: string };
   onToggleReveal: (which: 'evidence' | 'trace') => void;
   showAffordances?: boolean;
 }
 
-function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onToggleReveal,
+export function AnswerPanel({ elId, recipe, depth, sideClass, reveal, onToggleReveal,
   showAffordances = true }: PanelProps) {
   const fields = recipe.visibleFields[0]?.fields ?? [];
   const controls = recipe.inspectionControls.filter((control) =>
@@ -44,13 +43,6 @@ function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onToggleRev
 
   const evidence = recipe.answer.items[0]?.evidence as { status?: string; sourceRefs?: string[] } | undefined;
   const trace = recipe.answer.trace as { id: string; entries: { step: string; value: unknown }[] } | undefined;
-  const traceValue = (step: string, value: unknown): string => {
-    if (!live) return String(value);
-    if (step === 'position.declared') return fmt(live.position);
-    if (step === 'pole.resolved') return live.pole;
-    if (step === 'owner.resolved') return live.owner;
-    return String(value);
-  };
 
   return (
     <div
@@ -68,9 +60,9 @@ function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onToggleRev
             <div key={f.key} className="fld" data-p={f.effectivePriority} data-k={f.key}>
               <dt>{f.key.replace(/([A-Z])/g, ' $1')}</dt>
               <dd>
-                {f.key === 'questions' ? (
+                {Array.isArray(f.value) ? (
                   <ul className="qs">
-                    {String(f.value).split(' · ').map((q, i) => <li key={i}>{q}</li>)}
+                    {f.value.map((q, i) => <li key={i}>{String(q)}</li>)}
                   </ul>
                 ) : String(f.value)}
               </dd>
@@ -105,7 +97,7 @@ function AnswerPanel({ elId, recipe, depth, sideClass, reveal, live, onToggleRev
       {hasTrace && reveal.trace && trace && (
         <p className="reveal"><b>trace</b> {trace.id}<br />
           {trace.entries.map((e, i) => (
-            <span key={i}>{e.step} = {traceValue(e.step, e.value)}{i < trace.entries.length - 1 ? <br /> : null}</span>
+            <span key={i}>{e.step} = {String(e.value)}{i < trace.entries.length - 1 ? <br /> : null}</span>
           ))}</p>
       )}
     </div>
@@ -218,7 +210,6 @@ function TensionRow({ tension, position, depth, focused, reveal, openPole,
         <div onClick={onFocusToggle}>
           <AnswerPanel elId={tension.id} recipe={recipe} depth={depth} sideClass={sideClass}
             reveal={reveal}
-            live={own ? { position, pole: poleName(tension, side as PlacedSide), owner: own.fn } : undefined}
             onToggleReveal={onToggleReveal} />
         </div>
       )}
@@ -397,19 +388,17 @@ function Agenda({ placements, depthFor, revealOf, toggleReveal, toggleFocus, set
         <p className="sub">{placements.length} function{placements.length === 1 ? '' : 's'} carried here by the
           positions you took.</p>
       <div className="officers">
-        {placements.map(({ t, p, side }) => {
+        {placements.map(({ t, side }) => {
           const elId = `officer:${t.id}`;
           const depth = depthFor(elId);
           const recipe = recipeFor(`officer:${t.id}:${side}`, depth);
           if (!recipe) return null;
-          const own = ownerOf(t, side);
           return (
             <div key={t.id} onClick={() => toggleFocus(elId)}
               onPointerEnter={(e) => { if (e.pointerType === 'mouse') setHovered(elId); }}
               onPointerLeave={(e) => { if (e.pointerType === 'mouse') setHovered(null); }}>
               <AnswerPanel elId={elId} recipe={recipe} depth={depth}
                 sideClass={side} reveal={revealOf(elId)}
-                live={{ position: p, pole: poleName(t, side), owner: own.fn }}
                 onToggleReveal={(which) => toggleReveal(elId, which)}
                 showAffordances={false} />
             </div>
