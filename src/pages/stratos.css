@@ -576,6 +576,14 @@
 .stratos .aff.live:hover { background: #fff; }
 .stratos .aff.live[aria-pressed="true"] { color: #26415a; background: #dceef1; border-color: #b4d8de; }
 .stratos .aff.act { color: var(--st-ink-2); border-style: dashed; }
+.stratos .aff.act.live {
+  color: var(--st-accent);
+  border-style: solid;
+  border-color: rgba(49, 95, 128, 0.34);
+  cursor: pointer;
+}
+
+.stratos .aff.act.live:hover { background: #fff; }
 
 .stratos .reveal {
   margin-top: 12px;

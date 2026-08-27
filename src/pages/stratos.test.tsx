@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { AnswerPanel } from './stratos';
+import { AnswerPanel, agendaTargetId } from './stratos';
 import { STRATOS_RECIPES } from '../lib/stratos/recipes.generated';
 
 type AnswerPanelHasLive = 'live' extends keyof ComponentProps<typeof AnswerPanel> ? true : false;
@@ -37,5 +37,32 @@ describe('array-valued fields', () => {
     expect(html).toContain('<li>What must the company own for its promise to remain credible?</li>');
     expect(html).toContain('<li>Where is partner dependence becoming concentration risk?</li>');
     expect(html).toContain('<li>Which reusable assets need explicit economic accountability?</li>');
+  });
+});
+
+describe('agendaTargetId', () => {
+  it('maps an agenda operation id to that tension officer element id', () => {
+    expect(agendaTargetId('stratos.agenda.advantage')).toBe('officer:advantage');
+  });
+
+  it('ignores operation ids that are not agenda operations', () => {
+    expect(agendaTargetId('stratos.place.advantage')).toBeNull();
+    expect(agendaTargetId('')).toBeNull();
+  });
+});
+
+describe('the board-agenda affordance', () => {
+  it('renders the declared operation as a live control rather than hiding it', () => {
+    const recipe = STRATOS_RECIPES['tension:advantage:l'].inspect;
+    const html = renderToStaticMarkup(
+      <AnswerPanel elId="advantage" recipe={recipe} depth="inspect" sideClass="l"
+        reveal={{ evidence: false, trace: false }}
+        onAction={() => {}}
+        onToggleReveal={() => {}} />,
+    );
+
+    expect(html).toContain('data-operation="stratos.agenda.advantage"');
+    expect(html).toContain('Carried to the board agenda');
+    expect(html).toContain('aff act live');
   });
 });

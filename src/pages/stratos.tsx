@@ -19,6 +19,16 @@ type Reveals = Record<string, { evidence: boolean; trace: boolean }>;
 const recipeFor = (key: string, depth: DisclosureDepth): ComponentRecipe | undefined =>
   STRATOS_RECIPES[key]?.[depth];
 
+const AGENDA_OPERATION_PREFIX = 'stratos.agenda.';
+
+/** Map an agenda operation descriptor id to the officer panel it carries to.
+ *  Keyed on the contract id, never on the display label. */
+export function agendaTargetId(operationId: string): string | null {
+  if (!operationId.startsWith(AGENDA_OPERATION_PREFIX)) return null;
+  const tensionId = operationId.slice(AGENDA_OPERATION_PREFIX.length);
+  return tensionId === '' ? null : `officer:${tensionId}`;
+}
+
 // ---- the answer panel: renders whatever recipe the resolver produced ----
 
 interface PanelProps {
@@ -28,16 +38,16 @@ interface PanelProps {
   sideClass: '' | 'l' | 'r';
   reveal: { evidence: boolean; trace: boolean };
   onToggleReveal: (which: 'evidence' | 'trace') => void;
+  onAction?: (operationId: string) => void;
   showAffordances?: boolean;
 }
 
 export function AnswerPanel({ elId, recipe, depth, sideClass, reveal, onToggleReveal,
-  showAffordances = true }: PanelProps) {
+  onAction, showAffordances = true }: PanelProps) {
   const fields = recipe.visibleFields[0]?.fields ?? [];
   const controls = recipe.inspectionControls.filter((control) =>
     control !== 'inspect' && control !== 'expand');
-  const actions = recipe.actionControls.filter((action) =>
-    action.operation?.label !== 'Carried to the board agenda');
+  const actions = recipe.actionControls;
   const hasEvidence = controls.includes('view-evidence');
   const hasTrace = controls.includes('view-trace');
 
@@ -84,9 +94,19 @@ export function AnswerPanel({ elId, recipe, depth, sideClass, reveal, onToggleRe
             }
             return <span key={c} className="aff">{c}</span>;
           })}
-          {actions.map((a, i) => (
-            <span key={`act-${i}`} className="aff act">{a.operation?.label ?? 'action'}</span>
-          ))}
+          {actions.map((a) => {
+            const target = agendaTargetId(a.operation.id);
+            if (!target || !onAction) {
+              return <span key={a.operation.id} className="aff act">{a.operation.label}</span>;
+            }
+            return (
+              <button key={a.operation.id} type="button" className="aff act live"
+                data-aff="action" data-operation={a.operation.id}
+                onClick={(e) => { e.stopPropagation(); onAction(a.operation.id); }}>
+                {a.operation.label}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -146,12 +166,13 @@ function Pole({ tension, side, open, onToggle }: {
 // ---- one tension: name, question, poles, the axis, the answer panel ----
 
 function TensionRow({ tension, position, depth, focused, reveal, openPole,
-  onDrag, onFocusToggle, onHover, onToggleReveal, onPoleToggle }: {
+  onDrag, onFocusToggle, onHover, onToggleReveal, onPoleToggle, onCarryToAgenda }: {
   tension: Tension; position: number; depth: DisclosureDepth; focused: boolean;
   reveal: { evidence: boolean; trace: boolean }; openPole: PlacedSide | null;
   onDrag: (v: number) => void; onFocusToggle: () => void; onHover: (on: boolean) => void;
   onToggleReveal: (which: 'evidence' | 'trace') => void;
   onPoleToggle: (side: PlacedSide) => void;
+  onCarryToAgenda: (operationId: string) => void;
 }) {
   const axisRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -210,6 +231,7 @@ function TensionRow({ tension, position, depth, focused, reveal, openPole,
         <div onClick={onFocusToggle}>
           <AnswerPanel elId={tension.id} recipe={recipe} depth={depth} sideClass={sideClass}
             reveal={reveal}
+            onAction={onCarryToAgenda}
             onToggleReveal={onToggleReveal} />
         </div>
       )}
@@ -240,6 +262,13 @@ export default function StratosPage() {
   const toggleReveal = (id: string, which: 'evidence' | 'trace') =>
     setReveals((r) => ({ ...r, [id]: { ...revealOf(id), [which]: !revealOf(id)[which] } }));
   const toggleFocus = (id: string) => setFocused((f) => (f === id ? null : id));
+  const carryToAgenda = useCallback((operationId: string) => {
+    const target = agendaTargetId(operationId);
+    if (!target) return;
+    setFocused(target);
+    document.querySelector(`[data-el="${target}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, []);
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
@@ -296,6 +325,7 @@ export default function StratosPage() {
             </div>
             {TENSIONS.filter((t) => t.pair === pair).map((t) => (
               <TensionRow key={t.id} tension={t} position={positions[t.id]} depth={depthFor(t.id)}
+                onCarryToAgenda={carryToAgenda}
                 focused={focused === t.id} reveal={revealOf(t.id)}
                 openPole={openPole?.startsWith(`${t.id}:`) ? (openPole.split(':')[1] as PlacedSide) : null}
                 onDrag={(v) => setPositions((s) => ({ ...s, [t.id]: v }))}
