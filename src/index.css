@@ -1133,6 +1133,10 @@ textarea:focus-visible {
   animation: rise-in 180ms ease both;
 }
 
+.mobile-nav[hidden] {
+  display: none;
+}
+
 .mobile-nav button,
 .mobile-nav a {
   display: block;

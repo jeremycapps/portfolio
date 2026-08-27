@@ -1,5 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
-import { BlogHeader } from '../components/blog-header';
+import { SiteHeader } from '../components/site-header';
 import { BLOG_POSTS, type BlogPostMeta } from '../lib/blog/posts.generated';
 import './blog.css';
 
@@ -69,7 +69,7 @@ export function BlogIndex({ posts = BLOG_POSTS }: { posts?: readonly BlogPostMet
 export default function BlogPage() {
   return (
     <div className="app-shell blog-shell">
-      <BlogHeader />
+      <SiteHeader current="blog" />
       <BlogIndex />
     </div>
   );

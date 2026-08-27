@@ -5,7 +5,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
 import { PromptStarters } from '@/components/prompt-starters';
 import { ProjectCards } from '@/components/project-cards';
-import { MobileNavigation, SiteBrand, SiteNavigation } from '@/components/site-navigation';
+import { SiteHeader } from '@/components/site-header';
 import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { ResumeSurface } from '@/components/facia/resume-surface';
 import { Toaster } from '@/components/ui/toaster';
@@ -47,7 +47,6 @@ function RotatingPhrase() {
 
 function Home() {
   const [prompt, setPrompt] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [statusTone, setStatusTone] = useState<'normal' | 'error' | 'success'>('normal');
   const [toastMessage, setToastMessage] = useState('');
@@ -238,17 +237,7 @@ function Home() {
 
   return (
     <main className={`app-shell${chatActive ? ' app-shell-chatting' : ''}`}>
-      <header className="topbar">
-        <SiteBrand />
-
-        <SiteNavigation
-          menuOpen={menuOpen}
-          onMenuToggle={() => setMenuOpen((open) => !open)}
-          onNotice={showToast}
-        />
-      </header>
-
-      {menuOpen && <MobileNavigation onNotice={showToast} />}
+      <SiteHeader current="portfolio" onNotice={showToast} />
 
       <section
         className={`workspace${chatActive ? ' workspace-chatting' : ''}`}

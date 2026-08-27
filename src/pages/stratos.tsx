@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
 import { CircleHelp } from 'lucide-react';
-import { SiteBrand } from '@/components/site-navigation';
+import { SiteHeader } from '@/components/site-header';
 import {
   PAIR_QUESTION, TENSIONS,
   blurbOf, lensOf, ownerOf, poleName, poleSideFor,
@@ -271,14 +271,7 @@ export default function StratosPage() {
 
   return (
     <div className="app-shell stratos" data-focused={focused !== null ? '' : undefined}>
-      <header className="topbar">
-        <SiteBrand />
-        <nav className="nav-actions stratos-nav-actions" aria-label="StratOS navigation">
-          <a className="nav-link" href="/">Portfolio</a>
-          <a className="nav-link" href="/stratos" aria-current="page">StratOS</a>
-          <span className="avatar-button stratos-avatar" aria-hidden="true">JC</span>
-        </nav>
-      </header>
+      <SiteHeader current="stratos" />
       <main className="workspace stratos-workspace">
         <div className="intro stratos-intro">
           <p className="eyebrow">StratOS v5.1 · strategy tension instrument</p>

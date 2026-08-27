@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BlogContent } from '../components/blog-content';
-import { BlogHeader } from '../components/blog-header';
+import { SiteHeader } from '../components/site-header';
 import {
   BLOG_ARTICLE_BODIES,
   BLOG_POSTS,
@@ -46,7 +46,7 @@ export default function BlogPostPage({
 
   return (
     <div className="app-shell blog-shell">
-      <BlogHeader />
+      <SiteHeader current="blog" />
       <main className="workspace blog-article-workspace">
         <article className="blog-article">
           <a className="blog-back" href="/blog">← Blog</a>
