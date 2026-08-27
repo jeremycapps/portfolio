@@ -25,7 +25,7 @@ export async function generateStructuredPortfolioAnswer(
   }
   const content = await generateOpenRouterStructured({
     name: 'portfolio_model_answer_v1',
-    schema: MODEL_ANSWER_JSON_SCHEMA as unknown as Record<string, unknown>,
+    schema: MODEL_ANSWER_JSON_SCHEMA,
     messages: [
       {
         role: 'system',

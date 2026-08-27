@@ -61,7 +61,7 @@ export const MODEL_ANSWER_JSON_SCHEMA = {
       },
     },
   },
-} as const;
+} as const satisfies Record<string, unknown>;
 
 export function parseModelAnswer(raw: string): ModelAnswer {
   let parsed: unknown;

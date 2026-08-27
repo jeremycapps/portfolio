@@ -13,10 +13,10 @@ describe('generateOpenRouterStructured', () => {
   it('requires strict JSON-schema output from the configured model', async () => {
     vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
     let body: Record<string, any> | undefined;
-    const fetchImpl = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl: typeof fetch = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
       body = JSON.parse(String(init?.body));
       return Response.json({ choices: [{ message: { content: '{"ok":true}' } }] });
-    }) as unknown as typeof fetch;
+    });
 
     await expect(generateOpenRouterStructured(request, { fetchImpl })).resolves.toBe('{"ok":true}');
     expect(body?.stream).toBe(false);
@@ -29,11 +29,11 @@ describe('generateOpenRouterStructured', () => {
 
   it('bounds provider latency and reports a typed timeout', async () => {
     vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
-    const fetchImpl = vi.fn((_url: string | URL | Request, init?: RequestInit) => (
+    const fetchImpl: typeof fetch = vi.fn((_url: string | URL | Request, init?: RequestInit) => (
       new Promise<Response>((_resolve, reject) => {
         init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
       })
-    )) as unknown as typeof fetch;
+    ));
 
     await expect(generateOpenRouterStructured(request, { fetchImpl, timeoutMs: 5 }))
       .rejects.toEqual(expect.objectContaining({ code: 'MODEL_PROVIDER_TIMEOUT' }));
@@ -41,9 +41,9 @@ describe('generateOpenRouterStructured', () => {
 
   it('preserves provider refusals as typed failures', async () => {
     vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
-    const fetchImpl = vi.fn(async () => Response.json({
+    const fetchImpl: typeof fetch = vi.fn(async () => Response.json({
       choices: [{ message: { content: '', refusal: 'Cannot answer from the profile.' } }],
-    })) as unknown as typeof fetch;
+    }));
 
     await expect(generateOpenRouterStructured(request, { fetchImpl }))
       .rejects.toEqual(expect.objectContaining({ code: 'MODEL_REFUSED' }));

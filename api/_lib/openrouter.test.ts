@@ -18,12 +18,12 @@ const msgs: ChatMessage[] = [{ role: 'user', content: 'hi' }];
 
 describe('streamOpenRouter', () => {
   it('yields concatenated content deltas from SSE frames', async () => {
-    const fetchImpl = (async () =>
+    const fetchImpl: typeof fetch = async () =>
       sseResponse([
         'data: {"choices":[{"delta":{"content":"Hel"}}]}\n\n',
         'data: {"choices":[{"delta":{"content":"lo"}}]}\n\n',
         'data: [DONE]\n\n',
-      ])) as unknown as typeof fetch;
+      ]);
 
     const out: string[] = [];
     for await (const d of streamOpenRouter(msgs, { fetchImpl })) out.push(d);
@@ -32,10 +32,10 @@ describe('streamOpenRouter', () => {
 
   it('sends a bounded completion request', async () => {
     let sentBody: Record<string, unknown> | undefined;
-    const fetchImpl = (async (_url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl: typeof fetch = async (_url: string | URL | Request, init?: RequestInit) => {
       sentBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
       return sseResponse(['data: [DONE]\n\n']);
-    }) as typeof fetch;
+    };
 
     for await (const _ of streamOpenRouter(msgs, { fetchImpl })) { /* drain */ }
 
@@ -45,10 +45,10 @@ describe('streamOpenRouter', () => {
   it('passes the caller abort signal to fetch unchanged', async () => {
     const controller = new AbortController();
     let sentSignal: AbortSignal | null | undefined;
-    const fetchImpl = (async (_url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl: typeof fetch = async (_url: string | URL | Request, init?: RequestInit) => {
       sentSignal = init?.signal;
       return sseResponse(['data: [DONE]\n\n']);
-    }) as typeof fetch;
+    };
 
     for await (const _ of streamOpenRouter(msgs, {
       fetchImpl,
@@ -59,8 +59,8 @@ describe('streamOpenRouter', () => {
   });
 
   it('throws a friendly error on non-200', async () => {
-    const fetchImpl = (async () =>
-      new Response('nope', { status: 401 })) as unknown as typeof fetch;
+    const fetchImpl: typeof fetch = async () =>
+      new Response('nope', { status: 401 });
     await expect(async () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const _ of streamOpenRouter(msgs, { fetchImpl })) { /* drain */ }
