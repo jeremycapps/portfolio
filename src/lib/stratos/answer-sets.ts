@@ -109,7 +109,7 @@ export function buildOfficerAnswerSet(t: Tension, side: PlacedSide): AnswerSetV2
 export function buildVerdictAnswerSet(): AnswerSetV2 {
   return {
     schema: 'facia.answer-set/2',
-    question: 'Has the firm declared a material position?',
+    question: 'Has the company declared a material position?',
     answerType: 'verdict', path: 'meaning', inspection: 'available', actionable: false,
     items: [{
       type: 'Verdict', contract: 'BoundedVerdictV1',

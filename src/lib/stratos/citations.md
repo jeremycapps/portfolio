@@ -19,12 +19,12 @@ are gates the engine tests, not pole-defining lenses.
 ## The six tensions and their lenses
 
 ### 1. Advantage — *Economics · StratOps*
-> Does advantage come from assets the firm controls or interactions it enables?
+> Does advantage come from assets the company controls or interactions it enables?
 > ◀ **Controlled value chain** (CSO) — **Orchestrated ecosystem** (CMO) ▶
 
 | Pole | Lens code · role | Concept borrowed |
 |---|---|---|
-| Left | `porter_01` · thesis | A firm's advantage is a **defensible spread between cost and customer value** that it controls through its activity system. |
+| Left | `porter_01` · thesis | A company's advantage is a **defensible spread between cost and customer value** that it controls through its activity system. |
 | Left | `maister_07` · supporting | The economic relationship is measured by whether it **accumulates or consumes client trust**, not just technical delivery. |
 | Right | `parker_11` · counterweight | Value is increasingly created by **interactions among external participants (network effects)**, not by owned assets. |
 
@@ -33,7 +33,7 @@ are gates the engine tests, not pole-defining lenses.
 - **`parker_11`** — Parker, Geoffrey G., Van Alstyne, Marshall W., & Choudary, Sangeet Paul (2016). *Platform Revolution: How Networked Markets Are Transforming the Economy.* W. W. Norton. — Pillar: *Network Ecosystems.*
 
 ### 2. Resource — *Economics · BizOps*
-> Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?
+> Is the company preserving the capacity that produces value, and does that capacity realize a durable return?
 > ◀ **Workforce capacity** (CPO) — **Capital return** (CFO) ▶
 
 | Pole | Lens code · role | Concept borrowed |
@@ -49,7 +49,7 @@ are gates the engine tests, not pole-defining lenses.
 - **`dupont_03`** — Brown, F. Donaldson / DuPont Corporation (1914). *DuPont Analysis* (ROE decomposition). — Pillar: *Financial Return.*
 
 ### 3. Discernment — *Commitment · StratOps*
-> When should the firm impose a clear answer, and when keep the problem open?
+> When should the company impose a clear answer, and when keep the problem open?
 > ◀ **Structured conviction** (CEO) — **Open inquiry** (CDO) ▶
 
 | Pole | Lens code · role | Concept borrowed |
@@ -63,7 +63,7 @@ are gates the engine tests, not pole-defining lenses.
 - **`parker_11`** — see Tension 1.
 
 ### 4. Execution — *Commitment · BizOps*
-> What must be assured inside the firm, and what is ready to be released into the environment?
+> What must be assured inside the company, and what is ready to be released into the environment?
 > ◀ **Risk friction** (CRO) — **Release** (CTO) ▶
 
 | Pole | Lens code · role | Concept borrowed |
@@ -79,7 +79,7 @@ are gates the engine tests, not pole-defining lenses.
 - **`teamops_14`** — GitLab (2022). *TeamOps: Redefining Teamwork.* — Pillar: *Delegation Protocol.*
 
 ### 5. Invention — *Renewal · StratOps*
-> Does renewal come from deepening what the firm knows, or creating what the market has not seen?
+> Does renewal come from deepening what the company knows, or creating what the market has not seen?
 > ◀ **Codified fluency** (CKO) — **Novel offering creation** (CGO) ▶
 
 | Pole | Lens code · role | Concept borrowed |
@@ -109,7 +109,7 @@ are gates the engine tests, not pole-defining lenses.
 
 ## Floor lenses (gates, not pole-defining)
 
-These sources are referenced by the engine as floors the firm must clear; they are not named in
+These sources are referenced by the engine as floors the company must clear; they are not named in
 the `ontology.ts` pole lens strings, but belong in a complete bibliography.
 
 - **`badaracco_08`** — Badaracco, Joseph L. (1997). *Defining Moments: When Managers Must Choose Between Right and Right.* Harvard Business School Press. — Pillar: *Ethical Framework* (human-accountability / ethical floor).

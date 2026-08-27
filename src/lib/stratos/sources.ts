@@ -26,7 +26,7 @@ export const SOURCES: Readonly<Record<string, StratosSource>> = {
     url: 'https://www.hbs.edu/faculty/Pages/profile.aspx?facId=6532',
     pillar: 'Market Positioning',
     framings: {
-      thesis: "A firm's advantage is a defensible spread between cost and customer value that it controls through its activity system.",
+      thesis: "A company's advantage is a defensible spread between cost and customer value that it controls through its activity system.",
     },
   },
   maister_07: {

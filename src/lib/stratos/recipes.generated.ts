@@ -40,7 +40,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -164,7 +164,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -288,7 +288,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -414,7 +414,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -526,7 +526,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -630,7 +630,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -734,7 +734,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -840,7 +840,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -958,7 +958,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -1082,7 +1082,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -1206,7 +1206,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -1332,7 +1332,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does advantage come from assets the firm controls or interactions it enables?",
+    "question": "Does advantage come from assets the company controls or interactions it enables?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -1449,8 +1449,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "payload": {
        "function": "Strategy",
        "because": "Advantage · Controlled value chain",
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
-       "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
+       "mandate": "Protect the activities, assets, and economics the company must own to remain defensible.",
+       "questions": "What must the company own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
       "value": "Strategy",
       "evidence": {
@@ -1552,8 +1552,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "payload": {
        "function": "Strategy",
        "because": "Advantage · Controlled value chain",
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
-       "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
+       "mandate": "Protect the activities, assets, and economics the company must own to remain defensible.",
+       "questions": "What must the company own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
       "value": "Strategy",
       "evidence": {
@@ -1665,8 +1665,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "payload": {
        "function": "Strategy",
        "because": "Advantage · Controlled value chain",
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
-       "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
+       "mandate": "Protect the activities, assets, and economics the company must own to remain defensible.",
+       "questions": "What must the company own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
       "value": "Strategy",
       "evidence": {
@@ -1746,14 +1746,14 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "mandate",
-       "value": "Protect the activities, assets, and economics the firm must own to remain defensible.",
+       "value": "Protect the activities, assets, and economics the company must own to remain defensible.",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
       },
       {
        "key": "questions",
-       "value": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?",
+       "value": "What must the company own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
@@ -1794,8 +1794,8 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       "payload": {
        "function": "Strategy",
        "because": "Advantage · Controlled value chain",
-       "mandate": "Protect the activities, assets, and economics the firm must own to remain defensible.",
-       "questions": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
+       "mandate": "Protect the activities, assets, and economics the company must own to remain defensible.",
+       "questions": "What must the company own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?"
       },
       "value": "Strategy",
       "evidence": {
@@ -1875,14 +1875,14 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "mandate",
-       "value": "Protect the activities, assets, and economics the firm must own to remain defensible.",
+       "value": "Protect the activities, assets, and economics the company must own to remain defensible.",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
       },
       {
        "key": "questions",
-       "value": "What must the firm own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?",
+       "value": "What must the company own for its promise to remain credible? · Where is partner dependence becoming concentration risk? · Which reusable assets need explicit economic accountability?",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
@@ -1920,7 +1920,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Marketing",
        "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
-       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
+       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the company subcontracting? · How is ecosystem value shared across clients, contributors, and the company?"
       },
       "value": "Marketing",
       "evidence": {
@@ -2023,7 +2023,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Marketing",
        "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
-       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
+       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the company subcontracting? · How is ecosystem value shared across clients, contributors, and the company?"
       },
       "value": "Marketing",
       "evidence": {
@@ -2136,7 +2136,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Marketing",
        "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
-       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
+       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the company subcontracting? · How is ecosystem value shared across clients, contributors, and the company?"
       },
       "value": "Marketing",
       "evidence": {
@@ -2223,7 +2223,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "questions",
-       "value": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?",
+       "value": "Which participants create value rather than just reach? · Where do network effects exist, and where is the company subcontracting? · How is ecosystem value shared across clients, contributors, and the company?",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
@@ -2265,7 +2265,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Marketing",
        "because": "Advantage · Orchestrated ecosystem",
        "mandate": "Turn partner, expert, client, alumni, and technology participation into measurable market value.",
-       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?"
+       "questions": "Which participants create value rather than just reach? · Where do network effects exist, and where is the company subcontracting? · How is ecosystem value shared across clients, contributors, and the company?"
       },
       "value": "Marketing",
       "evidence": {
@@ -2352,7 +2352,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "questions",
-       "value": "Which participants create value rather than just reach? · Where do network effects exist, and where is the firm subcontracting? · How is ecosystem value shared across clients, contributors, and the firm?",
+       "value": "Which participants create value rather than just reach? · Where do network effects exist, and where is the company subcontracting? · How is ecosystem value shared across clients, contributors, and the company?",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
@@ -2397,7 +2397,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -2520,7 +2520,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -2643,7 +2643,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -2768,7 +2768,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -2879,7 +2879,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -2982,7 +2982,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -3085,7 +3085,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -3190,7 +3190,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -3307,7 +3307,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -3430,7 +3430,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -3553,7 +3553,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -3678,7 +3678,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Is the firm preserving the capacity that produces value, and does that capacity realize a durable return?",
+    "question": "Is the company preserving the capacity that produces value, and does that capacity realize a durable return?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -4742,7 +4742,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -4866,7 +4866,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -4990,7 +4990,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5116,7 +5116,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5228,7 +5228,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5332,7 +5332,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5436,7 +5436,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5542,7 +5542,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5660,7 +5660,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5784,7 +5784,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -5908,7 +5908,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -6034,7 +6034,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "When should the firm impose a clear answer, and when keep the problem open?",
+    "question": "When should the company impose a clear answer, and when keep the problem open?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7099,7 +7099,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7224,7 +7224,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7349,7 +7349,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7476,7 +7476,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7589,7 +7589,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7694,7 +7694,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7799,7 +7799,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -7906,7 +7906,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -8025,7 +8025,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -8150,7 +8150,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -8275,7 +8275,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -8402,7 +8402,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "What must be assured inside the firm, and what is ready to be released into the environment?",
+    "question": "What must be assured inside the company, and what is ready to be released into the environment?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -8521,7 +8521,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Risk",
        "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
-       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
+       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the company reconstruct how a conclusion was produced?"
       },
       "value": "Risk",
       "evidence": {
@@ -8624,7 +8624,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Risk",
        "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
-       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
+       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the company reconstruct how a conclusion was produced?"
       },
       "value": "Risk",
       "evidence": {
@@ -8737,7 +8737,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Risk",
        "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
-       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
+       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the company reconstruct how a conclusion was produced?"
       },
       "value": "Risk",
       "evidence": {
@@ -8824,7 +8824,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "questions",
-       "value": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?",
+       "value": "What could cause irreversible harm? · Which actions require human authorization? · Can the company reconstruct how a conclusion was produced?",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
@@ -8866,7 +8866,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
        "function": "Risk",
        "because": "Execution · Risk friction",
        "mandate": "Keep autonomous action, professional judgment, and client exposure bounded, traceable, and accountable.",
-       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?"
+       "questions": "What could cause irreversible harm? · Which actions require human authorization? · Can the company reconstruct how a conclusion was produced?"
       },
       "value": "Risk",
       "evidence": {
@@ -8953,7 +8953,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
       },
       {
        "key": "questions",
-       "value": "What could cause irreversible harm? · Which actions require human authorization? · Can the firm reconstruct how a conclusion was produced?",
+       "value": "What could cause irreversible harm? · Which actions require human authorization? · Can the company reconstruct how a conclusion was produced?",
        "declaredPriority": "supporting",
        "effectivePriority": "supporting",
        "promotionRuleIndices": []
@@ -9468,7 +9468,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -9592,7 +9592,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -9716,7 +9716,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -9842,7 +9842,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -9954,7 +9954,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -10058,7 +10058,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -10162,7 +10162,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -10268,7 +10268,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -10386,7 +10386,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -10510,7 +10510,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -10634,7 +10634,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -10760,7 +10760,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    ],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Does renewal come from deepening what the firm knows, or creating what the market has not seen?",
+    "question": "Does renewal come from deepening what the company knows, or creating what the market has not seen?",
     "answerType": "operation",
     "path": "meaning",
     "inspection": "available",
@@ -14163,7 +14163,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Has the firm declared a material position?",
+    "question": "Has the company declared a material position?",
     "answerType": "verdict",
     "path": "meaning",
     "inspection": "available",
@@ -14243,7 +14243,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Has the firm declared a material position?",
+    "question": "Has the company declared a material position?",
     "answerType": "verdict",
     "path": "meaning",
     "inspection": "available",
@@ -14333,7 +14333,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Has the firm declared a material position?",
+    "question": "Has the company declared a material position?",
     "answerType": "verdict",
     "path": "meaning",
     "inspection": "available",
@@ -14431,7 +14431,7 @@ export const STRATOS_RECIPES: Record<string, RecipeDepthMap> = {
    "actionControls": [],
    "answer": {
     "schema": "facia.answer-set/2",
-    "question": "Has the firm declared a material position?",
+    "question": "Has the company declared a material position?",
     "answerType": "verdict",
     "path": "meaning",
     "inspection": "available",

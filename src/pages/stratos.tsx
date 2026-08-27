@@ -282,7 +282,7 @@ export default function StratosPage() {
       <main className="workspace stratos-workspace">
         <div className="intro stratos-intro">
           <p className="eyebrow">StratOS v5.1 · strategy tension instrument</p>
-          <h1 className="hero-title">Place your <em>firm.</em></h1>
+          <h1 className="hero-title">Place your <em>company.</em></h1>
           <p className="hero-description stratos-lede">
             Drag each axis to set a position — you hold the interior knowledge. Any movement away from center
             selects that pole’s recommendation. Hover a pole label to view its definition and sources;
@@ -332,9 +332,9 @@ export default function StratosPage() {
             <p className="sub">Stated by the model itself, not discovered by a reviewer.</p>
             <ul>
               <li>That the model objectively measures strategy</li>
-              <li>That a position or a commitment can pass or fail a firm</li>
+              <li>That a position or a commitment can pass or fail a company</li>
               <li>That neutral is failure, or that either pole is the better place to stand</li>
-              <li>That any verdict is rendered on a firm — no gates, no floors, no RPE are computed here</li>
+              <li>That any verdict is rendered on a company — no gates, no floors, no RPE are computed here</li>
               <li>That it knows how well you know. Confidence is not asked for, so no interval is drawn</li>
             </ul>
             <p className="foot">
