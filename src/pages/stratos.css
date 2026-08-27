@@ -99,9 +99,9 @@
   margin-bottom: 20px;
   padding: 21px 22px;
   border: 1px solid var(--st-rule);
-  border-radius: 17px;
+  border-radius: var(--surface-radius);
   background: rgba(249, 252, 255, 0.58);
-  box-shadow: 0 12px 34px rgba(59, 77, 95, 0.06);
+  box-shadow: var(--surface-shadow);
   backdrop-filter: blur(10px);
 }
 
@@ -434,7 +434,7 @@
   justify-content: center;
   margin: -15px 0 0 -28px;
   border: 2px solid var(--st-ink-3);
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   color: var(--st-ink-3);
   background: rgba(252, 254, 255, 0.96);
   box-shadow: 0 4px 12px rgba(59, 77, 95, 0.12);
@@ -506,12 +506,14 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+  margin-top: 12px;
 }
 
 .stratos .aff {
   padding: 4px 8px;
   border: 1px solid var(--st-rule);
-  border-radius: 999px;
+  border-radius: 8px;
+  cursor: default;
   color: var(--st-ink-3);
   background: rgba(247, 250, 252, 0.56);
   font-family: var(--app-font-mono);
@@ -558,15 +560,6 @@
 }
 .stratos .fld[data-k="growthLens"] dd { font-style: normal; }
 
-.stratos .affs {
-  margin-top: 12px;
-}
-
-.stratos .aff {
-  border-radius: 8px;
-  cursor: default;
-}
-
 .stratos .aff.live {
   color: var(--st-accent);
   border-color: rgba(49, 95, 128, 0.34);
@@ -585,13 +578,10 @@
 
 .stratos .aff.act.live:hover { background: #fff; }
 
-.stratos .reveal {
-  margin-top: 12px;
-  padding: 11px 12px;
-  border: 0;
-  border-radius: 9px;
+/* Themes .evidence-disclosure for the instrument: StratOS sets its own ink and
+   renders provenance in mono. Shape and ground come from the shared class. */
+.stratos .evidence-disclosure {
   color: var(--st-ink-3);
-  background: #eef3f7;
   font-family: var(--app-font-mono);
   font-size: 9px;
   line-height: 1.7;
@@ -605,9 +595,9 @@
   margin-top: 22px;
   padding: 22px;
   border: 1px solid var(--st-rule);
-  border-radius: 17px;
+  border-radius: var(--surface-radius);
   background: var(--st-card);
-  box-shadow: 0 12px 34px rgba(59, 77, 95, 0.06);
+  box-shadow: var(--surface-shadow);
 }
 
 .stratos .agenda {

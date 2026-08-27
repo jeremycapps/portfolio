@@ -58,6 +58,14 @@
   --radius: 0.75rem;
   --shadow-sm: 0 8px 24px rgba(39, 61, 83, 0.08);
   --shadow-md: 0 18px 50px rgba(39, 61, 83, 0.12);
+
+  /* Shared shape primitives. These were copy-pasted across index/stratos/blog/
+     about and had begun to drift; they are tokens so they can only drift once.
+     Backgrounds are deliberately NOT tokenized — each surface picks its own
+     translucency. */
+  --surface-radius: 17px;
+  --surface-shadow: 0 12px 34px rgba(59, 77, 95, 0.055);
+  --pill-radius: 999px;
 }
 
 * {
@@ -279,7 +287,7 @@ textarea:focus-visible {
   text-align: left;
   background: rgba(249, 252, 255, 0.8);
   border: 1px solid rgba(190, 207, 221, 0.82);
-  border-radius: 17px;
+  border-radius: var(--surface-radius);
   box-shadow:
     0 13px 28px rgba(83, 112, 137, 0.08),
     0 2px 4px rgba(83, 112, 137, 0.05),
@@ -346,7 +354,7 @@ textarea:focus-visible {
   min-height: 32px;
   padding: 6px 12px;
   border: 1px solid #d8e3e8;
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   color: #4b6273;
   background: #f6fafb;
   font-size: 12px;
@@ -1308,7 +1316,7 @@ textarea:focus-visible {
 
 .conversation-pane::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   background: rgba(104, 126, 148, 0.3);
   background-clip: padding-box;
 }
@@ -1433,7 +1441,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   background: rgba(120, 120, 140, 0.08);
   color: #5b6b7d;
   font-size: 13px;
@@ -1515,7 +1523,7 @@ textarea:focus-visible {
   gap: 6px;
   padding: 7px 12px;
   border: 1px solid #b4d8de;
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   color: #26415a;
   background: #dceef1;
   font-size: 13px;
@@ -1647,7 +1655,7 @@ textarea:focus-visible {
   padding: 7px 10px;
   color: #47657d;
   background: #e1edf3;
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   font-size: 8px;
   font-weight: 700;
 }
@@ -1775,7 +1783,7 @@ textarea:focus-visible {
   margin-top: 3px;
   width: 11px;
   height: 11px;
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   background: #fff;
   border: 2px solid #93bdc4;
   box-shadow: 0 0 0 3px rgba(147, 189, 196, 0.14);
@@ -1887,9 +1895,14 @@ textarea:focus-visible {
   margin-left: auto;
 }
 
-.semantic-item-evidence {
+/* EvidenceDisclosure — named for the Facia semantic component id it implements.
+   StratOS and the chat surface had independently derived byte-identical values
+   for this panel; it exists once now, and each surface themes only the parts it
+   actually differs on. */
+.evidence-disclosure {
   margin-top: 12px;
   padding: 11px 12px;
+  border: 0;
   border-radius: 9px;
   color: #56677c;
   background: #eef3f7;
@@ -1948,7 +1961,7 @@ textarea:focus-visible {
   gap: 6px;
   padding: 3px 10px;
   border: 1px solid rgba(116, 139, 162, 0.28);
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   background: rgba(255, 255, 255, 0.6);
   color: #26374f;
   font-size: 12px;

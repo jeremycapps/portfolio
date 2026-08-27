@@ -111,11 +111,11 @@ export function AnswerPanel({ elId, recipe, depth, sideClass, reveal, onToggleRe
       )}
 
       {hasEvidence && reveal.evidence && evidence && (
-        <p className="reveal"><b>evidence</b> {evidence.status}<br />
+        <p className="evidence-disclosure reveal"><b>evidence</b> {evidence.status}<br />
           <b>sources</b> {(evidence.sourceRefs ?? []).join(' · ')}</p>
       )}
       {hasTrace && reveal.trace && trace && (
-        <p className="reveal"><b>trace</b> {trace.id}<br />
+        <p className="evidence-disclosure reveal"><b>trace</b> {trace.id}<br />
           {trace.entries.map((e, i) => (
             <span key={i}>{e.step} = {String(e.value)}{i < trace.entries.length - 1 ? <br /> : null}</span>
           ))}</p>

@@ -30,9 +30,9 @@
 .blog-card {
   overflow: hidden;
   border: 1px solid rgba(116, 139, 162, 0.22);
-  border-radius: 17px;
+  border-radius: var(--surface-radius);
   background: rgba(249, 252, 255, 0.68);
-  box-shadow: 0 12px 34px rgba(59, 77, 95, 0.055);
+  box-shadow: var(--surface-shadow);
   backdrop-filter: blur(10px);
   animation: rise-in 620ms cubic-bezier(.2, .75, .25, 1) both;
 }
@@ -82,7 +82,7 @@
   display: inline-flex;
   padding: 4px 7px;
   border: 1px solid rgba(83, 112, 139, 0.2);
-  border-radius: 999px;
+  border-radius: var(--pill-radius);
   color: #506f95;
   background: rgba(214, 230, 239, 0.42);
   font-weight: 700;
@@ -134,7 +134,7 @@
 .blog-redirect {
   padding: 40px 28px;
   border: 1px dashed rgba(116, 139, 162, 0.35);
-  border-radius: 17px;
+  border-radius: var(--surface-radius);
   color: #7b899b;
   background: rgba(249, 252, 255, 0.44);
   text-align: center;

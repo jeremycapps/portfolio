@@ -168,7 +168,7 @@ function FieldList({
         </div>
       )}
       {evidenceOpen && (
-        <div className="semantic-item-evidence" data-testid={`semantic-item-${item.itemIndex}-evidence`}>
+        <div className="evidence-disclosure semantic-item-evidence" data-testid={`semantic-item-${item.itemIndex}-evidence`}>
           <p>Evidence</p>
           <pre>{displayValue(evidence ?? null)}</pre>
         </div>
