@@ -11,6 +11,14 @@
     {
       "source": "/stratos/:path*",
       "destination": "/index.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/blog/:path*",
+      "destination": "/index.html"
     }
   ]
 }

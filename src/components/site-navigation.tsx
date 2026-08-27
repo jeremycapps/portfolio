@@ -22,6 +22,7 @@ export function SiteNavigation({ menuOpen, onMenuToggle, onNotice }: SiteNavigat
     <>
       <nav className="nav-actions" aria-label="Main navigation">
         <a className="nav-link" href="/stratos" data-testid="link-stratos">StratOS</a>
+        <a className="nav-link" href="/blog" data-testid="link-blog">Blog</a>
         <button className="nav-link" type="button" onClick={() => onNotice('A quieter way to work with your context.')} data-testid="button-about">
           About
         </button>
@@ -42,6 +43,7 @@ export function MobileNavigation({ onNotice }: Pick<SiteNavigationProps, 'onNoti
   return (
     <div className="mobile-nav" data-testid="menu-mobile">
       <a href="/stratos" data-testid="link-mobile-stratos">StratOS</a>
+      <a href="/blog" data-testid="link-mobile-blog">Blog</a>
       <button type="button" onClick={() => onNotice('A quieter way to work with your context.')} data-testid="button-mobile-about">About</button>
       <button type="button" onClick={() => onNotice('Profile settings are coming with your workspace.')} data-testid="button-mobile-profile">Profile</button>
     </div>
