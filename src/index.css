@@ -66,6 +66,7 @@
   --surface-radius: 17px;
   --surface-shadow: 0 12px 34px rgba(59, 77, 95, 0.055);
   --pill-radius: 999px;
+  --control-radius: 8px;
 }
 
 * {
@@ -1676,7 +1677,7 @@ textarea:focus-visible {
 .semantic-item-compare {
   padding: 7px 10px;
   border: 1px solid rgba(116, 139, 162, 0.22);
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   color: #5f7085;
   background: rgba(247, 250, 252, 0.8);
   font-size: 10px;
@@ -1893,6 +1894,18 @@ textarea:focus-visible {
 
 .semantic-item-controls button[data-control='view-evidence'] {
   margin-left: auto;
+}
+
+/* StateBadge — named for the Facia semantic component id it implements. The blog
+   kind tag and the about project status had identical ground, ink, and border;
+   each keeps only its own padding and type. Note that .semantic-pattern and
+   .resume-provenance-badge are deliberately NOT this badge — they carry their
+   own palettes. */
+.state-badge {
+  border: 1px solid rgba(83, 112, 139, 0.2);
+  border-radius: var(--pill-radius);
+  color: #506f95;
+  background: rgba(214, 230, 239, 0.42);
 }
 
 /* EvidenceDisclosure — named for the Facia semantic component id it implements.

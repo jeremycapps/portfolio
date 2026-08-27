@@ -78,13 +78,10 @@
   content: '·';
 }
 
+/* Themes .state-badge for the blog index; ground and ink come from the shared class. */
 .blog-kind {
   display: inline-flex;
   padding: 4px 7px;
-  border: 1px solid rgba(83, 112, 139, 0.2);
-  border-radius: var(--pill-radius);
-  color: #506f95;
-  background: rgba(214, 230, 239, 0.42);
   font-weight: 700;
   letter-spacing: 0.09em;
 }

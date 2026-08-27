@@ -47,7 +47,7 @@ export function BlogIndex({ posts = BLOG_POSTS }: { posts?: readonly BlogPostMet
                   {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
                 >
                   <div className="blog-card-meta">
-                    <span className="blog-kind">{post.kind === 'article' ? 'Essay' : 'Paper'}</span>
+                    <span className="state-badge blog-kind">{post.kind === 'article' ? 'Essay' : 'Paper'}</span>
                     <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
                     {post.status && <span>{post.status}</span>}
                   </div>

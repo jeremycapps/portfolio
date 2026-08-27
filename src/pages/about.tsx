@@ -136,7 +136,7 @@ export default function AboutPage() {
                 >
                   <div className="about-project-heading">
                     <h3>{project.name}</h3>
-                    <span className="about-project-status">{project.status}</span>
+                    <span className="state-badge about-project-status">{project.status}</span>
                     <ArrowUpRight aria-hidden="true" />
                   </div>
                   <p>{project.detail}</p>

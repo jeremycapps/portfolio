@@ -512,7 +512,7 @@
 .stratos .aff {
   padding: 4px 8px;
   border: 1px solid var(--st-rule);
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   cursor: default;
   color: var(--st-ink-3);
   background: rgba(247, 250, 252, 0.56);
