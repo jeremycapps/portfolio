@@ -11,6 +11,9 @@ export const RESUME_SHORTLIST_LIMIT = 18;
 export const SUMMARY_EVIDENCE_LIMIT = 8;
 export const RESUME_PROVIDER_DEADLINE_MS = 8_000;
 
+import { matchSummary } from './summary-router';
+import { CANONICAL_SUMMARY } from './professional-summary';
+
 export interface RankedBullet {
   engagementId: string;
   bulletId: string;
@@ -37,7 +40,7 @@ export interface SelectionResult {
 
 export interface SummaryResult {
   text: string;
-  engine: 'model' | 'deterministic';
+  engine: 'model' | 'deterministic' | 'retrieved';
 }
 
 export interface ResumeExperience {
@@ -60,7 +63,7 @@ export interface ResumeView {
 
 export interface ResumeOperation {
   kind: 'corpus-load' | 'pre-rank' | 'selection' | 'summary' | 'emit';
-  engine: 'deterministic' | 'model';
+  engine: 'deterministic' | 'model' | 'retrieved';
   detail: string;
 }
 
@@ -194,15 +197,12 @@ interface SummaryOutcome {
   fallbackReason: SummaryFallbackReason;
 }
 
-function deterministicSummary(selected: RankedBullet[]): SummaryResult {
-  const career = selected.find((bullet) => bullet.kind === 'experience');
-  const project = selected.find((bullet) => bullet.kind === 'project');
-  const parts = [career?.text];
-  if (project) parts.push(`Independent project work: ${project.text}`);
-  return {
-    text: parts.filter(Boolean).join(' ') || 'Systems-oriented operator and engineer.',
-    engine: 'deterministic',
-  };
+// The no-match floor: the authored canonical summary. It reads as a summary —
+// identity, through-line, recent focus, fit — where the old concatenation of two
+// bullets read as two bullets. Used when no tailored summary matches the JD and
+// no model is available.
+function deterministicSummary(_selected: RankedBullet[]): SummaryResult {
+  return { text: CANONICAL_SUMMARY, engine: 'deterministic' };
 }
 
 class ResumeSummaryTimeoutError extends Error {
@@ -217,6 +217,13 @@ async function summarizeWithDiagnostics(
   selected: RankedBullet[],
   deps: AssembleDeps = {},
 ): Promise<SummaryOutcome> {
+  // Retrieval before generation: if the job matches a reviewed tailored summary,
+  // return it as-is. These were written and approved for real roles, so a close
+  // match beats anything regenerated from bullets.
+  const routed = matchSummary(job);
+  if (routed !== null) {
+    return { summary: { text: routed.summary, engine: 'retrieved' }, fallbackReason: 'none' };
+  }
   const evidence = selected.slice(0, SUMMARY_EVIDENCE_LIMIT);
   const fallback = deterministicSummary(evidence);
   if (!deps.hasModel || !deps.collect) {
