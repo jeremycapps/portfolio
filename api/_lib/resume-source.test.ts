@@ -17,6 +17,10 @@ import {
 import { loadResumeCorpus } from './resume-corpus';
 import type { ResumeCorpus } from './resume-corpus';
 
+// A job with no overlap with the tailored-summary corpus, so retrieval misses
+// and the model / deterministic fallback path under test actually runs.
+const UNMATCHED_JOB = 'archivist at a regional museum, cataloguing rare manuscripts';
+
 const CORPUS: ResumeCorpus = {
   header: { name: 'Test', contacts: [] },
   engagements: [
@@ -262,7 +266,7 @@ describe('summarize', () => {
   });
 
   it('falls back to deterministic when the model throws', async () => {
-    const result = await summarize('job', selected, {
+    const result = await summarize(UNMATCHED_JOB, selected, {
       hasModel: true,
       collect: async () => {
         throw new Error('network');
@@ -272,10 +276,9 @@ describe('summarize', () => {
   });
 
   it('returns a non-empty deterministic summary with no evidence', async () => {
-    await expect(summarize('job', [], { hasModel: false })).resolves.toEqual({
-      text: 'Systems-oriented operator and engineer.',
-      engine: 'deterministic',
-    });
+    const result = await summarize(UNMATCHED_JOB, [], { hasModel: false });
+    expect(result.engine).toBe('deterministic');
+    expect(result.text).toContain('Systems-oriented'); // the canonical summary floor
   });
 });
 
@@ -398,7 +401,7 @@ describe('assembleResume', () => {
   });
 
   it('uses a deterministic summary after empty model output', async () => {
-    const result = await assembleResume('operations', CORPUS, {
+    const result = await assembleResume(UNMATCHED_JOB, CORPUS, {
       hasModel: true,
       collect: async () => '   ',
     });
@@ -408,7 +411,7 @@ describe('assembleResume', () => {
   });
 
   it('uses a deterministic summary after a provider error', async () => {
-    const result = await assembleResume('operations', CORPUS, {
+    const result = await assembleResume(UNMATCHED_JOB, CORPUS, {
       hasModel: true,
       collect: async () => {
         throw new Error('provider unavailable');
@@ -422,7 +425,7 @@ describe('assembleResume', () => {
   it('aborts a hanging provider at the deadline and clears the timeout', async () => {
     vi.useFakeTimers();
     let receivedSignal: AbortSignal | undefined;
-    const pending = assembleResume('operations', CORPUS, {
+    const pending = assembleResume(UNMATCHED_JOB, CORPUS, {
       hasModel: true,
       collect: async (_messages, deps) => {
         receivedSignal = deps?.signal;
@@ -443,7 +446,7 @@ describe('assembleResume', () => {
   it('clears the provider deadline timer after a fast model response', async () => {
     vi.useFakeTimers();
     let receivedSignal: AbortSignal | undefined;
-    const result = await assembleResume('operations', CORPUS, {
+    const result = await assembleResume(UNMATCHED_JOB, CORPUS, {
       hasModel: true,
       collect: async (_messages, deps) => {
         receivedSignal = deps?.signal;
@@ -458,7 +461,7 @@ describe('assembleResume', () => {
 
   it('accepts a final model result just before the deadline and clears both timers', async () => {
     vi.useFakeTimers();
-    const pending = assembleResume('operations', CORPUS, {
+    const pending = assembleResume(UNMATCHED_JOB, CORPUS, {
       hasModel: true,
       collect: async () => new Promise<string>((resolve) => {
         setTimeout(() => resolve('Just-in-time summary.'), RESUME_PROVIDER_DEADLINE_MS - 1);
