@@ -169,10 +169,12 @@ describe('SemanticSurface', () => {
     expect(html).toContain('Hi there.');
     expect(html).toContain('What about Zocdoc?');
     expect(html).toContain('chat-bubble-assistant');
-    expect(html).toContain('semantic-surface-conversation');
+    // The conversation renderer is chat-native prose, not the structured card.
+    expect(html).toContain('conversation-list');
     expect(html).toContain('Accessible design-system migration');
-    expect(html).toContain('data-testid="button-item-0-inspect"');
-    expect(html).toContain('data-testid="button-affordance-audit"');
+    expect(html).not.toContain('button-item-0-inspect');
+    // Depth controls are gone from chat; the answer arrives as prose.
+    expect(html).not.toContain('button-affordance-audit');
     expect(html).not.toContain('button-depth-glance');
     expect(html).not.toContain('facia.answer-set/2');
     expect(html).not.toContain('PATTERN_COLLECTION_LIST');

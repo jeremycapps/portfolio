@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ClientMessage } from '../lib/chat';
-import { SemanticSurface } from './facia/semantic-surface';
+import { ConversationAnswer } from './facia/conversation-answer';
 import { MarkdownContent } from './markdown-content';
 import { ThinkingIndicator } from './thinking-indicator';
 
@@ -32,10 +32,9 @@ export function ChatView({ messages, streaming, error, onChoice }: ChatViewProps
           data-testid={`chat-message-${m.role}-${i}`}
         >
           {m.role === 'user' ? m.content : m.content.kind === 'facia' ? (
-            <SemanticSurface
+            <ConversationAnswer
               recipe={m.content.answer.recipe}
               recipesByDepth={m.content.answer.recipesByDepth}
-              variant="conversation"
             />
           ) : m.content.markdown ? (
             <MarkdownContent content={m.content.markdown} />
