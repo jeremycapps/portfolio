@@ -6,6 +6,7 @@ import {
   answerPortfolioQuestion,
   careerHistoryAnswerSet,
 } from '../../../api/_lib/portfolio-answer-source';
+import { tensionAnswerSet } from '../../../api/_lib/tension-answer-source';
 import { ChatView } from '../chat-view';
 import { nextElementDepth, SemanticSurface, updateElementDepth } from './semantic-surface';
 
@@ -204,5 +205,42 @@ describe('SemanticSurface', () => {
     );
 
     expect(html).not.toContain('semantic-repo-chip');
+  });
+});
+
+describe('singular answers', () => {
+  const verdict = tensionAnswerSet('Is Domain/Corus a production system or a prototype?')!;
+
+  it('renders a badge recipe instead of refusing it', () => {
+    const result = resolveAnswerSet(verdict, { depth: 'glance' });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const html = renderToStaticMarkup(<SemanticSurface recipe={result.recipe} />);
+    expect(html).not.toContain('does not support');
+    expect(html).toContain('state-badge');
+    expect(html).toContain('Prototype');
+  });
+
+  it('shows the basis and the ruled-out alternative once expanded to focus', () => {
+    const result = resolveAnswerSet(verdict, { depth: 'focus' });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const html = renderToStaticMarkup(<SemanticSurface recipe={result.recipe} />);
+    expect(html).not.toContain('does not support');
+    expect(html).toContain('no located implementation');
+    expect(html).toContain('Production system');
+  });
+
+  it('surfaces the corpus caution only at audit depth', () => {
+    const focus = resolveAnswerSet(verdict, { depth: 'focus' });
+    const audit = resolveAnswerSet(verdict, { depth: 'audit' });
+    if (!focus.ok || !audit.ok) throw new Error('unresolved');
+
+    expect(renderToStaticMarkup(<SemanticSurface recipe={focus.recipe} />))
+      .not.toContain('never as built or running');
+    expect(renderToStaticMarkup(<SemanticSurface recipe={audit.recipe} />))
+      .toContain('never as built or running');
   });
 });

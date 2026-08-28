@@ -1908,6 +1908,38 @@ textarea:focus-visible {
   background: rgba(214, 230, 239, 0.42);
 }
 
+/* The singular answer patterns: badge, stat, compact-card, detail. One item,
+   headline first, remaining fields elaborating as disclosure deepens. */
+.semantic-single {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--rule, rgba(116, 139, 162, 0.22));
+  border-radius: 13px;
+  background: rgba(251, 253, 255, 0.72);
+}
+
+.semantic-single .semantic-state {
+  justify-self: start;
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.semantic-single .semantic-headline {
+  margin: 0;
+  color: hsl(var(--foreground));
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.semantic-single dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
 /* EvidenceDisclosure — named for the Facia semantic component id it implements.
    StratOS and the chat surface had independently derived byte-identical values
    for this panel; it exists once now, and each surface themes only the parts it

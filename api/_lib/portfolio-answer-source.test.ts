@@ -185,3 +185,26 @@ describe('two-pole questions route by role, not by keyword', () => {
     expect(answer.structure).toBe('sequence');
   });
 });
+
+describe('the career matcher claims only value questions', () => {
+  // The career spine answers "what is his history" — a value/timeline. It must
+  // not claim a verdict, operation, or convergence question on a shared keyword
+  // like "experience", "roles", or "worked".
+  it('declines a two-pole verdict question that mentions experience', () => {
+    expect(supportsCareerQuestion('Does Jeremy have backend and API experience, or is he frontend-only?')).toBe(false);
+  });
+
+  it('declines a relational operation question that mentions experience', () => {
+    expect(supportsCareerQuestion("How would Jeremy's design-system experience apply to building a component library at a fintech?")).toBe(false);
+  });
+
+  it('declines a convergence question that mentions roles', () => {
+    expect(supportsCareerQuestion('Across his roles, is Jeremy more of a specialist or a broad generalist?')).toBe(false);
+  });
+
+  it('still claims a genuine value/history question', () => {
+    expect(supportsCareerQuestion("What is Jeremy's career history?")).toBe(true);
+    expect(supportsCareerQuestion('Walk me through his experience')).toBe(true);
+    expect(supportsCareerQuestion("What was Jeremy's title and how long was he at Zocdoc?")).toBe(true);
+  });
+});

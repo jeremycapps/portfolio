@@ -216,6 +216,67 @@ function TimelineEntry({ itemIndex, fields }: TimelineEntryProps) {
   );
 }
 
+// The singular patterns — badge, stat, compact-card, detail. One item, whose
+// first visible field is the headline and whose remaining fields elaborate it as
+// disclosure deepens. StateBadge renders that headline as a state chip, which is
+// the same `.state-badge` primitive the blog and about pages use.
+interface SingleAnswerProps {
+  item: PresentedItem;
+  evidence: unknown;
+  headlineAsBadge: boolean;
+  evidenceOpen: boolean;
+  onControl: (control: InspectionControl) => void;
+}
+
+function SingleAnswer({
+  item, evidence, headlineAsBadge, evidenceOpen, onControl,
+}: SingleAnswerProps) {
+  const [headline, ...details] = item.fields;
+  const controls = item.controls.filter((control) => ELEMENT_CONTROLS.has(control));
+
+  return (
+    <article className="semantic-single" data-depth={item.depth} data-testid="semantic-single">
+      {headline && (
+        headlineAsBadge
+          ? <p className="state-badge semantic-state" data-testid="semantic-state">{displayValue(headline.value)}</p>
+          : <h3 className="semantic-headline">{displayValue(headline.value)}</h3>
+      )}
+      {details.length > 0 && (
+        <dl>
+          {details.map((field) => (
+            <div key={field.key} className="semantic-field">
+              <dt>{field.key.replace(/([A-Z])/g, ' $1')}</dt>
+              <dd>{displayValue(field.value)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {controls.length > 0 && (
+        <div className="semantic-item-controls" aria-label="Inspect this answer">
+          {controls.map((control) => (
+            <button
+              key={control}
+              type="button"
+              aria-expanded={control === 'view-evidence' ? evidenceOpen : undefined}
+              onClick={() => onControl(control)}
+              data-control={control}
+              data-testid={`button-item-0-${control}`}
+            >
+              {elementControlLabel(control, item.depth)}
+            </button>
+          ))}
+        </div>
+      )}
+      {evidenceOpen && (
+        <div className="evidence-disclosure semantic-item-evidence" data-testid="semantic-item-0-evidence">
+          <p>Evidence</p>
+          <pre>{displayValue(evidence ?? null)}</pre>
+        </div>
+      )}
+    </article>
+  );
+}
+
 function fieldsForItem(recipe: ComponentRecipe, itemIndex: number): ResolvedFieldV2[] {
   return recipe.visibleFields.find((item) => item.itemIndex === itemIndex)?.fields ?? [];
 }
@@ -229,6 +290,9 @@ export function SemanticSurface({ recipe, recipesByDepth, variant = 'standalone'
   const supportsList = componentIds.has('List');
   const supportsTimeline = componentIds.has('Timeline');
   const supportsToolbar = componentIds.has('InspectionToolbar');
+  const supportsBadge = componentIds.has('StateBadge');
+  const supportsSingle = supportsBadge || componentIds.has('DetailView')
+    || componentIds.has('Stat') || componentIds.has('CompactCard');
   const startingDepth: ElementDepth = recipe.context.depth === 'audit' ? 'glance' : recipe.context.depth;
   const itemIndices = recipe.answer.items.map((_, itemIndex) => itemIndex);
   const [itemDepths, setItemDepths] = useState<Record<number, ElementDepth>>(() => (
@@ -409,6 +473,14 @@ export function SemanticSurface({ recipe, recipesByDepth, variant = 'standalone'
             <TimelineEntry key={item.itemIndex} itemIndex={item.itemIndex} fields={item.fields} />
           ))}
         </ol>
+      ) : supportsSingle ? (
+        <SingleAnswer
+          item={presentedItems[0]}
+          evidence={recipe.answer.items[0]?.evidence}
+          headlineAsBadge={supportsBadge}
+          evidenceOpen={evidenceItems.has(0)}
+          onControl={(control) => handleElementControl(0, control)}
+        />
       ) : supportsList ? (
         visibleItems.length > 0 ? (
           <div className="semantic-list" data-testid="semantic-list">

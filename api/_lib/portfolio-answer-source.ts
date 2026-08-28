@@ -1,6 +1,7 @@
 import type { AnswerSetV2, FieldInfoV2 } from '@facia/core';
 import { adaptModelAnswer, ModelAnswerContractError } from './model-answer';
 import { supportsTensionQuestion, tensionAnswerSet } from './tension-answer-source';
+import { roleOf } from './question-grammar';
 import {
   generateStructuredPortfolioAnswer,
   type StructuredProvider,
@@ -213,6 +214,11 @@ const CAREER_TERMS = [
 export function supportsCareerQuestion(question: string): boolean {
   const normalized = normalizedQuestion(question);
   const words = new Set(normalized.split(' '));
+  // The career spine answers "what is his history" — a value shown as a
+  // timeline. A verdict, operation, or convergence question often shares a
+  // keyword ("experience", "roles", "worked"), so the role gate comes first:
+  // the spine may only claim a value question.
+  if (roleOf(question) !== 'value') return false;
   // A Zocdoc-specific "what did you do" belongs to the richer Zocdoc model, not
   // the whole-career spine.
   if (supportsPortfolioQuestion(question)) return false;
