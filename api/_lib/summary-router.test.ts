@@ -27,3 +27,17 @@ describe('routing a JD to the nearest tailored summary', () => {
     expect(result.match).toBeNull(); // below threshold — no honest match
   });
 });
+
+describe('a routed application carries its per-role titles', () => {
+  it('exposes the single tailored title per organization', () => {
+    const m = matchSummary('Implementation Engineer. Payments API integration end to end with technical customers: authentication, data mapping, go-live.');
+    expect(m?.id).toBe('integration-engineer');
+    expect(m?.roles.Aroko).toBe('Technical Director, Client Web Work');
+    expect(m?.roles.Zocdoc).toBe('Design Systems Engineer');
+  });
+
+  it('titles the same role differently for a different job', () => {
+    const generalist = matchSummary('Special Projects Lead, founder office. Ambiguous 0-to-1, internal AI tooling, high agency, first principles.');
+    expect(generalist?.roles.Aroko).toBe('Head of Operations');
+  });
+});

@@ -16,6 +16,9 @@ export interface TailoredSummary {
   id: string;
   signal: readonly string[];
   summary: string;
+  /** The single most-apt title per organization, as the reviewed CV chose it.
+   *  Keyed by the organization label in RESUME_CORPUS. */
+  roles: Readonly<Record<string, string>>;
 }
 
 export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
@@ -31,6 +34,12 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'connectors to four external systems end-to-end, working directly with technical customers '
       + 'through go-live. Also owns production front-end (React/TypeScript), so I can consult on '
       + 'both sides of an integration and translate business requirements into technical solutions.',
+    roles: {
+      "Aroko": "Technical Director, Client Web Work",
+      "Zocdoc": "Design Systems Engineer",
+      "Applied Software": "Software Engineer (360Sync)",
+      "Genesco": "Software Engineer"
+    },
   },
   {
     id: 'applied-ai-agents',
@@ -44,6 +53,12 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'testing. The through-line of my work is closing the gap between an agent that looks good '
       + 'in a demo and one dependable enough to run unattended. Backend fundamentals from years of '
       + 'API-integration delivery; React/TypeScript from production design-systems work.',
+    roles: {
+      "Aroko": "Head of Operations / Technical Director",
+      "Zocdoc": "Design Systems Engineer",
+      "Applied Software": "Software / Product Engineer (360Sync)",
+      "Genesco": "Software Engineer / Legacy Modernization"
+    },
   },
   {
     id: 'zero-to-one-generalist',
@@ -59,6 +74,11 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'myself. My instinct is to ask why a process exists before automating it, then build the '
       + 'smallest thing that actually moves the outcome. Engineering background across product, '
       + 'operations, and integration.',
+    roles: {
+      "Aroko": "Head of Operations",
+      "Zocdoc": "Design Systems Engineer",
+      "Applied Software": "Software Engineer (360Sync)"
+    },
   },
   {
     id: 'builder-operator',
@@ -73,6 +93,11 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'infrastructure 0-to-1: multi-provider LLM orchestration, a deterministic agent runtime, '
       + 'and evaluation harnesses that make unsupported model claims a measured metric. Live work '
       + 'is public at jeremycapps.com and jeremycapps.com/stratos.',
+    roles: {
+      "Aroko": "Technical Director, Client Web Work",
+      "Zocdoc": "Design Systems Engineer",
+      "Applied Software": "Software Engineer (360Sync)"
+    },
   },
   {
     id: 'frontend-design-systems',
@@ -87,6 +112,11 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'observability and evals products serve: I built an agent runtime on LangGraph and an '
       + 'evaluation harness that scores LLM runs for accuracy and unsupported claims, so I '
       + 'understand the product from the user’s side, not just the UI’s.',
+    roles: {
+      "Aroko": "Head of Operations / Lead Web Designer / Technical Director",
+      "Zocdoc": "Design Systems Engineer",
+      "Applied Software": "Software / Product Engineer (360Sync)"
+    },
   },
   {
     id: 'forward-deployed-solutions',
@@ -102,5 +132,11 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'technical and business audiences. Strongest fit: forward-deployed / solutions engineering '
       + 'across API integration, AI workflows (MCP, Agent APIs, LLM orchestration), and '
       + 'large-scale data migration.',
+    roles: {
+      "Aroko": "Head of Operations / Lead Web Designer / Technical Director",
+      "Zocdoc": "Design Systems Engineer",
+      "Applied Software": "Software / Product Engineer (360Sync)",
+      "Genesco": "Software Engineer / Legacy Modernization"
+    },
   },
 ] as const;

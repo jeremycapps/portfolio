@@ -658,3 +658,22 @@ describe('computeProvenance', () => {
     expect(provenance.deterministicPct).toBe(100);
   });
 });
+
+describe('routed titles', () => {
+  it('shows the single tailored title per role when the JD routes to an application', async () => {
+    const { RESUME_CORPUS } = await import('./resume-corpus.generated');
+    const jd = 'Implementation Engineer. Integrate our payments API end to end with technical customers: authentication, data mapping, testing, go-live support across external systems.';
+    const { view } = await assembleResume(jd, RESUME_CORPUS, { hasModel: false });
+
+    const aroko = view.experience.find((e) => e.organization === 'Aroko');
+    expect(aroko?.roleContext).toEqual(['Technical Director, Client Web Work']);
+    expect(view.summary.engine).toBe('retrieved');
+  });
+
+  it('leaves every accumulated title when the JD matches nothing', async () => {
+    const { RESUME_CORPUS } = await import('./resume-corpus.generated');
+    const { view } = await assembleResume(UNMATCHED_JOB, RESUME_CORPUS, { hasModel: false });
+    const aroko = view.experience.find((e) => e.organization === 'Aroko');
+    expect((aroko?.roleContext.length ?? 0)).toBeGreaterThan(1); // corpus keeps all titles
+  });
+});

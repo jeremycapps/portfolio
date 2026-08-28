@@ -216,11 +216,11 @@ async function summarizeWithDiagnostics(
   job: string,
   selected: RankedBullet[],
   deps: AssembleDeps = {},
+  routed: ReturnType<typeof matchSummary> = matchSummary(job),
 ): Promise<SummaryOutcome> {
-  // Retrieval before generation: if the job matches a reviewed tailored summary,
+  // Retrieval before generation: if the job matched a reviewed tailored summary,
   // return it as-is. These were written and approved for real roles, so a close
   // match beats anything regenerated from bullets.
-  const routed = matchSummary(job);
   if (routed !== null) {
     return { summary: { text: routed.summary, engine: 'retrieved' }, fallbackReason: 'none' };
   }
@@ -396,7 +396,11 @@ interface RenderedExperience {
 // corpus stores Aroko and Zocdoc as several evidence records), ordered newest
 // first. Shortlisted bullets are used when present; otherwise the
 // role falls back to its own leading bullets so it still appears with content.
-function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): RenderedExperience {
+function buildExperience(
+  orderedBulletIds: string[],
+  corpus: ResumeCorpus,
+  titleOverrides?: Readonly<Record<string, string>>,
+): RenderedExperience {
   const rank = new Map(orderedBulletIds.map((id, index) => [id, index]));
   const order: string[] = [];
   const byOrganization = new Map<string, OrgAccumulator>();
@@ -455,9 +459,10 @@ function buildExperience(orderedBulletIds: string[], corpus: ResumeCorpus): Rend
           if (!sourceRefs.includes(sourceRef)) sourceRefs.push(sourceRef);
         }
       }
+      const override = titleOverrides?.[entry.organization];
       return {
         organization: entry.organization,
-        roleContext: entry.roleContext,
+        roleContext: override ? [override] : entry.roleContext,
         timePeriod: entry.timePeriod,
         bullets: bullets.map((bullet) => bullet.text),
         sourceRefs,
@@ -573,8 +578,12 @@ export async function assembleResume(
   const selection = buildDeterministicShortlist(corpus, ranked);
   const selectionMs = Math.max(0, Math.round(now() - selectionStartedAt));
 
+  // Route the JD to the nearest reviewed application once. It supplies both the
+  // summary and the single most-apt title per role; a miss leaves both to the
+  // corpus and the model.
+  const routed = matchSummary(job);
   const groups = groupSelected(selection.orderedBulletIds, corpus);
-  const experience = buildExperience(selection.orderedBulletIds, corpus);
+  const experience = buildExperience(selection.orderedBulletIds, corpus, routed?.roles);
   const projects = buildProjects(groups);
   const summaryEvidence = buildSummaryEvidence(ranked, [
     ...experience.bulletIds,
@@ -582,7 +591,7 @@ export async function assembleResume(
   ]);
 
   const summaryStartedAt = now();
-  const summaryOutcome = await summarizeWithDiagnostics(job, summaryEvidence, deps);
+  const summaryOutcome = await summarizeWithDiagnostics(job, summaryEvidence, deps, routed);
   const summaryMs = Math.max(0, Math.round(now() - summaryStartedAt));
   const summary = summaryOutcome.summary;
   const view: ResumeView = {
