@@ -7,6 +7,7 @@ import {
   careerHistoryAnswerSet,
 } from '../../../api/_lib/portfolio-answer-source';
 import { tensionAnswerSet } from '../../../api/_lib/tension-answer-source';
+import { adaptModelOperation, type ModelOperation } from '../../../api/_lib/model-operation';
 import { ChatView } from '../chat-view';
 import { nextElementDepth, SemanticSurface, updateElementDepth } from './semantic-surface';
 
@@ -242,5 +243,32 @@ describe('singular answers', () => {
       .not.toContain('never as built or running');
     expect(renderToStaticMarkup(<SemanticSurface recipe={audit.recipe} />))
       .toContain('never as built or running');
+  });
+});
+
+describe('a composed operation answer', () => {
+  const mapping: ModelOperation = {
+    schema: 'portfolio.model-operation/1',
+    refusal: null,
+    input: {
+      claim: 'Owned and migrated shared TypeScript/React design-system components across production healthcare surfaces.',
+      evidenceRefs: ['profile.zocdoc'],
+    },
+    relation: 'The same ownership-plus-migration discipline transfers to a fintech component library, a shared surface under compliance pressure.',
+    output: 'Building a component library at a fintech',
+    caution: null,
+  };
+  const answer = adaptModelOperation(
+    "How would Jeremy's design-system experience apply to building a component library at a fintech?",
+    mapping,
+  );
+
+  it('renders the mapping instead of refusing the operation-detail recipe', () => {
+    const r = resolveAnswerSet(answer, { depth: 'focus' });
+    if (!r.ok) throw new Error('unresolved');
+    const html = renderToStaticMarkup(<SemanticSurface recipe={r.recipe} />);
+    expect(html).not.toContain('does not support');
+    expect(html).toContain('ownership-plus-migration discipline transfers');
+    expect(html).toContain('Building a component library at a fintech');
   });
 });

@@ -292,7 +292,8 @@ export function SemanticSurface({ recipe, recipesByDepth, variant = 'standalone'
   const supportsToolbar = componentIds.has('InspectionToolbar');
   const supportsBadge = componentIds.has('StateBadge');
   const supportsSingle = supportsBadge || componentIds.has('DetailView')
-    || componentIds.has('Stat') || componentIds.has('CompactCard');
+    || componentIds.has('Stat') || componentIds.has('CompactCard')
+    || componentIds.has('OperationDetail');
   const startingDepth: ElementDepth = recipe.context.depth === 'audit' ? 'glance' : recipe.context.depth;
   const itemIndices = recipe.answer.items.map((_, itemIndex) => itemIndex);
   const [itemDepths, setItemDepths] = useState<Record<number, ElementDepth>>(() => (
