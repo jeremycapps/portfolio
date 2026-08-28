@@ -80,7 +80,7 @@ export function convergenceTensions(): CandidateTension[] {
   return CANDIDATE_TENSIONS.filter((t) => !isTwoPole(t.question));
 }
 
-/** The pole the evidence places him on, stated as a verdict state. */
+/** The verdict `state` — a short contract label, not reader-facing prose. */
 function stateOf(tension: CandidateTension): string {
   switch (tension.placement) {
     case 'left': return tension.left.name;
@@ -90,12 +90,17 @@ function stateOf(tension: CandidateTension): string {
   }
 }
 
-/** The other side, so a verdict never hides the alternative it ruled out. */
-function alternativeOf(tension: CandidateTension): string {
+const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+
+/** The answer as a spoken lead clause. A two-pole question rarely has a
+ *  one-pole answer; where the evidence lands on both, or has moved between
+ *  them, the lead says so rather than flattening it into a single label. */
+function answerLead(tension: CandidateTension): string {
   switch (tension.placement) {
-    case 'left': return tension.right.name;
-    case 'right': return tension.left.name;
-    default: return `${tension.left.name} · ${tension.right.name}`;
+    case 'left': return `${tension.left.name}.`;
+    case 'right': return `${tension.right.name}.`;
+    case 'both': return `Both — ${lower(tension.left.name)} and ${lower(tension.right.name)}.`;
+    case 'shifting': return `It has shifted, from ${lower(tension.left.name)} to ${lower(tension.right.name)}.`;
   }
 }
 
@@ -110,13 +115,9 @@ export function tensionAnswerSet(question: string): VerdictAnswerSetV2 | null {
     ]),
   ];
 
-  // The caution is only projected when the corpus actually carries one; a field
-  // key naming an absent payload member is a validation error, not a blank.
   const payload: JsonObject = {
-    position: stateOf(tension),
+    answer: answerLead(tension),
     basis: tension.basis,
-    alternative: alternativeOf(tension),
-    ...(tension.caution === undefined ? {} : { caution: tension.caution }),
   };
 
   return verdictAnswerSet({
@@ -130,12 +131,7 @@ export function tensionAnswerSet(question: string): VerdictAnswerSetV2 | null {
       payload,
       state: stateOf(tension),
       evidence: { status: 'profile-grounded', sourceRefs },
-      fields: fields({
-        primary: ['position'],
-        secondary: ['basis'],
-        supporting: ['alternative'],
-        audit: tension.caution === undefined ? [] : ['caution'],
-      }),
+      fields: fields({ primary: ['answer'], secondary: ['basis'] }),
     }],
     operations: [],
     trace: directTrace(`portfolio.tension.${tension.id}`, [

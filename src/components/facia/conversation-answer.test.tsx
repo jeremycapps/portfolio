@@ -25,9 +25,8 @@ const render = (answer: Parameters<typeof resolveAnswerSet>[0]) => {
 describe('ConversationAnswer', () => {
   it('renders a verdict as a sentence, not a chip in a card', () => {
     const html = render(tensionAnswerSet('Does Jeremy have backend and API experience, or is he frontend-only?')!);
-    expect(html).toContain('Backend and API');
-    expect(html).toContain('REST wrapper libraries'); // the basis, inline
-    expect(html.toLowerCase()).toContain('rather than frontend only'); // ruled-out alternative, woven in
+    expect(html).toContain('Backend and API'); // the answer, as a sentence lead
+    expect(html).toContain('REST wrapper libraries'); // the basis, flowing on
     expect(html).not.toContain('semantic-single'); // no structured card
     expect(html).not.toContain('Inspect'); // no depth-control vocabulary
   });
@@ -43,8 +42,14 @@ describe('ConversationAnswer', () => {
     const html = render(adaptModelOperation('q', op));
     expect(html).toContain('discipline transfers to a fintech');
     expect(html).toContain('Owned and migrated shared design-system components'); // grounding shown
-    expect(html).toContain('has not worked in fintech'); // caution surfaced as an aside
+    expect(html).not.toContain('has not worked in fintech'); // caution is a directive, not displayed
     expect(html).not.toContain('Inspect');
+  });
+
+  it('renders a both-placement as prose that holds the duality', () => {
+    const html = render(tensionAnswerSet('Is Jeremy currently in a hands-on engineering role or an operations role?')!);
+    expect(html).toContain('Both');
+    expect(html).toContain('Head of Operations'); // the basis carries the how
   });
 
   it('renders the career answer as a structured timeline, its one genuinely structured case', () => {

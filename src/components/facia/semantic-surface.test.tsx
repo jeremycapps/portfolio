@@ -225,26 +225,23 @@ describe('singular answers', () => {
     expect(html).toContain('Prototype');
   });
 
-  it('shows the basis and the ruled-out alternative once expanded to focus', () => {
+  it('shows the answer prose and its basis once expanded to focus', () => {
     const result = resolveAnswerSet(verdict, { depth: 'focus' });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
     const html = renderToStaticMarkup(<SemanticSurface recipe={result.recipe} />);
     expect(html).not.toContain('does not support');
-    expect(html).toContain('no located implementation');
-    expect(html).toContain('Production system');
+    expect(html).toContain('no located implementation'); // the basis
   });
 
-  it('surfaces the corpus caution only at audit depth', () => {
-    const focus = resolveAnswerSet(verdict, { depth: 'focus' });
-    const audit = resolveAnswerSet(verdict, { depth: 'audit' });
-    if (!focus.ok || !audit.ok) throw new Error('unresolved');
-
-    expect(renderToStaticMarkup(<SemanticSurface recipe={focus.recipe} />))
-      .not.toContain('never as built or running');
-    expect(renderToStaticMarkup(<SemanticSurface recipe={audit.recipe} />))
-      .toContain('never as built or running');
+  it('never renders the corpus caution — it is a model directive, not a field', () => {
+    for (const depth of ['glance', 'focus', 'audit'] as const) {
+      const r = resolveAnswerSet(verdict, { depth });
+      if (!r.ok) throw new Error('unresolved');
+      expect(renderToStaticMarkup(<SemanticSurface recipe={r.recipe} />))
+        .not.toContain('never as built or running');
+    }
   });
 });
 

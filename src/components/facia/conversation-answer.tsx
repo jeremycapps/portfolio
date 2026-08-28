@@ -25,27 +25,18 @@ function fieldValue(fields: ResolvedFieldV2[], key: string): string | null {
   return Array.isArray(field.value) ? field.value.join(' · ') : String(field.value);
 }
 
-/** A caution lives in the audit bucket; surface it inline rather than gate it. */
-function cautionOf(props: ConversationAnswerProps, index: number): string | null {
-  const audit = props.recipesByDepth?.audit ?? props.recipe;
-  return fieldValue(itemFields(audit, index), 'caution');
-}
-
-function Verdict({ fields, caution }: { fields: ResolvedFieldV2[]; caution: string | null }) {
-  const position = fieldValue(fields, 'position');
+function Verdict({ fields }: { fields: ResolvedFieldV2[] }) {
+  const answer = fieldValue(fields, 'answer');
   const basis = fieldValue(fields, 'basis');
-  const alternative = fieldValue(fields, 'alternative');
   return (
     <p className="conversation-answer conversation-verdict">
-      <strong className="conversation-lead">{position}</strong>
-      {basis ? <span> — {basis}</span> : null}
-      {alternative ? <span className="conversation-aside"> Rather than {alternative.toLowerCase()}.</span> : null}
-      {caution ? <span className="conversation-caution">{caution}</span> : null}
+      <span className="conversation-lead">{answer}</span>
+      {basis ? <span> {basis}</span> : null}
     </p>
   );
 }
 
-function Operation({ fields, caution }: { fields: ResolvedFieldV2[]; caution: string | null }) {
+function Operation({ fields }: { fields: ResolvedFieldV2[] }) {
   const relation = fieldValue(fields, 'relation');
   const grounding = fieldValue(fields, 'grounding');
   return (
@@ -54,7 +45,6 @@ function Operation({ fields, caution }: { fields: ResolvedFieldV2[]; caution: st
       {grounding ? (
         <p className="conversation-grounding"><span className="conversation-grounding-label">Grounded in</span> {grounding}</p>
       ) : null}
-      {caution ? <p className="conversation-caution">{caution}</p> : null}
     </div>
   );
 }
@@ -118,10 +108,10 @@ export function ConversationAnswer(props: ConversationAnswerProps) {
 
   if (ids.has('Timeline')) return <Timeline recipe={recipe} />;
   if (ids.has('OperationDetail')) {
-    return <Operation fields={itemFields(recipe, 0)} caution={cautionOf(props, 0)} />;
+    return <Operation fields={itemFields(recipe, 0)} />;
   }
   if (role === 'verdict') {
-    return <Verdict fields={itemFields(recipe, 0)} caution={cautionOf(props, 0)} />;
+    return <Verdict fields={itemFields(recipe, 0)} />;
   }
   if (recipe.answer.items.length > 1) return <ValueList recipe={recipe} />;
   return <SingleValue fields={itemFields(recipe, 0)} />;

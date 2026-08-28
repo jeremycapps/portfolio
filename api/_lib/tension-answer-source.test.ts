@@ -86,10 +86,18 @@ describe('the tension answer', () => {
     }
   });
 
-  it('projects a caution only for tensions the corpus constrains', () => {
-    const constrained = tensionAnswerSet('Has Jeremy managed people, or is his leadership project-based?')!;
-    const free = tensionAnswerSet('Does Jeremy have backend and API experience, or is he frontend-only?')!;
-    expect(constrained.items[0].payload).toHaveProperty('caution');
-    expect(free.items[0].payload).not.toHaveProperty('caution');
+  it('never projects the corpus caution as a field — it is a model directive', () => {
+    for (const q of [
+      'Has Jeremy managed people, or is his leadership project-based?',
+      'Does Jeremy have backend and API experience, or is he frontend-only?',
+    ]) {
+      expect(tensionAnswerSet(q)!.items[0].payload).not.toHaveProperty('caution');
+    }
+  });
+
+  it('holds a both-placement as prose rather than a single-pole label', () => {
+    const both = tensionAnswerSet('Is Jeremy currently in a hands-on engineering role or an operations role?')!;
+    const payload = both.items[0].payload as Record<string, unknown>;
+    expect(payload.answer).toContain('Both');
   });
 });
