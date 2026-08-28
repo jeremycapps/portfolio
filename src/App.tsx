@@ -1,5 +1,5 @@
 import { type FormEvent, type ReactNode, Suspense, lazy, useEffect, useRef, useState } from 'react';
-import { Check, ChevronRight, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
+import { Check, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
@@ -350,9 +350,6 @@ function Home() {
               </p>
               <h2 className="portfolio-title" id="portfolio-title">What I'm building.</h2>
             </div>
-            <button className="portfolio-link" type="button" onClick={() => showToast('Ask the assistant about any of these — it knows the details.')} data-testid="button-view-archive">
-              Ask about my work <ChevronRight aria-hidden="true" />
-            </button>
           </div>
 
           <ProjectCards />

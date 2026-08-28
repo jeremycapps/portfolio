@@ -359,7 +359,13 @@ textarea:focus-visible {
   color: #4b6273;
   background: #f6fafb;
   font-size: 12px;
+  text-decoration: none;
   transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.starter-chip:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 3px;
 }
 
 .starter-chip:hover:not(:disabled) {
