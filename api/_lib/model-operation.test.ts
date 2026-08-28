@@ -68,12 +68,21 @@ describe('adapting a mapping into an operation answer', () => {
     expect(r.ok && r.recipe.pattern).toBe('operation-detail');
   });
 
-  it('projects the mapping as the primary field and the two terms beneath', () => {
+  it('projects the mapping as the primary field, grounded on the cited claim', () => {
     const r = resolveAnswerSet(answer, { depth: 'focus' });
     if (!r.ok) throw new Error('unresolved');
     const keys = r.recipe.visibleFields[0].fields.map((f) => f.key);
     expect(keys[0]).toBe('relation');
-    expect(keys).toContain('from');
-    expect(keys).toContain('to');
+    expect(keys).toContain('grounding');
+  });
+
+  it('does not restate the two endpoints as fields — the relation already names them', () => {
+    expect(answer.items[0].payload).not.toHaveProperty('from');
+    expect(answer.items[0].payload).not.toHaveProperty('to');
+  });
+
+  it('keeps input and output as the contract operation record', () => {
+    expect(answer.items[0].input).toContain('design-system components');
+    expect(answer.items[0].output).toBe('Building a component library at a fintech');
   });
 });

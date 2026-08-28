@@ -108,10 +108,13 @@ export function adaptModelOperation(question: string, mapping: ModelOperation): 
   const sources = [...new Set(resolved.map((e) => e.source))];
   const grounded = resolved.every((e) => e.tier === 'profile-grounded');
 
+  // The relation is the answer; it already names both endpoints. Rather than
+  // restate them, the field that deepens the answer is its grounding — the cited
+  // claim the mapping stands on — with the caution reserved for audit. The two
+  // endpoints remain the contract's `input`/`output` record below, not fields.
   const payload: JsonObject = {
     relation: mapping.relation,
-    from: mapping.input.claim,
-    to: mapping.output,
+    grounding: mapping.input.claim,
     ...(mapping.caution === null ? {} : { caution: mapping.caution }),
   };
 
@@ -138,7 +141,7 @@ export function adaptModelOperation(question: string, mapping: ModelOperation): 
       fields: {
         priority: {
           primary: ['relation'],
-          secondary: ['from', 'to'],
+          secondary: ['grounding'],
           supporting: [],
           audit: mapping.caution === null ? [] : ['caution'],
         },

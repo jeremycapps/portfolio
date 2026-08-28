@@ -268,7 +268,10 @@ describe('a composed operation answer', () => {
     if (!r.ok) throw new Error('unresolved');
     const html = renderToStaticMarkup(<SemanticSurface recipe={r.recipe} />);
     expect(html).not.toContain('does not support');
+    // The relation is the headline; its grounding deepens it. The two endpoints
+    // are the contract record, not restated as fields.
     expect(html).toContain('ownership-plus-migration discipline transfers');
-    expect(html).toContain('Building a component library at a fintech');
+    expect(html).toContain('production healthcare surfaces');
+    expect(html).not.toContain('<dt>to</dt>');
   });
 });
