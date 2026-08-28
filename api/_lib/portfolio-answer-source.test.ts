@@ -208,3 +208,41 @@ describe('the career matcher claims only value questions', () => {
     expect(supportsCareerQuestion("What was Jeremy's title and how long was he at Zocdoc?")).toBe(true);
   });
 });
+
+describe('relational questions route to grounded composition', () => {
+  const fakeOperation = async () => ({
+    schema: 'portfolio.model-operation/1' as const,
+    refusal: null,
+    input: {
+      claim: 'Owned and migrated shared TypeScript/React design-system components at Zocdoc.',
+      evidenceRefs: ['profile.zocdoc' as const],
+    },
+    relation: 'The ownership-and-migration discipline transfers to a fintech component library, a shared surface under compliance pressure.',
+    output: 'Building a component library at a fintech',
+    caution: 'Jeremy has not worked in fintech; the transfer is by shape of problem.',
+  });
+
+  it('composes an operation answer instead of falling through to the value model', async () => {
+    const answer = await generatePortfolioAnswer(
+      "How would Jeremy's design-system experience apply to building a component library at a fintech?",
+      async () => { throw new Error('the value provider must not be reached for an operation question'); },
+      fakeOperation,
+    );
+    expect(answer.answerType).toBe('operation');
+    const item = answer.items[0];
+    if (item.type !== 'Operation') throw new Error('expected an operation item');
+    expect(item.output).toBe('Building a component library at a fintech');
+    expect((item.evidence as { status: string }).status).toBe('composed');
+  });
+
+  it('leaves a value question on the value path', async () => {
+    const answer = await generatePortfolioAnswer(
+      'What did Jeremy work on at Zocdoc?',
+      async () => ({ schema: 'portfolio.model-answer/1', refusal: null, items: [
+        { title: 'x', contribution: 'y', outcome: null, scope: null, evidenceRefs: ['profile.zocdoc'] },
+      ] }),
+      async () => { throw new Error('the operation provider must not be reached for a value question'); },
+    );
+    expect(answer.answerType).toBe('value');
+  });
+});

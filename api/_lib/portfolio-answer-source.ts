@@ -2,6 +2,10 @@ import type { AnswerSetV2, FieldInfoV2 } from '@facia/core';
 import { adaptModelAnswer, ModelAnswerContractError } from './model-answer';
 import { supportsTensionQuestion, tensionAnswerSet } from './tension-answer-source';
 import { roleOf } from './question-grammar';
+import { adaptModelOperation, ModelOperationContractError } from './model-operation';
+import {
+  generateStructuredPortfolioOperation, type OperationProvider,
+} from './structured-operation-provider';
 import {
   generateStructuredPortfolioAnswer,
   type StructuredProvider,
@@ -351,11 +355,21 @@ export function answerPortfolioQuestion(question: string): AnswerSetV2 | null {
 export async function generatePortfolioAnswer(
   question: string,
   provider: StructuredProvider = generateStructuredPortfolioAnswer,
+  operationProvider: OperationProvider = generateStructuredPortfolioOperation,
 ): Promise<AnswerSetV2> {
   // Role before keyword. A two-pole question opens a two-place answer space and
   // picks one — a bounded verdict, answered from the tension index. Without
   // this the career matcher claims it and returns the career timeline.
   if (supportsTensionQuestion(question)) return tensionAnswerSet(question)!;
+  // A relational question names two terms whose mapping is in no single source.
+  // It is composed: the model supplies the mapping, the host grounds the input
+  // and draws the seam. This runs ahead of the value model so a "how does X
+  // relate to Y" question is never flattened into a list of value items.
+  if (roleOf(question) === 'operation') {
+    const mapping = await operationProvider(question);
+    if (mapping.refusal === null) return adaptModelOperation(question, mapping);
+    throw new ModelOperationContractError('MODEL_REFUSED', mapping.refusal);
+  }
   // The career spine is a temporal sequence; the model adapter only emits
   // singular values, so this answer is authored deterministically and never
   // routed through the provider.
