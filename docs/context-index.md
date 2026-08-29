@@ -128,23 +128,32 @@ curl -X POST http://localhost:3000/api/context-query \
 
 Response: `{ "protocol": "portfolio.context-query/1", "trace": [...], "results": [...] }`.
 
-## Not yet done
+## Natural-language orchestration
 
-Natural-language orchestration is still open. The intended boundary is:
+`/api/chat` now implements the intended boundary end to end:
 
 ```text
 browser -> POST /api/chat -> query-planning model -> validated ContextQuery JSON
         -> server-side DuckDB retrieval -> answer model -> readable streamed answer
 ```
 
-The planning model should choose only `term`, `kind`, `expansion`, and `limit`;
-it should never generate SQL. The browser must not call `/api/context-query`
-directly because doing so would expose `CONTEXT_QUERY_API_KEY`. The same-origin
-chat/answer server route should invoke retrieval internally, give the bounded
-results to the answer model with source/provenance instructions, and stream the
-readable response back to the existing client.
+`api/_lib/context-query-planner.ts` runs one structured-generation call per chat
+turn to decide whether the question benefits from the private corpus, and with
+what `term`/`kind`/`expansion`/`limit`. `api/_lib/context-retrieval-client.ts`
+makes a same-origin, bearer-authenticated call to this endpoint from the Edge
+`/api/chat` function when the planner says so. Any failure at either step —
+refusal, malformed JSON, timeout, missing key, non-200, network error — falls
+back silently to profile-only grounding; the chat response never errors or
+stalls because of this feature. See
+`docs/superpowers/specs/2026-08-29-chat-context-retrieval-wiring-design.md` for
+the full design.
 
-That integration can extend Portfolio's existing deterministic question grammar
-(`api/_lib/question-grammar.ts`) or add a constrained model compiler in front of
-it. The public-vs-local-agent authority and Libera/Facia ownership questions in
-the architecture handoff remain separate decisions.
+The response carries `x-context-retrieval: hit|none|error` and, when `hit`,
+`x-context-retrieval-count`, so the wiring can be checked after a deploy with
+`npm run verify:chat-context-prod -- --url=<deployed chat URL> --question=<corpus-specific question>`,
+by inspecting Vercel's function logs for the `{"route":"chat",...}` line each
+request emits, or by asking the live chat UI a corpus-specific question
+directly. This has not yet been re-run against the current production
+deployment after this wiring — do that once this change ships, then record the
+result the same way prior context-index milestones were recorded (see git log
+for `docs: record production ...` commits).
