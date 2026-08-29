@@ -7,3 +7,4 @@ dist
 eval/reports/
 .cyboflow/worktrees/
 worktrees/
+.context-index/
