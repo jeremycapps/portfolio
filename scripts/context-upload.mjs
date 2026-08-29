@@ -30,8 +30,12 @@ const client = new S3Client({
   credentials: { accessKeyId, secretAccessKey },
 });
 
-const files = readdirSync(inputDir).filter((name) => name.endsWith('.parquet'));
-if (!files.length) throw new Error(`no .parquet files found in ${inputDir}`);
+const contentTypes = new Map([
+  ['.parquet', 'application/vnd.apache.parquet'],
+  ['.duckdb', 'application/octet-stream'],
+]);
+const files = readdirSync(inputDir).filter((name) => contentTypes.has(path.extname(name)));
+if (!files.length) throw new Error(`no supported .parquet or .duckdb files found in ${inputDir}`);
 
 const report = [];
 for (const name of files) {
@@ -42,7 +46,7 @@ for (const name of files) {
     Key: key,
     Body: createReadStream(filePath),
     ContentLength: statSync(filePath).size,
-    ContentType: 'application/vnd.apache.parquet',
+    ContentType: contentTypes.get(path.extname(name)),
   }));
   report.push({ key, bytes: statSync(filePath).size });
 }
