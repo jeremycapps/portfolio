@@ -30,7 +30,8 @@
     "context:build": "node scripts/context-build-index.mjs",
     "context:search-build": "node scripts/context-build-search-db.mjs",
     "context:reindex-if-requested": "node scripts/context-reindex-r2.mjs",
-    "context:upload": "node scripts/context-upload.mjs"
+    "context:upload": "node scripts/context-upload.mjs",
+    "verify:chat-context-prod": "node scripts/verify-chat-context-prod.mjs"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
