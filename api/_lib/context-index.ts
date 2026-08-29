@@ -211,6 +211,7 @@ async function runQuery<T>(connection: DuckDBConnection, built: BuiltQuery): Pro
 }
 
 export async function ensureHttpfs(connection: DuckDBConnection, config: R2Config): Promise<void> {
+  await connection.run("SET home_directory='/tmp'");
   await connection.run("SET extension_directory='/tmp/duckdb-extensions'");
   await connection.run('INSTALL httpfs');
   await connection.run('LOAD httpfs');

@@ -1,9 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import type { DuckDBConnection } from '@duckdb/node-api';
+import { describe, expect, it, vi } from 'vitest';
 import {
   catalogQuery,
   clampLimit,
   exchangeAllRowsQuery,
   exchangeTopicRowsQuery,
+  ensureHttpfs,
   likePattern,
   mapRawRow,
   resolveR2Config,
@@ -11,6 +13,34 @@ import {
   selectNeighborOrdinals,
   tableUrl,
 } from './context-index';
+
+describe('ensureHttpfs', () => {
+  it('sets a writable Vercel home before installing and configuring httpfs', async () => {
+    const run = vi.fn().mockResolvedValue(undefined);
+    const connection = { run } as unknown as DuckDBConnection;
+
+    await ensureHttpfs(connection, {
+      accountId: 'account',
+      accessKeyId: 'access',
+      secretAccessKey: 'secret',
+      bucket: 'bucket',
+      prefix: 'context-index',
+      endpoint: 'account.r2.cloudflarestorage.com',
+    });
+
+    expect(run.mock.calls.map(([sql]) => sql)).toEqual([
+      "SET home_directory='/tmp'",
+      "SET extension_directory='/tmp/duckdb-extensions'",
+      'INSTALL httpfs',
+      'LOAD httpfs',
+      "SET s3_endpoint='account.r2.cloudflarestorage.com'",
+      "SET s3_region='auto'",
+      "SET s3_url_style='path'",
+      "SET s3_access_key_id='access'",
+      "SET s3_secret_access_key='secret'",
+    ]);
+  });
+});
 
 describe('resolveR2Config', () => {
   it('returns null when any required variable is missing', () => {
