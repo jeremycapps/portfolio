@@ -1,5 +1,5 @@
 import { DuckDBInstance } from '@duckdb/node-api';
-import { jsonError, jsonResponse } from './http';
+import { jsonError, jsonResponse } from './http.js';
 import {
   ensureHttpfs,
   queryContext,
@@ -8,7 +8,7 @@ import {
   type ContextQuery,
   type ContextQueryKind,
   type ContextQueryResult,
-} from './context-index';
+} from './context-index.js';
 
 const MAX_TERM_CHARS = 500;
 const MAX_REQUEST_BYTES = 5_000;
