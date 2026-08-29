@@ -68,26 +68,49 @@ otherwise trip DuckDB's CSV sniffer) and casts only the known integer columns
 the same JSON-encoded string produced by `context-build-index.mjs`; callers
 `JSON.parse` it after querying.
 
-`context-upload.mjs` uploads every `*.parquet` file in the input directory to
+`context-upload.mjs` uploads every `*.parquet` and `*.duckdb` file in the input directory to
 `s3://$R2_BUCKET/$R2_PREFIX/<file>` via R2's S3-compatible API.
+
+Parquet is the rebuild/source format. Production retrieval uses a persisted
+DuckDB database containing materialized tables and FTS indexes:
+
+```sh
+npm run context:search-build -- \
+  --input-dir=.context-index/parquet \
+  --output-file=.context-index/search/context-index.duckdb
+
+R2_ACCOUNT_ID=... R2_ACCESS_KEY_ID=... R2_SECRET_ACCESS_KEY=... R2_BUCKET=... \
+  npm run context:upload -- --input-dir=.context-index/search
+```
+
+For an intentional one-time production rebuild, `scripts/context-reindex-r2.mjs`
+can read the Parquet files from R2, create the database in temporary build
+storage, and upload it. It skips unless `CONTEXT_REINDEX_ON_BUILD=1`; supply
+that as a one-deployment build override, not a persistent production variable.
 
 ## Query module and endpoint
 
 `api/_lib/context-index.ts` implements the FINAL_OUTCOME retrieval policy as SQL
-over the R2-hosted Parquet files, queried in place via DuckDB's `httpfs`
-extension (no local download):
+over an R2-hosted, read-only DuckDB database attached through `httpfs`:
 
 ```text
-kind: catalog        -> inventory.parquet (file_path / summary ILIKE term)
-kind: prose          -> topic-rows.parquet (preview/headings/keywords/text ILIKE term)
-kind: code           -> code-rows.parquet  (same)
-expansion: neighbors -> for each match's exchange, matched TOPIC row +/- 1 in all-rows.parquet
-expansion: exchange  -> every row in the match's exchange, from all-rows.parquet
+kind: catalog        -> persistent FTS/BM25 over catalog_rows
+kind: prose          -> persistent FTS/BM25 over TOPIC rows in search_rows
+kind: code           -> persistent FTS/BM25 over CODE rows in search_rows
+expansion: neighbors -> one batched exchange query, then matched TOPIC row +/- 1
+expansion: exchange  -> one batched query for every matched exchange
 ```
 
-The `read_parquet()` path is always a config-derived constant, quoted inline
-(DuckDB table functions need a bind-time-constant path); only the caller's
-search term or an exchange id is ever a bound parameter.
+SQL is used because DuckDB is the embedded query engine and its FTS extension
+exposes BM25 ranking through SQL. Callers never submit SQL: the public contract
+is constrained JSON, and the backend owns static statements with bound search
+terms and exchange ids.
+
+`api/_lib/context-runtime.ts` caches the initialized DuckDB instance for the
+lifetime of a warm Vercel process. The remote database is attached and its
+protocol checked once; each request opens a lightweight connection on that
+instance. DuckDB's object cache is enabled so repeated reads can reuse remote
+metadata and data within the process.
 
 `POST /api/context-query` (`api/context-query.ts`) wires this into a Vercel
 **Node.js** function — deliberately not Edge, since `@duckdb/node-api` needs
@@ -107,10 +130,21 @@ Response: `{ "protocol": "portfolio.context-query/1", "trace": [...], "results":
 
 ## Not yet done
 
-Converting a natural-language question into a `context-query` call — i.e.
-extending Portfolio's existing deterministic question grammar
-(`api/_lib/question-grammar.ts`) or adding a constrained compiler in front of
-this endpoint — is still open, along with the harder ownership questions in the
-architecture handoff (public vs. local-agent authority over this corpus,
-Libera/Facia boundary). This port only makes the proven retrieval mechanism
-queryable; nothing calls it yet.
+Natural-language orchestration is still open. The intended boundary is:
+
+```text
+browser -> POST /api/chat -> query-planning model -> validated ContextQuery JSON
+        -> server-side DuckDB retrieval -> answer model -> readable streamed answer
+```
+
+The planning model should choose only `term`, `kind`, `expansion`, and `limit`;
+it should never generate SQL. The browser must not call `/api/context-query`
+directly because doing so would expose `CONTEXT_QUERY_API_KEY`. The same-origin
+chat/answer server route should invoke retrieval internally, give the bounded
+results to the answer model with source/provenance instructions, and stream the
+readable response back to the existing client.
+
+That integration can extend Portfolio's existing deterministic question grammar
+(`api/_lib/question-grammar.ts`) or add a constrained model compiler in front of
+it. The public-vs-local-agent authority and Libera/Facia ownership questions in
+the architecture handoff remain separate decisions.
