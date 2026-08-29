@@ -6,7 +6,9 @@ import handler, { handleFetchRequest } from './context-query';
 describe('context-query Vercel entrypoint', () => {
   it('uses the shared Request-to-Response contract and runs on the Node.js runtime (no edge config)', async () => {
     const consoleInfo = vi.spyOn(console, 'info').mockImplementation(() => undefined);
-    const response = await handleFetchRequest(new Request('https://example.com/api/context-query'));
+    const response = await handleFetchRequest(new Request('https://example.com/api/context-query', {
+      headers: { authorization: 'Bearer test-key' },
+    }), 'test-key');
 
     expect(response.status).toBe(405);
     await expect(response.json()).resolves.toEqual({
@@ -20,12 +22,30 @@ describe('context-query Vercel entrypoint', () => {
     consoleInfo.mockRestore();
   });
 
+  it('fails closed when the bearer key is absent or incorrect', async () => {
+    const request = new Request('https://example.com/api/context-query', { method: 'POST' });
+
+    const unconfigured = await handleFetchRequest(request, '');
+    expect(unconfigured.status).toBe(503);
+    await expect(unconfigured.json()).resolves.toEqual({
+      error: 'The context query service is not configured.',
+      code: 'CONTEXT_QUERY_AUTH_NOT_CONFIGURED',
+    });
+
+    const unauthorized = await handleFetchRequest(request, 'test-key');
+    expect(unauthorized.status).toBe(401);
+    await expect(unauthorized.json()).resolves.toEqual({
+      error: 'Unauthorized.',
+      code: 'UNAUTHORIZED',
+    });
+  });
+
   it('adapts the Vercel Node request and response objects to the Fetch contract', async () => {
     const consoleInfo = vi.spyOn(console, 'info').mockImplementation(() => undefined);
     const request = {
       method: 'GET',
       url: '/api/context-query',
-      headers: { host: 'example.com' },
+      headers: { host: 'example.com', authorization: 'Bearer test-key' },
     } as VercelRequest;
     const response = {
       statusCode: 200,
@@ -33,7 +53,9 @@ describe('context-query Vercel entrypoint', () => {
       end: vi.fn(),
     } as unknown as VercelResponse;
 
+    vi.stubEnv('CONTEXT_QUERY_API_KEY', 'test-key');
     await handler(request, response);
+    vi.unstubAllEnvs();
 
     expect(response.statusCode).toBe(405);
     expect(response.setHeader).toHaveBeenCalledWith('content-type', 'application/json; charset=utf-8');

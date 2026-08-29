@@ -1,12 +1,32 @@
+import { timingSafeEqual } from 'node:crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { handleContextQueryRequest } from './_lib/context-core.js';
-import { withApiLogging } from './_lib/http.js';
+import { jsonError, withApiLogging } from './_lib/http.js';
 
 // No `runtime: 'edge'` here, unlike the other routes: this needs @duckdb/node-api's
 // native bindings, which only run in a Node.js function.
 const loggedContextQueryHandler = withApiLogging('api/context-query', handleContextQueryRequest);
 
-export function handleFetchRequest(request: Request): Promise<Response> {
+function hasValidBearerToken(request: Request, apiKey: string): boolean {
+  const provided = Buffer.from(request.headers.get('authorization') ?? '', 'utf8');
+  const expected = Buffer.from(`Bearer ${apiKey}`, 'utf8');
+  return provided.length === expected.length && timingSafeEqual(provided, expected);
+}
+
+export function handleFetchRequest(
+  request: Request,
+  apiKey: string | undefined = process.env.CONTEXT_QUERY_API_KEY,
+): Promise<Response> {
+  if (!apiKey) {
+    return Promise.resolve(jsonError(
+      'The context query service is not configured.',
+      'CONTEXT_QUERY_AUTH_NOT_CONFIGURED',
+      503,
+    ));
+  }
+  if (!hasValidBearerToken(request, apiKey)) {
+    return Promise.resolve(jsonError('Unauthorized.', 'UNAUTHORIZED', 401));
+  }
   return loggedContextQueryHandler(request);
 }
 
