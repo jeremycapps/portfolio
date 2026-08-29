@@ -13,7 +13,7 @@
     "build:facia": "npm run build --workspace packages/facia-core",
     "predev": "npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos",
     "dev": "vite",
-    "prebuild": "npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos",
+    "prebuild": "npm run context:reindex-if-requested && npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos",
     "build": "vite build",
     "preview": "vite preview",
     "pretypecheck": "npm run build:facia",
@@ -27,7 +27,10 @@
     "preeval": "npm run gen:profile",
     "eval": "node --import tsx eval/run.ts",
     "context:normalize": "node scripts/context-normalize.mjs",
-    "context:build": "node scripts/context-build-index.mjs"
+    "context:build": "node scripts/context-build-index.mjs",
+    "context:search-build": "node scripts/context-build-search-db.mjs",
+    "context:reindex-if-requested": "node scripts/context-reindex-r2.mjs",
+    "context:upload": "node scripts/context-upload.mjs"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",

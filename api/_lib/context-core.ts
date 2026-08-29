@@ -1,14 +1,12 @@
-import { DuckDBInstance } from '@duckdb/node-api';
-import { jsonError, jsonResponse } from './http';
+import { jsonError, jsonResponse } from './http.js';
 import {
-  ensureHttpfs,
-  queryContext,
   resolveR2Config,
   type ContextExpansion,
   type ContextQuery,
   type ContextQueryKind,
   type ContextQueryResult,
-} from './context-index';
+} from './context-index.js';
+import { getContextRuntime } from './context-runtime.js';
 
 const MAX_TERM_CHARS = 500;
 const MAX_REQUEST_BYTES = 5_000;
@@ -59,15 +57,8 @@ type QueryRunner = (query: ContextQuery) => Promise<ContextQueryResult>;
 async function defaultRunQuery(query: ContextQuery): Promise<ContextQueryResult> {
   const config = resolveR2Config();
   if (!config) throw new Error('context index storage is not configured');
-
-  const instance = await DuckDBInstance.create(':memory:');
-  const connection = await instance.connect();
-  try {
-    await ensureHttpfs(connection, config);
-    return await queryContext(connection, config, query);
-  } finally {
-    connection.closeSync();
-  }
+  const runtime = await getContextRuntime(config);
+  return runtime.runQuery(query);
 }
 
 export async function handleContextQueryRequest(

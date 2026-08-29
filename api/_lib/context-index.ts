@@ -78,18 +78,15 @@ export function tableUrl(config: R2Config, table: string): string {
   return `s3://${config.bucket}/${config.prefix}/${table}.parquet`;
 }
 
+export function searchDatabaseUrl(config: R2Config): string {
+  return `s3://${config.bucket}/${config.prefix}/context-index.duckdb`;
+}
+
 export function clampLimit(limit: number | undefined): number {
   if (!Number.isFinite(limit) || (limit ?? 0) <= 0) return DEFAULT_LIMIT;
   return Math.min(Math.trunc(limit as number), MAX_LIMIT);
 }
 
-/** Escapes SQL LIKE metacharacters so a raw search term matches literally. */
-export function likePattern(term: string): string {
-  const escaped = term.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_');
-  return `%${escaped}%`;
-}
-
-/** read_parquet()'s path argument must be a constant at bind time, so the (trusted, config-derived) URL is quoted inline; only the caller-supplied term is a bind parameter. */
 function quoteLiteral(value: string): string {
   return `'${value.replaceAll("'", "''")}'`;
 }
@@ -99,52 +96,49 @@ export interface BuiltQuery {
   params: string[];
 }
 
-export function catalogQuery(url: string, pattern: string, limit: number): BuiltQuery {
+export function catalogQuery(term: string, limit: number): BuiltQuery {
   return {
     sql: `SELECT project, file_type AS fileType, date, file_path AS filePath, tags, summary
-          FROM read_parquet(${quoteLiteral(url)})
-          WHERE file_path ILIKE $1 ESCAPE '\\' OR summary ILIKE $1 ESCAPE '\\'
+          FROM (
+            SELECT *, fts_main_catalog_rows.match_bm25(catalog_id, $1) AS score
+            FROM catalog_rows
+          ) ranked
+          WHERE score IS NOT NULL
+          ORDER BY score DESC, file_path
           LIMIT ${limit}`,
-    params: [pattern],
+    params: [term],
   };
 }
 
-export function rowSearchQuery(url: string, pattern: string, limit: number): BuiltQuery {
+export function rowSearchQuery(term: string, kind: Exclude<ContextQueryKind, 'catalog'>, limit: number): BuiltQuery {
+  const recordType = kind === 'prose' ? 'TOPIC' : 'CODE';
   return {
     sql: `SELECT record_type, id, file_id, exchange_id, exchange_ordinal, row_ordinal,
                  project, date, file_path, start_line, end_line, roles, headings, keywords,
                  preview, chunk_text_json
-          FROM read_parquet(${quoteLiteral(url)})
-          WHERE preview ILIKE $1 ESCAPE '\\'
-             OR headings ILIKE $1 ESCAPE '\\'
-             OR keywords ILIKE $1 ESCAPE '\\'
-             OR chunk_text_json ILIKE $1 ESCAPE '\\'
+          FROM (
+            SELECT *, fts_main_search_rows.match_bm25(id, $1) AS score
+            FROM search_rows
+            WHERE record_type = ${quoteLiteral(recordType)}
+          ) ranked
+          WHERE score IS NOT NULL
+          ORDER BY score DESC, row_ordinal
           LIMIT ${limit}`,
-    params: [pattern],
+    params: [term],
   };
 }
 
-export function exchangeTopicRowsQuery(url: string, exchangeId: string): BuiltQuery {
+export function exchangeRowsBatchQuery(exchangeIds: string[], topicOnly: boolean): BuiltQuery {
+  if (exchangeIds.length === 0) throw new Error('exchangeIds must not be empty');
+  const placeholders = exchangeIds.map((_, index) => `$${index + 1}`).join(', ');
   return {
     sql: `SELECT record_type, id, file_id, exchange_id, exchange_ordinal, row_ordinal,
                  project, date, file_path, start_line, end_line, roles, headings, keywords,
                  preview, chunk_text_json
-          FROM read_parquet(${quoteLiteral(url)})
-          WHERE exchange_id = $1 AND record_type = 'TOPIC'
-          ORDER BY row_ordinal`,
-    params: [exchangeId],
-  };
-}
-
-export function exchangeAllRowsQuery(url: string, exchangeId: string): BuiltQuery {
-  return {
-    sql: `SELECT record_type, id, file_id, exchange_id, exchange_ordinal, row_ordinal,
-                 project, date, file_path, start_line, end_line, roles, headings, keywords,
-                 preview, chunk_text_json
-          FROM read_parquet(${quoteLiteral(url)})
-          WHERE exchange_id = $1
-          ORDER BY row_ordinal`,
-    params: [exchangeId],
+          FROM search_rows
+          WHERE exchange_id IN (${placeholders})${topicOnly ? " AND record_type = 'TOPIC'" : ''}
+          ORDER BY exchange_id, row_ordinal`,
+    params: exchangeIds,
   };
 }
 
@@ -210,15 +204,32 @@ async function runQuery<T>(connection: DuckDBConnection, built: BuiltQuery): Pro
   return reader.getRowObjectsJson() as T[];
 }
 
-export async function ensureHttpfs(connection: DuckDBConnection, config: R2Config): Promise<void> {
+export async function initializeSearchDatabase(
+  connection: DuckDBConnection,
+  config: R2Config,
+): Promise<void> {
+  await connection.run("SET home_directory='/tmp'");
   await connection.run("SET extension_directory='/tmp/duckdb-extensions'");
   await connection.run('INSTALL httpfs');
   await connection.run('LOAD httpfs');
-  await connection.run(`SET s3_endpoint='${config.endpoint}'`);
+  await connection.run('INSTALL fts');
+  await connection.run('LOAD fts');
+  await connection.run('PRAGMA enable_object_cache');
+  await connection.run(`SET s3_endpoint=${quoteLiteral(config.endpoint)}`);
   await connection.run("SET s3_region='auto'");
   await connection.run("SET s3_url_style='path'");
   await connection.run(`SET s3_access_key_id=${quoteLiteral(config.accessKeyId)}`);
   await connection.run(`SET s3_secret_access_key=${quoteLiteral(config.secretAccessKey)}`);
+  await connection.run(
+    `ATTACH ${quoteLiteral(searchDatabaseUrl(config))} AS context_index (READ_ONLY)`,
+  );
+  await connection.run('USE context_index');
+
+  const metadata = await connection.runAndReadAll('SELECT protocol FROM index_metadata LIMIT 1');
+  const [row] = metadata.getRowObjectsJson() as Array<{ protocol?: unknown }>;
+  if (row?.protocol !== 'portfolio.context-index-db/1') {
+    throw new Error('context search database has an unsupported protocol');
+  }
 }
 
 export async function queryContext(
@@ -227,11 +238,10 @@ export async function queryContext(
   query: ContextQuery,
 ): Promise<ContextQueryResult> {
   const limit = clampLimit(query.limit);
-  const pattern = likePattern(query.term);
   const trace: string[] = [];
 
   if (query.kind === 'catalog') {
-    const built = catalogQuery(tableUrl(config, 'inventory'), pattern, limit);
+    const built = catalogQuery(query.term, limit);
     const rows = await runQuery<{ project: string; fileType: string; date: string; filePath: string; tags: string; summary: string }>(
       connection,
       built,
@@ -250,9 +260,10 @@ export async function queryContext(
     };
   }
 
-  const table = query.kind === 'prose' ? 'topic-rows' : 'code-rows';
-  const url = tableUrl(config, table);
-  const matches = await runQuery<RawRow>(connection, rowSearchQuery(url, pattern, limit));
+  const matches = await runQuery<RawRow>(
+    connection,
+    rowSearchQuery(query.term, query.kind, limit),
+  );
   trace.push(query.kind === 'prose' ? 'topic' : 'code');
 
   const expansion = query.expansion ?? 'none';
@@ -260,7 +271,6 @@ export async function queryContext(
     return { trace, results: matches.map(mapRawRow) };
   }
 
-  const allRowsUrl = tableUrl(config, 'all-rows');
   const byExchange = new Map<string, number[]>();
   for (const match of matches) {
     const ordinals = byExchange.get(match.exchange_id) ?? [];
@@ -273,17 +283,28 @@ export async function queryContext(
 
   if (expansion === 'exchange') {
     trace.push('exchange');
-    for (const exchangeId of byExchange.keys()) {
-      const rows = await runQuery<RawRow>(connection, exchangeAllRowsQuery(allRowsUrl, exchangeId));
-      for (const row of rows) selectedRaw.set(row.id, row);
-    }
+    const rows = await runQuery<RawRow>(
+      connection,
+      exchangeRowsBatchQuery([...byExchange.keys()], false),
+    );
+    for (const row of rows) selectedRaw.set(row.id, row);
   } else {
     trace.push('neighbors');
+    const rows = await runQuery<RawRow>(
+      connection,
+      exchangeRowsBatchQuery([...byExchange.keys()], true),
+    );
+    const rowsByExchange = new Map<string, RawRow[]>();
+    for (const row of rows) {
+      const exchangeRows = rowsByExchange.get(row.exchange_id) ?? [];
+      exchangeRows.push(row);
+      rowsByExchange.set(row.exchange_id, exchangeRows);
+    }
     for (const [exchangeId, matchedOrdinals] of byExchange) {
-      const rows = await runQuery<RawRow>(connection, exchangeTopicRowsQuery(allRowsUrl, exchangeId));
-      const orderedOrdinals = rows.map((row) => Number(row.row_ordinal));
+      const exchangeRows = rowsByExchange.get(exchangeId) ?? [];
+      const orderedOrdinals = exchangeRows.map((row) => Number(row.row_ordinal));
       const selectedOrdinals = selectNeighborOrdinals(orderedOrdinals, matchedOrdinals);
-      for (const row of rows) {
+      for (const row of exchangeRows) {
         if (selectedOrdinals.has(Number(row.row_ordinal))) selectedRaw.set(row.id, row);
       }
     }
@@ -292,7 +313,9 @@ export async function queryContext(
   return {
     trace,
     results: [...selectedRaw.values()]
-      .sort((left, right) => Number(left.row_ordinal) - Number(right.row_ordinal))
+      .sort((left, right) => left.file_path.localeCompare(right.file_path)
+        || Number(left.exchange_ordinal) - Number(right.exchange_ordinal)
+        || Number(left.row_ordinal) - Number(right.row_ordinal))
       .map(mapRawRow),
   };
 }
