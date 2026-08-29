@@ -6,10 +6,54 @@ import {
   answerPortfolioQuestion,
   careerHistoryAnswerSet,
   generatePortfolioAnswer,
+  liberaStartPrecision,
   supportsCareerQuestion,
   supportsPortfolioQuestion,
   supportsTechnologiesQuestion,
 } from './portfolio-answer-source';
+
+describe('Libera start-date precision', () => {
+  it('answers the supported year and refuses to invent a month', async () => {
+    const unreachable = async () => {
+      throw new Error('the provider must not be reached for a grounded date question');
+    };
+
+    const year = await generatePortfolioAnswer(
+      'When did he first start working on Libera?',
+      unreachable,
+    );
+    const month = await generatePortfolioAnswer(
+      'What month did he start working on Libera?',
+      unreachable,
+    );
+
+    expect(year.items[0].payload.title).toBe('2026');
+    expect(month.items[0].payload.title).toBe('Month not specified');
+    expect(month.items[0].payload.contribution).toContain('does not specify a month');
+  });
+
+  it('resolves “what month?” from the preceding Libera start-date turn', async () => {
+    const history = [
+      { role: 'user' as const, content: 'When did he first start working on Libera?' },
+      { role: 'assistant' as const, content: '2026.' },
+    ];
+    expect(liberaStartPrecision('What month?', history)).toBe('month');
+
+    const answer = await generatePortfolioAnswer(
+      'What month?',
+      async () => { throw new Error('provider should not be called'); },
+      undefined,
+      history,
+    );
+    expect(answer.items[0].payload.title).toBe('Month not specified');
+  });
+
+  it('does not attach an unrelated month follow-up to Libera', () => {
+    expect(liberaStartPrecision('What month?', [
+      { role: 'user', content: 'When did Jeremy join Aroko?' },
+    ])).toBeNull();
+  });
+});
 
 describe('portfolio answer source', () => {
   it('routes only declared Zocdoc question shapes', () => {
@@ -48,6 +92,35 @@ describe('portfolio answer source', () => {
     expect(answer.items[0].evidence).toEqual(expect.objectContaining({
       sourceRefs: ['content/profile.md#career-history'],
     }));
+  });
+
+  it('forwards prior conversation turns to the structured provider', async () => {
+    const history = [
+      { role: 'user' as const, content: 'What is Facia?' },
+      { role: 'assistant' as const, content: 'It turns answers into UI recipes.' },
+    ];
+    let receivedHistory: Array<{ role: string; content: string }> | undefined;
+    await generatePortfolioAnswer(
+      'How is that used here?',
+      async (_question, _deps, received) => {
+        receivedHistory = received;
+        return {
+          schema: 'portfolio.model-answer/1',
+          refusal: null,
+          items: [{
+            title: 'Portfolio rendering',
+            contribution: 'Facia renders structured answers on the portfolio.',
+            outcome: null,
+            scope: null,
+            evidenceRefs: ['profile.facia'],
+          }],
+        };
+      },
+      undefined,
+      history,
+    );
+
+    expect(receivedHistory).toEqual(history);
   });
 
   it('uses the Zocdoc fixture only for provider availability failures', async () => {

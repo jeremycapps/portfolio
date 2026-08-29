@@ -1,10 +1,24 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ANSWER_SET_SCHEMA_PIN } from '@facia/core';
-import { AnswerApiError, sendStructuredAnswer } from './answer';
+import { AnswerApiError, boundAnswerHistory, sendStructuredAnswer } from './answer';
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe('sendStructuredAnswer', () => {
+  it('keeps the newest bounded history for the structured prompt', () => {
+    const history = Array.from({ length: 14 }, (_, index) => ({
+      role: index % 2 === 0 ? 'user' as const : 'assistant' as const,
+      content: `${index}: ${'x'.repeat(2_500)}`,
+    }));
+    const bounded = boundAnswerHistory(history);
+
+    expect(bounded).toHaveLength(6);
+    expect(bounded[0].content.startsWith('8:')).toBe(true);
+    expect(bounded.at(-1)?.content.startsWith('13:')).toBe(true);
+    expect(bounded.every((message) => message.content.length <= 2_000)).toBe(true);
+    expect(bounded.reduce((sum, message) => sum + message.content.length, 0)).toBe(12_000);
+  });
+
   it('posts the question and disclosure depth', async () => {
     const recipe = (depth: 'glance' | 'inspect' | 'focus' | 'audit') => ({
       pattern: 'list',
@@ -32,7 +46,31 @@ describe('sendStructuredAnswer', () => {
 
     expect(fetchMock).toHaveBeenCalledWith('/api/answer', expect.objectContaining({
       method: 'POST',
-      body: JSON.stringify({ question: 'Zocdoc?', depth: 'inspect' }),
+      body: JSON.stringify({ question: 'Zocdoc?', depth: 'inspect', history: [] }),
+    }));
+  });
+
+  it('posts compact conversation history for contextual structured answers', async () => {
+    const fetchMock = vi.fn(async () => new Response('{}', {
+      status: 404,
+      headers: { 'content-type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(sendStructuredAnswer('What month?', 'glance', undefined, [
+      { role: 'user', content: 'When did he start working on Libera?' },
+      { role: 'assistant', content: '2026.' },
+    ])).rejects.toBeInstanceOf(AnswerApiError);
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/answer', expect.objectContaining({
+      body: JSON.stringify({
+        question: 'What month?',
+        depth: 'glance',
+        history: [
+          { role: 'user', content: 'When did he start working on Libera?' },
+          { role: 'assistant', content: '2026.' },
+        ],
+      }),
     }));
   });
 

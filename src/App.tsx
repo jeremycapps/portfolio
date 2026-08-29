@@ -16,6 +16,7 @@ import {
   sendStructuredAnswer,
 } from '@/lib/answer';
 import {
+  compactMessageText,
   consumeChoices,
   markdownContent,
   messageHasVisibleContent,
@@ -113,7 +114,15 @@ function Home() {
       setMessages([...next, { role: 'assistant', content: markdownContent() }]);
 
       try {
-        const answer = await sendStructuredAnswer(cleanPrompt, 'glance', controller.signal);
+        const answer = await sendStructuredAnswer(
+          cleanPrompt,
+          'glance',
+          controller.signal,
+          history.map((message) => ({
+            role: message.role,
+            content: compactMessageText(message),
+          })),
+        );
         setMessages([
           ...next,
           {

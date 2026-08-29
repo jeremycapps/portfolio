@@ -23,6 +23,27 @@ export class AnswerApiError extends Error {
   }
 }
 
+export interface AnswerHistoryMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+const MAX_HISTORY_MESSAGES = 12;
+const MAX_HISTORY_MESSAGE_CHARS = 2_000;
+const MAX_HISTORY_CHARS = 12_000;
+
+export function boundAnswerHistory(history: AnswerHistoryMessage[]): AnswerHistoryMessage[] {
+  const bounded: AnswerHistoryMessage[] = [];
+  let remaining = MAX_HISTORY_CHARS;
+  for (const message of history.slice(-MAX_HISTORY_MESSAGES).reverse()) {
+    if (remaining <= 0) break;
+    const content = message.content.slice(0, Math.min(MAX_HISTORY_MESSAGE_CHARS, remaining));
+    remaining -= content.length;
+    bounded.unshift({ role: message.role, content });
+  }
+  return bounded;
+}
+
 const DEPTHS: DisclosureDepth[] = ['glance', 'inspect', 'focus', 'audit'];
 
 function isComponentRecipe(value: unknown, expectedDepth?: DisclosureDepth): value is ComponentRecipe {
@@ -79,11 +100,12 @@ export async function sendStructuredAnswer(
   question: string,
   depth: DisclosureDepth,
   signal?: AbortSignal,
+  history: AnswerHistoryMessage[] = [],
 ): Promise<StructuredAnswerResponse> {
   const response = await fetch('/api/answer', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ question, depth }),
+    body: JSON.stringify({ question, depth, history: boundAnswerHistory(history) }),
     signal,
   });
 

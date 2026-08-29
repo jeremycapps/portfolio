@@ -14,10 +14,12 @@ import {
   generateOpenRouterStructured,
   type StructuredGenerationDeps,
 } from './structured-openrouter';
+import type { ChatMessage } from './types';
 
 export type OperationProvider = (
   question: string,
   deps?: StructuredGenerationDeps,
+  history?: ChatMessage[],
 ) => Promise<ModelOperation>;
 
 const OPERATION_INSTRUCTIONS = [
@@ -34,6 +36,7 @@ const OPERATION_INSTRUCTIONS = [
 export async function generateStructuredPortfolioOperation(
   question: string,
   deps?: StructuredGenerationDeps,
+  history: ChatMessage[] = [],
 ): Promise<ModelOperation> {
   const config = getConfig();
   if (config.provider !== 'openrouter') {
@@ -47,6 +50,7 @@ export async function generateStructuredPortfolioOperation(
         role: 'system',
         content: [portfolioGrounding(), OPERATION_INSTRUCTIONS, evidencePromptIndex()].join('\n\n'),
       },
+      ...history,
       { role: 'user', content: question },
     ],
   }, deps);
