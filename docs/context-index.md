@@ -92,11 +92,14 @@ search term or an exchange id is ever a bound parameter.
 `POST /api/context-query` (`api/context-query.ts`) wires this into a Vercel
 **Node.js** function — deliberately not Edge, since `@duckdb/node-api` needs
 native bindings that Edge's V8 isolate can't load. It's the only non-Edge route
-in `api/`.
+in `api/`. Because the index contains private transcript material, callers must
+authenticate with the server-side `CONTEXT_QUERY_API_KEY`; do not expose this
+key to browser code.
 
 ```sh
 curl -X POST http://localhost:3000/api/context-query \
   -H 'content-type: application/json' \
+  -H "authorization: Bearer $CONTEXT_QUERY_API_KEY" \
   -d '{"term": "trustable change model", "kind": "prose", "expansion": "neighbors"}'
 ```
 
