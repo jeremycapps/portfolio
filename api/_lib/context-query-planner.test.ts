@@ -91,7 +91,7 @@ describe('planContextQuery', () => {
 
   it('returns needed:false when generation times out', async () => {
     vi.stubEnv('OPENROUTER_API_KEY', 'test-key');
-    const fetchImpl: typeof fetch = vi.fn((_url, init) => new Promise((_resolve, reject) => {
+    const fetchImpl: typeof fetch = vi.fn((_url, init) => new Promise<Response>((_resolve, reject) => {
       init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
     }));
     const result = await planContextQuery('anything', [], { fetchImpl, timeoutMs: 10 });

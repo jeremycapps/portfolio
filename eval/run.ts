@@ -14,7 +14,12 @@ import { estimateRunCost, parseRunOptions, selectQuestions } from './run-options
 const here = dirname(fileURLToPath(import.meta.url));
 
 async function chat(conversation: ChatMessage[]): Promise<string> {
-  const messages = buildMessages(conversation);
+  // No live deployment to call /api/context-query against here, so retrieval
+  // is always declined — the eval measures profile-only grounding quality,
+  // unchanged by this feature. The origin is unused in that case.
+  const { messages } = await buildMessages(conversation, 'http://eval.local', {
+    plan: async () => ({ needed: false }),
+  });
   let output = '';
   for await (const delta of streamChat(messages)) output += delta;
   return output;

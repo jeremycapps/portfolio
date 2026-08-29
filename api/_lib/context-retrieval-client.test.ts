@@ -44,7 +44,7 @@ describe('retrieveContext', () => {
   });
 
   it('throws when the request times out', async () => {
-    const fetchImpl: typeof fetch = vi.fn((_url, init) => new Promise((_resolve, reject) => {
+    const fetchImpl: typeof fetch = vi.fn((_url, init) => new Promise<Response>((_resolve, reject) => {
       init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
     }));
     await expect(

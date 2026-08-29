@@ -1,12 +1,23 @@
-import { systemPrompt } from './config';
+import { markdownAssistantInstructions, portfolioGrounding } from './config';
 import { jsonError } from './http';
 import { streamChat } from './provider';
 import { checkRateLimit } from './rate-limit';
+import { planContextQuery } from './context-query-planner';
+import { retrieveContext } from './context-retrieval-client';
+import type { CatalogRow, ContextQueryKind, ContextRow } from './context-index';
 import type { ChatMessage, ChatRole } from './types';
 
 const MAX_MESSAGES = 40;
 const MAX_CHARS = 8000;
 const CLIENT_ROLES: ChatRole[] = ['user', 'assistant'];
+
+const CONTEXT_BLOCK_INSTRUCTIONS = [
+  "The material below is dated working context drawn from Jeremy's own development",
+  'history (past AI chat transcripts and code). It may be exploratory, superseded, or',
+  'informal. Treat it as evidence of current or past thinking, never as more',
+  'authoritative than the canonical profile above. Cite it as "as of <date>" when you',
+  'draw on it.',
+].join('\n');
 
 type ValidResult =
   | { ok: true; messages: ChatMessage[] }
@@ -36,13 +47,119 @@ export function validateChatBody(body: unknown): ValidResult {
   return { ok: true, messages: messages as ChatMessage[] };
 }
 
-export function buildMessages(userMessages: ChatMessage[]): ChatMessage[] {
-  return [{ role: 'system', content: systemPrompt() }, ...userMessages];
+function formatContextRow(row: ContextRow | CatalogRow): string {
+  const body = 'text' in row ? row.text : row.summary;
+  return `[${row.project}, ${row.date}, ${row.filePath}] ${body}`;
+}
+
+function buildContextBlock(rows: Array<ContextRow | CatalogRow>): string {
+  return [CONTEXT_BLOCK_INSTRUCTIONS, '', ...rows.map(formatContextRow)].join('\n');
+}
+
+export interface ContextRetrievalOutcome {
+  status: 'hit' | 'none' | 'error';
+  count?: number;
+  term?: string;
+  kind?: ContextQueryKind;
+  planMs: number;
+  retrievalMs?: number;
+}
+
+export interface BuildMessagesDeps {
+  plan?: typeof planContextQuery;
+  retrieve?: typeof retrieveContext;
+}
+
+export interface BuildMessagesResult {
+  messages: ChatMessage[];
+  outcome: ContextRetrievalOutcome;
+}
+
+export async function buildMessages(
+  userMessages: ChatMessage[],
+  origin: string,
+  deps: BuildMessagesDeps = {},
+): Promise<BuildMessagesResult> {
+  const plan = deps.plan ?? planContextQuery;
+  const retrieve = deps.retrieve ?? retrieveContext;
+  const question = userMessages[userMessages.length - 1]?.content ?? '';
+  const history = userMessages.slice(0, -1);
+
+  const planStarted = Date.now();
+  const decision = await plan(question, history);
+  const planMs = Date.now() - planStarted;
+
+  let contextBlock: string | null = null;
+  let outcome: ContextRetrievalOutcome = { status: 'none', planMs };
+
+  if (decision.needed) {
+    const retrievalStarted = Date.now();
+    try {
+      const rows = await retrieve(decision.query, origin);
+      const retrievalMs = Date.now() - retrievalStarted;
+      if (rows.length > 0) {
+        contextBlock = buildContextBlock(rows);
+        outcome = {
+          status: 'hit',
+          count: rows.length,
+          term: decision.query.term,
+          kind: decision.query.kind,
+          planMs,
+          retrievalMs,
+        };
+      } else {
+        outcome = {
+          status: 'none',
+          term: decision.query.term,
+          kind: decision.query.kind,
+          planMs,
+          retrievalMs,
+        };
+      }
+    } catch (error) {
+      console.error('context retrieval failed:', error);
+      outcome = {
+        status: 'error',
+        term: decision.query.term,
+        kind: decision.query.kind,
+        planMs,
+        retrievalMs: Date.now() - retrievalStarted,
+      };
+    }
+  }
+
+  const systemParts = [portfolioGrounding()];
+  if (contextBlock) systemParts.push(contextBlock);
+  systemParts.push(markdownAssistantInstructions());
+
+  return {
+    messages: [{ role: 'system', content: systemParts.join('\n\n') }, ...userMessages],
+    outcome,
+  };
+}
+
+function logContextRetrievalOutcome(outcome: ContextRetrievalOutcome): void {
+  const line = {
+    route: 'chat',
+    contextRetrieval: outcome.status,
+    ...(outcome.kind !== undefined ? { kind: outcome.kind } : {}),
+    ...(outcome.term !== undefined ? { term: outcome.term } : {}),
+    ...(outcome.count !== undefined ? { resultCount: outcome.count } : {}),
+    planMs: outcome.planMs,
+    ...(outcome.retrievalMs !== undefined ? { retrievalMs: outcome.retrievalMs } : {}),
+  };
+  if (outcome.status === 'error') console.error(JSON.stringify(line));
+  else console.log(JSON.stringify(line));
 }
 
 export async function handleChatRequest(
   request: Request,
-  deps: { stream?: typeof streamChat; checkLimit?: typeof checkRateLimit } = {},
+  deps: {
+    stream?: typeof streamChat;
+    checkLimit?: typeof checkRateLimit;
+    plan?: typeof planContextQuery;
+    retrieve?: typeof retrieveContext;
+  } = {},
 ): Promise<Response> {
   if (request.method !== 'POST') {
     return jsonError('Method not allowed.', 'METHOD_NOT_ALLOWED', 405);
@@ -74,8 +191,14 @@ export async function handleChatRequest(
   const valid = validateChatBody(body);
   if (!valid.ok) return jsonError(valid.error, 'INVALID_REQUEST', 400);
 
+  const origin = new URL(request.url).origin;
+  const { messages, outcome } = await buildMessages(valid.messages, origin, {
+    plan: deps.plan,
+    retrieve: deps.retrieve,
+  });
+  logContextRetrievalOutcome(outcome);
+
   const stream = deps.stream ?? streamChat;
-  const messages = buildMessages(valid.messages);
   const iterator = stream(messages)[Symbol.asyncIterator]();
 
   let first: IteratorResult<string>;
@@ -105,11 +228,14 @@ export async function handleChatRequest(
     },
   });
 
-  return new Response(readable, {
-    status: 200,
-    headers: {
-      'content-type': 'text/plain; charset=utf-8',
-      'cache-control': 'no-store',
-    },
-  });
+  const headers: Record<string, string> = {
+    'content-type': 'text/plain; charset=utf-8',
+    'cache-control': 'no-store',
+    'x-context-retrieval': outcome.status,
+  };
+  if (outcome.status === 'hit' && outcome.count !== undefined) {
+    headers['x-context-retrieval-count'] = String(outcome.count);
+  }
+
+  return new Response(readable, { status: 200, headers });
 }
