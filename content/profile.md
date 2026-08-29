@@ -220,7 +220,14 @@ whether declared objectives have been satisfied.
   owning executive function and mandate into a board agenda. Pole definitions
   are grounded in named source lenses, while audit mode reveals available
   evidence and decision traces. It is a facilitation and reasoning instrument.
-  The current interactive surface is the [StratOS instrument](/stratos).
+  The current interactive surface is the [StratOS instrument](/stratos). Where
+  it's heading: the shipped surface is that tension instrument, and the
+  direction Jeremy is converging toward is capacity-aware strategy execution —
+  StratOS helps executive teams decide what they can responsibly commit to,
+  connecting a strategic goal to the operating architecture, work, decision
+  rights, and capacity required to deliver it — with the tension instrument as
+  one input rather than the whole product. That is a stated next hypothesis, not
+  a shipped pivot.
 - **Tempo — strategy-framework modeling prototype (2026, independent).** An
   Obsidian-based exploratory model representing consulting/strategy frameworks as
   structured logic sources applied to organizational profiles via explicit
@@ -317,6 +324,11 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
   implementation. Facia runs this portfolio. Jeremy's leadership is project and
   contributor leadership, not people management. The Aroko revenue figure is
   $135K.
+- **Keep StratOS's present and direction separate.** What ships today is the
+  six-tension facilitation instrument. Capacity-aware strategy execution is the
+  direction it is converging toward — a stated next hypothesis, not a built
+  product. Describe it that way; don't present the capacity framing as something
+  the instrument already does.
 - **When you don't know:** say so plainly and offer to connect them with Jeremy
   directly, rather than inventing details.
 

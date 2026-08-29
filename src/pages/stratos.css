@@ -53,6 +53,16 @@
   font-weight: 600;
 }
 
+.stratos .stratos-trajectory {
+  max-width: 620px;
+  margin: 16px auto 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--app-border, rgba(92, 114, 134, 0.22));
+  color: #5c7286;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 .stratos .bar {
   gap: 18px;
   justify-content: space-between;

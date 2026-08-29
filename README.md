@@ -97,6 +97,14 @@ un-groundable answer can never ship. The ontology, source lenses, and citations
 live under `src/lib/stratos/`. It is a facilitation and reasoning prototype, not
 an objective measurement of strategy.
 
+**Direction.** The shipped instrument is the six-tension facilitation surface
+described above. The product direction it is converging toward is capacity-aware
+strategy execution — StratOS helps executive teams decide what they can
+responsibly commit to, connecting a strategic goal to the operating
+architecture, work, decision rights, and capacity required to deliver it — with
+the tension instrument as one input rather than the whole product. That is a
+next hypothesis, not a shipped pivot.
+
 The `/stratos` routes are served by the SPA through the rewrites in
 `vercel.json`.
 

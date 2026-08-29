@@ -301,6 +301,11 @@ export default function StratosPage() {
             selects that pole’s recommendation. Hover a pole label to view its definition and sources;
             select an answer to open its supporting detail.
           </p>
+          <p className="stratos-trajectory">
+            Where this is heading: capacity-aware strategy execution — deciding what a team can responsibly
+            commit to, given the work, decision rights, and capacity a goal requires. The instrument here is
+            the present surface, not that product yet.
+          </p>
         </div>
 
         <div className="bar semantic-affordance-row">
