@@ -10,6 +10,7 @@ import {
   generateStructuredPortfolioAnswer,
   type StructuredProvider,
 } from './structured-provider';
+import type { ChatMessage } from './types';
 
 const CANONICAL_QUESTION = 'What did Jeremy work on at Zocdoc?';
 
@@ -17,6 +18,84 @@ const QUESTION_TERMS = ['work', 'build', 'do', 'design system', 'accessibility',
 
 function normalizedQuestion(question: string): string {
   return question.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+type LiberaStartPrecision = 'year' | 'month';
+
+function latestUserQuestion(history: ChatMessage[]): string {
+  return [...history].reverse().find((message) => message.role === 'user')?.content ?? '';
+}
+
+/** Resolve a precise Libera start-date question, including a short contextual follow-up. */
+export function liberaStartPrecision(
+  question: string,
+  history: ChatMessage[] = [],
+): LiberaStartPrecision | null {
+  const current = normalizedQuestion(question);
+  const prior = normalizedQuestion(latestUserQuestion(history));
+  const asksForMonth = /\bmonth\b/.test(current);
+  const namesLibera = /\blibera\b/.test(current)
+    || (asksForMonth && /\blibera\b/.test(prior));
+  const asksAboutStarting = /\b(start|started|begin|began|first)\b/.test(current)
+    || (asksForMonth && /\b(start|started|begin|began|first)\b/.test(prior));
+
+  if (!namesLibera || !asksAboutStarting) return null;
+  if (asksForMonth) return 'month';
+  return /^(when|what year)\b/.test(current) ? 'year' : null;
+}
+
+export function liberaStartDateAnswerSet(
+  question: string,
+  precision: LiberaStartPrecision,
+): AnswerSetV2 {
+  const sourceRef = 'content/profile.md#selected-projects';
+  const monthRequested = precision === 'month';
+  const title = monthRequested ? 'Month not specified' : '2026';
+  const contribution = monthRequested
+    ? 'The portfolio establishes that Jeremy began working on Libera in 2026, but it does not specify a month.'
+    : 'Jeremy’s documented work on Libera begins in 2026.';
+  return {
+    schema: 'facia.answer-set/2',
+    question,
+    answerType: 'value',
+    path: 'meaning',
+    inspection: 'available',
+    actionable: false,
+    items: [{
+      type: 'Value',
+      payload: {
+        title,
+        contribution,
+        precision: monthRequested ? 'year only' : 'year',
+        scope: 'No more precise start date is present in the portfolio grounding.',
+        evidenceTier: 'profile-grounded',
+        source: sourceRef,
+      },
+      value: title,
+      evidence: {
+        status: 'profile-grounded',
+        sourceRefs: [sourceRef],
+      },
+      fields: {
+        priority: {
+          primary: ['title', 'contribution'],
+          secondary: ['precision'],
+          supporting: ['scope'],
+          audit: ['evidenceTier', 'source'],
+        },
+      },
+    }],
+    operations: [],
+    trace: {
+      kind: 'direct',
+      id: 'portfolio.libera-start-date.v1',
+      entries: [
+        { step: 'question.selected', value: 'portfolio.libera-start-date' },
+        { step: 'source.loaded', value: sourceRef },
+        { step: 'precision.resolved', value: precision },
+      ],
+    },
+  };
 }
 
 export function supportsPortfolioQuestion(question: string): boolean {
@@ -356,7 +435,10 @@ export async function generatePortfolioAnswer(
   question: string,
   provider: StructuredProvider = generateStructuredPortfolioAnswer,
   operationProvider: OperationProvider = generateStructuredPortfolioOperation,
+  history: ChatMessage[] = [],
 ): Promise<AnswerSetV2> {
+  const startPrecision = liberaStartPrecision(question, history);
+  if (startPrecision !== null) return liberaStartDateAnswerSet(question, startPrecision);
   // Role before keyword. A two-pole question opens a two-place answer space and
   // picks one — a bounded verdict, answered from the tension index. Without
   // this the career matcher claims it and returns the career timeline.
@@ -366,7 +448,7 @@ export async function generatePortfolioAnswer(
   // and draws the seam. This runs ahead of the value model so a "how does X
   // relate to Y" question is never flattened into a list of value items.
   if (roleOf(question) === 'operation') {
-    const mapping = await operationProvider(question);
+    const mapping = await operationProvider(question, undefined, history);
     if (mapping.refusal === null) return adaptModelOperation(question, mapping);
     throw new ModelOperationContractError('MODEL_REFUSED', mapping.refusal);
   }
@@ -375,7 +457,7 @@ export async function generatePortfolioAnswer(
   // routed through the provider.
   if (supportsCareerQuestion(question)) return careerHistoryAnswerSet();
   try {
-    const answer = await provider(question);
+    const answer = await provider(question, undefined, history);
     return adaptModelAnswer(question, answer);
   } catch (error) {
     // Keep the existing source-reviewed fixture as a deliberately narrow rollout fallback.

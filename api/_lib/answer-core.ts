@@ -9,16 +9,24 @@ import { jsonError, jsonResponse } from './http';
 import { checkRateLimit } from './rate-limit';
 import { ModelAnswerContractError } from './model-answer';
 import { generatePortfolioAnswer } from './portfolio-answer-source';
+import type { ChatMessage } from './types';
 
 const MAX_QUESTION_CHARS = 1_000;
+const MAX_HISTORY_MESSAGES = 12;
+const MAX_HISTORY_MESSAGE_CHARS = 2_000;
+const MAX_HISTORY_CHARS = 12_000;
 const DEPTHS: DisclosureDepth[] = ['glance', 'inspect', 'focus', 'audit'];
 
 interface AnswerRequest {
   question: string;
   depth: DisclosureDepth;
+  history: ChatMessage[];
 }
 
-type AnswerSource = (question: string) => AnswerSetV2 | null | Promise<AnswerSetV2 | null>;
+type AnswerSource = (
+  question: string,
+  history: ChatMessage[],
+) => AnswerSetV2 | null | Promise<AnswerSetV2 | null>;
 type RateLimitCheck = (request: Request) => ReturnType<typeof checkRateLimit>;
 
 type ValidResult =
@@ -37,7 +45,35 @@ export function validateAnswerBody(body: unknown): ValidResult {
   if (!DEPTHS.includes(depth as DisclosureDepth)) {
     return { ok: false, error: 'depth must be glance, inspect, focus, or audit.' };
   }
-  return { ok: true, value: { question, depth: depth as DisclosureDepth } };
+
+  const rawHistory = candidate.history ?? [];
+  if (!Array.isArray(rawHistory) || rawHistory.length > MAX_HISTORY_MESSAGES) {
+    return { ok: false, error: `history must contain at most ${MAX_HISTORY_MESSAGES} messages.` };
+  }
+  const history: ChatMessage[] = [];
+  let historyChars = 0;
+  for (const message of rawHistory) {
+    if (
+      message === null
+      || typeof message !== 'object'
+      || Array.isArray(message)
+      || !['user', 'assistant'].includes((message as Record<string, unknown>).role as string)
+      || typeof (message as Record<string, unknown>).content !== 'string'
+      || ((message as Record<string, unknown>).content as string).length > MAX_HISTORY_MESSAGE_CHARS
+    ) {
+      return { ok: false, error: 'history messages need a valid role and content.' };
+    }
+    historyChars += (message as { content: string }).content.length;
+    if (historyChars > MAX_HISTORY_CHARS) {
+      return { ok: false, error: 'history is too large.' };
+    }
+    history.push({
+      role: (message as { role: 'user' | 'assistant' }).role,
+      content: (message as { content: string }).content,
+    });
+  }
+
+  return { ok: true, value: { question, depth: depth as DisclosureDepth, history } };
 }
 
 export async function handleAnswerRequest(
@@ -80,7 +116,11 @@ export async function handleAnswerRequest(
 
   let answerSet: AnswerSetV2 | null;
   try {
-    answerSet = await (deps.answer ?? generatePortfolioAnswer)(validation.value.question);
+    const answer = deps.answer
+      ?? ((question: string, history: ChatMessage[]) => (
+        generatePortfolioAnswer(question, undefined, undefined, history)
+      ));
+    answerSet = await answer(validation.value.question, validation.value.history);
   } catch (error) {
     if (error instanceof ModelAnswerContractError) {
       const responses = {
