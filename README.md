@@ -4,7 +4,8 @@ An interactive AI portfolio. The chat answers questions about Jeremy Capps,
 streamed from an open-weights model via OpenRouter, behind a provider-swappable
 backend. Declared portfolio questions can also resolve deterministically through
 the vendored Facia v2 runtime into evidence-aware component recipes. A separate
-`/stratos` route hosts an interactive strategy instrument built on the same
+`/stratos-v2` hosts the constraint-aware organizational conversion prototype.
+The original `/stratos` route remains available as an interactive strategy instrument built on the same
 deterministic runtime (see [StratOS instrument](#stratos-instrument-stratos)).
 
 ## Run locally
@@ -107,6 +108,14 @@ next hypothesis, not a shipped pivot.
 
 The `/stratos` routes are served by the SPA through the rewrites in
 `vercel.json`.
+
+## StratOS v2 (`/stratos-v2`)
+
+`/stratos-v2` reframes the organization as six coupled conversion systems operating
+inside shared people, finance, time, and risk constraints. Its system view connects
+the six tensions; each detail view exposes the pole, observed and prospective cycle
+times, the constraint footprint, and whether the resulting trajectory can converge
+on an illustrative 15-month commitment. The original `/stratos` route is preserved.
 
 ## Deploy (Vercel)
 
