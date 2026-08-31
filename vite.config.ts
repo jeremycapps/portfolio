@@ -92,7 +92,16 @@ export default defineConfig(({ mode }) => {
       dedupe: ['react', 'react-dom'],
     },
     root,
-    build: { outDir: 'dist', emptyOutDir: true },
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+      rollupOptions: {
+        input: {
+          main: path.resolve(root, 'index.html'),
+          stratosV2: path.resolve(root, 'stratos-v2/index.html'),
+        },
+      },
+    },
     server: { port: Number(process.env.PORT ?? fileEnv.PORT) || 5173 },
   };
 });

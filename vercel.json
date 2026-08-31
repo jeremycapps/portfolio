@@ -14,7 +14,7 @@
     },
     {
       "source": "/stratos-v2",
-      "destination": "/index.html"
+      "destination": "/stratos-v2/index.html"
     },
     {
       "source": "/stratos-v2/:path*",
