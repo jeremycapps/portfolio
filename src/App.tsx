@@ -1,10 +1,10 @@
 import { type FormEvent, type ReactNode, Suspense, lazy, useEffect, useRef, useState } from 'react';
-import { Check, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowUpRight, Check, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ChatView } from '@/components/chat-view';
 import { PromptStarters } from '@/components/prompt-starters';
-import { ProjectCards } from '@/components/project-cards';
+import { HomeSystems } from '@/components/home-systems';
 import { SiteHeader } from '@/components/site-header';
 import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { ResumeSurface } from '@/components/facia/resume-surface';
@@ -24,27 +24,34 @@ import {
   type ClientMessage,
 } from '@/lib/chat';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
-import { EXPLAIN_PROJECT_CHOICES, PORTFOLIO_PROJECTS } from '@/lib/projects';
+import { EXPLAIN_PROJECT_CHOICES } from '@/lib/projects';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
 
-const HERO_PHRASES = ['my experience', 'my projects', 'anything'];
-
-function RotatingPhrase() {
-  const [index, setIndex] = useState(0);
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setIndex((current) => (current + 1) % HERO_PHRASES.length);
-    }, 2200);
-    return () => window.clearInterval(id);
-  }, []);
-  return (
-    <em className="hero-rotator" key={index}>
-      {HERO_PHRASES[index]}.
-    </em>
-  );
-}
+// Seeded questions so the "ask" is never a blank prompt — each hands the visitor
+// a real question the assistant can answer, matching the surface-first idea.
+const HOME_QUESTIONS: readonly { label: string; prompt: string }[] = [
+  {
+    label: 'What is StratOS?',
+    prompt:
+      'Explain the StratOS project in depth — what it is, how it works, and why it matters.',
+  },
+  {
+    label: "What's he looking for?",
+    prompt: 'What kind of roles is Jeremy looking for, and what does he most want to do?',
+  },
+  {
+    label: 'Explain Libera',
+    prompt:
+      'Explain the Libera project in depth — what it is, how it works, and why it matters.',
+  },
+  {
+    label: 'Why ontology?',
+    prompt:
+      "What is the throughline of Jeremy's work, and why does he focus on ontology and context infrastructure?",
+  },
+];
 
 function Home() {
   const [prompt, setPrompt] = useState('');
@@ -193,7 +200,8 @@ function Home() {
 
   const submitResume = async (jobDescription: string) => {
     if (streaming) return;
-    setResumeMode(false);
+    // Resume mode stays on through tailoring so the composer keeps inviting
+    // another job description; handleClearChat / other starters exit it.
     setResumeResult(null);
     setStatusMessage('');
     setChatError(null);
@@ -253,14 +261,13 @@ function Home() {
         aria-label={chatActive ? 'Portfolio assistant' : undefined}
         aria-labelledby={chatActive ? undefined : 'hero-title'}
       >
-        <div className="intro">
-          <p className="eyebrow" data-testid="text-eyebrow">The portfolio of Jeremy Capps</p>
-          <h1 className="hero-title" id="hero-title">
-            Ask me about<br />
-            <RotatingPhrase />
+        <div className="intro home-hero">
+          <p className="home-eyebrow" data-testid="text-eyebrow">Knowledge &amp; ontology engineer &middot; New York City</p>
+          <h1 className="home-thesis" id="hero-title">
+            I build the <span>source-of-truth layer</span> for messy work &mdash; turning scattered, ambiguous work into <b>structured systems people can run</b>.
           </h1>
-          <p className="hero-description">
-            A conversational portfolio. Ask about my experience, the systems I'm building, or how I think about software.
+          <p className="home-sub">
+            Nine years across engineering, operations, and product, working the seams between them. The throughline is <b>ontology</b>: turning ambiguous sources into explicit, auditable structure &mdash; the literal subject of the three systems below.
           </p>
         </div>
 
@@ -268,6 +275,11 @@ function Home() {
           <div className="conversation-pane" role="region" aria-label="Conversation">
             {resumeResult ? (
               <>
+                {resumeMode && (
+                  <p className="resume-tailor-hint" data-testid="resume-tailor-hint">
+                    Want it tailored? Paste a job description below.
+                  </p>
+                )}
                 <ResumeSurface view={resumeResult.view} provenance={resumeResult.provenance} />
                 {chatError && <div className="chat-error" role="alert" data-testid="chat-error">{chatError}</div>}
               </>
@@ -288,6 +300,74 @@ function Home() {
           </div>
         )}
 
+        {!chatActive && (
+          <section className="home-systems" aria-labelledby="home-systems-title">
+            <div className="home-sec-head">
+              <p className="home-sec-tag">The work &middot; three systems</p>
+              <p className="home-sec-note">Each sits between two poles it's actually about</p>
+            </div>
+            <h2 id="home-systems-title" className="sr-only">Selected systems</h2>
+            <HomeSystems />
+          </section>
+        )}
+
+        {!chatActive && (
+          <section className="home-now" aria-labelledby="home-now-title">
+            <h2 id="home-now-title" className="home-now-title">What I'm doing now</h2>
+            <div className="home-now-grid">
+              <a
+                className="home-now-item"
+                href="https://aroko.coop"
+                target="_blank"
+                rel="noreferrer noopener"
+                data-testid="link-now-aroko"
+              >
+                <span className="home-now-dot accent-stratos" aria-hidden="true" />
+                <div>
+                  <p className="home-now-role">Head of Operations <ArrowUpRight aria-hidden="true" /></p>
+                  <p className="home-now-org">Aroko &mdash; cooperative agency</p>
+                  <p className="home-now-meta">2024 &ndash; present &middot; ops systems, delivery, costing</p>
+                </div>
+              </a>
+              <a
+                className="home-now-item"
+                href="https://www.newmuseum.org/person/jeremy-capps/"
+                target="_blank"
+                rel="noreferrer noopener"
+                data-testid="link-now-newinc"
+              >
+                <span className="home-now-dot accent-facia" aria-hidden="true" />
+                <div>
+                  <p className="home-now-role">Musician &amp; researcher <ArrowUpRight aria-hidden="true" /></p>
+                  <p className="home-now-org">NEW INC / New Museum</p>
+                  <p className="home-now-meta">2025 &ndash; 2026 &middot; cultural-systems research</p>
+                </div>
+              </a>
+            </div>
+          </section>
+        )}
+
+        {!chatActive && (
+          <div className="home-ask-head">
+            <p className="home-ask-title">Want to go deeper?</p>
+            <p className="home-ask-note">The thesis is above. Ask the instrument &mdash; or start with one of these.</p>
+            <div className="home-question-chips" role="group" aria-label="Suggested questions">
+              {HOME_QUESTIONS.map((q) => (
+                <button
+                  key={q.label}
+                  type="button"
+                  className="home-question-chip"
+                  onClick={() => void submitPrompt(q.prompt)}
+                  disabled={streaming}
+                  data-testid={`home-question-${q.label.replace(/[^a-z]/gi, '').toLowerCase()}`}
+                >
+                  <span className="q" aria-hidden="true">Q</span>{q.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className={`composer-wrap${chatActive ? ' composer-wrap-chatting' : ''}`}>
           <form className="composer" onSubmit={handlePromptSubmit} data-testid="form-prompt">
             <div className="composer-prompt">
@@ -303,7 +383,7 @@ function Home() {
                     event.currentTarget.form?.requestSubmit();
                   }
                 }}
-                placeholder={resumeMode ? 'Paste the job description or a link…' : 'Ask anything...'}
+                placeholder={resumeMode ? 'Paste a job description to tailor this resume…' : 'Ask anything...'}
                 aria-label="Ask Domain anything"
                 data-testid="input-prompt"
               />
@@ -330,38 +410,25 @@ function Home() {
           <p className={`status-line ${statusTone}`} role="status" data-testid="status-prompt">{statusMessage}</p>
         </div>
 
-        <section className="connect-section" aria-labelledby="connect-title">
-          <p className="connect-label" id="connect-title">The context behind these answers.</p>
-          <div className="connection-grid">
-            <div className="connection-item">
+        <section className="connect-section home-connect" aria-labelledby="connect-title">
+          <p className="connect-label home-connect-label" id="connect-title">The context behind these answers</p>
+          <div className="connection-grid home-connect-grid">
+            <div className="connection-item home-connect-item">
               <span className="connection-name"><span className="source-dot is-live" aria-hidden="true" /> Profile</span>
               <span className="source-status is-live" data-testid="source-profile"><Check aria-hidden="true" /> Live</span>
             </div>
-            <div className="connection-item">
+            <div className="connection-item home-connect-item">
               <span className="connection-name"><span className="source-dot" aria-hidden="true" /> GitHub</span>
               <span className="source-status" data-testid="source-github">Planned</span>
             </div>
-            <div className="connection-item">
+            <div className="connection-item home-connect-item">
               <span className="connection-name"><span className="source-dot" aria-hidden="true" /> Drive</span>
               <span className="source-status" data-testid="source-drive">Planned</span>
             </div>
           </div>
-          <p className="connection-note">
+          <p className="connection-note home-connect-note">
             Answers draw on a curated profile today; live repositories and documents are on the way.
           </p>
-        </section>
-
-        <section className="portfolio" aria-labelledby="portfolio-title">
-          <div className="portfolio-header">
-            <div>
-              <p className="portfolio-kicker">
-                Selected work / {String(PORTFOLIO_PROJECTS.length).padStart(2, '0')}
-              </p>
-              <h2 className="portfolio-title" id="portfolio-title">What I'm building.</h2>
-            </div>
-          </div>
-
-          <ProjectCards />
         </section>
 
         <div className="footer-contact" aria-label="Contact Jeremy">

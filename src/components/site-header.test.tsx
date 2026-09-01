@@ -6,12 +6,11 @@ describe('SiteHeader', () => {
   it('renders the shared brand and every desktop and mobile destination', () => {
     const markup = renderToStaticMarkup(<SiteHeader current="portfolio" />);
 
-    expect(markup).toContain('Domain');
+    expect(markup).toContain('Jeremy Capps');
     expect(markup).toContain('link-brand');
-    expect(markup).toContain('link-portfolio');
+    expect(markup).not.toContain('link-portfolio');
     expect(markup).toContain('link-stratos');
     expect(markup).toContain('link-blog');
-    expect(markup).toContain('link-mobile-portfolio');
     expect(markup).toContain('link-mobile-stratos');
     expect(markup).toContain('link-mobile-blog');
     expect(markup).toContain('link-about');

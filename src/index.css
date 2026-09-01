@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -1551,6 +1551,14 @@ textarea:focus-visible {
   margin-top: 0;
 }
 
+.resume-tailor-hint {
+  width: min(100%, 760px);
+  margin: 1.5rem auto -0.25rem;
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #5b6b7d);
+}
+
 .resume-surface {
   width: min(100%, 760px);
   margin: 1.5rem auto 2rem;
@@ -2185,5 +2193,473 @@ textarea:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .hero-rotator {
     animation: none;
+  }
+}
+
+/* ============================================================
+   Surface-first home. Scoped to .home-* classes so the shared
+   design system (stratos / blog / about) is untouched. Leads
+   with the thesis, surfaces the three systems as score cards,
+   and demotes the ask to a "go deeper" affordance.
+   ============================================================ */
+:root {
+  --home-accent: #b4761a;
+  --home-accent-ink: #8a5a12;
+  --home-ink: #161b23;
+  --home-ink-2: #3a4250;
+  --home-muted: #5e6773;
+  --home-faint: #909aa6;
+  --home-panel: #ffffff;
+  --home-panel-grad: linear-gradient(158deg, #fbfcfd, #eef1f6);
+  --home-hair: #dce1e9;
+  --home-hair-soft: #e8ecf2;
+  --a-libera: #3f5ea8;
+  --a-facia: #2e8c64;
+  --a-stratos: #7e5aae;
+  --home-shadow: 0 1px 2px rgba(16, 20, 28, 0.05), 0 20px 44px -22px rgba(16, 20, 28, 0.2);
+}
+
+.home-hero,
+.home-systems,
+.home-now,
+.home-ask-head {
+  width: 100%;
+  text-align: left;
+  font-family: 'Manrope', var(--app-font-sans);
+  letter-spacing: -0.006em;
+}
+
+/* hero — the surfaced thesis */
+.home-hero {
+  max-width: none;
+  margin: 0;
+}
+
+.home-eyebrow {
+  margin: 0 0 20px;
+  color: var(--home-accent);
+  font-family: 'Manrope', var(--app-font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.home-thesis {
+  max-width: 20ch;
+  margin: 0;
+  color: var(--home-ink);
+  font-family: 'Manrope', var(--app-font-sans);
+  font-size: clamp(30px, 5vw, 54px);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.home-thesis span {
+  color: var(--home-accent);
+  font-weight: 600;
+}
+
+.home-thesis b {
+  font-weight: 700;
+}
+
+.home-sub {
+  max-width: 60ch;
+  margin: 26px 0 0;
+  color: var(--home-muted);
+  font-size: clamp(15px, 1.7vw, 18px);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.home-sub b {
+  color: var(--home-ink-2);
+  font-weight: 600;
+}
+
+/* section framing */
+.home-systems {
+  margin-top: clamp(46px, 7vw, 84px);
+}
+
+.home-now {
+  margin-top: clamp(30px, 4vw, 48px);
+}
+
+.home-sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.home-sec-tag {
+  margin: 0;
+  color: var(--home-faint);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.home-sec-note {
+  margin: 0;
+  color: var(--home-faint);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* score cards */
+.home-systems-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.home-system-card {
+  --card-accent: var(--a-libera);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 22px 20px;
+  border: 1px solid var(--home-hair-soft);
+  border-radius: 20px;
+  background: var(--home-panel-grad);
+  box-shadow: var(--home-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 180ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 180ms ease;
+}
+
+.home-system-card.accent-libera { --card-accent: var(--a-libera); }
+.home-system-card.accent-facia { --card-accent: var(--a-facia); }
+.home-system-card.accent-stratos { --card-accent: var(--a-stratos); }
+
+.home-system-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--card-accent) 45%, var(--home-hair));
+}
+
+.home-system-card:focus-visible {
+  outline: 2px solid var(--card-accent);
+  outline-offset: 3px;
+}
+
+.home-system-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.home-system-name {
+  color: var(--home-ink);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.home-system-cat {
+  margin-top: 5px;
+  color: var(--card-accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.home-system-glyph {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--card-accent);
+  background: color-mix(in srgb, var(--card-accent) 15%, transparent);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.home-system-desc {
+  flex: 1;
+  margin: 0;
+  color: var(--home-muted);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.home-system-axis {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.home-system-poles {
+  display: flex;
+  justify-content: space-between;
+  color: var(--home-faint);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.home-system-track {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  border: 1px solid var(--home-hair-soft);
+  background: #f3f5f9;
+}
+
+.home-system-dot {
+  position: absolute;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card-accent);
+  border: 2px solid var(--home-panel);
+}
+
+.home-system-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--card-accent);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.home-system-cta svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+
+/* now */
+.home-now-title {
+  margin: 0 0 16px;
+  color: var(--home-faint);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.home-now-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.home-now-item {
+  display: flex;
+  gap: 13px;
+  padding: 18px 20px;
+  border: 1px solid var(--home-hair-soft);
+  border-radius: 16px;
+  background: var(--home-panel);
+  box-shadow: var(--home-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 180ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 180ms ease;
+}
+
+.home-now-item:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--home-accent) 40%, var(--home-hair));
+}
+
+.home-now-item:focus-visible {
+  outline: 2px solid var(--home-accent);
+  outline-offset: 3px;
+}
+
+.home-now-role svg {
+  width: 13px;
+  height: 13px;
+  margin-left: 3px;
+  vertical-align: -1px;
+  color: var(--home-faint);
+  stroke-width: 2.2;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.home-now-item:hover .home-now-role svg,
+.home-now-item:focus-visible .home-now-role svg {
+  opacity: 1;
+  color: var(--home-accent);
+}
+
+.home-now-dot {
+  --card-accent: var(--a-stratos);
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--card-accent);
+}
+
+.home-now-dot.accent-facia { --card-accent: var(--a-facia); }
+.home-now-dot.accent-stratos { --card-accent: var(--a-stratos); }
+
+.home-now-role {
+  margin: 0;
+  color: var(--home-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.home-now-org {
+  margin: 1px 0 0;
+  color: var(--home-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.home-now-meta {
+  margin: 2px 0 0;
+  color: var(--home-faint);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ask — present but demoted */
+.home-ask-head {
+  margin-top: clamp(36px, 5vw, 60px);
+}
+
+.home-ask-title {
+  margin: 0;
+  color: var(--home-ink);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.home-ask-note {
+  margin: 4px 0 16px;
+  color: var(--home-muted);
+  font-size: 13px;
+}
+
+.home-question-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.home-question-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border: 1px solid var(--home-hair);
+  border-radius: var(--pill-radius);
+  color: var(--home-ink-2);
+  background: var(--home-panel);
+  font-family: 'Manrope', var(--app-font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.home-question-chip .q {
+  color: var(--home-faint);
+  font-weight: 700;
+}
+
+.home-question-chip:hover:not(:disabled) {
+  color: var(--home-accent);
+  border-color: var(--home-accent);
+}
+
+.home-question-chip:hover:not(:disabled) .q {
+  color: var(--home-accent);
+}
+
+.home-question-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* the composer becomes the deepen field, left-aligned under the ask head */
+.workspace .composer-wrap:not(.composer-wrap-chatting) {
+  width: 100%;
+  margin: 16px 0 0;
+}
+
+.home-hero + .home-systems {
+  margin-top: clamp(46px, 7vw, 84px);
+}
+
+/* connect — the sources strip, brought into the instrument look: left-aligned,
+   Manrope, sitting quietly under the ask instead of centered on its own. */
+.home-connect {
+  width: 100%;
+  max-width: none;
+  margin: clamp(30px, 4vw, 44px) 0 0;
+  text-align: left;
+  font-family: 'Manrope', var(--app-font-sans);
+}
+
+.home-connect-label {
+  margin: 0 0 12px;
+  color: var(--home-faint);
+  font-family: 'Manrope', var(--app-font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.home-connect-grid {
+  display: flex;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--home-hair-soft);
+  border-radius: 12px;
+  background: var(--home-panel);
+  box-shadow: var(--home-shadow);
+}
+
+.home-connect-item {
+  color: var(--home-ink-2);
+}
+
+.home-connect-note {
+  margin: 12px 0 0;
+  color: var(--home-faint);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .home-systems-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-now-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-sec-head {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .home-connect-grid {
+    flex-direction: column;
+    width: 100%;
   }
 }
