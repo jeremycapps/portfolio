@@ -105,6 +105,7 @@
     "@facia/core": "0.1.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",
+    "@vercel/analytics": "^2.0.1",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1"
   }
