@@ -2203,8 +2203,8 @@ textarea:focus-visible {
    and demotes the ask to a "go deeper" affordance.
    ============================================================ */
 :root {
-  --home-accent: #ff5c00;
-  --home-accent-ink: #cc4a00;
+  --home-accent: #b4761a;
+  --home-accent-ink: #8a5a12;
   --home-ink: #161b23;
   --home-ink-2: #3a4250;
   --home-muted: #5e6773;
