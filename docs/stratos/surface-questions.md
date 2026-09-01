@@ -171,7 +171,37 @@ Every packet in `CALIBRATED_COMMITMENT_EXPERIENCES` carries `actualOperations` a
 
 ---
 
-## 4. Build checklist (subset of spec §14 for these three areas)
+## 4. Built vs. planned cases
+
+The spec's 14-case portfolio (§9) and the cases actually in the code are **not the same set** — the four built cases predate the spec's validation portfolio. This table reconciles them so the UI is built against what exists while the roster grows.
+
+| Case | Sector | Status | Decision points | Spec role (§9) |
+|---|---|---|---|---|
+| Target Canada | Private retail | **Built · fully judged** | `T0`, `T2` | Anchor · Release 1 |
+| Adobe Creative Cloud | Private software | **Built · `T0` packet** | `T0` | not in §9 portfolio |
+| Domino's 2025 growth | Private retail | **Built · `T0` packet** | `T0` | not in §9 portfolio |
+| Ford Model e | Private auto | **Built · `T0` packet** | `T0` | not in §9 portfolio |
+| VA EHR modernization | Gov health IT | Planned | — | Release 2 |
+| 2020 Census | Gov operations | Planned | — | Release 3 · positive control |
+| Tesco Fresh & Easy | Private retail | Planned | — | Principal (Release 4) |
+| Best Buy China | Private retail | Planned | — | Principal (Release 4) |
+| FBI VCF → Sentinel | Gov IT | Planned | — | Principal (Release 5+) |
+| F-35 concurrency | Gov defense | Planned | — | Principal (Release 5+) |
+| Uber China | Private platform | Planned | — | Principal (Release 5+) |
+| Healthcare.gov | Gov | Planned | — | Supporting |
+| Walmart Germany | Private retail | Planned | — | Supporting |
+| Home Depot China | Private retail | Planned | — | Supporting |
+| Starbucks Australia | Private retail | Planned | — | Supporting |
+| IRS modernization | Gov | Planned | — | Supporting |
+| California High-Speed Rail | Gov infrastructure | Planned | — | Supporting |
+
+Notes for the build:
+
+- **Built ≠ fully judged.** Only Target has a second decision point (`T2`) and the deep dated evaluation (`target-canada-august-evaluation.ts`). Adobe / Domino's / Ford each have a `T0` commitment packet plus commitment + outcome-retrodiction scorecards, but no second point and no dated evaluation. The UI must not assume every case has more than one point.
+- **The spec's priorities are unbuilt.** The next cases the spec wants (VA EHR at Release 2, 2020 Census at Release 3 as the non-failure control) are not in the code. The four built cases are all **private-sector desk reviews**; the spec's validation track is government cases, none of which exist yet.
+- **All 17 named cases** here come from spec §9 and the built library. The `Public-Data-Case-Studies.md` transcript is the reasoning behind the selection; the spec §9 tables are the authority.
+
+## 5. Build checklist (subset of spec §14 for these three areas)
 
 - [ ] Moving `T0–T4` recomputes verdict + recommendations using only evidence available by that date; hindsight is isolated to an outcome layer.
 - [ ] Every surface question is a closed control; the only free text is a `rationale` requiring `sourceRefs`.
