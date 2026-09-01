@@ -3,6 +3,8 @@ import { ArrowDown, ArrowLeft, ArrowRight, CornerDownLeft, RotateCcw } from 'luc
 import { SiteHeader } from '@/components/site-header';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ILLUSTRATIVE_TARGET_EVALUATION } from '@/lib/stratos/judgment/illustrative-target';
+import type { OperationRecommendation } from '@/lib/stratos/judgment/contract';
 import './stratos-v2.css';
 
 type SystemId = 'discernment' | 'invention' | 'operations' | 'execution' | 'advantage' | 'resource';
@@ -77,9 +79,85 @@ export function calculateFeasibility(system: SystemModel, elapsed: number): Feas
   };
 }
 
+function formatParameter([key, value]: [string, string | number | boolean]) {
+  return `${key.replaceAll('_', ' ')} = ${value}`;
+}
+
+function RecommendationCard({ recommendation }: { recommendation: OperationRecommendation }) {
+  return (
+    <article className={`sv2-recommendation sv2-recommendation--${recommendation.plane}`}>
+      <p className="sv2-eyebrow">{recommendation.plane}</p>
+      <div className="sv2-operation-line">
+        <strong>{recommendation.operation}</strong>
+        {recommendation.displayMacro && <span>{recommendation.displayMacro}</span>}
+      </div>
+      <h3>{recommendation.label}</h3>
+      <code>{recommendation.object}({Object.entries(recommendation.parameters).map(formatParameter).join(', ')})</code>
+      <p>{recommendation.authorization}</p>
+      <footer><span>Owner</span><strong>{recommendation.owner}</strong></footer>
+    </article>
+  );
+}
+
+export function CommitmentReview() {
+  const evaluation = ILLUSTRATIVE_TARGET_EVALUATION;
+  return (
+    <Card className="sv2-judgment" id="commitment-review">
+      <header className="sv2-judgment-head">
+        <div>
+          <p className="sv2-eyebrow">Interactive anchor · Phase 1 contract</p>
+          <h2>What is the largest commitment we can responsibly make next?</h2>
+        </div>
+        <p>Illustrative inputs demonstrate the decision grammar. They are not a historical assessment of Target Canada.</p>
+      </header>
+
+      <section className="sv2-verdict-panel" aria-labelledby="sv2-verdict-title">
+        <div>
+          <p className="sv2-eyebrow" id="sv2-verdict-title">Verdict</p>
+          <strong>{evaluation.verdict.overall}</strong>
+          <span>{evaluation.verdict.bindingDimensions.join(' · ')}</span>
+        </div>
+        <p>{evaluation.verdict.cause}</p>
+        <dl>
+          <div><dt>Requested</dt><dd>{evaluation.requestedCommitment.increment}</dd></div>
+          <div><dt>Evidence cutoff</dt><dd>{evaluation.evidenceCutoff}</dd></div>
+          <div><dt>Irreversibility</dt><dd>{evaluation.requestedCommitment.irreversibility}</dd></div>
+        </dl>
+      </section>
+
+      <div className="sv2-recommendations" aria-label="Authorized operations">
+        <RecommendationCard recommendation={evaluation.recommendations.commitment} />
+        <RecommendationCard recommendation={evaluation.recommendations.path} />
+      </div>
+
+      <section className="sv2-decision-boundary">
+        <div>
+          <p className="sv2-eyebrow">Next safe commitment</p>
+          <strong>{evaluation.nextSafeCommitment}</strong>
+        </div>
+        <div>
+          <p className="sv2-eyebrow">Release gate</p>
+          <ul>
+            {evaluation.releaseGate.conditions.map((condition) => <li key={condition}>{condition}</li>)}
+          </ul>
+          {evaluation.releaseGate.sustainedFor && <small>Sustained for {evaluation.releaseGate.sustainedFor}</small>}
+        </div>
+        <div>
+          <p className="sv2-eyebrow">Boundary</p>
+          <ul>
+            {evaluation.boundary.time && <li>{evaluation.boundary.time}</li>}
+            {evaluation.boundary.finance && <li>{evaluation.boundary.finance}</li>}
+            {evaluation.boundary.attempts && <li>{evaluation.boundary.attempts}</li>}
+          </ul>
+        </div>
+      </section>
+    </Card>
+  );
+}
+
 function ConstraintEnvelope() {
   return (
-    <section className="sv2-envelope" aria-labelledby="constraint-envelope-title">
+    <section className="sv2-envelope" id="constraint-envelope" aria-labelledby="constraint-envelope-title">
       <p className="sv2-eyebrow" id="constraint-envelope-title">Shared constraint envelope</p>
       <div className="sv2-constraints">
         {CONSTRAINTS.map((constraint) => (
@@ -115,7 +193,7 @@ function SystemView({ onSelect }: { onSelect: (id: SystemId) => void }) {
   return (
     <>
       <ConstraintEnvelope />
-      <section className="sv2-system" aria-labelledby="organization-system-title">
+      <section className="sv2-system" id="conversion-systems" aria-labelledby="organization-system-title">
         <div className="sv2-section-head">
           <div>
             <p className="sv2-eyebrow">System view</p>
@@ -334,27 +412,38 @@ export default function StratosV2Page() {
       <div className="sv2-workspace">
         <header className="sv2-page-head">
           <div>
-            <p className="sv2-kicker">StratOS v2 · scenario prototype</p>
-            <h1>Organization as a constrained conversion system.</h1>
-            <p>See what the organization is, how it moves, and whether that movement can reach a commitment without exhausting the system.</p>
+            <p className="sv2-kicker">StratOS v2 · commitment judgment prototype</p>
+            <h1>Make the next commitment fit the evidence.</h1>
+            <p>StratOS tests a strategic commitment against the organization’s operating envelope, then identifies what to do with the commitment and what must change alongside it.</p>
+            <nav className="sv2-page-links" aria-label="StratOS v2 contents">
+              <a href="#commitment-review">Review the decision</a>
+              <a href="#how-it-works">See how the model works</a>
+            </nav>
           </div>
           <aside>
-            <span>Illustrative commitment</span>
-            <strong>Enter Canada</strong>
-            <p>Required configuration · 15 months</p>
+            <span>Product expression</span>
+            <strong>Judgment → action</strong>
+            <p>Two operations · one bounded next step</p>
           </aside>
         </header>
-        <Card className="sv2-shell">
-          {selectedSystem ? (
-            <DetailView
-              system={selectedSystem}
-              elapsed={elapsedBySystem[selectedSystem.id]}
-              onElapsed={(value) => setElapsedBySystem((current) => ({ ...current, [selectedSystem.id]: value }))}
-              onBack={() => setSelected(null)}
-            />
-          ) : <SystemView onSelect={setSelected} />}
-        </Card>
-        <p className="sv2-disclaimer">Illustrative model — the scenario demonstrates StratOS mechanics, not an assessment of Target or any other company.</p>
+        <CommitmentReview />
+        <section className="sv2-model-section" id="how-it-works" aria-labelledby="sv2-model-title">
+          <header>
+            <div><p className="sv2-eyebrow">What StratOS evaluates</p><h2 id="sv2-model-title">Six coupled conversions inside one constraint envelope.</h2></div>
+            <p>The existing organizational model remains the substrate for the commitment judgment above.</p>
+          </header>
+          <Card className="sv2-shell">
+            {selectedSystem ? (
+              <DetailView
+                system={selectedSystem}
+                elapsed={elapsedBySystem[selectedSystem.id]}
+                onElapsed={(value) => setElapsedBySystem((current) => ({ ...current, [selectedSystem.id]: value }))}
+                onBack={() => setSelected(null)}
+              />
+            ) : <SystemView onSelect={setSelected} />}
+          </Card>
+        </section>
+        <p className="sv2-disclaimer">Illustrative decision model — historical case evidence, dated thresholds, and exposure estimates are reserved for the sourced Target Canada implementation.</p>
       </div>
     </main>
   );

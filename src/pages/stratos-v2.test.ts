@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { calculateFeasibility, STRATOS_SYSTEMS } from './stratos-v2';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { calculateFeasibility, CommitmentReview, STRATOS_SYSTEMS } from './stratos-v2';
 
 describe('StratOS v2 feasibility model', () => {
   const execution = STRATOS_SYSTEMS.find((system) => system.id === 'execution')!;
@@ -29,5 +31,16 @@ describe('StratOS v2 feasibility model', () => {
       'Advantage',
       'Resource',
     ]);
+  });
+
+  it('renders exactly one commitment operation and one path operation', () => {
+    const html = renderToStaticMarkup(createElement(CommitmentReview));
+
+    expect(html.match(/sv2-recommendation sv2-recommendation--/g)).toHaveLength(2);
+    expect(html).toContain('sv2-recommendation--commitment');
+    expect(html).toContain('Hold additional store releases');
+    expect(html).toContain('sv2-recommendation--path');
+    expect(html).toContain('Redesign the rollout configuration');
+    expect(html).toContain('Illustrative inputs demonstrate the decision grammar');
   });
 });

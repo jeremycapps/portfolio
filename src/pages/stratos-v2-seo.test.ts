@@ -8,8 +8,10 @@ describe('StratOS v2 crawl surface', () => {
   it('ships meaningful route-specific HTML before JavaScript runs', () => {
     const html = projectFile('stratos-v2/index.html');
 
-    expect(html).toContain('<h1>StratOS v2: organization as a constrained conversion system</h1>');
-    expect(html).toContain('<h2>Commitment review</h2>');
+    expect(html).toContain('<h1>Make the next commitment fit the evidence.</h1>');
+    expect(html).toContain('<h2>What is the largest commitment we can responsibly make next?</h2>');
+    expect(html).toContain('Commitment: CHANGE — hold additional store releases.');
+    expect(html).toContain('Path: CHANGE — redesign the rollout configuration.');
     expect(html).toContain('<h2>Six conversion systems</h2>');
     expect(html).toContain('rel="canonical" href="https://www.jeremycapps.com/stratos-v2"');
     expect(html).toContain('property="og:url" content="https://www.jeremycapps.com/stratos-v2"');
