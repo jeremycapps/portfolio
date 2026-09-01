@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { STRATOS_CASE_PROFILES } from './index';
-import { CONSTRAINT_IDS, SYSTEM_IDS, validateCaseProfile, type CaseFact, type CaseProfile } from './profile';
+import {
+  CONSTRAINT_IDS,
+  SYSTEM_IDS,
+  validateCaseProfile,
+  type CaseFact,
+  type CaseProfile,
+  type CaseSource,
+} from './profile';
 
 describe('StratOS public-company case profiles', () => {
   it('passes provenance and temporal-cutoff validation', () => {
@@ -100,6 +107,78 @@ describe('StratOS public-company case profiles', () => {
       value: -11,
       unit: 'months, strict upper bound',
     });
+    expect(target!.scoring).toMatchObject({
+      scorecardId: 'target-canada-outcome-retrodiction-2015-v0.2',
+      scope: 'outcome-calibrated-retrodiction',
+    });
+  });
+
+  it('models the Target August 2013 scaling boundary without later evidence', () => {
+    const target = STRATOS_CASE_PROFILES.find((profile) => profile.id === 'target-canada-2012-2015');
+    expect(target).toBeDefined();
+
+    const sources = new Map<string, CaseSource>(target!.sources.map((source) => [source.id, source]));
+    expect(sources.get('target-canada-pilot-2013')).toMatchObject({
+      publishedAt: '2013-03-05',
+      title: 'Head Start: Target Announces Opening of Three Pilot Stores in Ontario',
+    });
+    expect(sources.get('target-q2-results-2013')).toMatchObject({
+      publishedAt: '2013-08-21',
+      title: 'Target Reports Second Quarter 2013 Earnings',
+    });
+    expect(sources.get('target-q3-results-2013')).toMatchObject({
+      publishedAt: '2013-11-21',
+      title: 'Target Reports Third Quarter 2013 Earnings',
+    });
+
+    const facts = new Map<string, CaseFact>(target!.facts.map((fact) => [fact.id, fact]));
+    expect(facts.get('canada-pilot-purpose')).toMatchObject({
+      origin: 'reported',
+      evidence: [{ sourceId: 'target-canada-pilot-2013', locator: 'Pilot-store announcement, paragraphs 2–3' }],
+    });
+    expect(facts.get('canada-stores-operating-q2')?.metric).toEqual({ value: 68, unit: 'stores operating' });
+    expect(facts.get('canada-stores-remaining-2013')?.metric).toEqual({ value: 56, unit: 'stores planned to open' });
+    expect(facts.get('canada-sales-q2-2013')?.metric).toEqual({ value: 275, unit: 'USD millions sales' });
+    expect(facts.get('canada-gross-margin-q2-2013')?.metric).toEqual({ value: 31.6, unit: 'percent' });
+    expect(facts.get('canada-ebit-q2-2013')?.metric).toEqual({ value: -169, unit: 'USD millions EBIT' });
+    expect(facts.get('canada-eps-dilution-q2-2013')?.metric).toEqual({ value: -0.21, unit: 'USD diluted EPS' });
+
+    for (const factId of [
+      'canada-stores-operating-q2',
+      'canada-stores-remaining-2013',
+      'canada-sales-q2-2013',
+      'canada-gross-margin-q2-2013',
+      'canada-ebit-q2-2013',
+      'canada-eps-dilution-q2-2013',
+    ]) {
+      expect(facts.get(factId)?.evidence).toEqual([
+        expect.objectContaining({ sourceId: 'target-q2-results-2013', locator: expect.any(String) }),
+      ]);
+      expect(facts.get(factId)?.evidence[0]?.locator).not.toBe('');
+    }
+
+    const snapshot = target!.snapshots.find((candidate) => candidate.id === 'scaling-boundary-2013-08-21');
+    expect(snapshot).toBeDefined();
+    expect(snapshot!.knowledgeCutoff).toBe('2013-08-21');
+    expect(snapshot!.factRefs).toEqual(expect.arrayContaining([
+      'canada-stores-operating-q2',
+      'canada-stores-remaining-2013',
+    ]));
+
+    const reachableFactIds = new Set([
+      ...snapshot!.factRefs,
+      ...Object.values(snapshot!.systems).flatMap((assessment) => assessment.factRefs),
+      ...Object.values(snapshot!.constraints).flatMap((assessment) => assessment.factRefs),
+    ]);
+    const reachableSourceIds = new Set([...reachableFactIds].flatMap((factId) => (
+      facts.get(factId)?.evidence.map((evidence) => evidence.sourceId) ?? []
+    )));
+    expect(reachableSourceIds).not.toContain('target-q3-results-2013');
+    expect(reachableSourceIds).not.toContain('target-results-2013');
+    expect(reachableSourceIds).not.toContain('target-exit-2015');
+    for (const sourceId of reachableSourceIds) {
+      expect(sources.get(sourceId)!.publishedAt <= snapshot!.knowledgeCutoff).toBe(true);
+    }
   });
 
   it('derives comparable outcome quantities for Adobe, Domino’s, and Ford', () => {
