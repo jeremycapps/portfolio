@@ -2,6 +2,7 @@ export * from './decision-point';
 export * from './evidence-integrity';
 export * from './fixtures';
 export * from './judgment';
+export * from './presentation';
 export * from './recommendation-policy';
 export * from './target-canada-august-evaluation';
 export * from './verdict-adapter';

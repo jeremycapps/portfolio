@@ -3,6 +3,12 @@ import { ArrowDown, ArrowLeft, ArrowRight, CornerDownLeft, RotateCcw } from 'luc
 import { SiteHeader } from '@/components/site-header';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  createDecisionExperienceViewModel,
+  type DecisionExperienceViewModel,
+} from '@/lib/stratos/decisions/presentation';
+import type { OperationRecommendation } from '@/lib/stratos/decisions/judgment';
+import type { ResolvedDecisionInput } from '@/lib/stratos/decisions/decision-point';
 import './stratos-v2.css';
 
 type SystemId = 'discernment' | 'invention' | 'operations' | 'execution' | 'advantage' | 'resource';
@@ -75,6 +81,231 @@ export function calculateFeasibility(system: SystemModel, elapsed: number): Feas
     constraintPass: constraintMonth >= calendarGoal,
     loads,
   };
+}
+
+const displayDate = (date: string) => new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+}).format(new Date(`${date}T00:00:00Z`));
+
+const displayMetric = (input: DecisionExperienceViewModel['currentCohort']) => {
+  if (!input.metric || !('value' in input.metric)) return input.label;
+  return `${input.metric.value} ${input.metric.unit}`;
+};
+
+function RecommendationCard({ recommendation }: { recommendation: OperationRecommendation }) {
+  const boundary = Object.entries(recommendation.boundary)
+    .filter(([, value]) => value !== undefined);
+  return (
+    <article className="sv2-recommendation">
+      <header>
+        <div>
+          <p className="sv2-eyebrow">{recommendation.plane} operation</p>
+          <h3>{recommendation.displayLabel}</h3>
+        </div>
+        <span>{recommendation.operation}</span>
+      </header>
+      <p className="sv2-recommendation-object">{recommendation.object}</p>
+      <dl className="sv2-recommendation-meta">
+        <div><dt>Owner</dt><dd>{recommendation.owner}</dd></div>
+        <div><dt>Authority</dt><dd>{recommendation.authorityStatus}</dd></div>
+        <div><dt>Why authorized</dt><dd>{recommendation.authorizationReason}</dd></div>
+      </dl>
+      <section>
+        <h4>Boundary</h4>
+        <ul>{boundary.map(([label, value]) => <li key={label}><strong>{label}</strong> {String(value)}</li>)}</ul>
+      </section>
+      <section>
+        <h4>Gate · {recommendation.gate.evidenceStatus}</h4>
+        <ul>{recommendation.gate.conditions.map((condition) => <li key={condition}>{condition}</li>)}</ul>
+      </section>
+      <section>
+        <h4>Reassessment</h4>
+        <dl className="sv2-reassessment">
+          <div><dt>Trigger</dt><dd>{recommendation.reassessment.trigger}</dd></div>
+          <div><dt>If improving</dt><dd>{recommendation.reassessment.ifImproving}</dd></div>
+          <div><dt>If ineffective</dt><dd>{recommendation.reassessment.ifIneffective}</dd></div>
+          <div><dt>At boundary</dt><dd>{recommendation.reassessment.ifBoundaryExhausted}</dd></div>
+        </dl>
+      </section>
+    </article>
+  );
+}
+
+const STATUS_ICONS = {
+  OBSERVED: '●',
+  ESTIMATED: '△',
+  FOG: '?',
+  HINDSIGHT: '◆',
+} as const;
+
+function EvidenceDisclosure({ input }: { input: ResolvedDecisionInput }) {
+  return (
+    <details className={`sv2-evidence-item sv2-status--${input.displayState.toLowerCase()}`}>
+      <summary>
+        <span className="sv2-status-icon" aria-hidden="true">{STATUS_ICONS[input.displayState]}</span>
+        <span>{input.label}</span>
+        <strong>{input.displayState}</strong>
+      </summary>
+      <dl>
+        <div><dt>Source</dt><dd>{input.sourceTitle ?? 'Not placed at this cutoff'}</dd></div>
+        <div><dt>Locator</dt><dd>{input.evidence?.locator ?? 'Not placed at this cutoff'}</dd></div>
+        <div><dt>Published</dt><dd>{input.publishedAt ? displayDate(input.publishedAt) : 'Not placed at this cutoff'}</dd></div>
+        <div><dt>Materiality</dt><dd>{input.materiality}</dd></div>
+        <div><dt>Underlying origin</dt><dd>{input.origin ?? 'Not placed at this cutoff'}</dd></div>
+        <div><dt>Display status</dt><dd>{input.displayState}</dd></div>
+        {input.calculation && <div><dt>Calculation</dt><dd>{input.calculation}</dd></div>}
+      </dl>
+    </details>
+  );
+}
+
+function DecisionTimeline({
+  view,
+  onSelect,
+}: {
+  view: DecisionExperienceViewModel;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <fieldset className="sv2-timeline">
+      <legend>Decision timeline</legend>
+      <p>Choose a dated packet. Decision evidence is re-resolved at its declared knowledge cutoff.</p>
+      <div>
+        {view.timeline.options.map((option) => (
+          <label key={option.id}>
+            <input
+              type="radio"
+              name="stratos-decision-date"
+              value={option.id}
+              checked={option.id === view.timeline.selectedId}
+              onChange={() => onSelect(option.id)}
+            />
+            <span aria-hidden="true" />
+            <strong>{option.sequence} · {displayDate(option.decisionDate)}</strong>
+            <small>{option.label} · cutoff {displayDate(option.knowledgeCutoff)}</small>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+export function DecisionExperience({
+  view,
+  onTimelineSelect = () => {},
+}: {
+  view: DecisionExperienceViewModel;
+  onTimelineSelect?: (id: string) => void;
+}) {
+  const storeExposure = view.exposures.find(({ category }) => category === 'storeActivation')!;
+  return (
+    <Card className="sv2-decision" aria-labelledby="decision-overview-title">
+      <header className="sv2-decision-head">
+        <div>
+          <p className="sv2-kicker">Target Canada · {view.sequence}</p>
+          <h2 id="decision-overview-title">Scaling decision after 68 stores</h2>
+          <p>Decision date and knowledge cutoff · {displayDate(view.cutoff)}</p>
+        </div>
+        <div className="sv2-decision-verdict">
+          <span>Verdict</span>
+          <strong>{view.verdict}</strong>
+        </div>
+      </header>
+
+      <DecisionTimeline view={view} onSelect={onTimelineSelect} />
+
+      <section className="sv2-decision-facts" aria-label="Decision overview">
+        <article><span>Current state</span><strong>{displayMetric(view.currentCohort)}</strong><p>{view.currentCohort.label}</p></article>
+        <article><span>Requested increment</span><strong>{displayMetric(view.requestedIncrement)}</strong><p>{view.requestedIncrement.label}</p></article>
+        <article><span>Next safe scale</span><strong>{view.validatedScale.value === 'not-determined' ? 'Not determined' : view.validatedScale.value}</strong><p>{view.validatedScale.description}</p></article>
+      </section>
+
+      <section className="sv2-unknowns" aria-labelledby="material-unknowns-title">
+        <div>
+          <p className="sv2-eyebrow">Decision boundary</p>
+          <h3 id="material-unknowns-title">Material unknowns</h3>
+        </div>
+        <ul>{view.materialUnknowns.map((unknown) => <li key={unknown}>{unknown}</li>)}</ul>
+      </section>
+
+      <section className="sv2-actions" aria-labelledby="recommendations-title">
+        <div className="sv2-section-head">
+          <div><p className="sv2-eyebrow">Paired recommendation</p><h2 id="recommendations-title">Change the commitment. Change the path.</h2></div>
+          <p>Exactly one operation on each plane; commitment first, path second.</p>
+        </div>
+        <div className="sv2-recommendations">
+          {view.recommendations.map((recommendation) => (
+            <RecommendationCard key={recommendation.plane} recommendation={recommendation} />
+          ))}
+        </div>
+      </section>
+
+      <section className="sv2-comparison" aria-labelledby="comparison-title">
+        <div className="sv2-section-head">
+          <div><p className="sv2-eyebrow">Bounded comparison</p><h2 id="comparison-title">Actual intent and StratOS alternative</h2></div>
+          <p>{displayDate(view.actualComparison.period.startsAt)}–{displayDate(view.actualComparison.period.endsAt)}</p>
+        </div>
+        <div className="sv2-operation-comparison">
+          <article>
+            <h3>Actual operations</h3>
+            <ol>{view.actualComparison.actualOperations.map((operation) => <li key={operation.operation}><strong>{operation.operation}</strong><span>{operation.object}</span></li>)}</ol>
+          </article>
+          <article>
+            <h3>StratOS operations</h3>
+            <ol>{view.recommendations.map((operation) => <li key={operation.plane}><strong>{operation.displayLabel}</strong><span>{operation.object}</span></li>)}</ol>
+          </article>
+        </div>
+        <div className="sv2-exposure-bound">
+          <p className="sv2-eyebrow">Store-activation exposure only</p>
+          <div>
+            <p><strong>Actual intent · <span className="sv2-status-icon" aria-hidden="true">{STATUS_ICONS[storeExposure.actualIntent.status]}</span> {storeExposure.actualIntent.status}</strong>{storeExposure.actualIntent.label}</p>
+            <p><strong>StratOS scenario · <span className="sv2-analytical-label">ANALYTICAL</span> · <span className="sv2-status-icon" aria-hidden="true">{STATUS_ICONS[storeExposure.stratosScenario.status]}</span> {storeExposure.stratosScenario.status}</strong>{storeExposure.stratosScenario.label}</p>
+          </div>
+          {storeExposure.stratosScenario.calculation && <p><strong>Calculation · <span className="sv2-analytical-label">ANALYTICAL</span></strong>{storeExposure.stratosScenario.calculation}</p>}
+          {storeExposure.stratosScenario.assumption && <p><strong>Counterfactual assumption · <span className="sv2-assumption-label">ASSUMPTION</span></strong>{storeExposure.stratosScenario.assumption}</p>}
+          <p>{storeExposure.limitation}</p>
+          <small>This comparison ends at the next release decision or December 31, 2013. It makes no claim about obligations beyond the evidence placed at this cutoff.</small>
+        </div>
+      </section>
+
+      <section className="sv2-inspector" aria-labelledby="evidence-inspector-title">
+        <div className="sv2-section-head">
+          <div><p className="sv2-eyebrow">Cutoff-safe packet</p><h2 id="evidence-inspector-title">Evidence and assumptions</h2></div>
+          <p>Statuses use text and symbols as well as color. Open any row for provenance.</p>
+        </div>
+        <div className="sv2-evidence-list">
+          {view.inspectionInputs.map((input) => <EvidenceDisclosure input={input} key={input.id} />)}
+        </div>
+        <div className="sv2-analytical-layer">
+          <h3>Analytical layer</h3>
+          <ul>
+            {view.constructs.map((construct) => (
+              <li key={construct.id}><span className="sv2-analytical-label">{construct.displayLabel}</span>{construct.label}</li>
+            ))}
+          </ul>
+          <h3>Assumptions</h3>
+          <ul>
+            {view.assumptions.map((assumption) => (
+              <li key={assumption.id}><span className="sv2-assumption-label">{assumption.displayLabel}</span>{assumption.statement}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="sv2-hindsight" aria-labelledby="hindsight-title">
+        <div className="sv2-section-head">
+          <div><p className="sv2-eyebrow">Separate outcome layer</p><h2 id="hindsight-title">Hindsight</h2></div>
+          <p>Published after the selected cutoff. Never used by the dated verdict or recommendations.</p>
+        </div>
+        <div className="sv2-evidence-list">
+          {view.hindsight.map((input) => <EvidenceDisclosure input={input} key={input.id} />)}
+        </div>
+      </section>
+    </Card>
+  );
 }
 
 function ConstraintEnvelope() {
@@ -325,6 +556,8 @@ function DetailView({ system, elapsed, onElapsed, onBack }: { system: SystemMode
 }
 
 export default function StratosV2Page() {
+  const [decisionId, setDecisionId] = useState<string>();
+  const decision = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
   const [selected, setSelected] = useState<SystemId | null>(null);
   const [elapsedBySystem, setElapsedBySystem] = useState<Record<SystemId, number>>(() => Object.fromEntries(STRATOS_SYSTEMS.map((system) => [system.id, system.cycle2])) as Record<SystemId, number>);
   const selectedSystem = useMemo(() => STRATOS_SYSTEMS.find((system) => system.id === selected), [selected]);
@@ -339,11 +572,12 @@ export default function StratosV2Page() {
             <p>See what the organization is, how it moves, and whether that movement can reach a commitment without exhausting the system.</p>
           </div>
           <aside>
-            <span>Illustrative commitment</span>
-            <strong>Enter Canada</strong>
-            <p>Required configuration · 15 months</p>
+            <span>Cutoff-safe decision</span>
+            <strong>Target Canada</strong>
+            <p>August 21, 2013 · scaling boundary</p>
           </aside>
         </header>
+        <DecisionExperience view={decision} onTimelineSelect={setDecisionId} />
         <Card className="sv2-shell">
           {selectedSystem ? (
             <DetailView
@@ -354,7 +588,7 @@ export default function StratosV2Page() {
             />
           ) : <SystemView onSelect={setSelected} />}
         </Card>
-        <p className="sv2-disclaimer">Illustrative model — the scenario demonstrates StratOS mechanics, not an assessment of Target or any other company.</p>
+        <p className="sv2-disclaimer">Cutoff-safe retrospective — the comparison evaluates decision structure within the evidence available on the selected date.</p>
       </div>
     </main>
   );

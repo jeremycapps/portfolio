@@ -111,11 +111,25 @@ The `/stratos` routes are served by the SPA through the rewrites in
 
 ## StratOS v2 (`/stratos-v2`)
 
-`/stratos-v2` reframes the organization as six coupled conversion systems operating
-inside shared people, finance, time, and risk constraints. Its system view connects
-the six tensions; each detail view exposes the pole, observed and prospective cycle
-times, the constraint footprint, and whether the resulting trajectory can converge
-on an illustrative 15-month commitment. The original `/stratos` route is preserved.
+`/stratos-v2` combines the six coupled conversion-system prototype with a
+cutoff-safe judgment surface. The default view is Target Canada's August 21,
+2013 scaling boundary: 68 operating stores, a requested 56-store increment, a
+`FOG` verdict, two bounded recommendations, and a category-specific
+actual-versus-StratOS comparison. Its dated timeline resolves authored decision
+packets; later evidence appears only in a separate hindsight layer.
+
+The judgment layer extends the scoring v0.2 substrate with validated-scale,
+material-unknown, authority, operation, gate, and reassessment semantics. It
+does not predict success, rank unlike people/time/finance deficits as a
+universal score, or claim all exposure was avoidable. Target `T1`/`T2`, proposed
+gates, and counterfactual quantities remain labeled analytical, and the public
+packet leaves decision authority unknown. See the
+[judgment-layer guide](./src/lib/stratos/decisions/README.md) and
+[scoring methodology](./src/lib/stratos/scoring/README.md).
+
+The system view still connects all six tensions; each detail view exposes its
+pole, observed and prospective cycle times, constraint footprint, and
+constraint-aware convergence. The original `/stratos` route is preserved.
 
 ## Deploy (Vercel)
 
