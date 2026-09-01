@@ -9,13 +9,14 @@ import {
 } from './decision-point';
 import { resolveDecisionPoint } from './evidence-integrity';
 import {
+  CALIBRATED_COMMITMENT_EXPERIENCES,
   TARGET_CANADA_AUGUST_2013_DECISION_POINT,
-} from './fixtures/target-canada-august-2013';
+} from './fixtures';
+import type { DecisionComparison } from './decision-comparison';
 import type { JudgmentResult, OperationRecommendation } from './judgment';
 import {
   TARGET_CANADA_AUGUST_2013_COMPARISON,
   TARGET_CANADA_AUGUST_2013_JUDGMENT,
-  type ExposureComparisonCategory,
 } from './target-canada-august-evaluation';
 
 export const DEFAULT_DECISION_EXPERIENCE_ID = TARGET_CANADA_AUGUST_2013_DECISION_POINT.id;
@@ -26,6 +27,7 @@ export interface DecisionTimelineOption {
   readonly label: string;
   readonly decisionDate: string;
   readonly knowledgeCutoff: string;
+  readonly companyName: string;
 }
 
 export interface PresentationAssumption {
@@ -48,6 +50,9 @@ export interface PresentationEvidence extends ResolvedDecisionInput {
 
 export interface DecisionExperienceViewModel {
   readonly id: string;
+  readonly companyName: string;
+  readonly caseName: string;
+  readonly headline: string;
   readonly sequence: DecisionPoint['sequence'];
   readonly actor: DecisionPoint['actor'];
   readonly currentCohort: ResolvedDecisionInput;
@@ -62,8 +67,10 @@ export interface DecisionExperienceViewModel {
   readonly bindingDimensions: readonly string[];
   readonly materialUnknowns: readonly string[];
   readonly recommendations: readonly [OperationRecommendation, OperationRecommendation];
-  readonly actualComparison: typeof TARGET_CANADA_AUGUST_2013_COMPARISON;
-  readonly exposures: readonly ExposureComparisonCategory[];
+  readonly actualComparison: DecisionComparison;
+  readonly exposures: readonly DecisionComparison['exposures'][ExposureCategory][];
+  readonly primaryExposure: DecisionComparison['exposures'][ExposureCategory];
+  readonly primaryExposureTitle: string;
   readonly evidence: readonly PresentationEvidence[];
   readonly inspectionInputs: readonly ResolvedDecisionInput[];
   readonly constructs: readonly PresentationConstruct[];
@@ -86,18 +93,30 @@ interface DecisionExperienceSource {
   readonly profile: CaseProfile;
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
-  readonly comparison: typeof TARGET_CANADA_AUGUST_2013_COMPARISON;
+  readonly comparison: DecisionComparison;
+  readonly companyName: string;
+  readonly caseName: string;
   readonly timelineLabel: string;
+  readonly headline: string;
+  readonly primaryExposureCategory: ExposureCategory;
+  readonly primaryExposureTitle: string;
 }
 
 const SOURCES: readonly DecisionExperienceSource[] = [
+  CALIBRATED_COMMITMENT_EXPERIENCES[0],
   {
     profile: TARGET_CANADA,
     decisionPoint: TARGET_CANADA_AUGUST_2013_DECISION_POINT,
     judgment: TARGET_CANADA_AUGUST_2013_JUDGMENT,
     comparison: TARGET_CANADA_AUGUST_2013_COMPARISON,
+    companyName: 'Target Corporation',
+    caseName: 'Target Canada market entry',
     timelineLabel: 'Scaling decision after 68 stores',
+    headline: 'Scaling decision after 68 stores',
+    primaryExposureCategory: 'scopeActivation',
+    primaryExposureTitle: 'Store-activation exposure only',
   },
+  ...CALIBRATED_COMMITMENT_EXPERIENCES.slice(1),
 ];
 
 const TIMELINE_OPTIONS: readonly DecisionTimelineOption[] = SOURCES.map((source) => ({
@@ -106,6 +125,7 @@ const TIMELINE_OPTIONS: readonly DecisionTimelineOption[] = SOURCES.map((source)
   label: source.timelineLabel,
   decisionDate: source.decisionPoint.decisionDate,
   knowledgeCutoff: source.decisionPoint.knowledgeCutoff,
+  companyName: source.companyName,
 }));
 
 function requireResolvedInput(packet: DecisionPacket, id: string): ResolvedDecisionInput {
@@ -141,6 +161,9 @@ export function createDecisionExperienceViewModel(
 
   return {
     id: source.decisionPoint.id,
+    companyName: source.companyName,
+    caseName: source.caseName,
+    headline: source.headline,
     sequence: source.decisionPoint.sequence,
     actor: source.decisionPoint.actor,
     currentCohort,
@@ -157,6 +180,8 @@ export function createDecisionExperienceViewModel(
     recommendations: source.judgment.recommendations,
     actualComparison: source.comparison,
     exposures: EXPOSURE_CATEGORIES.map((category: ExposureCategory) => source.comparison.exposures[category]),
+    primaryExposure: source.comparison.exposures[source.primaryExposureCategory],
+    primaryExposureTitle: source.primaryExposureTitle,
     evidence: presentationEvidence(packet),
     inspectionInputs: [...packet.contemporaneousInputs],
     constructs: source.decisionPoint.constructs.map((construct) => ({

@@ -10,14 +10,17 @@ two ordered operations.
 The public API is exported from [`index.ts`](./index.ts). The principal types
 and validators live in [`decision-point.ts`](./decision-point.ts),
 [`evidence-integrity.ts`](./evidence-integrity.ts), and
-[`judgment.ts`](./judgment.ts). The Target Canada implementation is an authored
-fixture, not UI business logic:
+[`judgment.ts`](./judgment.ts). Decision experiences are authored fixtures, not
+UI business logic:
 
 - [`fixtures/target-canada-august-2013.ts`](./fixtures/target-canada-august-2013.ts)
   defines the dated decision point and resolves its packet.
 - [`target-canada-august-evaluation.ts`](./target-canada-august-evaluation.ts)
   adapts the v0.2 review, generates the recommendation pair, and defines the
   bounded actual-versus-StratOS comparison.
+- [`fixtures/calibrated-commitment-experiences.ts`](./fixtures/calibrated-commitment-experiences.ts)
+  defines Target T0 plus Adobe, Domino's, and Ford commitment-date packets from
+  the existing calibrated profiles and scorecards.
 - [`presentation.ts`](./presentation.ts) exposes the pure renderer-ready view
   model used by `/stratos-v2`.
 
@@ -84,11 +87,13 @@ validation.
 
 ## Bounded comparison
 
-Counterfactual exposure is reported separately for store activation, leases,
-capital/remodeling, inventory, people, and cash. A placed estimate in one
-category does not authorize inference in another. The Target August comparison
-places only a maximum store-activation scenario bound through the next release
-decision or year end; the other five categories remain `FOG`.
+Counterfactual exposure is reported separately for scope activation, contracts,
+capital, inventory, people, and cash. A placed estimate in one category does
+not authorize inference in another. The Target August comparison places only a
+maximum store-activation scenario bound through the next release decision or
+year end; the other five categories remain `FOG`. The cross-case commitment
+packets do not invent counterfactual quantities: their scenario exposure
+remains `FOG` until the relevant evidence is placed.
 
 This layer explicitly does **not**:
 

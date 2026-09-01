@@ -33,9 +33,9 @@ describe('decision experience presentation adapter', () => {
     expect(view.actualComparison.actualOperations).toHaveLength(2);
     expect(view.actualComparison.stratosOperations).toEqual(view.recommendations);
     expect(view.exposures.map(({ category }) => category)).toEqual([
-      'storeActivation',
-      'leases',
-      'capitalRemodeling',
+      'scopeActivation',
+      'contracts',
+      'capital',
       'inventory',
       'people',
       'cash',
@@ -44,18 +44,34 @@ describe('decision experience presentation adapter', () => {
     expect(view.inspectionInputs.some(({ displayState }) => displayState === 'FOG')).toBe(true);
   });
 
-  it('keeps timeline evidence cutoff-safe and hindsight structurally separate', () => {
-    const view = createDecisionExperienceViewModel(viewId());
+  it('offers authored Target, Adobe, Domino’s, and Ford packets', () => {
+    const view = createDecisionExperienceViewModel();
 
-    expect(view.timeline.selectedId).toBe(view.id);
-    expect(view.timeline.options).toEqual([
-      expect.objectContaining({ id: view.id, knowledgeCutoff: '2013-08-21' }),
+    expect(view.timeline.options).toHaveLength(5);
+    expect(view.timeline.options.map(({ id }) => id)).toEqual([
+      'target-canada-t0-2012-07-12',
+      'target-canada-t2-2013-08-21',
+      'adobe-creative-cloud-t0-2013-01-22',
+      'dominos-growth-t0-2019-02-21',
+      'ford-model-e-t0-2022-07-21',
     ]);
-    expect(view.evidence.every(({ publishedAt }) => publishedAt <= view.cutoff)).toBe(true);
-    expect(view.evidence.every(({ displayState }) => displayState !== 'HINDSIGHT')).toBe(true);
-    expect(view.hindsight).not.toHaveLength(0);
-    expect(view.hindsight.every(({ displayState }) => displayState === 'HINDSIGHT')).toBe(true);
-    expect(view.hindsight.every(({ publishedAt }) => publishedAt! > view.cutoff)).toBe(true);
+    expect(new Set(view.timeline.options.map(({ companyName }) => companyName)).size).toBe(4);
+  });
+
+  it('keeps every authored selection cutoff-safe and hindsight structurally separate', () => {
+    const options = createDecisionExperienceViewModel().timeline.options;
+
+    for (const option of options) {
+      const view = createDecisionExperienceViewModel(option.id);
+      expect(view.timeline.selectedId).toBe(view.id);
+      expect(view.evidence.every(({ publishedAt }) => publishedAt <= view.cutoff)).toBe(true);
+      expect(view.evidence.every(({ displayState }) => displayState !== 'HINDSIGHT')).toBe(true);
+      expect(view.hindsight).not.toHaveLength(0);
+      expect(view.hindsight.every(({ displayState }) => displayState === 'HINDSIGHT')).toBe(true);
+      expect(view.hindsight.every(({ publishedAt }) => publishedAt! > view.cutoff)).toBe(true);
+      expect(view.verdict).toBe('FOG');
+      expect(view.recommendations.map(({ plane }) => plane)).toEqual(['commitment', 'path']);
+    }
   });
 
   it('keeps assumption labels persistent and produces deterministic fresh results', () => {
@@ -89,7 +105,3 @@ describe('decision experience presentation adapter', () => {
     );
   });
 });
-
-function viewId(): string {
-  return createDecisionExperienceViewModel().timeline.options[0].id;
-}

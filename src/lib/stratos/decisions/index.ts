@@ -1,4 +1,5 @@
 export * from './decision-point';
+export * from './decision-comparison';
 export * from './evidence-integrity';
 export * from './fixtures';
 export * from './judgment';

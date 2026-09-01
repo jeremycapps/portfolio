@@ -23,6 +23,11 @@ Cyboflow linked worktrees automatically reuse the primary portfolio worktree's
 Open http://localhost:5173. The chat requires `OPENROUTER_API_KEY`; without it
 the UI loads and returns a friendly error on send.
 
+The GitHub Actions workflow performs the same clean-install gate used for
+release verification: `npm ci`, `npm test`, `npm run typecheck`, and
+`npm run build`. It then installs Chromium and runs `npm run test:e2e` for the
+StratOS interaction and accessibility checks.
+
 ## Configuration
 
 - `OPENROUTER_API_KEY` (required) — server-side only.
@@ -115,8 +120,11 @@ The `/stratos` routes are served by the SPA through the rewrites in
 cutoff-safe judgment surface. The default view is Target Canada's August 21,
 2013 scaling boundary: 68 operating stores, a requested 56-store increment, a
 `FOG` verdict, two bounded recommendations, and a category-specific
-actual-versus-StratOS comparison. Its dated timeline resolves authored decision
-packets; later evidence appears only in a separate hindsight layer.
+actual-versus-StratOS comparison. The decision library also includes Target's
+initial 2012 commitment plus commitment-date packets for Adobe Creative Cloud,
+Domino's 2025 growth goals, and Ford Model e. Every selection resolves an
+authored cutoff-safe packet; later evidence appears only in a separate
+hindsight layer.
 
 The judgment layer extends the scoring v0.2 substrate with validated-scale,
 material-unknown, authority, operation, gate, and reassessment semantics. It

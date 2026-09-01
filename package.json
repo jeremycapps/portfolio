@@ -22,6 +22,7 @@
     "typecheck": "npm run typecheck:app && npm run typecheck:facia",
     "test:app": "vitest run",
     "test:facia": "npm run test --workspace packages/facia-core",
+    "test:e2e": "playwright test",
     "pretest": "npm run build:facia",
     "test": "npm run test:app && npm run test:facia",
     "preeval": "npm run gen:profile",
@@ -34,7 +35,9 @@
     "verify:chat-context-prod": "node scripts/verify-chat-context-prod.mjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@hookform/resolvers": "^3.10.0",
+    "@playwright/test": "^1.62.1",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-alert-dialog": "^1.1.7",
     "@radix-ui/react-aspect-ratio": "^1.1.3",

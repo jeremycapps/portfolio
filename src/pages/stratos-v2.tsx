@@ -91,8 +91,10 @@ const displayDate = (date: string) => new Intl.DateTimeFormat('en-US', {
 }).format(new Date(`${date}T00:00:00Z`));
 
 const displayMetric = (input: DecisionExperienceViewModel['currentCohort']) => {
-  if (!input.metric || !('value' in input.metric)) return input.label;
-  return `${input.metric.value} ${input.metric.unit}`;
+  if (!input.metric) return input.label;
+  return 'value' in input.metric
+    ? `${input.metric.value} ${input.metric.unit}`
+    : `${input.metric.low}–${input.metric.high} ${input.metric.unit}`;
 };
 
 function RecommendationCard({ recommendation }: { recommendation: OperationRecommendation }) {
@@ -185,7 +187,7 @@ function DecisionTimeline({
             />
             <span aria-hidden="true" />
             <strong>{option.sequence} · {displayDate(option.decisionDate)}</strong>
-            <small>{option.label} · cutoff {displayDate(option.knowledgeCutoff)}</small>
+            <small>{option.companyName} · {option.label} · cutoff {displayDate(option.knowledgeCutoff)}</small>
           </label>
         ))}
       </div>
@@ -200,13 +202,14 @@ export function DecisionExperience({
   view: DecisionExperienceViewModel;
   onTimelineSelect?: (id: string) => void;
 }) {
-  const storeExposure = view.exposures.find(({ category }) => category === 'storeActivation')!;
+  const primaryExposure = view.primaryExposure;
   return (
     <Card className="sv2-decision" aria-labelledby="decision-overview-title">
       <header className="sv2-decision-head">
         <div>
-          <p className="sv2-kicker">Target Canada · {view.sequence}</p>
-          <h2 id="decision-overview-title">Scaling decision after 68 stores</h2>
+          <p className="sv2-kicker">{view.companyName} · {view.sequence}</p>
+          <h2 id="decision-overview-title">{view.headline}</h2>
+          <p>{view.caseName}</p>
           <p>Decision date and knowledge cutoff · {displayDate(view.cutoff)}</p>
         </div>
         <div className="sv2-decision-verdict">
@@ -259,14 +262,14 @@ export function DecisionExperience({
           </article>
         </div>
         <div className="sv2-exposure-bound">
-          <p className="sv2-eyebrow">Store-activation exposure only</p>
+          <p className="sv2-eyebrow">{view.primaryExposureTitle}</p>
           <div>
-            <p><strong>Actual intent · <span className="sv2-status-icon" aria-hidden="true">{STATUS_ICONS[storeExposure.actualIntent.status]}</span> {storeExposure.actualIntent.status}</strong>{storeExposure.actualIntent.label}</p>
-            <p><strong>StratOS scenario · <span className="sv2-analytical-label">ANALYTICAL</span> · <span className="sv2-status-icon" aria-hidden="true">{STATUS_ICONS[storeExposure.stratosScenario.status]}</span> {storeExposure.stratosScenario.status}</strong>{storeExposure.stratosScenario.label}</p>
+            <p><strong>Actual intent · <span className="sv2-status-icon" aria-hidden="true">{STATUS_ICONS[primaryExposure.actualIntent.status]}</span> {primaryExposure.actualIntent.status}</strong>{primaryExposure.actualIntent.label}</p>
+            <p><strong>StratOS scenario · <span className="sv2-analytical-label">ANALYTICAL</span> · <span className="sv2-status-icon" aria-hidden="true">{STATUS_ICONS[primaryExposure.stratosScenario.status]}</span> {primaryExposure.stratosScenario.status}</strong>{primaryExposure.stratosScenario.label}</p>
           </div>
-          {storeExposure.stratosScenario.calculation && <p><strong>Calculation · <span className="sv2-analytical-label">ANALYTICAL</span></strong>{storeExposure.stratosScenario.calculation}</p>}
-          {storeExposure.stratosScenario.assumption && <p><strong>Counterfactual assumption · <span className="sv2-assumption-label">ASSUMPTION</span></strong>{storeExposure.stratosScenario.assumption}</p>}
-          <p>{storeExposure.limitation}</p>
+          {primaryExposure.stratosScenario.calculation && <p><strong>Calculation · <span className="sv2-analytical-label">ANALYTICAL</span></strong>{primaryExposure.stratosScenario.calculation}</p>}
+          {primaryExposure.stratosScenario.assumption && <p><strong>Counterfactual assumption · <span className="sv2-assumption-label">ASSUMPTION</span></strong>{primaryExposure.stratosScenario.assumption}</p>}
+          <p>{primaryExposure.limitation}</p>
           <small>This comparison ends at the next release decision or December 31, 2013. It makes no claim about obligations beyond the evidence placed at this cutoff.</small>
         </div>
       </section>
@@ -573,8 +576,8 @@ export default function StratosV2Page() {
           </div>
           <aside>
             <span>Cutoff-safe decision</span>
-            <strong>Target Canada</strong>
-            <p>August 21, 2013 · scaling boundary</p>
+            <strong>{decision.companyName}</strong>
+            <p>{displayDate(decision.cutoff)} · {decision.sequence}</p>
           </aside>
         </header>
         <DecisionExperience view={decision} onTimelineSelect={setDecisionId} />
