@@ -109,6 +109,26 @@
 .sf-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #7e5aae); }
 .sf-app-name { font-weight: 600; font-size: 14px; }
 .sf-bell { display: flex; }
+.sf-cases {
+  display: flex; gap: 3px; padding: 3px; border: 0; margin: 0;
+  background: rgba(255, 255, 255, 0.06); border-radius: 9px;
+}
+.sf-case {
+  flex: 1; position: relative; text-align: center; cursor: pointer;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  padding: 5px 6px; border-radius: 6px; color: #9098a4;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sf-case.is-on { background: rgba(255, 255, 255, 0.12); color: #e9eef4; }
+/* The radio stays in the accessibility tree and stays operable; only its own
+   rendering is removed, so the label is the visible control. */
+.sf-case input {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  margin: 0; opacity: 0; cursor: pointer;
+}
+.sf-case:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--accent); }
+
 .sf-narrative { font-size: 16px; font-weight: 500; line-height: 1.26; letter-spacing: -0.02em; color: #e9eef4; }
 .sf-narrative b { color: var(--accent); font-weight: 600; }
 
@@ -156,10 +176,14 @@
 /* selected-point pill, with a hairline dropping to the axis */
 .sf-tip {
   position: absolute; transform: translate(-50%, calc(-100% - 13px)); white-space: nowrap;
+  /* The pill is wider than the dot, so centring it on a stop near either end
+     hangs it off the screen. These pin it inside the plot instead. */
   font-size: 8.5px; font-weight: 600; letter-spacing: 0.02em; color: #e9eef4;
   background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px; padding: 3px 8px; pointer-events: none;
 }
+.sf-tip--start { transform: translate(-12px, calc(-100% - 13px)); }
+.sf-tip--end { transform: translate(calc(-100% + 12px), calc(-100% - 13px)); }
 
 .sf-axis { grid-column: 1; grid-row: 2; position: relative; border-top: 1px solid rgba(255, 255, 255, 0.09); }
 .sf-axis-year {

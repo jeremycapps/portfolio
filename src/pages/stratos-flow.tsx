@@ -54,13 +54,28 @@ function shortMetric(input: { metric?: { value: number; unit: string } | { low: 
 }
 
 /**
- * The case whose arc the timeline shows.
+ * The cases whose arcs the timeline can show.
  *
  * A timeline is a run of decisions on one commitment, so mixing cases turns it
- * back into a list. Scoped to Target Canada while the arc pattern is being
- * worked out; a case switcher comes with it.
+ * back into a list — the switcher moves between arcs rather than merging them.
+ *
+ * Derived, not listed. A case earns a place here by having more than one dated
+ * decision; a single-decision case has no arc to draw and would render as one
+ * dot on an axis. Ordered by when each commitment starts.
  */
-const TIMELINE_CASE = 'Target Corporation';
+function timelineCases(view: DecisionExperienceViewModel): readonly string[] {
+  const firstDate = new Map<string, string>();
+  const counts = new Map<string, number>();
+  for (const { companyName, decisionDate } of view.timeline.options) {
+    counts.set(companyName, (counts.get(companyName) ?? 0) + 1);
+    const seen = firstDate.get(companyName);
+    if (seen === undefined || decisionDate < seen) firstDate.set(companyName, decisionDate);
+  }
+  return [...counts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([name]) => name)
+    .sort((a, b) => firstDate.get(a)!.localeCompare(firstDate.get(b)!));
+}
 
 /** Smallest share of the track between two stops, so a cluster stays readable. */
 const MIN_GAP_PCT = 11.5;
@@ -88,9 +103,9 @@ const PCT_PER_MONTH = 4;
  * only ever descends here because evidence only ever accumulates, but nothing
  * forces that — a case that recovered would climb.
  */
-function timelineStops(view: DecisionExperienceViewModel) {
+function timelineStops(view: DecisionExperienceViewModel, caseName: string) {
   const ordered = view.timeline.options
-    .filter((option) => option.companyName === TIMELINE_CASE)
+    .filter((option) => option.companyName === caseName)
     .sort((a, b) => a.decisionDate.localeCompare(b.decisionDate));
   const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
   const first = time(ordered[0].decisionDate);
@@ -113,6 +128,24 @@ function timelineStops(view: DecisionExperienceViewModel) {
       year: index === 0 || ordered[index - 1].decisionDate.slice(0, 4) !== year ? year : undefined,
     };
   });
+}
+
+/**
+ * Display abbreviations for the switcher, which is narrower than a legal name.
+ *
+ * This is typography, not data: the full `companyName` from the model is what
+ * labels the chart underneath, and an unlisted case falls back to it. The names
+ * here are the ones the organizations are actually called, which no rule over
+ * the legal name would produce — "U.S. Department of Veterans Affairs"
+ * initialises to something nobody says.
+ */
+const SHORT_CASE_NAMES: Record<string, string> = {
+  'Target Corporation': 'Target',
+  'U.S. Department of Veterans Affairs': 'VA',
+};
+
+function shortCaseName(name: string): string {
+  return SHORT_CASE_NAMES[name] ?? name;
 }
 
 /** The timeline's own label for this decision — the short form of the headline. */
@@ -333,15 +366,25 @@ const STAGES = [
 
 function TimelineScreen({
   view,
+  caseName,
+  cases,
   onSelect,
+  onSelectCase,
 }: {
   view: DecisionExperienceViewModel;
+  caseName: string;
+  cases: readonly string[];
   onSelect: (id: string) => void;
+  onSelectCase: (name: string) => void;
 }) {
-  const stops = timelineStops(view);
+  const stops = timelineStops(view, caseName);
   const selectedStop = stops.find(({ option }) => option.id === view.timeline.selectedId);
   const adverse = stops.filter(({ option }) => verdictFor(option.id) !== 'FOG').length;
-  const caseLabel = stops[0]?.option.companyName ?? TIMELINE_CASE;
+  // Two arcs of the same length read as the same shape until you see where each
+  // one turns, so the summary counts the turns rather than restating the count.
+  const recovers = stops.some(({ band }, index) => (
+    index > 0 && BANDS.indexOf(band) < BANDS.indexOf(stops[index - 1].band)
+  ));
 
   return (
     <>
@@ -354,11 +397,28 @@ function TimelineScreen({
         </span>
       </div>
 
-      <div className="sf-kicker">{caseLabel} · {stops.length} dated decisions</div>
+      <div className="sf-cases" role="radiogroup" aria-label="Case">
+        {cases.map((name) => (
+          <label className={`sf-case${name === caseName ? ' is-on' : ''}`} key={name}>
+            <input
+              type="radio"
+              name="sf-case"
+              value={name}
+              checked={name === caseName}
+              onChange={() => onSelectCase(name)}
+            />
+            {shortCaseName(name)}
+          </label>
+        ))}
+      </div>
+
+      <div className="sf-kicker">{caseName} · {stops.length} dated decisions</div>
       <div className="sf-narrative">
         {adverse === 0
           ? <>Every decision on this commitment reads <b>uncertain</b> rather than adverse.</>
-          : <>{adverse} of {stops.length} decisions {adverse === 1 ? 'reads' : 'read'} <b>adverse</b> rather than merely uncertain.</>}
+          : recovers
+            ? <>{adverse} of {stops.length} decisions read <b>adverse</b> — and the arc <b>comes back up</b>.</>
+            : <>{adverse} of {stops.length} decisions {adverse === 1 ? 'reads' : 'read'} <b>adverse</b> rather than merely uncertain.</>}
       </div>
 
       <div className="sf-chart">
@@ -402,7 +462,10 @@ function TimelineScreen({
           })}
 
           {selectedStop && (
-            <span className="sf-tip" style={{ left: `${selectedStop.x}%`, top: `${selectedStop.y}%` }}>
+            <span
+              className={`sf-tip${selectedStop.x < 20 ? ' sf-tip--start' : selectedStop.x > 80 ? ' sf-tip--end' : ''}`}
+              style={{ left: `${selectedStop.x}%`, top: `${selectedStop.y}%` }}
+            >
               {selectedStop.option.sequence} · {selectedStop.option.decisionDate}
             </span>
           )}
@@ -448,8 +511,18 @@ function verdictFor(id: string): DecisionExperienceViewModel['verdict'] {
 }
 
 export default function StratosFlowPage() {
+  const cases = useMemo(() => timelineCases(createDecisionExperienceViewModel()), []);
+  const [caseName, setCaseName] = useState(cases[0]);
   const [decisionId, setDecisionId] = useState<string>();
   const view = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
+
+  // Switching case moves the selection with it. Leaving it behind would leave
+  // the chart with no selected stop while the flow below still resolved to a
+  // decision the chart no longer shows.
+  const selectCase = (name: string) => {
+    setCaseName(name);
+    setDecisionId(timelineStops(view, name)[0]?.option.id);
+  };
 
   return (
     <main className="app-shell sf-page">
@@ -467,7 +540,13 @@ export default function StratosFlowPage() {
           </div>
           <div className="sf-hero-phone">
             <Phone hero>
-              <TimelineScreen view={view} onSelect={setDecisionId} />
+              <TimelineScreen
+                view={view}
+                caseName={caseName}
+                cases={cases}
+                onSelect={setDecisionId}
+                onSelectCase={selectCase}
+              />
             </Phone>
           </div>
         </div>
