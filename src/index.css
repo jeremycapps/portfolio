@@ -2663,3 +2663,132 @@ textarea:focus-visible {
     width: 100%;
   }
 }
+
+/* ============================================================
+   Homepage dark mode — system preference only, no toggle.
+   Scoped to the homepage: the --home-* tokens are consumed only
+   by .home-* rules, and body:has(.home-hero) guards the shared
+   composer/chat classes (also Home-exclusive today) so this
+   never bleeds into stratos/blog/about. The chat/resume surface
+   once a conversation starts stays light-only for now — a
+   deliberate boundary, not an oversight.
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --home-accent: #e8a13a;
+    --home-accent-ink: #f0b860;
+    --home-ink: #e9eef4;
+    --home-ink-2: #c3cad5;
+    --home-muted: #8a94a2;
+    --home-faint: #59616e;
+    --home-panel: #131922;
+    --home-panel-grad: linear-gradient(158deg, #182029, #10151e);
+    --home-hair: #222a35;
+    --home-hair-soft: #1a212b;
+    --a-libera: #7796d2;
+    --a-facia: #54b98d;
+    --a-stratos: #b197d6;
+    --home-shadow: 0 22px 48px -24px rgba(0, 0, 0, 0.7);
+  }
+
+  body:has(.home-hero) {
+    background: linear-gradient(135deg, #0b0f15 0%, #0a0e14 48%, #0d1119 100%);
+  }
+
+  body:has(.home-hero) .composer {
+    background: rgba(19, 25, 34, 0.85);
+    border-color: rgba(60, 72, 90, 0.6);
+    box-shadow:
+      0 13px 28px rgba(0, 0, 0, 0.35),
+      0 2px 4px rgba(0, 0, 0, 0.25),
+      inset 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  body:has(.home-hero) .composer:focus-within {
+    background: rgba(24, 32, 43, 0.94);
+    border-color: rgba(232, 161, 58, 0.5);
+    box-shadow:
+      0 17px 35px rgba(0, 0, 0, 0.4),
+      0 2px 4px rgba(0, 0, 0, 0.25),
+      0 0 0 4px rgba(232, 161, 58, 0.15);
+  }
+
+  body:has(.home-hero) .composer-prompt > svg {
+    color: #7d8797;
+  }
+
+  body:has(.home-hero) .composer-input {
+    color: #e9eef4;
+  }
+
+  body:has(.home-hero) .composer-input::placeholder {
+    color: #6b7684;
+  }
+
+  body:has(.home-hero) .starter-chip {
+    color: #a7b0bd;
+    background: #171d27;
+    border-color: #2a3240;
+  }
+
+  body:has(.home-hero) .starter-chip:hover:not(:disabled) {
+    color: #e9eef4;
+    background: #212938;
+    border-color: #3a4557;
+  }
+
+  body:has(.home-hero) .starter-chip.is-active {
+    color: #f0b860;
+    background: rgba(232, 161, 58, 0.14);
+    border-color: rgba(232, 161, 58, 0.4);
+  }
+
+  body:has(.home-hero) .toolbar-button {
+    color: #7d8797;
+  }
+
+  body:has(.home-hero) .toolbar-button:hover {
+    color: #cdd4dd;
+    background: #1c2430;
+    border-color: #2a3240;
+  }
+
+  body:has(.home-hero) .clear-chat-button {
+    color: #e08a90;
+    border-color: rgba(224, 138, 144, 0.3);
+  }
+
+  body:has(.home-hero) .clear-chat-button:hover {
+    color: #f2a4a9;
+    background: rgba(224, 138, 144, 0.12);
+    border-color: rgba(224, 138, 144, 0.4);
+  }
+
+  body:has(.home-hero) .clear-chat-button:disabled {
+    color: #4a4448;
+  }
+
+  body:has(.home-hero) .submit-button {
+    color: #160f02;
+    background: var(--home-accent);
+    border-color: var(--home-accent);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.35);
+  }
+
+  body:has(.home-hero) .submit-button:hover:not(:disabled) {
+    background: var(--home-accent-ink);
+    border-color: var(--home-accent-ink);
+  }
+
+  body:has(.home-hero) .status-line {
+    color: #7d8797;
+  }
+
+  body:has(.home-hero) .status-line.error {
+    color: #e08a90;
+  }
+
+  body:has(.home-hero) .status-line.success {
+    color: #6fcf9e;
+  }
+}
