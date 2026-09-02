@@ -176,3 +176,52 @@ describe('tension poles', () => {
     }
   });
 });
+
+describe('judgment cause', () => {
+  it('names why a verdict landed, not just what it was', () => {
+    const va = createDecisionExperienceViewModel('va-ehr-t1-2020-10-24');
+
+    expect(va.verdict).toBe('COLLISION');
+    expect(va.cause).toMatchObject({ kind: 'risk-floor', displayLabel: 'RISK FLOOR' });
+    expect(va.cause.summary).toContain('infrastructure');
+  });
+
+  it('separates a floor breach from a capacity collision under the same verdict', () => {
+    // The display vocabulary has three verdicts and the review has four
+    // outcomes, so FLOOR arrives as COLLISION. The cause is what keeps them
+    // distinguishable: a breached precondition is not an oversized increment.
+    const va = createDecisionExperienceViewModel('va-ehr-t1-2020-10-24');
+
+    expect(va.verdict).toBe('COLLISION');
+    expect(va.cause.kind).not.toBe('capacity');
+    expect(va.bindingDimensions).toEqual(['people']);
+  });
+
+  it('reports material uncertainty for a decision that stalls on absent evidence', () => {
+    for (const id of ['target-canada-t2-2013-08-21', 'va-ehr-t3-2023-04-21']) {
+      const view = createDecisionExperienceViewModel(id);
+      expect(view.verdict, id).toBe('FOG');
+      expect(view.cause.kind, id).toBe('material-uncertainty');
+      expect(view.cause.displayLabel, id).toBe('MATERIAL UNCERTAINTY');
+    }
+  });
+
+  it('resolves the cause evidence to titled, dated sources', () => {
+    const view = createDecisionExperienceViewModel('va-ehr-t1-2020-10-24');
+
+    expect(view.cause.evidence.length).toBeGreaterThan(0);
+    for (const ref of view.cause.evidence) {
+      expect(ref.sourceTitle).toBeTruthy();
+      expect(ref.locator).toBeTruthy();
+      expect(ref.publishedAt <= view.cutoff).toBe(true);
+    }
+  });
+
+  it('carries a cause on every authored decision', () => {
+    for (const option of createDecisionExperienceViewModel().timeline.options) {
+      const view = createDecisionExperienceViewModel(option.id);
+      expect(view.cause.summary.trim(), option.id).not.toBe('');
+      expect(view.cause.displayLabel, option.id).toMatch(/^[A-Z ]+$/);
+    }
+  });
+});

@@ -15,7 +15,7 @@ import {
   TARGET_CANADA_AUGUST_2013_DECISION_POINT,
 } from './fixtures';
 import type { DecisionComparison } from './decision-comparison';
-import type { JudgmentResult, OperationRecommendation } from './judgment';
+import type { JudgmentCause, JudgmentResult, OperationRecommendation } from './judgment';
 import {
   TARGET_CANADA_AUGUST_2013_COMPARISON,
   TARGET_CANADA_AUGUST_2013_JUDGMENT,
@@ -70,6 +70,39 @@ export interface PresentationTension {
   readonly confidence: number;
 }
 
+/**
+ * Why the verdict landed where it did.
+ *
+ * The display vocabulary has three verdicts while the commitment review has
+ * four outcomes, so a breached floor arrives as COLLISION alongside a genuine
+ * capacity collision. The cause is what keeps them apart: a precondition that
+ * did not hold is a different finding from an increment that was too large for
+ * the reserve, and a renderer showing only the verdict loses that.
+ */
+export interface PresentationCause {
+  readonly kind: JudgmentCause['kind'];
+  /** Fixed label so a renderer names the cause without re-deriving it. */
+  readonly displayLabel: string;
+  readonly summary: string;
+  readonly evidence: readonly PresentationCauseEvidence[];
+}
+
+export interface PresentationCauseEvidence extends EvidenceRef {
+  readonly sourceTitle: string;
+  readonly publishedAt: string;
+}
+
+const CAUSE_LABELS: Readonly<Record<JudgmentCause['kind'], string>> = {
+  fit: 'ABSORBABLE',
+  'material-uncertainty': 'MATERIAL UNCERTAINTY',
+  capacity: 'CAPACITY',
+  readiness: 'READINESS',
+  transferability: 'TRANSFERABILITY',
+  'value-floor': 'VALUE FLOOR',
+  'risk-floor': 'RISK FLOOR',
+  authority: 'AUTHORITY',
+};
+
 export interface DecisionExperienceViewModel {
   readonly id: string;
   readonly companyName: string;
@@ -81,6 +114,7 @@ export interface DecisionExperienceViewModel {
   readonly requestedIncrement: ResolvedDecisionInput;
   readonly cutoff: string;
   readonly verdict: JudgmentResult['verdict'];
+  readonly cause: PresentationCause;
   readonly validatedScale: {
     readonly status: JudgmentResult['nextSafeCommitment']['status'];
     readonly value: string;
@@ -162,6 +196,19 @@ const TIMELINE_OPTIONS: readonly DecisionTimelineOption[] = SOURCES.map((source)
   companyName: source.companyName,
 }));
 
+function presentationCause(cause: JudgmentCause, profile: CaseProfile): PresentationCause {
+  const sourceById = new Map(profile.sources.map((source) => [source.id, source]));
+  return {
+    kind: cause.kind,
+    displayLabel: CAUSE_LABELS[cause.kind],
+    summary: cause.summary,
+    evidence: cause.evidenceRefs.flatMap((ref) => {
+      const source = sourceById.get(ref.sourceId);
+      return source ? [{ ...ref, sourceTitle: source.title, publishedAt: source.publishedAt }] : [];
+    }),
+  };
+}
+
 function presentationTensions(scorecard: CaseScorecard): PresentationTension[] {
   return SYSTEM_IDS.map((id: SystemId) => {
     const tension = TENSIONS.find((candidate) => candidate.id === id);
@@ -224,6 +271,7 @@ export function createDecisionExperienceViewModel(
     requestedIncrement,
     cutoff: source.decisionPoint.knowledgeCutoff,
     verdict: source.judgment.verdict,
+    cause: presentationCause(source.judgment.cause, source.profile),
     validatedScale: {
       status: source.judgment.nextSafeCommitment.status,
       value: source.judgment.validatedScale,
