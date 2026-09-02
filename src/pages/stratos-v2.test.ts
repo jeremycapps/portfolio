@@ -91,7 +91,7 @@ describe('StratOS v2 decision experience', () => {
     expect(html).toContain('name="stratos-decision-date"');
     expect(html).toContain('checked=""');
     expect(html).toContain('T2 · August 21, 2013');
-    expect(html.match(/name="stratos-decision-date"/g)).toHaveLength(5);
+    expect(html.match(/name="stratos-decision-date"/g)).toHaveLength(7);
     expect(html).toContain('Adobe Systems Incorporated');
     expect(html).toContain('Domino&#x27;s Pizza, Inc.');
     expect(html).toContain('Ford Motor Company');

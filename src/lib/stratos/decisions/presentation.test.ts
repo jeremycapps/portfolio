@@ -44,18 +44,28 @@ describe('decision experience presentation adapter', () => {
     expect(view.inspectionInputs.some(({ displayState }) => displayState === 'FOG')).toBe(true);
   });
 
-  it('offers authored Target, Adobe, Domino’s, and Ford packets', () => {
+  it('offers authored Target, Adobe, Domino’s, Ford, and VA packets', () => {
     const view = createDecisionExperienceViewModel();
 
-    expect(view.timeline.options).toHaveLength(5);
+    expect(view.timeline.options).toHaveLength(7);
     expect(view.timeline.options.map(({ id }) => id)).toEqual([
       'target-canada-t0-2012-07-12',
       'target-canada-t2-2013-08-21',
       'adobe-creative-cloud-t0-2013-01-22',
       'dominos-growth-t0-2019-02-21',
       'ford-model-e-t0-2022-07-21',
+      'va-ehr-t1-2020-10-24',
+      'va-ehr-t3-2023-04-21',
     ]);
-    expect(new Set(view.timeline.options.map(({ companyName }) => companyName)).size).toBe(4);
+    expect(new Set(view.timeline.options.map(({ companyName }) => companyName)).size).toBe(5);
+  });
+
+  it('carries two dated decisions for the one case that has them', () => {
+    const va = createDecisionExperienceViewModel().timeline.options
+      .filter(({ companyName }) => companyName.includes('Veterans Affairs'));
+
+    expect(va.map(({ sequence }) => sequence)).toEqual(['T1', 'T3']);
+    expect(va.map(({ knowledgeCutoff }) => knowledgeCutoff)).toEqual(['2020-10-24', '2023-04-21']);
   });
 
   it('keeps every authored selection cutoff-safe and hindsight structurally separate', () => {
@@ -69,9 +79,25 @@ describe('decision experience presentation adapter', () => {
       expect(view.hindsight).not.toHaveLength(0);
       expect(view.hindsight.every(({ displayState }) => displayState === 'HINDSIGHT')).toBe(true);
       expect(view.hindsight.every(({ publishedAt }) => publishedAt! > view.cutoff)).toBe(true);
-      expect(view.verdict).toBe('FOG');
+      expect(['FIT', 'FOG', 'COLLISION']).toContain(view.verdict);
       expect(view.recommendations.map(({ plane }) => plane)).toEqual(['commitment', 'path']);
     }
+  });
+
+  it('does not return the same verdict for every authored decision', () => {
+    // Every commitment-date packet reads FOG, so uniformity held until a case
+    // was scored at a release date. VA's first production release is the one
+    // decision in the library where the evidence is adverse rather than absent.
+    const verdicts = createDecisionExperienceViewModel().timeline.options
+      .map((option) => createDecisionExperienceViewModel(option.id))
+      .map(({ id, verdict }) => [id, verdict]);
+
+    expect(Object.fromEntries(verdicts)).toMatchObject({
+      'target-canada-t0-2012-07-12': 'FOG',
+      'va-ehr-t1-2020-10-24': 'COLLISION',
+      'va-ehr-t3-2023-04-21': 'FOG',
+    });
+    expect(new Set(verdicts.map(([, verdict]) => verdict)).size).toBeGreaterThan(1);
   });
 
   it('keeps assumption labels persistent and produces deterministic fresh results', () => {

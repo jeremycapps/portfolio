@@ -3,6 +3,7 @@ import {
   DOMINOS_2025_GROWTH,
   FORD_MODEL_E,
   TARGET_CANADA,
+  VA_EHR_MODERNIZATION,
   type CaseFact,
   type CaseProfile,
   type EvidenceRef,
@@ -13,7 +14,9 @@ import {
   FORD_MODEL_E_COMMITMENT_SCORECARD,
   TARGET_CANADA_COMMITMENT_SCORECARD,
 } from '../../scoring/commitment-scorecards';
-import type { CaseScorecard } from '../../scoring/scorecard';
+import type { CommitmentReviewInput } from '../../scoring/rubric';
+import { VA_EHR_2020_REVIEW_INPUT } from '../../scoring/va-ehr-2020-review';
+import { VA_EHR_2023_REVIEW_INPUT } from '../../scoring/va-ehr-2023-review';
 import {
   EXPOSURE_CATEGORIES,
   defineDecisionPoint,
@@ -34,7 +37,7 @@ const ASSUMPTIONS = [
   { id: 'analytical-actor', statement: 'The aggregate decision actor is an analytical label; the public packet does not identify a single authorization owner.' },
   { id: 'analytical-boundary', statement: 'The bounded hold and reassessment date are StratOS controls, not reported company actions.' },
   { id: 'analytical-gates', statement: 'The proposed evidence gates are analytical and do not imply that the company used them.' },
-  { id: 'analytical-sequence', statement: 'T0 is a StratOS sequence label for the commitment-date packet.' },
+  { id: 'analytical-sequence', statement: 'T0, T1, T3 and the rest are StratOS sequence labels for dated decision packets; the organization did not number its decisions.' },
 ] as const;
 
 const SECONDARY_EXPOSURES = [
@@ -47,7 +50,14 @@ const SECONDARY_EXPOSURES = [
 
 interface ExperienceConfig {
   readonly profile: CaseProfile;
-  readonly scorecard: CaseScorecard;
+  /**
+   * The commitment review this decision renders. Commitment-date packets pass
+   * their scorecard's review; a case scored per release date passes the review
+   * authored for that date, since no scorecard spans them.
+   */
+  readonly commitmentReview: CommitmentReviewInput;
+  readonly snapshotId: string;
+  readonly sequence: DecisionPoint['sequence'];
   readonly id: string;
   readonly decisionDate: string;
   readonly reassessmentDate: string;
@@ -120,8 +130,8 @@ const fog = (id: string, label: string): DecisionInput => ({
 });
 
 function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
-  const snapshot = config.profile.snapshots.find(({ id }) => id === config.scorecard.evidencePacket.snapshot.id);
-  if (!snapshot) throw new Error(`${config.profile.id} is missing its commitment snapshot.`);
+  const snapshot = config.profile.snapshots.find(({ id }) => id === config.snapshotId);
+  if (!snapshot) throw new Error(`${config.profile.id} is missing snapshot ${config.snapshotId}.`);
   const current = inputFromFact(config.profile, config.current.factRef, 'current-commitment', config.current.label);
   const requested = inputFromFact(config.profile, config.requested.factRef, 'requested-increment', config.requested.label);
   const cadence = inputFromFact(config.profile, config.cadence.factRef, 'commitment-cadence', config.cadence.label);
@@ -137,7 +147,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
     id: config.id,
     caseId: config.profile.id,
     evidenceSnapshotId: snapshot.id,
-    sequence: 'T0',
+    sequence: config.sequence,
     decisionDate: config.decisionDate,
     knowledgeCutoff: snapshot.knowledgeCutoff,
     actor: {
@@ -165,7 +175,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
       assumptionRefs: ['analytical-boundary'],
     },
     constructs: [
-      { id: `${config.id}-t0`, label: 'T0: commitment boundary', provenance: 'analytical', assumptionRefs: ['analytical-sequence'] },
+      { id: `${config.id}-sequence`, label: `${config.sequence}: decision boundary`, provenance: 'analytical', assumptionRefs: ['analytical-sequence'] },
       { id: `${config.id}-gates`, label: 'Proposed evidence release gates', provenance: 'assumption', assumptionRefs: ['analytical-gates'] },
     ],
     actualOperations: [
@@ -190,7 +200,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
 
   const unknownLabels = materialUnknowns.map(({ label }) => label);
   const assessment = adaptCommitmentReview({
-    commitmentReview: config.scorecard.commitmentReviewInput,
+    commitmentReview: config.commitmentReview,
     materialUnknowns: unknownLabels,
     causeEvidenceRefs: [primaryEvidence],
   });
@@ -312,7 +322,9 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
 export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   buildExperience({
     profile: TARGET_CANADA,
-    scorecard: TARGET_CANADA_COMMITMENT_SCORECARD,
+    commitmentReview: TARGET_CANADA_COMMITMENT_SCORECARD.commitmentReviewInput,
+    snapshotId: TARGET_CANADA_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
     id: 'target-canada-t0-2012-07-12',
     decisionDate: '2012-07-12',
     reassessmentDate: '2013-03-05',
@@ -330,7 +342,9 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   }),
   buildExperience({
     profile: ADOBE_CREATIVE_CLOUD,
-    scorecard: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD,
+    commitmentReview: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD.commitmentReviewInput,
+    snapshotId: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
     id: 'adobe-creative-cloud-t0-2013-01-22',
     decisionDate: '2013-01-22',
     reassessmentDate: '2014-01-21',
@@ -348,7 +362,9 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   }),
   buildExperience({
     profile: DOMINOS_2025_GROWTH,
-    scorecard: DOMINOS_GROWTH_COMMITMENT_SCORECARD,
+    commitmentReview: DOMINOS_GROWTH_COMMITMENT_SCORECARD.commitmentReviewInput,
+    snapshotId: DOMINOS_GROWTH_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
     id: 'dominos-growth-t0-2019-02-21',
     decisionDate: '2019-02-21',
     reassessmentDate: '2020-02-20',
@@ -366,7 +382,9 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   }),
   buildExperience({
     profile: FORD_MODEL_E,
-    scorecard: FORD_MODEL_E_COMMITMENT_SCORECARD,
+    commitmentReview: FORD_MODEL_E_COMMITMENT_SCORECARD.commitmentReviewInput,
+    snapshotId: FORD_MODEL_E_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
     id: 'ford-model-e-t0-2022-07-21',
     decisionDate: '2022-07-21',
     reassessmentDate: '2023-07-28',
@@ -381,5 +399,57 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     unknowns: ['Demand-linked release gates', 'Battery and critical-role capacity', 'Plant ramp and quality thresholds', 'Capital loss tolerance'],
     secondaryExposureLabels: ['Supplier and battery-contract exposure', 'Manufacturing and platform capital exposure', 'Battery and vehicle inventory exposure', 'Engineering, software, and skilled-trades capacity', 'Investment and Model e loss exposure'],
     hindsightFactRef: 'run-rate-retimed-2023',
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2020_REVIEW_INPUT,
+    snapshotId: 'first-release-2020-10-24',
+    sequence: 'T1',
+    id: 'va-ehr-t1-2020-10-24',
+    decisionDate: '2020-10-24',
+    reassessmentDate: '2021-04-24',
+    actor: 'VA leadership responsible for authorizing the first production deployment',
+    current: { factRef: 'va-rollout-support-required-2020', label: '108 rollout-support positions identified as necessary' },
+    requested: { factRef: 'va-initial-population-2020', label: 'Move more than 24,000 primary-care Veterans onto the new record' },
+    cadence: { factRef: 'va-rollout-support-filled-2020', label: 'Release with a little more than 48 of those positions filled' },
+    requestedScale: 'first full production site',
+    timelineLabel: 'First production release',
+    headline: 'Release before readiness conditions held',
+    irreversibility: 'high',
+    unknowns: ['Quantified patient-safety tolerance', 'Verification cycle completion', 'Site-level financial capacity', 'Release gate criteria'],
+    secondaryExposureLabels: [
+      'Cerner contract and sustainment exposure',
+      'Infrastructure and hardware capital exposure',
+      'Clinical configuration and mitigation backlog',
+      'Clinical and rollout-support staffing exposure',
+      'Site deployment and remediation spend exposure',
+    ],
+    hindsightFactRef: 'va-support-tickets-2021',
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2023_REVIEW_INPUT,
+    snapshotId: 'reset-2023-04-21',
+    sequence: 'T3',
+    id: 'va-ehr-t3-2023-04-21',
+    decisionDate: '2023-04-21',
+    reassessmentDate: '2024-04-21',
+    actor: 'VA leadership responsible for the deployment schedule and the reset',
+    current: { factRef: 'va-sites-live-at-reset-2023', label: 'Five VA medical-center systems operating on the new record' },
+    requested: { factRef: 'va-deployment-halt-2023', label: 'Halt further deployments and redirect resources to the operating sites' },
+    cadence: { factRef: 'va-user-experience-2023', label: 'Remediate against user-reported training, morale, and burnout evidence' },
+    requestedScale: 'no additional sites',
+    timelineLabel: 'Deployment reset',
+    headline: 'Stopping the release cadence to restore verification',
+    irreversibility: 'medium',
+    unknowns: ['Remediation cost against remaining funding', 'Criteria for resuming deployment', 'Announced pause duration', 'Thresholds the live sites must meet'],
+    secondaryExposureLabels: [
+      'Continuing Cerner contract and sustainment exposure',
+      'Capital already committed at the five live systems',
+      'Open configuration-change backlog',
+      'Support and remediation staffing at the live systems',
+      'Remediation spend against unplaced remaining funding',
+    ],
+    hindsightFactRef: 'va-lifecycle-estimate-2022',
   }),
 ] as const;
