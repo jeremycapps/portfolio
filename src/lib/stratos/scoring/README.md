@@ -72,6 +72,16 @@ The decision cascade is:
 
 For public-only cases, `committed` and `actual` figures are unavailable by definition, so a `computed` reserve is out of reach. The reviewer has three remaining moves: an indeterminate placement, a sourced structural bound that the disclosed plan itself imposes, or an evidenced shortfall. A structural bound is a contestable hypothesis; it does not masquerade as inside knowledge.
 
+### Floors gate capacity, and the increment is what is under review
+
+Floors are checked before spend models, so a breached precondition outranks a capacity collision. That ordering is deliberate. A collision says the increment was too large for the available reserve; a floor says the increment should not have been released at any size until the condition held. When both are true, the floor is the earlier and more basic failure, and reporting the collision as the headline would understate it.
+
+Nothing is lost when a floor wins. The colliding models still appear in `breakingModels`, and each placement keeps its own status and fit, so a FLOOR result carries its capacity finding alongside the breached condition. VA's first production release is the worked example: two readiness floors trip, and the people placement collides at `[-60, -48]` rollout-support positions underneath them.
+
+Retrodictive accounts of the same decisions often report these as capacity collisions, because a model with no floor concept has nowhere else to route a breached precondition. Do not translate those verdicts across mechanically.
+
+The unit under review is always the **requested increment**, never the initiative's reputation. The same program can score FLOOR at a release and pass its floors at a pause four years later, because halting deployments cannot breach a readiness condition that only releasing can breach. A case whose verdict never moves across its decision dates is evidence of a modelling error, not of a consistently bad program.
+
 ### Organizational reserve versus local position
 
 These are different claims and the rubric keeps them apart.

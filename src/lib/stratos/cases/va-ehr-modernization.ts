@@ -90,6 +90,38 @@ export const VA_EHR_MODERNIZATION = defineCaseProfile({
       publishedAt: '2022-03-17',
       url: 'https://www.vaoig.gov/reports/hotline-healthcare-inspection/ticket-process-concerns-and-underlying-factors-contributing',
     },
+    {
+      id: 'gao-user-satisfaction-2023',
+      title: 'Electronic Health Records: VA Needs to Address Ongoing Challenges with New System (GAO-23-106685)',
+      publisher: 'U.S. Government Accountability Office',
+      kind: 'audit-report',
+      publishedAt: '2023-03-15',
+      url: 'https://www.gao.gov/products/gao-23-106685',
+    },
+    {
+      id: 'va-reset-2023',
+      title: 'VA Announces Reset of Electronic Health Record Project',
+      publisher: 'U.S. Department of Veterans Affairs',
+      kind: 'agency-release',
+      publishedAt: '2023-04-21',
+      url: 'https://digital.va.gov/ehr-modernization/news-releases/va-announces-reset-of-electronic-health-record-project/',
+    },
+    {
+      /**
+       * Carries the $49.8 billion lifecycle estimate. The estimate describes
+       * September 2022, but this is the first publicly usable source for it and
+       * it was published 2023-05-18 — after the April 21 reset. It is therefore
+       * hindsight relative to T3, and the cutoff derivation enforces that.
+       * `observedAt` and `publishedAt` are exactly what must not be conflated
+       * here.
+       */
+      id: 'gao-management-challenges-2023',
+      title: 'Electronic Health Records: VA Needs to Address Management Challenges with New System (GAO-23-106731)',
+      publisher: 'U.S. Government Accountability Office',
+      kind: 'audit-report',
+      publishedAt: '2023-05-18',
+      url: 'https://www.gao.gov/assets/gao-23-106731.pdf',
+    },
   ],
   facts: [
     {
@@ -215,6 +247,36 @@ export const VA_EHR_MODERNIZATION = defineCaseProfile({
       metric: { value: 33, unit: 'percent of reviewed tickets closed without documented resolution' },
       evidence: [{ sourceId: 'va-oig-ticket-process-2022', locator: 'Report summary, ticket resolution findings' }],
     },
+    {
+      id: 'va-user-experience-2023',
+      statement: 'Users described inadequate training, lower morale and job satisfaction, and increased burnout, and VA had not established goals for assessing user satisfaction with the new system.',
+      observedAt: '2023-03-15',
+      origin: 'reported',
+      evidence: [{ sourceId: 'gao-user-satisfaction-2023', locator: 'Report highlights, user experience findings' }],
+    },
+    {
+      id: 'va-sites-live-at-reset-2023',
+      statement: 'At the reset, the new electronic health record was operating at five VA medical-center systems.',
+      observedAt: '2023-04-21',
+      origin: 'reported',
+      metric: { value: 5, unit: 'VA medical-center systems live' },
+      evidence: [{ sourceId: 'va-reset-2023', locator: 'Reset announcement, current deployment status' }],
+    },
+    {
+      id: 'va-deployment-halt-2023',
+      statement: 'VA halted future deployments, apart from the separate joint Lovell deployment, and redirected resources toward improving the five sites already operating.',
+      observedAt: '2023-04-21',
+      origin: 'reported',
+      evidence: [{ sourceId: 'va-reset-2023', locator: 'Reset announcement, deployment halt and resource redirection' }],
+    },
+    {
+      id: 'va-lifecycle-estimate-2022',
+      statement: 'An independent September 2022 estimate placed electronic health record modernization lifecycle cost at $49.8 billion, comprising $32.7 billion of implementation and $17.1 billion of sustainment.',
+      observedAt: '2022-09-01',
+      origin: 'reported',
+      metric: { value: 49.8, unit: 'USD billions lifecycle cost' },
+      evidence: [{ sourceId: 'gao-management-challenges-2023', locator: 'Appendix briefing slide, lifecycle cost estimate' }],
+    },
   ],
   snapshots: [
     {
@@ -278,7 +340,7 @@ export const VA_EHR_MODERNIZATION = defineCaseProfile({
     {
       id: 'expansion-2022-03-26',
       label: 'Expansion beyond the first site',
-      phase: 'ongoing',
+      phase: 'material-update',
       knowledgeCutoff: '2022-03-26',
       factRefs: [
         'va-go-live-2020',
@@ -298,6 +360,38 @@ export const VA_EHR_MODERNIZATION = defineCaseProfile({
         finance: { status: 'insufficient-evidence', confidence: 'not-assessed', summary: 'No cutoff-safe evidence places finance as the binding constraint on the expansion decision.', factRefs: [], unknowns: ['Remediation budget', 'Per-site deployment cost', 'Remaining obligated capacity'] },
         time: { status: 'evidenced', confidence: 'high', summary: 'Elapsed calendar time was ample; the learning cycle it was meant to contain was evidenced as incomplete nine days before the next release.', factRefs: ['va-go-live-2020', 'va-unresolved-medication-tickets-2021'], unknowns: ['Time required to close the open findings', 'Verification cycle length', 'Schedule slack before site three'] },
         risk: { status: 'evidenced', confidence: 'high', summary: 'Unresolved medication-management and support-process problems remained present at the first site while a second site was added.', factRefs: ['va-unresolved-medication-tickets-2021', 'va-support-tickets-2021'], unknowns: ['Quantified safety tolerance', 'Accepted-risk register', 'Conditions that would have paused expansion'] },
+      },
+    },
+    {
+      /**
+       * The pause. This snapshot exists to test discrimination: the requested
+       * increment turns negative, and a model that reads the program's
+       * reputation rather than the increment in front of it would keep
+       * returning the same adverse verdict here.
+       */
+      id: 'reset-2023-04-21',
+      label: 'Deployment halted and resources redirected to remediation',
+      phase: 'ongoing',
+      knowledgeCutoff: '2023-04-21',
+      factRefs: [
+        'va-sites-live-at-reset-2023',
+        'va-deployment-halt-2023',
+        'va-user-experience-2023',
+        'va-support-tickets-2021',
+      ],
+      systems: {
+        discernment: { status: 'evidenced', confidence: 'high', summary: 'Management publicly changed release policy in response to accumulated evidence, halting deployments until the operating sites worked better — the first point in the case where evidence visibly moves the decision.', factRefs: ['va-deployment-halt-2023', 'va-user-experience-2023'], unknowns: ['Criteria for resuming', 'Who holds the restart decision', 'Thresholds the five sites must meet'] },
+        invention: { status: 'inferred', confidence: 'low', summary: 'Redirecting resources to the operating sites implies continued configuration work, though the reset announcement does not describe what will change.', factRefs: ['va-deployment-halt-2023'], unknowns: ['Configuration backlog', 'Planned workflow changes', 'Mitigation retirement plan'] },
+        operations: { status: 'evidenced', confidence: 'medium', summary: 'Five systems were live and users still reported inadequate training, lower morale, and burnout, with no VA goals established for assessing satisfaction.', factRefs: ['va-sites-live-at-reset-2023', 'va-user-experience-2023'], unknowns: ['Throughput at the live sites', 'Training completion', 'Satisfaction baseline'] },
+        execution: { status: 'evidenced', confidence: 'high', summary: 'The release cadence was stopped rather than continued, which removes new conversion load instead of adding it.', factRefs: ['va-deployment-halt-2023'], unknowns: ['Restart gate criteria', 'Duration of the pause', 'Sequence after resumption'] },
+        advantage: { status: 'insufficient-evidence', confidence: 'not-assessed', summary: 'No published evidence yet establishes realized continuity-of-care value at the live sites.', factRefs: [], unknowns: ['Continuity-of-care effect', 'Clinician-reported benefit', 'Interoperability in practice'] },
+        resource: { status: 'inferred', confidence: 'low', summary: 'Resources move from deployment to remediation; neither the released capacity nor the remediation requirement is publicly sized at this date.', factRefs: ['va-deployment-halt-2023'], unknowns: ['Remediation cost', 'Released deployment capacity', 'Remaining lifecycle capacity'] },
+      },
+      constraints: {
+        people: { status: 'inferred', confidence: 'medium', summary: 'Halting new site conversions releases the staffing those conversions would have required, redirecting it to sites already operating.', factRefs: ['va-deployment-halt-2023', 'va-sites-live-at-reset-2023'], unknowns: ['Enterprise implementation capacity', 'Remediation staffing requirement', 'Contractor capacity'] },
+        finance: { status: 'insufficient-evidence', confidence: 'not-assessed', summary: 'No cutoff-safe source places the cost of the remediation program against remaining program funding. The widely cited lifecycle estimate was not publicly available until a month after this date.', factRefs: [], unknowns: ['Remediation cost', 'Remaining appropriated capacity', 'Lifecycle estimate available at this date'] },
+        time: { status: 'evidenced', confidence: 'medium', summary: 'The pause creates verification time rather than consuming it, though its duration was not announced.', factRefs: ['va-deployment-halt-2023'], unknowns: ['Announced pause duration', 'Time required to close open findings', 'Restart schedule'] },
+        risk: { status: 'evidenced', confidence: 'high', summary: 'Stopping new conversions adds no further site-level safety exposure, while the exposure already present at five live systems continues.', factRefs: ['va-deployment-halt-2023', 'va-sites-live-at-reset-2023'], unknowns: ['Residual risk at live sites', 'Safety tolerance', 'Restart risk criteria'] },
       },
     },
   ],
