@@ -15,6 +15,7 @@ import {
   TARGET_CANADA_COMMITMENT_SCORECARD,
 } from '../../scoring/commitment-scorecards';
 import type { CommitmentReviewInput } from '../../scoring/rubric';
+import type { CaseScorecard } from '../../scoring/scorecard';
 import { VA_EHR_2020_REVIEW_INPUT } from '../../scoring/va-ehr-2020-review';
 import { VA_EHR_2023_REVIEW_INPUT } from '../../scoring/va-ehr-2023-review';
 import {
@@ -56,6 +57,8 @@ interface ExperienceConfig {
    * authored for that date, since no scorecard spans them.
    */
   readonly commitmentReview: CommitmentReviewInput;
+  /** Supplies dated tension placements. A decision without one renders no poles. */
+  readonly scorecard?: CaseScorecard;
   readonly snapshotId: string;
   readonly sequence: DecisionPoint['sequence'];
   readonly id: string;
@@ -76,6 +79,7 @@ interface ExperienceConfig {
 
 export interface AuthoredDecisionExperience {
   readonly profile: CaseProfile;
+  readonly scorecard?: CaseScorecard;
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
   readonly comparison: DecisionComparison;
@@ -307,6 +311,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
 
   return {
     profile: config.profile,
+    scorecard: config.scorecard,
     decisionPoint,
     judgment,
     comparison,
@@ -323,6 +328,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   buildExperience({
     profile: TARGET_CANADA,
     commitmentReview: TARGET_CANADA_COMMITMENT_SCORECARD.commitmentReviewInput,
+    scorecard: TARGET_CANADA_COMMITMENT_SCORECARD,
     snapshotId: TARGET_CANADA_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
     sequence: 'T0',
     id: 'target-canada-t0-2012-07-12',
@@ -343,6 +349,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   buildExperience({
     profile: ADOBE_CREATIVE_CLOUD,
     commitmentReview: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD.commitmentReviewInput,
+    scorecard: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD,
     snapshotId: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
     sequence: 'T0',
     id: 'adobe-creative-cloud-t0-2013-01-22',
@@ -363,6 +370,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   buildExperience({
     profile: DOMINOS_2025_GROWTH,
     commitmentReview: DOMINOS_GROWTH_COMMITMENT_SCORECARD.commitmentReviewInput,
+    scorecard: DOMINOS_GROWTH_COMMITMENT_SCORECARD,
     snapshotId: DOMINOS_GROWTH_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
     sequence: 'T0',
     id: 'dominos-growth-t0-2019-02-21',
@@ -383,6 +391,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   buildExperience({
     profile: FORD_MODEL_E,
     commitmentReview: FORD_MODEL_E_COMMITMENT_SCORECARD.commitmentReviewInput,
+    scorecard: FORD_MODEL_E_COMMITMENT_SCORECARD,
     snapshotId: FORD_MODEL_E_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
     sequence: 'T0',
     id: 'ford-model-e-t0-2022-07-21',

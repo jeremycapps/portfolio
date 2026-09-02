@@ -1,5 +1,7 @@
-import type { CaseProfile, EvidenceRef } from '../cases/profile';
-import { TARGET_CANADA } from '../cases';
+import type { CaseProfile, EvidenceRef, SystemId } from '../cases/profile';
+import { SYSTEM_IDS, TARGET_CANADA } from '../cases';
+import { TENSIONS, poleName, poleSideFor, type PoleSide } from '../ontology';
+import type { CaseScorecard } from '../scoring/scorecard';
 import {
   EXPOSURE_CATEGORIES,
   type DecisionPacket,
@@ -48,6 +50,26 @@ export interface PresentationEvidence extends ResolvedDecisionInput {
   readonly publishedAt: string;
 }
 
+/**
+ * One tension with its placement, ready to render as a pole split.
+ *
+ * `position` runs -1 to +1 across the two poles named by `leftLabel` and
+ * `rightLabel`. `poleLabel` is the pole the placement actually selects, and is
+ * absent when the placement is neutral — a renderer should show the tension as
+ * unresolved rather than round it to a side.
+ */
+export interface PresentationTension {
+  readonly id: SystemId;
+  readonly name: string;
+  readonly question: string;
+  readonly position: number;
+  readonly side: PoleSide;
+  readonly poleLabel?: string;
+  readonly leftLabel: string;
+  readonly rightLabel: string;
+  readonly confidence: number;
+}
+
 export interface DecisionExperienceViewModel {
   readonly id: string;
   readonly companyName: string;
@@ -76,6 +98,16 @@ export interface DecisionExperienceViewModel {
   readonly constructs: readonly PresentationConstruct[];
   readonly assumptions: readonly PresentationAssumption[];
   readonly hindsight: readonly ResolvedDecisionInput[];
+  /**
+   * Present only when the case carries a scorecard placing its tensions.
+   *
+   * Placements are dated, so a decision may only show the placement made at its
+   * own evidence date. A case scored per release date has no scorecard spanning
+   * those dates, and a later decision must not borrow the commitment date's
+   * poles — so those decisions render without them rather than with borrowed
+   * ones.
+   */
+  readonly tensions?: readonly PresentationTension[];
   readonly cards: {
     readonly currentCohort: ResolvedDecisionInput;
     readonly requestedIncrement: ResolvedDecisionInput;
@@ -91,6 +123,8 @@ export interface DecisionExperienceViewModel {
 
 interface DecisionExperienceSource {
   readonly profile: CaseProfile;
+  /** Supplies tension placements. Omitted for decisions scored per release date. */
+  readonly scorecard?: CaseScorecard;
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
   readonly comparison: DecisionComparison;
@@ -127,6 +161,26 @@ const TIMELINE_OPTIONS: readonly DecisionTimelineOption[] = SOURCES.map((source)
   knowledgeCutoff: source.decisionPoint.knowledgeCutoff,
   companyName: source.companyName,
 }));
+
+function presentationTensions(scorecard: CaseScorecard): PresentationTension[] {
+  return SYSTEM_IDS.map((id: SystemId) => {
+    const tension = TENSIONS.find((candidate) => candidate.id === id);
+    if (!tension) throw new Error(`Ontology is missing tension ${id}.`);
+    const placed = scorecard.position.tensions[id];
+    const side = poleSideFor(placed.position);
+    return {
+      id,
+      name: tension.name,
+      question: tension.question,
+      position: placed.position,
+      side,
+      poleLabel: side === 'neutral' ? undefined : poleName(tension, side),
+      leftLabel: tension.left,
+      rightLabel: tension.right,
+      confidence: placed.confidence,
+    };
+  });
+}
 
 function requireResolvedInput(packet: DecisionPacket, id: string): ResolvedDecisionInput {
   const input = packet.contemporaneousInputs.find((candidate) => candidate.id === id);
@@ -193,6 +247,7 @@ export function createDecisionExperienceViewModel(
       displayLabel: 'ASSUMPTION',
     })),
     hindsight: [...packet.hindsightInputs],
+    ...(source.scorecard ? { tensions: presentationTensions(source.scorecard) } : {}),
     cards: {
       currentCohort,
       requestedIncrement,

@@ -131,3 +131,48 @@ describe('decision experience presentation adapter', () => {
     );
   });
 });
+
+describe('tension poles', () => {
+  it('places poles for a decision whose case carries a scorecard', () => {
+    const view = createDecisionExperienceViewModel('target-canada-t0-2012-07-12');
+
+    expect(view.tensions).toBeDefined();
+    expect(view.tensions).toHaveLength(6);
+
+    const discernment = view.tensions!.find(({ id }) => id === 'discernment');
+    expect(discernment).toMatchObject({
+      name: 'Discernment',
+      leftLabel: 'Structured conviction',
+      rightLabel: 'Open inquiry',
+    });
+    // A negative position selects the left pole.
+    expect(discernment!.position).toBeLessThan(0);
+    expect(discernment).toMatchObject({ side: 'l', poleLabel: 'Structured conviction' });
+  });
+
+  it('omits poles rather than inventing them when no scorecard places the tensions', () => {
+    // A case scored per release date has no scorecard spanning its dates, and a
+    // later decision must not borrow the commitment date's placement.
+    for (const id of ['target-canada-t2-2013-08-21', 'va-ehr-t1-2020-10-24', 'va-ehr-t3-2023-04-21']) {
+      expect(createDecisionExperienceViewModel(id).tensions, id).toBeUndefined();
+    }
+  });
+
+  it('still renders every other part of a decision that has no poles', () => {
+    const va = createDecisionExperienceViewModel('va-ehr-t1-2020-10-24');
+
+    expect(va.tensions).toBeUndefined();
+    expect(va.verdict).toBe('COLLISION');
+    expect(va.inspectionInputs.length).toBeGreaterThan(0);
+    expect(va.hindsight.length).toBeGreaterThan(0);
+    expect(va.recommendations).toHaveLength(2);
+  });
+
+  it('leaves the pole label off a neutral placement instead of picking a side', () => {
+    const view = createDecisionExperienceViewModel('target-canada-t0-2012-07-12');
+    for (const tension of view.tensions!) {
+      if (tension.side === 'neutral') expect(tension.poleLabel).toBeUndefined();
+      else expect(tension.poleLabel).toBeTruthy();
+    }
+  });
+});
