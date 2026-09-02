@@ -440,7 +440,6 @@ describe('StratOS evidence-profile adapter', () => {
       expect(packet.facts.length, profile.id).toBeGreaterThan(0);
       expect(packet.sources.every((source) => source.publishedAt <= packet.snapshot.knowledgeCutoff), profile.id).toBe(true);
       expect(packet.authoringRequirements.map((requirement) => requirement.id)).toContain('blind-prediction');
-      expect(profile.scoring.status).toBe('scored');
     }
   });
 });

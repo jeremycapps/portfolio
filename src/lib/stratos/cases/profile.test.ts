@@ -42,8 +42,15 @@ describe('StratOS public-company case profiles', () => {
     }
   });
 
-  it('links every evidence profile to a versioned scorecard with an explicit evidence scope', () => {
+  it('links every scored evidence profile to a versioned scorecard with an explicit evidence scope', () => {
     for (const profile of STRATOS_CASE_PROFILES) {
+      // A profile under construction may carry facts and snapshots before any
+      // scorecard is authored against them; it must say so rather than imply a
+      // score it does not have.
+      if (profile.scoring.status === 'unscored') {
+        expect(profile.scoring.reason.trim(), profile.id).not.toBe('');
+        continue;
+      }
       expect(profile.scoring).toMatchObject({
         status: 'scored',
         rubricVersion: '0.2.0',
