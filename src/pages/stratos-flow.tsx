@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 
 import { SiteHeader } from '@/components/site-header';
 import {
@@ -10,159 +10,195 @@ import type { EvidenceDisplayState, ResolvedDecisionInput } from '@/lib/stratos/
 import './stratos-flow.css';
 
 /**
- * A test surface for the judgment-flow mapping.
+ * The judgment-flow design, driven by the real decision view model.
  *
- * Three screens — case hero, evidence drill, commit — driven entirely by the
- * real DecisionExperienceViewModel, so the point of the page is to show which
- * parts of the design already have data behind them and which do not. Nothing
- * here is authored for display: every value is read from the view model or
- * counted from it.
+ * Layout and visual language follow docs/design/stratos-judgment-flow.html:
+ * three dark device screens on a light editorial ground, each owning one job,
+ * each labelled with the gesture whose stakes match it.
  *
- * The commit screen's button is deliberately inert. There is no write path in
- * the decision layer yet, and a button that appeared to record a judgment would
- * misrepresent that.
+ * The rule for this surface is that nothing is authored for display. Every
+ * value is read from the view model or counted from it, so where the design
+ * asks for something the data cannot supply, the screen says so rather than
+ * inventing it. Two places where that bites, both deliberate:
+ *
+ *  - The reference score card carries a sparkline. There is no series behind a
+ *    tension placement, so the card shows the placement itself on a real -1..+1
+ *    track instead of a fabricated trend.
+ *  - The commit button is inert. The decision layer is read-only, and a live
+ *    button would claim to record a judgment that goes nowhere.
  */
 
-const STEPS = ['case', 'evidence', 'commit'] as const;
-type Step = typeof STEPS[number];
-
-const STEP_LABELS: Record<Step, { title: string; gesture: string; note: string }> = {
-  case: { title: 'Case', gesture: 'swipe', note: 'Between cases. Fully reversible — nothing is decided by arriving.' },
-  evidence: { title: 'Evidence', gesture: 'scroll', note: 'Depth within one verdict. Reading, never committing.' },
-  commit: { title: 'Commit', gesture: 'tap', note: 'Reserved for commitment. It should feel like it cost something.' },
+const STATE_TAG: Record<EvidenceDisplayState, string> = {
+  OBSERVED: 'sf-t-obs',
+  ESTIMATED: 'sf-t-est',
+  FOG: 'sf-t-fog',
+  HINDSIGHT: 'sf-t-hind',
 };
 
-const STATE_MARK: Record<EvidenceDisplayState, string> = {
-  OBSERVED: '●',
-  ESTIMATED: '◐',
-  FOG: '?',
-  HINDSIGHT: '◆',
-};
+/** Rows that fit inside an aspect-locked screen before it would clip. */
+const EVIDENCE_ROWS = 5;
 
-function metricText(input: { metric?: { value: number; unit: string } | { low: number; high: number; unit: string } }): string {
+function shortMetric(input: { metric?: { value: number; unit: string } | { low: number; high: number; unit: string } }): string {
   const { metric } = input;
   if (!metric) return '—';
-  return 'value' in metric
-    ? `${metric.value.toLocaleString()} ${metric.unit}`
-    : `${metric.low.toLocaleString()}–${metric.high.toLocaleString()} ${metric.unit}`;
+  const compact = (value: number) => (
+    Math.abs(value) >= 1000
+      ? value.toLocaleString(undefined, { notation: 'compact' })
+      : String(Math.round(value * 10) / 10)
+  );
+  return 'value' in metric ? compact(metric.value) : `${compact(metric.low)}–${compact(metric.high)}`;
 }
 
-/** The share of the split bar that sits left of centre, for a -1..+1 position. */
-function poleOffset(position: number): number {
-  return ((position + 1) / 2) * 100;
+/** The timeline's own label for this decision — the short form of the headline. */
+function shortLabel(view: DecisionExperienceViewModel): string {
+  const option = view.timeline.options.find(({ id }) => id === view.timeline.selectedId);
+  return option?.label ?? view.headline;
 }
 
-function PoleRow({ tension }: { tension: PresentationTension }) {
+function StatusBar() {
   return (
-    <div className="sf-pole">
-      <div className="sf-pole-head">
-        <span className="sf-pole-name">{tension.name}</span>
-        <span className="sf-pole-verdict">
-          {tension.poleLabel ? `LEANING · ${tension.poleLabel.toUpperCase()}` : 'UNRESOLVED'}
-        </span>
+    <div className="sf-ios-top">
+      <span>9:41</span>
+      <span className="sf-ios-icons" aria-hidden="true">
+        <svg width="15" height="10" viewBox="0 0 17 11">
+          <rect x="0" y="7" width="3" height="4" rx="1" /><rect x="4.7" y="5" width="3" height="6" rx="1" />
+          <rect x="9.3" y="2.5" width="3" height="8.5" rx="1" /><rect x="13.9" y="0" width="3" height="11" rx="1" />
+        </svg>
+        <svg width="20" height="10" viewBox="0 0 26 12">
+          <rect x="0.5" y="0.9" width="22" height="10.2" rx="3" fill="none" stroke="#E9EEF4" opacity=".4" />
+          <rect x="2" y="2.4" width="17" height="7.2" rx="1.6" fill="#E9EEF4" />
+        </svg>
+      </span>
+    </div>
+  );
+}
+
+function Phone({ children }: { children: ReactNode }) {
+  return (
+    <div className="sf-phone">
+      <div className="sf-screen">
+        <StatusBar />
+        <div className="sf-scr-body">
+          {children}
+          <div className="sf-home-ind" />
+        </div>
       </div>
-      <div className="sf-pole-bar" role="img" aria-label={`${tension.name}: ${tension.position} between ${tension.leftLabel} and ${tension.rightLabel}`}>
-        <span className="sf-pole-track" />
-        <span className="sf-pole-centre" />
-        <span className="sf-pole-dot" style={{ left: `${poleOffset(tension.position)}%` }} />
+    </div>
+  );
+}
+
+/** The placement on its real track. Replaces the reference sparkline, which
+ *  would need a series the model does not have. */
+function PoleCard({ tension, tone }: { tension: PresentationTension; tone: 'cool' | 'warm' }) {
+  const offset = ((tension.position + 1) / 2) * 100;
+  return (
+    <div className={`sf-scard sf-scard--${tone}`}>
+      <div className="sf-scard-top">
+        <div>
+          <div className="sf-scard-name">{tension.name}</div>
+          <div className="sf-scard-status">
+            {tension.poleLabel ? `LEANING · ${tension.poleLabel.toUpperCase()}` : 'UNRESOLVED'}
+          </div>
+        </div>
+        <span className="sf-scard-chev" aria-hidden="true">›</span>
       </div>
-      <div className="sf-pole-ends">
-        <span className={tension.side === 'l' ? 'is-selected' : undefined}>{tension.leftLabel}</span>
-        <span className={tension.side === 'r' ? 'is-selected' : undefined}>{tension.rightLabel}</span>
+      <div
+        className="sf-track"
+        role="img"
+        aria-label={`${tension.name} placed at ${tension.position} between ${tension.leftLabel} and ${tension.rightLabel}`}
+      >
+        <span className="sf-track-line" />
+        <span className="sf-track-mid" />
+        <span className={`sf-track-dot sf-track-dot--${tone}`} style={{ left: `${offset}%` }} />
+      </div>
+      <div className="sf-scard-poles">
+        <span className={tension.side === 'l' ? 'is-on' : undefined}>{tension.leftLabel}</span>
+        <span className={tension.side === 'r' ? 'is-on' : undefined}>{tension.rightLabel}</span>
       </div>
     </div>
   );
 }
 
 function CaseScreen({ view }: { view: DecisionExperienceViewModel }) {
+  const placed = (view.tensions ?? []).filter((tension) => tension.side !== 'neutral').slice(0, 2);
   return (
     <>
-      <p className="sf-eyebrow">Case · {view.caseName}</p>
-      <h2 className="sf-case-title">{view.companyName}</h2>
-      <p className="sf-case-sub">{view.sequence} · {view.headline}</p>
+      <div className="sf-kicker">Case · {view.caseName}</div>
+      <div className="sf-scr-title sf-scr-title--big">{view.companyName}</div>
+      <div className="sf-kicker sf-kicker--accent">{view.sequence} · {shortLabel(view)}</div>
 
-      <div className={`sf-verdict sf-verdict--${view.verdict.toLowerCase()}`}>
-        <span className="sf-verdict-label">Verdict</span>
-        <strong>{view.verdict}</strong>
-        <span className="sf-cause-tag">{view.cause.displayLabel}</span>
+      <div className="sf-verdict-line">
+        <strong className={`sf-v sf-v--${view.verdict.toLowerCase()}`}>{view.verdict}</strong>
+        <span className="sf-cause">{view.cause.displayLabel}</span>
       </div>
-      <p className="sf-cause-summary">{view.cause.summary}</p>
 
-      {view.tensions ? (
-        <div className="sf-poles">
-          {view.tensions.filter((tension) => tension.side !== 'neutral').slice(0, 2).map((tension) => (
-            <PoleRow key={tension.id} tension={tension} />
-          ))}
-        </div>
+      {placed.length > 0 ? (
+        placed.map((tension, index) => (
+          <PoleCard key={tension.id} tension={tension} tone={index === 0 ? 'cool' : 'warm'} />
+        ))
       ) : (
-        <p className="sf-absent">
-          No tension placement at this date. Placements are dated, and this decision has no
-          scorecard of its own — it renders without poles rather than borrowing another date's.
-        </p>
+        <div className="sf-scard sf-scard--empty">
+          <div className="sf-scard-name">No dated placement</div>
+          <p>Placements are dated. This decision has no scorecard of its own, so it shows no poles rather than borrowing another date&rsquo;s.</p>
+        </div>
       )}
 
-      <div className="sf-pending">
-        <p className="sf-eyebrow">Pending judgment</p>
-        <ol>
-          {view.recommendations.map((recommendation) => (
-            <li key={recommendation.plane}>
-              <strong>{recommendation.operation}</strong>
-              <span>{recommendation.object}</span>
-            </li>
-          ))}
-        </ol>
+      <div className="sf-push" />
+      <div className="sf-kicker">Pending judgment</div>
+      <div className="sf-split">
+        {view.recommendations.map((recommendation, index) => (
+          <div key={recommendation.plane} className={index === 0 ? 'sf-split-a' : 'sf-split-b'}>
+            {recommendation.operation}{index === 1 ? ' ›' : ''}
+          </div>
+        ))}
       </div>
     </>
   );
 }
 
-function EvidenceRow({ input }: { input: ResolvedDecisionInput }) {
-  return (
-    <details className={`sf-ev sf-ev--${input.displayState.toLowerCase()}`}>
-      <summary>
-        <span className="sf-ev-mark" aria-hidden="true">{STATE_MARK[input.displayState]}</span>
-        <span className="sf-ev-state">{input.displayState}</span>
-        <span className="sf-ev-label">{input.label}</span>
-        <span className="sf-ev-metric">{metricText(input)}</span>
-      </summary>
-      <dl>
-        {input.sourceTitle && <div><dt>Source</dt><dd>{input.sourceTitle}</dd></div>}
-        {input.evidence && <div><dt>Locator</dt><dd>{input.evidence.locator}</dd></div>}
-        {input.publishedAt && <div><dt>Published</dt><dd>{input.publishedAt}</dd></div>}
-        <div><dt>Materiality</dt><dd>{input.materiality}</dd></div>
-        {input.calculation && <div><dt>Calculation</dt><dd>{input.calculation}</dd></div>}
-      </dl>
-    </details>
-  );
-}
-
 function EvidenceScreen({ view }: { view: DecisionExperienceViewModel }) {
+  const rows = useMemo(() => {
+    const seen = new Set<string>();
+    const material = view.inspectionInputs.filter((input) => {
+      if (input.materiality !== 'material') return false;
+      const key = input.factRef ?? input.id;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    const ordered = [...material].sort((a, b) => (a.displayState === 'FOG' ? 1 : 0) - (b.displayState === 'FOG' ? 1 : 0));
+    return ordered.slice(0, EVIDENCE_ROWS);
+  }, [view]);
+  const remaining = view.inspectionInputs.length - rows.length;
+
   return (
     <>
-      <p className="sf-eyebrow">{view.primaryExposureTitle}</p>
-      <h2 className="sf-case-title">What the verdict rests on</h2>
-      <p className="sf-case-sub">Cutoff {view.cutoff} · every row carries its provenance</p>
+      <div className="sf-kicker">{view.primaryExposureTitle}</div>
+      <div className="sf-scr-title">What the verdict rests on</div>
 
       <div className="sf-ev-list">
-        {view.inspectionInputs.map((input) => <EvidenceRow input={input} key={input.id} />)}
-      </div>
-
-      <p className="sf-eyebrow sf-section-gap">Separate outcome layer</p>
-      <p className="sf-case-sub">
-        Published after the cutoff. Never used by the dated verdict.
-      </p>
-      <div className="sf-ev-list">
-        {view.hindsight.map((input) => <EvidenceRow input={input} key={input.id} />)}
-      </div>
-
-      <p className="sf-eyebrow sf-section-gap">Assumptions</p>
-      <ul className="sf-plain">
-        {view.assumptions.map((assumption) => (
-          <li key={assumption.id}>
-            <span className="sf-tag">{assumption.displayLabel}</span>{assumption.statement}
-          </li>
+        {rows.map((input: ResolvedDecisionInput) => (
+          <div className="sf-ev" key={input.id}>
+            <span className={`sf-ev-tag ${STATE_TAG[input.displayState]}`}>{input.displayState}</span>
+            <span className="sf-ev-label">{input.label}</span>
+            <span className={`sf-ev-val ${input.displayState === 'FOG' ? 'is-fog' : ''}`}>
+              {input.displayState === 'FOG' ? '?' : shortMetric(input)}
+            </span>
+          </div>
         ))}
-      </ul>
+        {view.hindsight.slice(0, 1).map((input) => (
+          <div className="sf-ev" key={input.id}>
+            <span className={`sf-ev-tag ${STATE_TAG.HINDSIGHT}`}>HINDSIGHT</span>
+            <span className="sf-ev-label">{input.label}</span>
+            <span className="sf-ev-val is-hind">held</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="sf-push" />
+      <div className="sf-kicker sf-kicker--centre">
+        ↕ {remaining > 0 ? `${remaining} more · ` : ''}assumptions &amp; sources
+      </div>
     </>
   );
 }
@@ -180,57 +216,74 @@ function CommitScreen({ view }: { view: DecisionExperienceViewModel }) {
 
   return (
     <>
-      <p className="sf-eyebrow">Your judgment · {view.sequence}</p>
-      <h2 className="sf-case-title">{commitment.operation} — {commitment.object}</h2>
-      <p className="sf-case-sub">{commitment.authorizationReason}</p>
+      <div className="sf-kicker">Your judgment · {view.sequence}</div>
+      <div className="sf-scr-title">{commitment.operation} — {commitment.object}</div>
+      <p className="sf-scr-note">{commitment.authorizationReason}</p>
 
-      <dl className="sf-ledger">
-        <div><dt>Operation</dt><dd>{commitment.operation}</dd></div>
-        <div><dt>Exposure staked</dt><dd>{metricText(view.primaryExposure.actualIntent)}</dd></div>
-        <div><dt>Evidence basis</dt><dd>{basis}</dd></div>
-        <div>
-          <dt>Reversible?</dt>
-          <dd>
-            {view.cards.irreversibility.level === 'high' ? 'Low reversibility' : 'Partly reversible'}
-            {' · reassess '}{view.cards.reassessment.nextFeasibleAt}
-          </dd>
+      <div className="sf-push" />
+      <div className="sf-slip">
+        <div className="sf-slip-row"><span>Operation</span><b>{commitment.operation}</b></div>
+        <div className="sf-slip-row"><span>Exposure staked</span><b>{shortMetric(view.primaryExposure.actualIntent)}</b></div>
+        <div className="sf-slip-row"><span>Evidence basis</span><b>{basis}</b></div>
+        <div className="sf-slip-row">
+          <span>Reversible?</span>
+          <b>{view.cards.irreversibility.level === 'high' ? 'Low' : 'Partial'} · {view.cards.reassessment.nextFeasibleAt}</b>
         </div>
-        <div><dt>Next safe scale</dt><dd>{view.validatedScale.value}</dd></div>
-      </dl>
-
-      <button className="sf-commit" type="button" disabled>◉ Commit judgment</button>
-      <p className="sf-absent">
-        Inert. The decision layer is read-only — there is no representation of a user's own
-        judgment yet, so a working button would claim to record something that goes nowhere.
-      </p>
+        <button className="sf-commit" type="button" disabled>◉ Commit judgment</button>
+      </div>
     </>
   );
 }
 
+const STAGES = [
+  {
+    num: 'i',
+    name: 'Case hero',
+    sub: 'A self-contained verdict card. Glanceable thesis, current pole placement, the pending question.',
+    gesture: 'swipe',
+    icon: '⇄',
+    note: 'Between cases & tensions. Fully reversible — swipe back costs nothing.',
+    Screen: CaseScreen,
+  },
+  {
+    num: 'ii',
+    name: 'Evidence drill',
+    sub: 'Unpack what the verdict stands on. Every fact carries its provenance state — the honesty layer.',
+    gesture: 'scroll',
+    icon: '↕',
+    note: 'Depth within one verdict. Pure browsing — no commitment implied.',
+    Screen: EvidenceScreen,
+  },
+  {
+    num: 'iii',
+    name: 'Commit',
+    sub: 'The bet slip. The one weighty act — a deliberate tap that locks your call and your exposure.',
+    gesture: 'tap',
+    icon: '◉',
+    note: 'Reserved for commitment. It should feel like it cost something.',
+    Screen: CommitScreen,
+  },
+] as const;
+
 export default function StratosFlowPage() {
   const [decisionId, setDecisionId] = useState<string>();
-  const [step, setStep] = useState<Step>('case');
   const view = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
 
   return (
     <main className="app-shell sf-page">
       <SiteHeader current="stratos" />
       <div className="sf-wrap">
-        <header className="sf-head">
-          <p className="sf-eyebrow">StratOS · judgment flow test surface</p>
-          <h1>Case → evidence → commit</h1>
-          <p className="sf-lede">
-            The three screens driven by the real decision view model. Everything shown is read
-            from it or counted from it; nothing is authored for display.
-          </p>
-        </header>
+        <div className="sf-eyebrow">StratOS · judgment flow</div>
+        <h1>Case hero <b>→</b> evidence drill <b>→</b> commit</h1>
+        <p className="sf-lede">
+          The three screens, driven by the real decision view model. Everything shown is read from
+          it or counted from it — where the data cannot supply what the design asks for, the screen
+          says so.
+        </p>
 
         <label className="sf-picker">
           <span>Decision</span>
-          <select
-            value={view.timeline.selectedId}
-            onChange={(event) => setDecisionId(event.target.value)}
-          >
+          <select value={view.timeline.selectedId} onChange={(event) => setDecisionId(event.target.value)}>
             {view.timeline.options.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.sequence} · {option.companyName} · {option.label}
@@ -239,33 +292,35 @@ export default function StratosFlowPage() {
           </select>
         </label>
 
-        <div className="sf-stage">
-          <nav className="sf-steps" aria-label="Flow step">
-            {STEPS.map((candidate) => (
-              <button
-                key={candidate}
-                type="button"
-                aria-current={candidate === step ? 'step' : undefined}
-                onClick={() => setStep(candidate)}
-              >
-                <strong>{STEP_LABELS[candidate].title}</strong>
-                <span>{STEP_LABELS[candidate].gesture}</span>
-              </button>
-            ))}
-          </nav>
+        <p className="sf-sect-intro">
+          <span className="sf-mono">
+            {view.companyName}, {view.sequence} — {view.headline}, cutoff {view.cutoff}.
+          </span>{' '}
+          Each screen owns one job, and each job gets the gesture whose stakes match it.
+        </p>
 
-          <div className="sf-phone">
-            <div className="sf-screen">
-              {step === 'case' && <CaseScreen view={view} />}
-              {step === 'evidence' && <EvidenceScreen view={view} />}
-              {step === 'commit' && <CommitScreen view={view} />}
+        <div className="sf-flow">
+          {STAGES.map(({ num, name, sub, gesture, icon, note, Screen }) => (
+            <div className="sf-stage" key={num}>
+              <div className="sf-stage-head">
+                <span className="sf-stage-num">{num}</span>
+                <span className="sf-stage-name">{name}</span>
+              </div>
+              <div className="sf-stage-sub">{sub}</div>
+              <Phone><Screen view={view} /></Phone>
+              <span className={`sf-gbadge sf-g-${gesture}`}>
+                <span className="sf-gicon" aria-hidden="true">{icon}</span>
+                {gesture[0].toUpperCase() + gesture.slice(1)}
+              </span>
+              <div className="sf-gnote">{note}</div>
             </div>
-          </div>
-
-          <p className="sf-gesture-note">
-            <strong>{STEP_LABELS[step].gesture}</strong> — {STEP_LABELS[step].note}
-          </p>
+          ))}
         </div>
+
+        <footer className="sf-foot">
+          <span>Driven by DecisionExperienceViewModel · nothing authored for display</span>
+          <span>Commit is inert — the decision layer is read-only</span>
+        </footer>
       </div>
     </main>
   );
