@@ -192,6 +192,7 @@ const SOURCES: readonly DecisionExperienceSource[] = [
       kind: 'realized',
       factRef: 'canada-ebit-q2-2013',
       basis: 'second-quarter segment operating loss',
+      accrual: 'adds',
     })],
     decisionPoint: TARGET_CANADA_AUGUST_2013_DECISION_POINT,
     judgment: TARGET_CANADA_AUGUST_2013_JUDGMENT,

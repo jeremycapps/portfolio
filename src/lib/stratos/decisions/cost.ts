@@ -23,6 +23,16 @@ export interface CostFigureRef {
   readonly factRef: string;
   /** What the measurement is, in the reader's words — 'first full-year segment loss'. */
   readonly basis: string;
+  /**
+   * How this figure joins the running total.
+   *
+   * `adds` is a new increment. `supersedes` replaces the figure before it,
+   * for the case where a later report widens the same window rather than
+   * reporting new money: a full fiscal year contains the quarter already
+   * counted, and a lifecycle estimate contains the contract ceiling already
+   * counted. Adding either would count the same dollars twice.
+   */
+  readonly accrual: 'adds' | 'supersedes';
 }
 
 export interface CostFigure extends CostFigureRef {
@@ -81,4 +91,70 @@ export function formatUsdMillions(value: number): string {
   return value >= 1000
     ? `$${(value / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}B`
     : `$${Math.round(value).toLocaleString('en-US')}M`;
+}
+
+export interface CostSeriesInput {
+  readonly id: string;
+  readonly sequence: string;
+  readonly decisionDate: string;
+  readonly cost: readonly CostFigure[];
+  /** Whether the verdict at this date was adverse — a collision or a floor. */
+  readonly adverse: boolean;
+}
+
+export interface CostSeriesPoint extends CostSeriesInput {
+  /** Money recognised against the commitment by this date, in USD millions. */
+  readonly total: number;
+  /** The figure that moved the total here, if any. */
+  readonly figure?: CostFigure;
+  /** True where no figure was published and the total is carried forward. */
+  readonly carried: boolean;
+  /** Implied USD millions per month since the previous point; 0 at the first. */
+  readonly ratePerMonth: number;
+}
+
+const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 365.25 / 12;
+
+/**
+ * The running total, so the line between two points has a slope worth reading.
+ *
+ * A level says how much; a slope says how fast, and how fast is the thing a
+ * spend chart is actually for. The gap between two decisions is real calendar
+ * time, so the rise over that run is money per month.
+ *
+ * Where a date published no figure the total is carried forward rather than
+ * dropped or interpolated. A flat segment is a true statement — nothing new was
+ * reported — and it is visibly different from a climbing one.
+ *
+ * One known overstatement, kept deliberately because the alternative is worse:
+ * an exit charge is largely impairment of capital this series has already
+ * counted, so a case that ends in one recognises some dollars twice. The total
+ * is money recognised against the commitment, not cash out the door, and the
+ * chart says so rather than dropping the largest number in the case.
+ */
+export function costSeries(decisions: readonly CostSeriesInput[]): CostSeriesPoint[] {
+  let total = 0;
+  let lastContribution = 0;
+  let previous: { total: number; at: number } | undefined;
+
+  return decisions.map((decision) => {
+    const figure = decision.cost[0];
+    if (figure) {
+      total = figure.accrual === 'supersedes'
+        ? total - lastContribution + figure.usdMillions
+        : total + figure.usdMillions;
+      lastContribution = figure.usdMillions;
+    }
+    const at = Date.parse(`${decision.decisionDate}T00:00:00Z`);
+    const months = previous ? (at - previous.at) / MS_PER_MONTH : 0;
+    const ratePerMonth = previous && months > 0 ? (total - previous.total) / months : 0;
+    previous = { total, at };
+    return {
+      ...decision,
+      total,
+      ...(figure ? { figure } : {}),
+      carried: figure === undefined,
+      ratePerMonth,
+    };
+  });
 }

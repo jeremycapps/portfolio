@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { TARGET_CANADA, VA_EHR_MODERNIZATION } from '../cases';
 import type { CaseFact } from '../cases/profile';
-import { formatUsdMillions, resolveCostFigure, usdMillions } from './cost';
+import { costSeries, formatUsdMillions, resolveCostFigure, usdMillions } from './cost';
 import { createDecisionExperienceViewModel } from './presentation';
 
 const costOf = (id: string) => createDecisionExperienceViewModel(id).cost;
@@ -29,7 +29,7 @@ describe('cost normalisation', () => {
 
   it('carries magnitude, so an authorization and a loss are not put on opposite sides of zero', () => {
     const loss = resolveCostFigure(TARGET_CANADA, {
-      kind: 'realized', factRef: 'canada-ebit-2013', basis: 'segment loss',
+      kind: 'realized', factRef: 'canada-ebit-2013', basis: 'segment loss', accrual: 'adds',
     });
     expect(loss.usdMillions).toBe(941);
     expect(fact(TARGET_CANADA.facts, 'canada-ebit-2013').metric).toMatchObject({ value: -941 });
@@ -76,5 +76,57 @@ describe('what each case can say about money', () => {
     const adverse = createDecisionExperienceViewModel('va-ehr-t1-2020-10-24');
     expect(adverse.verdict).not.toBe('FOG');
     expect(adverse.cost).toEqual([]);
+  });
+});
+
+describe('the running total and its slope', () => {
+  const series = (company: string) => {
+    const options = createDecisionExperienceViewModel().timeline.options
+      .filter((option) => option.companyName === company)
+      .sort((a, b) => a.decisionDate.localeCompare(b.decisionDate));
+    return costSeries(options.map((option) => ({
+      id: option.id,
+      sequence: option.sequence,
+      decisionDate: option.decisionDate,
+      cost: option.cost,
+      adverse: createDecisionExperienceViewModel(option.id).verdict !== 'FOG',
+    })));
+  };
+
+  it('does not count a quarter twice inside the year that contains it', () => {
+    const [t0, t2, t3] = series('Target Corporation');
+    expect(t0.total).toBe(2692);
+    // Q2's $169M adds to the capital placed.
+    expect(t2.total).toBe(2861);
+    // The full year supersedes that quarter rather than adding to it, so the
+    // total moves by the year's figure, not by the year plus the quarter.
+    expect(t3.total).toBe(2692 + 941);
+  });
+
+  it('replaces the ceiling with the lifecycle estimate that contains it', () => {
+    const va = series('U.S. Department of Veterans Affairs');
+    expect(va[0].total).toBe(10_000);
+    expect(va.at(-1)!.total).toBe(49_800);
+  });
+
+  it('carries the total forward where nothing was published', () => {
+    const [, t1, t2] = series('U.S. Department of Veterans Affairs');
+    expect([t1, t2].map(({ carried }) => carried)).toEqual([true, true]);
+    expect([t1, t2].map(({ total }) => total)).toEqual([10_000, 10_000]);
+    // A carried point has no slope, which is the true statement about it.
+    expect([t1, t2].map(({ ratePerMonth }) => ratePerMonth)).toEqual([0, 0]);
+  });
+
+  it('reads the burn rate accelerating across Target’s operating years', () => {
+    const [, t2, t3] = series('Target Corporation');
+    expect(t2.ratePerMonth).toBeGreaterThan(0);
+    expect(t3.ratePerMonth).toBeGreaterThan(t2.ratePerMonth * 5);
+  });
+
+  it('never lets the running total fall', () => {
+    for (const company of ['Target Corporation', 'U.S. Department of Veterans Affairs']) {
+      const totals = series(company).map(({ total }) => total);
+      expect(totals).toEqual([...totals].sort((a, b) => a - b));
+    }
   });
 });

@@ -7,7 +7,7 @@ import {
   type PresentationTension,
 } from '@/lib/stratos/decisions/presentation';
 import type { EvidenceDisplayState, ResolvedDecisionInput } from '@/lib/stratos/decisions/decision-point';
-import { formatUsdMillions, type CostFigure } from '@/lib/stratos/decisions/cost';
+import { costSeries, formatUsdMillions, type CostSeriesPoint } from '@/lib/stratos/decisions/cost';
 import './stratos-flow.css';
 
 /**
@@ -150,48 +150,29 @@ function shortCaseName(name: string): string {
 }
 
 /**
- * What the vertical axis measures.
+ * Money against calendar time, both linear, so the line between two decisions
+ * has a slope and the slope is dollars per month.
  *
- * Two questions, one date axis. The verdict view answers "was this decision
- * sound on the evidence it had"; the cost view answers "what did it come to".
- * They are worth switching between rather than choosing between, because the
- * gap between them is the case for reading a verdict at all: the judgment
- * turns adverse well before the money does, and only the pair shows that.
+ * A level only says how much. The question a spend chart is for is how fast,
+ * and how fast is rise over a run of real calendar time — which is why the
+ * horizontal axis carries years rather than sequence labels. T3 tells you
+ * nothing about pace; February 2014 does.
+ *
+ * Linear rather than log for the same reason: a log axis flattens exactly the
+ * acceleration this is meant to show.
  */
-const CHART_MODES = [
-  { id: 'verdict', label: 'Verdict' },
-  { id: 'cost', label: 'Cost' },
-] as const;
-type ChartMode = typeof CHART_MODES[number]['id'];
-
-/**
- * Money on a log scale, larger further down.
- *
- * Log because the figures in a single case span two orders of magnitude — a
- * quarter's loss against a realized exit charge — and a linear axis would press
- * everything but the largest onto the frame. Larger-is-lower so the cost view
- * falls in the same direction as the verdict view, and the two can be compared
- * without re-reading which way is bad.
- *
- * There is no zero on a log axis, which suits the data: a decision with no
- * published figure is absent from this scale rather than sitting at the origin.
- */
-function costScale(figures: readonly CostFigure[]) {
-  const logs = figures.map(({ usdMillions }) => Math.log10(usdMillions));
-  // A quarter-decade of padding, so the extreme figures do not sit on the frame.
-  const min = Math.min(...logs) - 0.25;
-  const max = Math.max(...logs) + 0.25;
-  const span = max - min || 1;
+function costScale(points: readonly CostSeriesPoint[]) {
+  const totals = points.map(({ total }) => total);
+  const max = Math.max(...totals) * 1.12;
   return {
-    y: (usdMillions: number) => (
-      TRACK_INSET_PCT + ((Math.log10(usdMillions) - min) / span) * (100 - TRACK_INSET_PCT * 2)
-    ),
-    /** Powers of ten inside the domain — the only tick values a log axis owes you. */
+    y: (total: number) => (100 - TRACK_INSET_PCT) - (total / max) * (100 - TRACK_INSET_PCT * 2),
     ticks: (() => {
-      const out: number[] = [];
-      for (let power = Math.ceil(min); power <= Math.floor(max); power += 1) out.push(10 ** power);
-      return out;
+      // Three gridlines, on a round number that lands near the top of the data.
+      const step = 10 ** Math.floor(Math.log10(max / 3));
+      const rounded = Math.ceil(max / 3 / step) * step;
+      return [rounded, rounded * 2, rounded * 3].filter((tick) => tick <= max);
     })(),
+    max,
   };
 }
 
@@ -414,31 +395,35 @@ const STAGES = [
 type Stop = ReturnType<typeof timelineStops>[number];
 
 /**
- * The same decisions measured in dollars.
+ * A decision's dot colour.
  *
- * Three things are drawn and they are not the same claim. The committed line is
- * what the organization authorized or placed, dated at the decision that placed
- * it, and it runs across the plot because the authorization stands until it is
- * changed. The realized points are what the books reported at each date. The
- * hindsight point is what the commitment came to, published after the last
- * decision could have used it.
- *
- * The realized points are joined by a dashed line rather than a solid one,
- * because they are not a running total: a quarter's loss, a fiscal year's loss
- * and a one-time charge are different instruments, and a solid line would claim
- * they accumulate. Each point carries its basis for the same reason.
+ * Two states, not four bands. The chart's job is now the money, and the verdict
+ * rides along as an attribute of each point — so it has to be readable at a
+ * glance without a legend. Green where the model would have let the commitment
+ * continue, red where it would not.
  */
-function CostPlot({ stops }: { stops: readonly Stop[] }) {
-  const figures = stops.flatMap(({ option, x }) => (
-    option.cost.map((figure) => ({ figure, x, sequence: option.sequence }))
-  ));
-  if (figures.length === 0) return null;
+function toneFor(stop: Stop): 'ok' | 'bad' {
+  return stop.band === 'COLLISION' || stop.band === 'FLOOR' ? 'bad' : 'ok';
+}
 
-  const scale = costScale(figures.map(({ figure }) => figure));
-  const committed = figures.filter(({ figure }) => figure.kind === 'committed');
-  const realized = figures.filter(({ figure }) => figure.kind === 'realized');
-  const hindsight = figures.filter(({ figure }) => figure.kind === 'hindsight');
-  const silent = stops.filter(({ option }) => option.cost.length === 0);
+function SpendPlot({
+  stops,
+  points,
+  selectedId,
+  onSelect,
+}: {
+  stops: readonly Stop[];
+  points: readonly CostSeriesPoint[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  const scale = costScale(points);
+  const at = (index: number) => ({ x: stops[index].x, y: scale.y(points[index].total) });
+  // Where the model first says stop. Everything to the right of it is money
+  // committed after a verdict that had already turned adverse.
+  const stopIndex = stops.findIndex((stop) => toneFor(stop) === 'bad');
+  const stopX = stopIndex >= 0 ? stops[stopIndex].x : undefined;
+  const after = stopIndex >= 0 ? points.at(-1)!.total - points[stopIndex].total : 0;
 
   return (
     <div className="sf-chart">
@@ -450,111 +435,118 @@ function CostPlot({ stops }: { stops: readonly Stop[] }) {
         ))}
       </div>
 
-      <div className="sf-plot">
+      <div className="sf-plot" role="radiogroup" aria-label="Decision timeline">
         <svg className="sf-plot-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {scale.ticks.map((tick) => (
             <line key={tick} className="sf-gridline" x1="0" x2="100" y1={scale.y(tick)} y2={scale.y(tick)} />
           ))}
-          {/* Decisions that published no figure still happened; the tick marks
-              where they sit on the same date axis without asserting a value. */}
-          {silent.map(({ option, x }) => (
-            <line key={option.id} className="sf-silent" x1={x} x2={x} y1="0" y2="100" />
-          ))}
-          {committed.map(({ figure, x }) => (
-            <g key={figure.factRef}>
-              <line
-                className="sf-committed"
-                x1="0" x2="100"
-                y1={scale.y(figure.usdMillions)} y2={scale.y(figure.usdMillions)}
-                vectorEffect="non-scaling-stroke"
-              />
-              <line
-                className="sf-committed-stem"
-                x1={x} x2={x} y1={scale.y(figure.usdMillions)} y2="100"
-                vectorEffect="non-scaling-stroke"
-              />
-            </g>
-          ))}
-          {realized.length > 1 && (
-            <polyline
-              className="sf-arc sf-arc--cost"
-              points={realized.map(({ figure, x }) => `${x},${scale.y(figure.usdMillions)}`).join(' ')}
+          {stopX !== undefined && (
+            <>
+              <rect className="sf-after" x={stopX} y="0" width={100 - stopX} height="100" />
+              <line className="sf-stopline" x1={stopX} x2={stopX} y1="0" y2="100" vectorEffect="non-scaling-stroke" />
+            </>
+          )}
+          {points.map((point, index) => index === 0 ? null : (
+            <line
+              key={point.id}
+              className={`sf-spend${point.carried ? ' sf-spend--flat' : ''}`}
+              x1={at(index - 1).x} y1={at(index - 1).y}
+              x2={at(index).x} y2={at(index).y}
               vectorEffect="non-scaling-stroke"
             />
-          )}
+          ))}
         </svg>
 
-        {figures.map(({ figure, x, sequence }) => (
-          <span
-            className={`sf-cpt sf-cpt--${figure.kind}`}
-            key={`${sequence}-${figure.factRef}`}
-            style={{ left: `${x}%`, top: `${scale.y(figure.usdMillions)}%` }}
-            title={`${sequence} · ${figure.basis} · ${figure.statement}`}
-          >
-            <span className="sf-cpt-dot" />
-            <span className="sf-cpt-val">{formatUsdMillions(figure.usdMillions)}</span>
+        {points.map((point, index) => {
+          const stop = stops[index];
+          const selected = stop.option.id === selectedId;
+          return (
+            <label
+              className={`sf-cpt sf-cpt--${toneFor(stop)}${selected ? ' is-on' : ''}`}
+              key={stop.option.id}
+              style={{ left: `${stop.x}%`, top: `${scale.y(point.total)}%` }}
+              title={`${point.sequence} · ${stop.option.decisionDate} · ${formatUsdMillions(point.total)}${
+                point.figure ? ` · ${point.figure.basis}` : ' · no figure published at this date'
+              }`}
+            >
+              <input
+                type="radio"
+                name="sf-decision"
+                value={stop.option.id}
+                checked={selected}
+                onChange={() => onSelect(stop.option.id)}
+              />
+              <span className={`sf-cpt-dot${point.carried ? ' is-carried' : ''}`} />
+              <span className="sf-cpt-val">{formatUsdMillions(point.total)}</span>
+            </label>
+          );
+        })}
+
+        {stopX !== undefined && (
+          <span className="sf-stoptag" style={{ left: `${stopX}%` }}>
+            StratOS: stop here
           </span>
-        ))}
+        )}
       </div>
 
       <div className="sf-axis" aria-hidden="true">
         {stops.map(({ option, x }) => (
-          <span
-            key={option.id}
-            className={`sf-axis-year${option.cost.length === 0 ? ' is-silent' : ''}`}
-            style={{ left: `${x}%` }}
-          >
-            {option.sequence}
+          <span key={option.id} className="sf-axis-year" style={{ left: `${x}%` }}>
+            {option.decisionDate.slice(0, 4)}
           </span>
         ))}
       </div>
+
+      {after > 0 && (
+        <div className="sf-after-note">
+          <b>{formatUsdMillions(after)}</b> recognised after the verdict turned
+        </div>
+      )}
     </div>
   );
 }
 
-/** Says what the cost view is showing, in the case's own figures. */
-function costNote(stops: readonly Stop[]): string {
-  const all = stops.flatMap(({ option }) => option.cost);
-  const committed = all.find(({ kind }) => kind === 'committed');
-  const realized = all.filter(({ kind }) => kind === 'realized');
-  const hindsight = all.find(({ kind }) => kind === 'hindsight');
-  const silent = stops.filter(({ option }) => option.cost.length === 0).map(({ option }) => option.sequence);
-
-  const parts: string[] = [];
-  if (committed) parts.push(`${formatUsdMillions(committed.usdMillions)} placed`);
-  const worst = realized.at(-1);
-  if (worst) parts.push(`${formatUsdMillions(worst.usdMillions)} on the books by the last decision`);
-  if (hindsight) parts.push(`${formatUsdMillions(hindsight.usdMillions)} only after them all`);
-  if (silent.length > 0) parts.push(`${silent.join(' and ')} published no figure`);
-  return parts.join(' · ');
+/**
+ * Money per month across the whole commitment.
+ *
+ * Deliberately the average and not the steepest segment. The steepest segment
+ * on both cases is an artefact: Target's last leg divides a one-time exit
+ * charge by the year before it, and VA's divides a whole-program lifecycle
+ * estimate by the thirteen months before it was published. Neither is a rate
+ * anything ran at, and quoting one would put a number on the screen that never
+ * happened. The average over the commitment's own span is a real quantity.
+ */
+function averageRatePerMonth(points: readonly CostSeriesPoint[]): number {
+  if (points.length < 2) return 0;
+  const first = Date.parse(`${points[0].decisionDate}T00:00:00Z`);
+  const last = Date.parse(`${points.at(-1)!.decisionDate}T00:00:00Z`);
+  const months = (last - first) / (1000 * 60 * 60 * 24 * 365.25 / 12);
+  return months > 0 ? points.at(-1)!.total / months : 0;
 }
 
 function TimelineScreen({
   view,
   caseName,
   cases,
-  mode,
   onSelect,
   onSelectCase,
-  onSelectMode,
 }: {
   view: DecisionExperienceViewModel;
   caseName: string;
   cases: readonly string[];
-  mode: ChartMode;
   onSelect: (id: string) => void;
   onSelectCase: (name: string) => void;
-  onSelectMode: (mode: ChartMode) => void;
 }) {
   const stops = timelineStops(view, caseName);
-  const selectedStop = stops.find(({ option }) => option.id === view.timeline.selectedId);
-  const adverse = stops.filter(({ option }) => verdictFor(option.id) !== 'FOG').length;
-  // Two arcs of the same length read as the same shape until you see where each
-  // one turns, so the summary counts the turns rather than restating the count.
-  const firstAdverse = stops.find(({ band }) => band !== 'FIT' && band !== 'FOG');
-  const recovers = stops.some(({ band }, index) => (
-    index > 0 && BANDS.indexOf(band) < BANDS.indexOf(stops[index - 1].band)
-  ));
+  const points = costSeries(stops.map(({ option, band }) => ({
+    id: option.id,
+    sequence: option.sequence,
+    decisionDate: option.decisionDate,
+    cost: option.cost,
+    adverse: band === 'COLLISION' || band === 'FLOOR',
+  })));
+  const firstAdverse = stops.find((stop) => toneFor(stop) === 'bad');
+  const rate = averageRatePerMonth(points);
 
   return (
     <>
@@ -582,103 +574,25 @@ function TimelineScreen({
         ))}
       </div>
 
-      <div className="sf-modes" role="radiogroup" aria-label="What the vertical axis measures">
-        {CHART_MODES.map(({ id, label }) => (
-          <label className={`sf-mode${id === mode ? ' is-on' : ''}`} key={id}>
-            <input
-              type="radio"
-              name="sf-mode"
-              value={id}
-              checked={id === mode}
-              onChange={() => onSelectMode(id)}
-            />
-            {label}
-          </label>
-        ))}
-      </div>
-
-      <div className="sf-kicker">{caseName} · {stops.length} dated decisions</div>
+      <div className="sf-kicker">{caseName} · money recognised against the commitment</div>
       <div className="sf-narrative">
-        {mode === 'cost'
-          ? <>The verdict turned adverse at <b>{firstAdverse?.option.sequence ?? '—'}</b>. Watch what was on the books then.</>
-          : adverse === 0
-            ? <>Every decision on this commitment reads <b>uncertain</b> rather than adverse.</>
-            : recovers
-              ? <>{adverse} of {stops.length} decisions read <b>adverse</b> — and the arc <b>comes back up</b>.</>
-              : <>{adverse} of {stops.length} decisions {adverse === 1 ? 'reads' : 'read'} <b>adverse</b> rather than merely uncertain.</>}
+        {rate > 0
+          ? <>Averaged <b>{formatUsdMillions(rate)} a month</b>{firstAdverse ? <> — and kept running past <b>{firstAdverse.option.decisionDate.slice(0, 4)}</b>.</> : '.'}</>
+          : <>The commitment&rsquo;s cost never became public while it was being decided.</>}
       </div>
 
-      {mode === 'cost' ? <CostPlot stops={stops} /> : (
-      <div className="sf-chart">
-        <div className="sf-bands" aria-hidden="true">
-          {BANDS.map((band) => <span key={band} className={`sf-band sf-band--${band.toLowerCase()}`}>{band}</span>)}
-        </div>
+      <SpendPlot stops={stops} points={points} selectedId={view.timeline.selectedId} onSelect={onSelect} />
 
-        <div className="sf-plot" role="radiogroup" aria-label="Decision timeline">
-          <svg className="sf-plot-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {BANDS.map((band, index) => {
-              const y = TRACK_INSET_PCT + (index / (BANDS.length - 1)) * (100 - TRACK_INSET_PCT * 2);
-              return <line key={band} className="sf-gridline" x1="0" x2="100" y1={y} y2={y} />;
-            })}
-            <polyline
-              className="sf-arc"
-              points={stops.map(({ x, y }) => `${x},${y}`).join(' ')}
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-
-          {stops.map(({ option, band, x, y }) => {
-            const selected = option.id === view.timeline.selectedId;
-            return (
-              <label
-                className={`sf-pt${selected ? ' is-on' : ''}`}
-                key={option.id}
-                style={{ left: `${x}%`, top: `${y}%` }}
-                title={`${option.sequence} · ${option.decisionDate} · ${option.label}`}
-              >
-                <input
-                  type="radio"
-                  name="sf-decision"
-                  value={option.id}
-                  checked={selected}
-                  onChange={() => onSelect(option.id)}
-                />
-                <span className={`sf-pt-dot sf-pt-dot--${band.toLowerCase()}`} />
-                <span className="sf-pt-seq">{option.sequence}</span>
-              </label>
-            );
-          })}
-
-          {selectedStop && (
-            <span
-              className={`sf-tip${selectedStop.x < 20 ? ' sf-tip--start' : selectedStop.x > 80 ? ' sf-tip--end' : ''}`}
-              style={{ left: `${selectedStop.x}%`, top: `${selectedStop.y}%` }}
-            >
-              {selectedStop.option.sequence} · {selectedStop.option.decisionDate}
-            </span>
-          )}
-        </div>
-
-        <div className="sf-axis" aria-hidden="true">
-          {stops.filter(({ year }) => year).map(({ year, x }) => (
-            <span key={year} className="sf-axis-year" style={{ left: `${x}%` }}>{year}</span>
-          ))}
-        </div>
+      <div className="sf-legend sf-legend--cost">
+        <span className="sf-legend-label">
+          Totals are money recognised against the commitment, not cash out the door.
+          {/* Only the cases that end in a charge overstate, so only they say so. */}
+          {points.some(({ figure }) => figure?.basis.includes('exit charge'))
+            && ' An exit charge impairs capital already counted here.'}
+          {points.some(({ figure }) => figure?.kind === 'hindsight')
+            && ' The closing figure was published after the last decision could use it.'}
+        </span>
       </div>
-      )}
-
-      {mode === 'cost' ? (
-        <div className="sf-legend sf-legend--cost">
-          <span className="sf-legend-label">{costNote(stops)}</span>
-        </div>
-      ) : (
-        <div className="sf-legend">
-          <span className="sf-legend-label">{selectedStop?.option.label}</span>
-          <span className={`sf-legend-verdict sf-legend-verdict--${(selectedStop?.band ?? 'fog').toLowerCase()}`}>
-            {selectedStop?.band}
-          </span>
-        </div>
-      )}
     </>
   );
 }
@@ -708,7 +622,6 @@ function verdictFor(id: string): DecisionExperienceViewModel['verdict'] {
 export default function StratosFlowPage() {
   const cases = useMemo(() => timelineCases(createDecisionExperienceViewModel()), []);
   const [caseName, setCaseName] = useState(cases[0]);
-  const [mode, setMode] = useState<ChartMode>('verdict');
   const [decisionId, setDecisionId] = useState<string>();
   const view = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
 
@@ -740,10 +653,8 @@ export default function StratosFlowPage() {
                 view={view}
                 caseName={caseName}
                 cases={cases}
-                mode={mode}
                 onSelect={setDecisionId}
                 onSelectCase={selectCase}
-                onSelectMode={setMode}
               />
             </Phone>
           </div>
