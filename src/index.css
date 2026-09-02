@@ -1614,7 +1614,7 @@ textarea:focus-visible {
   margin: 1.5rem auto -0.25rem;
   text-align: left;
   font-size: 0.9rem;
-  color: var(--text-secondary, #5b6b7d);
+  color: var(--ink-soft);
 }
 
 .resume-surface {
@@ -2456,7 +2456,7 @@ textarea:focus-visible {
   height: 5px;
   border-radius: 3px;
   border: 1px solid var(--line-soft);
-  background: #f3f5f9;
+  background: var(--surface-2);
 }
 
 .home-system-dot {
