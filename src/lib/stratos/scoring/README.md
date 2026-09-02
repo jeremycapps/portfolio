@@ -70,7 +70,19 @@ The decision cascade is:
 4. If no model definitely collides, an indeterminate placement or fit range crossing zero produces `FOG`.
 5. Only all-passing floors and non-negative fits produce `ABSORBABLE`.
 
-For public-only cases, `committed` and `actual` figures are unavailable by definition. The reviewer must either return an indeterminate placement or state a sourced structural bound that the disclosed plan itself imposes. A structural bound is a contestable hypothesis; it does not masquerade as inside knowledge.
+For public-only cases, `committed` and `actual` figures are unavailable by definition, so a `computed` reserve is out of reach. The reviewer has three remaining moves: an indeterminate placement, a sourced structural bound that the disclosed plan itself imposes, or an evidenced shortfall. A structural bound is a contestable hypothesis; it does not masquerade as inside knowledge.
+
+### Organizational reserve versus local position
+
+These are different claims and the rubric keeps them apart.
+
+A `computed` placement asks whether the *organization's* remaining reserve absorbs the load. Answering it requires knowing total capacity and total committed load, which is inside knowledge — hence the desk-tier prohibition on `committed` and `actual` figures.
+
+An `evidenced-shortfall` placement asks a narrower question: within one named scope, does the evidenced supply meet the evidenced requirement? Public evidence often answers this. VA's own inspector general reported 108 rollout-support positions identified as necessary and just over 48 filled — a local collision established from Class A public sources, claiming nothing about VA's hidden enterprise reserve.
+
+Prefer `evidenced-shortfall` over `structural-upper-bound` whenever the shortfall is *derived* by comparing two figures. The upper bound is right when a source states the bounding quantity directly (Target Canada's reported −$941M EBIT); it is wrong when the analyst computes the difference, because a single scalar discards both figures' source class, as-of date, and confidence, and leaves the arithmetic unchecked. The shortfall placement keeps both sides addressable and derives the fit itself.
+
+Both figures in a shortfall must be `observed` or `estimated`. A `committed` or `actual` figure is refused outright: those states assert reserve, which is what this placement exists not to do. The `scope` field is required so an organization-wide claim cannot pose as a local one.
 
 ## Evidence contract
 
