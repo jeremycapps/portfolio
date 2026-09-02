@@ -5,25 +5,27 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Tailwind color roles map onto the one canonical palette below — no separate
+   HSL system. The utilities (bg-card, text-foreground…) resolve through these. */
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-card-border: hsl(var(--card-border));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-background: var(--ground);
+  --color-foreground: var(--ink);
+  --color-border: var(--line);
+  --color-input: var(--line);
+  --color-ring: var(--focus);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-card-border: var(--line);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--ink);
+  --color-primary: var(--ink);
+  --color-primary-foreground: var(--surface);
+  --color-secondary: var(--surface-2);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: var(--surface-2);
+  --color-muted-foreground: var(--ink-soft);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--surface);
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
@@ -33,36 +35,55 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ============================================================
+   CANONICAL PALETTE — the single source of truth for color.
+   Every page and component draws from these tokens; dark mode
+   is defined once by redefining them (see the dark @media block
+   at the end of this file), not by restyling elements. Light
+   values are biased to the homepage "instrument" palette so the
+   homepage stays exact and other surfaces consolidate onto it.
+   ============================================================ */
 :root {
-  --background: 216 38% 96%;
-  --foreground: 224 26% 17%;
-  --border: 218 23% 87%;
-  --input: 218 24% 84%;
-  --ring: 203 72% 66%;
-  --card: 214 42% 98%;
-  --card-foreground: 224 26% 17%;
-  --card-border: 215 30% 89%;
-  --popover: 214 42% 98%;
-  --popover-foreground: 224 26% 17%;
-  --primary: 224 26% 17%;
-  --primary-foreground: 214 42% 98%;
-  --secondary: 212 27% 91%;
-  --secondary-foreground: 224 26% 17%;
-  --muted: 216 25% 92%;
-  --muted-foreground: 219 14% 50%;
-  --accent: 198 64% 85%;
-  --accent-foreground: 215 43% 25%;
+  /* grounds & surfaces */
+  --ground: #eceef2;
+  --body-grad: linear-gradient(135deg, #f4f7fb 0%, #eef2f8 48%, #f2f5f9 100%);
+  --surface: #ffffff;
+  --surface-2: #f3f5f9;
+  --surface-grad: linear-gradient(158deg, #fbfcfd, #eef1f6);
+  /* ink (text), strong → faint */
+  --ink: #161b23;
+  --ink-2: #3a4250;
+  --ink-soft: #5e6773;
+  --faint: #909aa6;
+  /* hairlines */
+  --line: #dce1e9;
+  --line-soft: #e8ecf2;
+  /* brand accent */
+  --accent: #b4761a;
+  --accent-ink: #8a5a12;
+  /* focus ring (preserved sky blue) */
+  --focus: #6ab7e7;
+  /* signals */
+  --good: #2f8f5b;
+  --warn: #9a6a2f;
+  --danger: #b4232a;
+  /* domain accents (projects / tensions) */
+  --a-libera: #3f5ea8;
+  --a-facia: #2e8c64;
+  --a-stratos: #7e5aae;
+  /* elevation */
+  --shadow: 0 1px 2px rgba(16, 20, 28, 0.05), 0 20px 44px -22px rgba(16, 20, 28, 0.2);
+  --shadow-lg: 0 2px 8px rgba(16, 20, 28, 0.08), 0 50px 90px -34px rgba(16, 20, 28, 0.4);
+  --shadow-sm: 0 8px 24px rgba(39, 61, 83, 0.08);
+  --shadow-md: 0 18px 50px rgba(39, 61, 83, 0.12);
+
   --app-font-sans: 'DM Sans', sans-serif;
   --app-font-serif: 'Instrument Serif', serif;
   --app-font-mono: 'Space Mono', monospace;
   --radius: 0.75rem;
-  --shadow-sm: 0 8px 24px rgba(39, 61, 83, 0.08);
-  --shadow-md: 0 18px 50px rgba(39, 61, 83, 0.12);
 
   /* Shared shape primitives. These were copy-pasted across index/stratos/blog/
-     about and had begun to drift; they are tokens so they can only drift once.
-     Backgrounds are deliberately NOT tokenized — each surface picks its own
-     translucency. */
+     about and had begun to drift; they are tokens so they can only drift once. */
   --surface-radius: 17px;
   --surface-shadow: 0 12px 34px rgba(59, 77, 95, 0.055);
   --pill-radius: 999px;
@@ -75,7 +96,7 @@
 
 html {
   min-width: 320px;
-  background: hsl(var(--background));
+  background: var(--ground);
 }
 
 body {
@@ -83,7 +104,7 @@ body {
   min-width: 320px;
   min-height: 100dvh;
   font-family: var(--app-font-sans);
-  color: hsl(var(--foreground));
+  color: var(--ink);
   background: linear-gradient(135deg, #f4f7fb 0%, #eef2f8 48%, #f2f5f9 100%);
   -webkit-font-smoothing: antialiased;
 }
@@ -101,7 +122,7 @@ button {
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -141,7 +162,7 @@ textarea:focus-visible {
   display: inline-flex;
   gap: 10px;
   align-items: center;
-  color: hsl(var(--foreground));
+  color: var(--ink);
   text-decoration: none;
   letter-spacing: -0.04em;
   font-size: 17px;
@@ -364,7 +385,7 @@ textarea:focus-visible {
 }
 
 .starter-chip:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -871,7 +892,7 @@ textarea:focus-visible {
 }
 
 .document-card:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 2px solid var(--focus);
   outline-offset: 4px;
 }
 
@@ -1433,7 +1454,7 @@ textarea:focus-visible {
 }
 .chat-markdown > :first-child { margin-top: 0; }
 .chat-markdown > :last-child { margin-bottom: 0; }
-.chat-markdown :where(a):focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+.chat-markdown :where(a):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 .chat-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .chat-error { color: #b4232a; font-size: 0.9rem; }
 .chat-tail { width: 100%; height: 1px; flex: 0 0 1px; }
@@ -1986,7 +2007,7 @@ textarea:focus-visible {
 
 .semantic-single .semantic-headline {
   margin: 0;
-  color: hsl(var(--foreground));
+  color: var(--ink);
   font-size: 17px;
   line-height: 1.3;
 }
@@ -2197,28 +2218,9 @@ textarea:focus-visible {
 }
 
 /* ============================================================
-   Surface-first home. Scoped to .home-* classes so the shared
-   design system (stratos / blog / about) is untouched. Leads
-   with the thesis, surfaces the three systems as score cards,
-   and demotes the ask to a "go deeper" affordance.
+   Surface-first home. Consumes the canonical palette above;
+   dark mode comes from redefining those tokens, not these rules.
    ============================================================ */
-:root {
-  --home-accent: #b4761a;
-  --home-accent-ink: #8a5a12;
-  --home-ink: #161b23;
-  --home-ink-2: #3a4250;
-  --home-muted: #5e6773;
-  --home-faint: #909aa6;
-  --home-panel: #ffffff;
-  --home-panel-grad: linear-gradient(158deg, #fbfcfd, #eef1f6);
-  --home-hair: #dce1e9;
-  --home-hair-soft: #e8ecf2;
-  --a-libera: #3f5ea8;
-  --a-facia: #2e8c64;
-  --a-stratos: #7e5aae;
-  --home-shadow: 0 1px 2px rgba(16, 20, 28, 0.05), 0 20px 44px -22px rgba(16, 20, 28, 0.2);
-}
-
 .home-hero,
 .home-systems,
 .home-now,
@@ -2237,7 +2239,7 @@ textarea:focus-visible {
 
 .home-eyebrow {
   margin: 0 0 20px;
-  color: var(--home-accent);
+  color: var(--accent);
   font-family: 'Manrope', var(--app-font-sans);
   font-size: 12px;
   font-weight: 700;
@@ -2248,7 +2250,7 @@ textarea:focus-visible {
 .home-thesis {
   max-width: 20ch;
   margin: 0;
-  color: var(--home-ink);
+  color: var(--ink);
   font-family: 'Manrope', var(--app-font-sans);
   font-size: clamp(30px, 5vw, 54px);
   font-weight: 300;
@@ -2258,7 +2260,7 @@ textarea:focus-visible {
 }
 
 .home-thesis span {
-  color: var(--home-accent);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -2269,14 +2271,14 @@ textarea:focus-visible {
 .home-sub {
   max-width: 60ch;
   margin: 26px 0 0;
-  color: var(--home-muted);
+  color: var(--ink-soft);
   font-size: clamp(15px, 1.7vw, 18px);
   font-weight: 400;
   line-height: 1.6;
 }
 
 .home-sub b {
-  color: var(--home-ink-2);
+  color: var(--ink-2);
   font-weight: 600;
 }
 
@@ -2299,7 +2301,7 @@ textarea:focus-visible {
 
 .home-sec-tag {
   margin: 0;
-  color: var(--home-faint);
+  color: var(--faint);
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -2308,7 +2310,7 @@ textarea:focus-visible {
 
 .home-sec-note {
   margin: 0;
-  color: var(--home-faint);
+  color: var(--faint);
   font-size: 13px;
   font-weight: 500;
 }
@@ -2327,10 +2329,10 @@ textarea:focus-visible {
   flex-direction: column;
   gap: 14px;
   padding: 22px 22px 20px;
-  border: 1px solid var(--home-hair-soft);
+  border: 1px solid var(--line-soft);
   border-radius: 20px;
-  background: var(--home-panel-grad);
-  box-shadow: var(--home-shadow);
+  background: var(--surface-grad);
+  box-shadow: var(--shadow);
   color: inherit;
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 180ms ease;
@@ -2342,7 +2344,7 @@ textarea:focus-visible {
 
 .home-system-card:hover {
   transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--card-accent) 45%, var(--home-hair));
+  border-color: color-mix(in srgb, var(--card-accent) 45%, var(--line));
 }
 
 .home-system-card:focus-visible {
@@ -2358,7 +2360,7 @@ textarea:focus-visible {
 }
 
 .home-system-name {
-  color: var(--home-ink);
+  color: var(--ink);
   font-size: 21px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -2389,7 +2391,7 @@ textarea:focus-visible {
 .home-system-desc {
   flex: 1;
   margin: 0;
-  color: var(--home-muted);
+  color: var(--ink-soft);
   font-size: 13.5px;
   line-height: 1.55;
 }
@@ -2403,7 +2405,7 @@ textarea:focus-visible {
 .home-system-poles {
   display: flex;
   justify-content: space-between;
-  color: var(--home-faint);
+  color: var(--faint);
   font-size: 10px;
   font-weight: 600;
 }
@@ -2412,7 +2414,7 @@ textarea:focus-visible {
   position: relative;
   height: 5px;
   border-radius: 3px;
-  border: 1px solid var(--home-hair-soft);
+  border: 1px solid var(--line-soft);
   background: #f3f5f9;
 }
 
@@ -2424,7 +2426,7 @@ textarea:focus-visible {
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: var(--card-accent);
-  border: 2px solid var(--home-panel);
+  border: 2px solid var(--surface);
 }
 
 .home-system-cta {
@@ -2445,7 +2447,7 @@ textarea:focus-visible {
 /* now */
 .home-now-title {
   margin: 0 0 16px;
-  color: var(--home-faint);
+  color: var(--faint);
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -2462,10 +2464,10 @@ textarea:focus-visible {
   display: flex;
   gap: 13px;
   padding: 18px 20px;
-  border: 1px solid var(--home-hair-soft);
+  border: 1px solid var(--line-soft);
   border-radius: 16px;
-  background: var(--home-panel);
-  box-shadow: var(--home-shadow);
+  background: var(--surface);
+  box-shadow: var(--shadow);
   color: inherit;
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 180ms ease;
@@ -2473,11 +2475,11 @@ textarea:focus-visible {
 
 .home-now-item:hover {
   transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--home-accent) 40%, var(--home-hair));
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
 }
 
 .home-now-item:focus-visible {
-  outline: 2px solid var(--home-accent);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -2486,7 +2488,7 @@ textarea:focus-visible {
   height: 13px;
   margin-left: 3px;
   vertical-align: -1px;
-  color: var(--home-faint);
+  color: var(--faint);
   stroke-width: 2.2;
   opacity: 0;
   transition: opacity 150ms ease;
@@ -2495,7 +2497,7 @@ textarea:focus-visible {
 .home-now-item:hover .home-now-role svg,
 .home-now-item:focus-visible .home-now-role svg {
   opacity: 1;
-  color: var(--home-accent);
+  color: var(--accent);
 }
 
 .home-now-dot {
@@ -2513,21 +2515,21 @@ textarea:focus-visible {
 
 .home-now-role {
   margin: 0;
-  color: var(--home-ink);
+  color: var(--ink);
   font-size: 14px;
   font-weight: 700;
 }
 
 .home-now-org {
   margin: 1px 0 0;
-  color: var(--home-muted);
+  color: var(--ink-soft);
   font-size: 12.5px;
   font-weight: 500;
 }
 
 .home-now-meta {
   margin: 2px 0 0;
-  color: var(--home-faint);
+  color: var(--faint);
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
 }
@@ -2539,7 +2541,7 @@ textarea:focus-visible {
 
 .home-ask-title {
   margin: 0;
-  color: var(--home-ink);
+  color: var(--ink);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -2547,7 +2549,7 @@ textarea:focus-visible {
 
 .home-ask-note {
   margin: 4px 0 16px;
-  color: var(--home-muted);
+  color: var(--ink-soft);
   font-size: 13px;
 }
 
@@ -2562,10 +2564,10 @@ textarea:focus-visible {
   align-items: center;
   gap: 7px;
   padding: 8px 14px;
-  border: 1px solid var(--home-hair);
+  border: 1px solid var(--line);
   border-radius: var(--pill-radius);
-  color: var(--home-ink-2);
-  background: var(--home-panel);
+  color: var(--ink-2);
+  background: var(--surface);
   font-family: 'Manrope', var(--app-font-sans);
   font-size: 12.5px;
   font-weight: 600;
@@ -2573,17 +2575,17 @@ textarea:focus-visible {
 }
 
 .home-question-chip .q {
-  color: var(--home-faint);
+  color: var(--faint);
   font-weight: 700;
 }
 
 .home-question-chip:hover:not(:disabled) {
-  color: var(--home-accent);
-  border-color: var(--home-accent);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .home-question-chip:hover:not(:disabled) .q {
-  color: var(--home-accent);
+  color: var(--accent);
 }
 
 .home-question-chip:disabled {
@@ -2613,7 +2615,7 @@ textarea:focus-visible {
 
 .home-connect-label {
   margin: 0 0 12px;
-  color: var(--home-faint);
+  color: var(--faint);
   font-family: 'Manrope', var(--app-font-sans);
   font-size: 11.5px;
   font-weight: 700;
@@ -2628,19 +2630,19 @@ textarea:focus-visible {
   margin: 0;
   padding: 4px;
   gap: 4px;
-  border: 1px solid var(--home-hair-soft);
+  border: 1px solid var(--line-soft);
   border-radius: 12px;
-  background: var(--home-panel);
-  box-shadow: var(--home-shadow);
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .home-connect-item {
-  color: var(--home-ink-2);
+  color: var(--ink-2);
 }
 
 .home-connect-note {
   margin: 12px 0 0;
-  color: var(--home-faint);
+  color: var(--faint);
   font-size: 12px;
 }
 
@@ -2665,34 +2667,52 @@ textarea:focus-visible {
 }
 
 /* ============================================================
-   Homepage dark mode — system preference only, no toggle.
-   Scoped to the homepage: the --home-* tokens are consumed only
-   by .home-* rules, and body:has(.home-hero) guards the shared
-   composer/chat classes (also Home-exclusive today) so this
-   never bleeds into stratos/blog/about. The chat/resume surface
-   once a conversation starts stays light-only for now — a
-   deliberate boundary, not an oversight.
+   Dark mode — system preference only, no toggle. Defined by
+   REDEFINING the canonical palette, not by restyling elements:
+   the landing darkens automatically because it draws from these
+   tokens. Guarded by body:has(.home-hero) so it applies to the
+   homepage only while the other pages still hold hardcoded
+   colors; once they adopt the tokens this selector becomes :root
+   and dark goes site-wide in a single edit. The composer/chat
+   controls keep a few explicit overrides below only because they
+   are not tokenized yet (next stage); the chat/resume answer
+   surface stays light for now — a deliberate boundary.
    ============================================================ */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --home-accent: #e8a13a;
-    --home-accent-ink: #f0b860;
-    --home-ink: #e9eef4;
-    --home-ink-2: #c3cad5;
-    --home-muted: #8a94a2;
-    --home-faint: #59616e;
-    --home-panel: #131922;
-    --home-panel-grad: linear-gradient(158deg, #182029, #10151e);
-    --home-hair: #222a35;
-    --home-hair-soft: #1a212b;
+  body:has(.home-hero) {
+    --ground: #0b0f15;
+    --body-grad: linear-gradient(135deg, #0b0f15 0%, #0a0e14 48%, #0d1119 100%);
+    --surface: #131922;
+    --surface-2: #0e131b;
+    --surface-grad: linear-gradient(158deg, #182029, #10151e);
+    --ink: #e9eef4;
+    --ink-2: #c3cad5;
+    --ink-soft: #8a94a2;
+    --faint: #59616e;
+    --line: #222a35;
+    --line-soft: #1a212b;
+    --accent: #e8a13a;
+    --accent-ink: #f0b860;
     --a-libera: #7796d2;
     --a-facia: #54b98d;
     --a-stratos: #b197d6;
-    --home-shadow: 0 22px 48px -24px rgba(0, 0, 0, 0.7);
+    --shadow: 0 22px 48px -24px rgba(0, 0, 0, 0.7);
+    background: var(--body-grad);
   }
 
-  body:has(.home-hero) {
-    background: linear-gradient(135deg, #0b0f15 0%, #0a0e14 48%, #0d1119 100%);
+  /* Chat/resume answer surface stays light for now — reset the palette
+     back to light inside the conversation region so nothing half-flips. */
+  body:has(.home-hero) .conversation-pane {
+    --ink: #161b23;
+    --ink-2: #3a4250;
+    --ink-soft: #5e6773;
+    --faint: #909aa6;
+    --surface: #ffffff;
+    --surface-2: #f3f5f9;
+    --line: #dce1e9;
+    --line-soft: #e8ecf2;
+    --accent: #b4761a;
+    --accent-ink: #8a5a12;
   }
 
   body:has(.home-hero) .composer {
@@ -2770,14 +2790,14 @@ textarea:focus-visible {
 
   body:has(.home-hero) .submit-button {
     color: #160f02;
-    background: var(--home-accent);
-    border-color: var(--home-accent);
+    background: var(--accent);
+    border-color: var(--accent);
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.35);
   }
 
   body:has(.home-hero) .submit-button:hover:not(:disabled) {
-    background: var(--home-accent-ink);
-    border-color: var(--home-accent-ink);
+    background: var(--accent-ink);
+    border-color: var(--accent-ink);
   }
 
   body:has(.home-hero) .status-line {
