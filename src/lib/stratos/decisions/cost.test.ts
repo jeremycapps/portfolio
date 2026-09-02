@@ -109,18 +109,30 @@ describe('the running total and its slope', () => {
     expect(va.at(-1)!.total).toBe(49_800);
   });
 
-  it('carries the total forward where nothing was published', () => {
-    const [, t1, t2] = series('U.S. Department of Veterans Affairs');
-    expect([t1, t2].map(({ carried }) => carried)).toEqual([true, true]);
-    expect([t1, t2].map(({ total }) => total)).toEqual([10_000, 10_000]);
-    // A carried point has no slope, which is the true statement about it.
-    expect([t1, t2].map(({ ratePerMonth }) => ratePerMonth)).toEqual([0, 0]);
+  it('places an unreported date on the line rather than holding it flat', () => {
+    const [t0, t1, t2, t3] = series('U.S. Department of Veterans Affairs');
+    expect([t1, t2].map(({ implied }) => implied)).toEqual([true, true]);
+    // Between the two reported anchors, and in order, rather than both pinned
+    // to the earlier one. Money left continuously; only the reporting was lumpy.
+    expect(t1.total).toBeGreaterThan(t0.total);
+    expect(t2.total).toBeGreaterThan(t1.total);
+    expect(t2.total).toBeLessThan(t3.total);
+  });
+
+  it('spends at one rate across a stretch nobody reported', () => {
+    const [, t1, t2, t3] = series('U.S. Department of Veterans Affairs');
+    // A straight line between two anchors has a constant slope, so the implied
+    // segments inside it must match rather than spike at the end.
+    expect(t2.ratePerMonth).toBeCloseTo(t1.ratePerMonth, 6);
+    expect(t3.ratePerMonth).toBeCloseTo(t1.ratePerMonth, 6);
   });
 
   it('reads the burn rate accelerating across Target’s operating years', () => {
     const [, t2, t3] = series('Target Corporation');
     expect(t2.ratePerMonth).toBeGreaterThan(0);
     expect(t3.ratePerMonth).toBeGreaterThan(t2.ratePerMonth * 5);
+    // Every Target date reports a figure, so none of them is read off the line.
+    expect(series('Target Corporation').every(({ implied }) => !implied)).toBe(true);
   });
 
   it('never lets the running total fall', () => {

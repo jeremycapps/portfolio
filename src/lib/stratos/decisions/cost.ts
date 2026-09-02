@@ -105,55 +105,79 @@ export interface CostSeriesInput {
 export interface CostSeriesPoint extends CostSeriesInput {
   /** Money recognised against the commitment by this date, in USD millions. */
   readonly total: number;
-  /** The figure that moved the total here, if any. */
+  /** The figure that anchors this point, if one was published at this date. */
   readonly figure?: CostFigure;
-  /** True where no figure was published and the total is carried forward. */
-  readonly carried: boolean;
-  /** Implied USD millions per month since the previous point; 0 at the first. */
+  /**
+   * True where no figure was published and the total is read off the line
+   * between the dates that did publish one.
+   */
+  readonly implied: boolean;
+  /** USD millions per month over the segment ending at this point. */
   readonly ratePerMonth: number;
 }
 
 const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 365.25 / 12;
+const at = (date: string) => Date.parse(`${date}T00:00:00Z`);
 
 /**
- * The running total, so the line between two points has a slope worth reading.
+ * Cumulative spend over time.
  *
- * A level says how much; a slope says how fast, and how fast is the thing a
- * spend chart is actually for. The gap between two decisions is real calendar
- * time, so the rise over that run is money per month.
+ * Money leaves continuously; only the reporting is lumpy. So a date that
+ * published no figure is placed on the line between the dates that did, rather
+ * than holding the previous total flat until the next report lands. Carrying
+ * flat draws a step — a plateau and then a cliff — which says nothing was spent
+ * for two years and then everything at once. For a program running the whole
+ * time, that is not a simplification, it is the wrong shape.
  *
- * Where a date published no figure the total is carried forward rather than
- * dropped or interpolated. A flat segment is a true statement — nothing new was
- * reported — and it is visibly different from a climbing one.
+ * Interpolated points are marked `implied`, because a reader should be able to
+ * tell which totals were reported and which were read off the line.
  *
- * One known overstatement, kept deliberately because the alternative is worse:
- * an exit charge is largely impairment of capital this series has already
- * counted, so a case that ends in one recognises some dollars twice. The total
- * is money recognised against the commitment, not cash out the door, and the
- * chart says so rather than dropping the largest number in the case.
+ * One known overstatement, kept deliberately: an exit charge is largely
+ * impairment of capital this series has already counted, so a case ending in
+ * one recognises some dollars twice. The total is money recognised against the
+ * commitment, not cash out the door.
  */
 export function costSeries(decisions: readonly CostSeriesInput[]): CostSeriesPoint[] {
+  // Pass one: the anchors, where a published figure fixes the running total.
   let total = 0;
   let lastContribution = 0;
-  let previous: { total: number; at: number } | undefined;
-
-  return decisions.map((decision) => {
+  const anchors = new Map<number, number>();
+  const figures = decisions.map((decision) => {
     const figure = decision.cost[0];
     if (figure) {
       total = figure.accrual === 'supersedes'
         ? total - lastContribution + figure.usdMillions
         : total + figure.usdMillions;
       lastContribution = figure.usdMillions;
+      anchors.set(at(decision.decisionDate), total);
     }
-    const at = Date.parse(`${decision.decisionDate}T00:00:00Z`);
-    const months = previous ? (at - previous.at) / MS_PER_MONTH : 0;
-    const ratePerMonth = previous && months > 0 ? (total - previous.total) / months : 0;
-    previous = { total, at };
+    return figure;
+  });
+
+  const dates = [...anchors.keys()].sort((a, b) => a - b);
+  const totalAt = (when: number): number => {
+    const next = dates.find((date) => date >= when);
+    if (next === undefined) return anchors.get(dates[dates.length - 1]!)!;
+    if (next === when || dates[0] === next) return anchors.get(next)!;
+    const previous = dates[dates.indexOf(next) - 1]!;
+    const share = (when - previous) / (next - previous);
+    const from = anchors.get(previous)!;
+    return from + (anchors.get(next)! - from) * share;
+  };
+
+  let previous: { total: number; at: number } | undefined;
+  return decisions.map((decision, index) => {
+    const when = at(decision.decisionDate);
+    const value = dates.length === 0 ? 0 : totalAt(when);
+    const months = previous ? (when - previous.at) / MS_PER_MONTH : 0;
+    const ratePerMonth = previous && months > 0 ? (value - previous.total) / months : 0;
+    previous = { total: value, at: when };
+    const figure = figures[index];
     return {
       ...decision,
-      total,
+      total: value,
       ...(figure ? { figure } : {}),
-      carried: figure === undefined,
+      implied: figure === undefined,
       ratePerMonth,
     };
   });

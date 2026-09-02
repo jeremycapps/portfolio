@@ -146,16 +146,7 @@
 /* The spend line. Its slope is dollars per month, so it is drawn solid where
    money moved and faint where the total is only carried forward. */
 .sf-spend { stroke: #e9eef4; stroke-width: 2; opacity: 0.85; }
-.sf-spend--flat { stroke: #59616e; stroke-width: 1.4; stroke-dasharray: 3 3; opacity: 0.9; }
 
-/* Where the model says stop, and everything committed after it. */
-.sf-stopline { stroke: var(--bad); stroke-width: 1.5; stroke-dasharray: 4 3; }
-.sf-after { fill: var(--bad); opacity: 0.07; }
-.sf-stoptag {
-  position: absolute; top: 0; transform: translateX(4px); white-space: nowrap;
-  font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--bad); pointer-events: none;
-}
 
 .sf-cpt { position: absolute; transform: translate(-50%, -50%); cursor: pointer; }
 .sf-cpt input { position: absolute; inset: -8px; margin: 0; opacity: 0; cursor: pointer; }
@@ -165,8 +156,8 @@
 }
 .sf-cpt--ok .sf-cpt-dot { background: var(--ok); }
 .sf-cpt--bad .sf-cpt-dot { background: var(--bad); }
-/* A carried point reports no new figure, so it reads as an outline. */
-.sf-cpt-dot.is-carried { background: var(--screen-bg); border: 2px solid currentColor; }
+/* An implied point is read off the line rather than reported, so it is hollow. */
+.sf-cpt-dot.is-implied { background: var(--screen-bg); border: 2px solid currentColor; }
 .sf-cpt--ok { color: var(--ok); }
 .sf-cpt--bad { color: var(--bad); }
 .sf-cpt.is-on .sf-cpt-dot { box-shadow: 0 0 0 3px var(--screen-bg), 0 0 0 6px rgba(255, 255, 255, 0.16); }
@@ -177,11 +168,30 @@
   font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
 }
 
-.sf-after-note {
-  grid-column: 1 / -1; grid-row: 3; padding-top: 6px;
-  font-size: 9px; letter-spacing: 0.04em; color: #8a94a2;
+/* What the model would say at the tapped point. */
+.sf-rec {
+  border-radius: 12px; padding: 10px 11px 11px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 2.5px solid var(--ok);
 }
-.sf-after-note b { color: var(--bad); font-weight: 700; }
+.sf-rec--bad { border-left-color: var(--bad); }
+.sf-rec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.sf-rec-seq {
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #8a94a2;
+}
+.sf-rec-spend { font-size: 8.5px; font-weight: 700; color: #e9eef4; font-variant-numeric: tabular-nums; }
+.sf-rec-call {
+  margin-top: 5px; font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em; color: #e9eef4;
+}
+.sf-rec--bad .sf-rec-call { color: var(--bad); }
+.sf-rec-why { margin: 3px 0 0; font-size: 10px; line-height: 1.35; color: #9098a4; }
+.sf-rec-scale {
+  display: flex; justify-content: space-between; gap: 8px; margin-top: 8px;
+  padding-top: 7px; border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 9px; color: #8a94a2;
+}
+.sf-rec-scale b { color: #e9eef4; font-weight: 700; text-align: right; }
 .sf-legend--cost .sf-legend-label { white-space: normal; line-height: 1.35; font-size: 8.5px; }
 
 .sf-narrative { font-size: 16px; font-weight: 500; line-height: 1.26; letter-spacing: -0.02em; color: #e9eef4; }

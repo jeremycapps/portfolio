@@ -419,11 +419,6 @@ function SpendPlot({
 }) {
   const scale = costScale(points);
   const at = (index: number) => ({ x: stops[index].x, y: scale.y(points[index].total) });
-  // Where the model first says stop. Everything to the right of it is money
-  // committed after a verdict that had already turned adverse.
-  const stopIndex = stops.findIndex((stop) => toneFor(stop) === 'bad');
-  const stopX = stopIndex >= 0 ? stops[stopIndex].x : undefined;
-  const after = stopIndex >= 0 ? points.at(-1)!.total - points[stopIndex].total : 0;
 
   return (
     <div className="sf-chart">
@@ -440,16 +435,10 @@ function SpendPlot({
           {scale.ticks.map((tick) => (
             <line key={tick} className="sf-gridline" x1="0" x2="100" y1={scale.y(tick)} y2={scale.y(tick)} />
           ))}
-          {stopX !== undefined && (
-            <>
-              <rect className="sf-after" x={stopX} y="0" width={100 - stopX} height="100" />
-              <line className="sf-stopline" x1={stopX} x2={stopX} y1="0" y2="100" vectorEffect="non-scaling-stroke" />
-            </>
-          )}
           {points.map((point, index) => index === 0 ? null : (
             <line
               key={point.id}
-              className={`sf-spend${point.carried ? ' sf-spend--flat' : ''}`}
+              className="sf-spend"
               x1={at(index - 1).x} y1={at(index - 1).y}
               x2={at(index).x} y2={at(index).y}
               vectorEffect="non-scaling-stroke"
@@ -466,7 +455,7 @@ function SpendPlot({
               key={stop.option.id}
               style={{ left: `${stop.x}%`, top: `${scale.y(point.total)}%` }}
               title={`${point.sequence} · ${stop.option.decisionDate} · ${formatUsdMillions(point.total)}${
-                point.figure ? ` · ${point.figure.basis}` : ' · no figure published at this date'
+                point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
               }`}
             >
               <input
@@ -476,17 +465,12 @@ function SpendPlot({
                 checked={selected}
                 onChange={() => onSelect(stop.option.id)}
               />
-              <span className={`sf-cpt-dot${point.carried ? ' is-carried' : ''}`} />
+              <span className={`sf-cpt-dot${point.implied ? ' is-implied' : ''}`} />
               <span className="sf-cpt-val">{formatUsdMillions(point.total)}</span>
             </label>
           );
         })}
 
-        {stopX !== undefined && (
-          <span className="sf-stoptag" style={{ left: `${stopX}%` }}>
-            StratOS: stop here
-          </span>
-        )}
       </div>
 
       <div className="sf-axis" aria-hidden="true">
@@ -497,11 +481,49 @@ function SpendPlot({
         ))}
       </div>
 
-      {after > 0 && (
-        <div className="sf-after-note">
-          <b>{formatUsdMillions(after)}</b> recognised after the verdict turned
-        </div>
-      )}
+    </div>
+  );
+}
+
+/**
+ * What the model would have said at the tapped point.
+ *
+ * The chart shows the money; this shows the call. Keeping them on one screen is
+ * the whole argument — the recommendation is dated, so reading it beside the
+ * spend at that same date is what makes a verdict worth anything. Selecting a
+ * different dot re-resolves the whole packet, so nothing here is written for
+ * display.
+ */
+function Recommendation({
+  view,
+  point,
+}: {
+  view: DecisionExperienceViewModel;
+  point?: CostSeriesPoint;
+}) {
+  const [hold, change] = view.recommendations;
+  const adverse = view.cause.kind === 'value-floor' || view.cause.kind === 'risk-floor'
+    || view.verdict === 'COLLISION';
+
+  return (
+    <div className={`sf-rec sf-rec--${adverse ? 'bad' : 'ok'}`}>
+      <div className="sf-rec-head">
+        <span className="sf-rec-seq">{view.sequence} · {view.cutoff}</span>
+        {point && (
+          <span className="sf-rec-spend">
+            {formatUsdMillions(point.total)} {point.implied ? 'implied' : 'recognised'}
+          </span>
+        )}
+      </div>
+      <div className="sf-rec-call">{hold.displayLabel} · {change.displayLabel}</div>
+      <p className="sf-rec-why">{view.cause.displayLabel}</p>
+      {/* `validatedScale` reads not-determined at every decision in the library,
+          so it would be the same dead row on every tap. What binds actually
+          moves — people at the VA release, people and finance at Target's exit. */}
+      <div className="sf-rec-scale">
+        <span>What binds</span>
+        <b>{view.bindingDimensions.length > 0 ? view.bindingDimensions.join(' · ') : 'nothing placed'}</b>
+      </div>
     </div>
   );
 }
@@ -582,6 +604,8 @@ function TimelineScreen({
       </div>
 
       <SpendPlot stops={stops} points={points} selectedId={view.timeline.selectedId} onSelect={onSelect} />
+
+      <Recommendation view={view} point={points.find(({ id }) => id === view.timeline.selectedId)} />
 
       <div className="sf-legend sf-legend--cost">
         <span className="sf-legend-label">
