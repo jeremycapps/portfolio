@@ -30,7 +30,7 @@ function SystemBody({ system }: { system: HomeSystem }) {
         </div>
       </div>
       <div className="home-system-cta">
-        {system.external ? 'View on GitHub' : 'Open the instrument'}
+        {system.external ? 'View on GitHub' : 'Open the prototype'}
         <ArrowUpRight aria-hidden="true" />
       </div>
     </>

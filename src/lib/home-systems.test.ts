@@ -12,13 +12,14 @@ describe('HOME_SYSTEMS', () => {
     expect(libera?.href).toBe('https://github.com/jeremycapps/libera');
     expect(libera?.external).toBe(true);
     expect(facia?.href).toBe('https://github.com/jeremycapps/facia');
-    expect(facia?.description).toContain('renderer-neutral');
+    expect(facia?.description).toContain('reusable interface recipes');
   });
 
   it('links StratOS to its in-app route, not an external repo', () => {
     const stratos = HOME_SYSTEMS.find((s) => s.id === 'stratos');
     expect(stratos?.external).toBe(false);
-    expect(stratos?.href).toBe('/stratos');
+    expect(stratos?.href).toBe('/stratos-v2');
+    expect(stratos?.category).toBe('Decision infrastructure');
   });
 
   it('places every marker between the two poles', () => {

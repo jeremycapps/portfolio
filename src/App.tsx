@@ -47,9 +47,9 @@ const HOME_QUESTIONS: readonly { label: string; prompt: string }[] = [
       'Explain the Libera project in depth — what it is, how it works, and why it matters.',
   },
   {
-    label: 'Why ontology?',
+    label: 'How does the work connect?',
     prompt:
-      "What is the throughline of Jeremy's work, and why does he focus on ontology and context infrastructure?",
+      "What is the throughline of Jeremy's work across operations, engineering, and his independent projects?",
   },
 ];
 
@@ -262,12 +262,12 @@ function Home() {
         aria-labelledby={chatActive ? undefined : 'hero-title'}
       >
         <div className="intro home-hero">
-          <p className="home-eyebrow" data-testid="text-eyebrow">Knowledge &amp; ontology engineer &middot; New York City</p>
+          <p className="home-eyebrow" data-testid="text-eyebrow">Systems-oriented engineer &middot; New York City</p>
           <h1 className="home-thesis" id="hero-title">
-            I build the <span>source-of-truth layer</span> for messy work &mdash; turning scattered, ambiguous work into <b>structured systems people can run</b>.
+            I learn how a <span>workflow actually works</span>, find the real constraint, and build <b>the system required to change it</b>.
           </h1>
           <p className="home-sub">
-            Nine years across engineering, operations, and product, working the seams between them. The throughline is <b>ontology</b>: turning ambiguous sources into explicit, auditable structure &mdash; the literal subject of the three systems below.
+            Nine years across product, operations, and engineering &mdash; moving from discovery through deployment, with measurable outcomes and reusable infrastructure left behind.
           </p>
         </div>
 
