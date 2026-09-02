@@ -7,6 +7,7 @@ import {
   type PresentationTension,
 } from '@/lib/stratos/decisions/presentation';
 import type { EvidenceDisplayState, ResolvedDecisionInput } from '@/lib/stratos/decisions/decision-point';
+import { formatUsdMillions, type CostFigure } from '@/lib/stratos/decisions/cost';
 import './stratos-flow.css';
 
 /**
@@ -146,6 +147,52 @@ const SHORT_CASE_NAMES: Record<string, string> = {
 
 function shortCaseName(name: string): string {
   return SHORT_CASE_NAMES[name] ?? name;
+}
+
+/**
+ * What the vertical axis measures.
+ *
+ * Two questions, one date axis. The verdict view answers "was this decision
+ * sound on the evidence it had"; the cost view answers "what did it come to".
+ * They are worth switching between rather than choosing between, because the
+ * gap between them is the case for reading a verdict at all: the judgment
+ * turns adverse well before the money does, and only the pair shows that.
+ */
+const CHART_MODES = [
+  { id: 'verdict', label: 'Verdict' },
+  { id: 'cost', label: 'Cost' },
+] as const;
+type ChartMode = typeof CHART_MODES[number]['id'];
+
+/**
+ * Money on a log scale, larger further down.
+ *
+ * Log because the figures in a single case span two orders of magnitude — a
+ * quarter's loss against a realized exit charge — and a linear axis would press
+ * everything but the largest onto the frame. Larger-is-lower so the cost view
+ * falls in the same direction as the verdict view, and the two can be compared
+ * without re-reading which way is bad.
+ *
+ * There is no zero on a log axis, which suits the data: a decision with no
+ * published figure is absent from this scale rather than sitting at the origin.
+ */
+function costScale(figures: readonly CostFigure[]) {
+  const logs = figures.map(({ usdMillions }) => Math.log10(usdMillions));
+  // A quarter-decade of padding, so the extreme figures do not sit on the frame.
+  const min = Math.min(...logs) - 0.25;
+  const max = Math.max(...logs) + 0.25;
+  const span = max - min || 1;
+  return {
+    y: (usdMillions: number) => (
+      TRACK_INSET_PCT + ((Math.log10(usdMillions) - min) / span) * (100 - TRACK_INSET_PCT * 2)
+    ),
+    /** Powers of ten inside the domain — the only tick values a log axis owes you. */
+    ticks: (() => {
+      const out: number[] = [];
+      for (let power = Math.ceil(min); power <= Math.floor(max); power += 1) out.push(10 ** power);
+      return out;
+    })(),
+  };
 }
 
 /** The timeline's own label for this decision — the short form of the headline. */
@@ -364,24 +411,147 @@ const STAGES = [
   },
 ] as const;
 
+type Stop = ReturnType<typeof timelineStops>[number];
+
+/**
+ * The same decisions measured in dollars.
+ *
+ * Three things are drawn and they are not the same claim. The committed line is
+ * what the organization authorized or placed, dated at the decision that placed
+ * it, and it runs across the plot because the authorization stands until it is
+ * changed. The realized points are what the books reported at each date. The
+ * hindsight point is what the commitment came to, published after the last
+ * decision could have used it.
+ *
+ * The realized points are joined by a dashed line rather than a solid one,
+ * because they are not a running total: a quarter's loss, a fiscal year's loss
+ * and a one-time charge are different instruments, and a solid line would claim
+ * they accumulate. Each point carries its basis for the same reason.
+ */
+function CostPlot({ stops }: { stops: readonly Stop[] }) {
+  const figures = stops.flatMap(({ option, x }) => (
+    option.cost.map((figure) => ({ figure, x, sequence: option.sequence }))
+  ));
+  if (figures.length === 0) return null;
+
+  const scale = costScale(figures.map(({ figure }) => figure));
+  const committed = figures.filter(({ figure }) => figure.kind === 'committed');
+  const realized = figures.filter(({ figure }) => figure.kind === 'realized');
+  const hindsight = figures.filter(({ figure }) => figure.kind === 'hindsight');
+  const silent = stops.filter(({ option }) => option.cost.length === 0);
+
+  return (
+    <div className="sf-chart">
+      <div className="sf-bands sf-bands--cost" aria-hidden="true">
+        {scale.ticks.map((tick) => (
+          <span key={tick} className="sf-ctick" style={{ top: `${scale.y(tick)}%` }}>
+            {formatUsdMillions(tick)}
+          </span>
+        ))}
+      </div>
+
+      <div className="sf-plot">
+        <svg className="sf-plot-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          {scale.ticks.map((tick) => (
+            <line key={tick} className="sf-gridline" x1="0" x2="100" y1={scale.y(tick)} y2={scale.y(tick)} />
+          ))}
+          {/* Decisions that published no figure still happened; the tick marks
+              where they sit on the same date axis without asserting a value. */}
+          {silent.map(({ option, x }) => (
+            <line key={option.id} className="sf-silent" x1={x} x2={x} y1="0" y2="100" />
+          ))}
+          {committed.map(({ figure, x }) => (
+            <g key={figure.factRef}>
+              <line
+                className="sf-committed"
+                x1="0" x2="100"
+                y1={scale.y(figure.usdMillions)} y2={scale.y(figure.usdMillions)}
+                vectorEffect="non-scaling-stroke"
+              />
+              <line
+                className="sf-committed-stem"
+                x1={x} x2={x} y1={scale.y(figure.usdMillions)} y2="100"
+                vectorEffect="non-scaling-stroke"
+              />
+            </g>
+          ))}
+          {realized.length > 1 && (
+            <polyline
+              className="sf-arc sf-arc--cost"
+              points={realized.map(({ figure, x }) => `${x},${scale.y(figure.usdMillions)}`).join(' ')}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
+        </svg>
+
+        {figures.map(({ figure, x, sequence }) => (
+          <span
+            className={`sf-cpt sf-cpt--${figure.kind}`}
+            key={`${sequence}-${figure.factRef}`}
+            style={{ left: `${x}%`, top: `${scale.y(figure.usdMillions)}%` }}
+            title={`${sequence} · ${figure.basis} · ${figure.statement}`}
+          >
+            <span className="sf-cpt-dot" />
+            <span className="sf-cpt-val">{formatUsdMillions(figure.usdMillions)}</span>
+          </span>
+        ))}
+      </div>
+
+      <div className="sf-axis" aria-hidden="true">
+        {stops.map(({ option, x }) => (
+          <span
+            key={option.id}
+            className={`sf-axis-year${option.cost.length === 0 ? ' is-silent' : ''}`}
+            style={{ left: `${x}%` }}
+          >
+            {option.sequence}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Says what the cost view is showing, in the case's own figures. */
+function costNote(stops: readonly Stop[]): string {
+  const all = stops.flatMap(({ option }) => option.cost);
+  const committed = all.find(({ kind }) => kind === 'committed');
+  const realized = all.filter(({ kind }) => kind === 'realized');
+  const hindsight = all.find(({ kind }) => kind === 'hindsight');
+  const silent = stops.filter(({ option }) => option.cost.length === 0).map(({ option }) => option.sequence);
+
+  const parts: string[] = [];
+  if (committed) parts.push(`${formatUsdMillions(committed.usdMillions)} placed`);
+  const worst = realized.at(-1);
+  if (worst) parts.push(`${formatUsdMillions(worst.usdMillions)} on the books by the last decision`);
+  if (hindsight) parts.push(`${formatUsdMillions(hindsight.usdMillions)} only after them all`);
+  if (silent.length > 0) parts.push(`${silent.join(' and ')} published no figure`);
+  return parts.join(' · ');
+}
+
 function TimelineScreen({
   view,
   caseName,
   cases,
+  mode,
   onSelect,
   onSelectCase,
+  onSelectMode,
 }: {
   view: DecisionExperienceViewModel;
   caseName: string;
   cases: readonly string[];
+  mode: ChartMode;
   onSelect: (id: string) => void;
   onSelectCase: (name: string) => void;
+  onSelectMode: (mode: ChartMode) => void;
 }) {
   const stops = timelineStops(view, caseName);
   const selectedStop = stops.find(({ option }) => option.id === view.timeline.selectedId);
   const adverse = stops.filter(({ option }) => verdictFor(option.id) !== 'FOG').length;
   // Two arcs of the same length read as the same shape until you see where each
   // one turns, so the summary counts the turns rather than restating the count.
+  const firstAdverse = stops.find(({ band }) => band !== 'FIT' && band !== 'FOG');
   const recovers = stops.some(({ band }, index) => (
     index > 0 && BANDS.indexOf(band) < BANDS.indexOf(stops[index - 1].band)
   ));
@@ -412,15 +582,33 @@ function TimelineScreen({
         ))}
       </div>
 
-      <div className="sf-kicker">{caseName} · {stops.length} dated decisions</div>
-      <div className="sf-narrative">
-        {adverse === 0
-          ? <>Every decision on this commitment reads <b>uncertain</b> rather than adverse.</>
-          : recovers
-            ? <>{adverse} of {stops.length} decisions read <b>adverse</b> — and the arc <b>comes back up</b>.</>
-            : <>{adverse} of {stops.length} decisions {adverse === 1 ? 'reads' : 'read'} <b>adverse</b> rather than merely uncertain.</>}
+      <div className="sf-modes" role="radiogroup" aria-label="What the vertical axis measures">
+        {CHART_MODES.map(({ id, label }) => (
+          <label className={`sf-mode${id === mode ? ' is-on' : ''}`} key={id}>
+            <input
+              type="radio"
+              name="sf-mode"
+              value={id}
+              checked={id === mode}
+              onChange={() => onSelectMode(id)}
+            />
+            {label}
+          </label>
+        ))}
       </div>
 
+      <div className="sf-kicker">{caseName} · {stops.length} dated decisions</div>
+      <div className="sf-narrative">
+        {mode === 'cost'
+          ? <>The verdict turned adverse at <b>{firstAdverse?.option.sequence ?? '—'}</b>. Watch what was on the books then.</>
+          : adverse === 0
+            ? <>Every decision on this commitment reads <b>uncertain</b> rather than adverse.</>
+            : recovers
+              ? <>{adverse} of {stops.length} decisions read <b>adverse</b> — and the arc <b>comes back up</b>.</>
+              : <>{adverse} of {stops.length} decisions {adverse === 1 ? 'reads' : 'read'} <b>adverse</b> rather than merely uncertain.</>}
+      </div>
+
+      {mode === 'cost' ? <CostPlot stops={stops} /> : (
       <div className="sf-chart">
         <div className="sf-bands" aria-hidden="true">
           {BANDS.map((band) => <span key={band} className={`sf-band sf-band--${band.toLowerCase()}`}>{band}</span>)}
@@ -477,13 +665,20 @@ function TimelineScreen({
           ))}
         </div>
       </div>
+      )}
 
-      <div className="sf-legend">
-        <span className="sf-legend-label">{selectedStop?.option.label}</span>
-        <span className={`sf-legend-verdict sf-legend-verdict--${(selectedStop?.band ?? 'fog').toLowerCase()}`}>
-          {selectedStop?.band}
-        </span>
-      </div>
+      {mode === 'cost' ? (
+        <div className="sf-legend sf-legend--cost">
+          <span className="sf-legend-label">{costNote(stops)}</span>
+        </div>
+      ) : (
+        <div className="sf-legend">
+          <span className="sf-legend-label">{selectedStop?.option.label}</span>
+          <span className={`sf-legend-verdict sf-legend-verdict--${(selectedStop?.band ?? 'fog').toLowerCase()}`}>
+            {selectedStop?.band}
+          </span>
+        </div>
+      )}
     </>
   );
 }
@@ -513,6 +708,7 @@ function verdictFor(id: string): DecisionExperienceViewModel['verdict'] {
 export default function StratosFlowPage() {
   const cases = useMemo(() => timelineCases(createDecisionExperienceViewModel()), []);
   const [caseName, setCaseName] = useState(cases[0]);
+  const [mode, setMode] = useState<ChartMode>('verdict');
   const [decisionId, setDecisionId] = useState<string>();
   const view = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
 
@@ -544,8 +740,10 @@ export default function StratosFlowPage() {
                 view={view}
                 caseName={caseName}
                 cases={cases}
+                mode={mode}
                 onSelect={setDecisionId}
                 onSelectCase={selectCase}
+                onSelectMode={setMode}
               />
             </Phone>
           </div>

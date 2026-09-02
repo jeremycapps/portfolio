@@ -35,6 +35,7 @@ import type {
 } from '../decision-comparison';
 import { resolveDecisionPoint } from '../evidence-integrity';
 import { assertValidJudgmentResult, type JudgmentResult } from '../judgment';
+import { resolveCostFigure, type CostFigure, type CostFigureRef } from '../cost';
 import { generateRecommendations } from '../recommendation-policy';
 import { adaptCommitmentReview } from '../verdict-adapter';
 
@@ -65,6 +66,15 @@ interface ExperienceConfig {
   readonly scorecard?: CaseScorecard;
   readonly snapshotId: string;
   readonly sequence: DecisionPoint['sequence'];
+  /**
+   * Money this decision placed, if the case has a fact for it.
+   *
+   * Optional because most decisions have none: the packet at a release date
+   * reports readiness, not dollars. A decision without a figure contributes no
+   * point to the cost view rather than a zero, since "nothing was on the books
+   * yet" and "it cost nothing" are opposite claims.
+   */
+  readonly cost?: readonly CostFigureRef[];
   readonly id: string;
   readonly decisionDate: string;
   readonly reassessmentDate: string;
@@ -88,6 +98,7 @@ interface ExperienceConfig {
 export interface AuthoredDecisionExperience {
   readonly profile: CaseProfile;
   readonly scorecard?: CaseScorecard;
+  readonly cost: readonly CostFigure[];
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
   readonly comparison: DecisionComparison;
@@ -316,6 +327,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
   return {
     profile: config.profile,
     scorecard: config.scorecard,
+    cost: (config.cost ?? []).map((ref) => resolveCostFigure(config.profile, ref)),
     decisionPoint,
     judgment,
     comparison,
@@ -335,6 +347,11 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     scorecard: TARGET_CANADA_COMMITMENT_SCORECARD,
     snapshotId: TARGET_CANADA_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
     sequence: 'T0',
+    cost: [{
+      kind: 'committed',
+      factRef: 'canada-capital-committed-by-2012',
+      basis: 'capital placed by the opening announcement',
+    }],
     id: 'target-canada-t0-2012-07-12',
     decisionDate: '2012-07-12',
     reassessmentDate: '2013-03-05',
@@ -418,6 +435,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     commitmentReview: TARGET_CANADA_2014_WARNING_REVIEW_INPUT,
     snapshotId: 'warning-2014-02-26',
     sequence: 'T3',
+    cost: [{ kind: 'realized', factRef: 'canada-ebit-2013', basis: 'first full-year segment operating loss' }],
     id: 'target-canada-t3-2014-02-26',
     decisionDate: '2014-02-26',
     reassessmentDate: '2014-08-20',
@@ -444,6 +462,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     commitmentReview: TARGET_CANADA_2015_EXIT_REVIEW_INPUT,
     snapshotId: 'outcome-2015-02-25',
     sequence: 'T4',
+    cost: [{ kind: 'realized', factRef: 'exit-charge-2014', basis: 'pretax impairment and exit charge' }],
     id: 'target-canada-t4-2015-02-25',
     decisionDate: '2015-02-25',
     reassessmentDate: '2015-08-19',
@@ -469,6 +488,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     commitmentReview: VA_EHR_2018_REVIEW_INPUT,
     snapshotId: 'authorization-2018-05-17',
     sequence: 'T0',
+    cost: [{ kind: 'committed', factRef: 'va-contract-ceiling-2018', basis: 'ten-year contract ceiling authorized at award' }],
     id: 'va-ehr-t0-2018-05-17',
     decisionDate: '2018-05-17',
     reassessmentDate: '2019-05-17',
@@ -547,6 +567,7 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     commitmentReview: VA_EHR_2023_REVIEW_INPUT,
     snapshotId: 'reset-2023-04-21',
     sequence: 'T3',
+    cost: [{ kind: 'hindsight', factRef: 'va-lifecycle-estimate-2022', basis: 'independent lifecycle estimate, public a month after this decision' }],
     id: 'va-ehr-t3-2023-04-21',
     decisionDate: '2023-04-21',
     reassessmentDate: '2024-04-21',

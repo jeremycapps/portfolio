@@ -10,6 +10,7 @@ import {
   type ResolvedDecisionInput,
 } from './decision-point';
 import { resolveDecisionPoint } from './evidence-integrity';
+import { resolveCostFigure, type CostFigure } from './cost';
 import {
   CALIBRATED_COMMITMENT_EXPERIENCES,
   TARGET_CANADA_AUGUST_2013_DECISION_POINT,
@@ -30,6 +31,9 @@ export interface DecisionTimelineOption {
   readonly decisionDate: string;
   readonly knowledgeCutoff: string;
   readonly companyName: string;
+  /** Carried on the option so a chart can plot a whole case without resolving
+   *  every decision one at a time. Empty where the packet reports no dollars. */
+  readonly cost: readonly CostFigure[];
 }
 
 export interface PresentationAssumption {
@@ -133,6 +137,14 @@ export interface DecisionExperienceViewModel {
   readonly assumptions: readonly PresentationAssumption[];
   readonly hindsight: readonly ResolvedDecisionInput[];
   /**
+   * What this decision placed in money, where the case has a fact for it.
+   *
+   * Empty for most decisions, and the emptiness is load-bearing: a release date
+   * that reports readiness rather than dollars contributes no point to a cost
+   * view, which is not the same as contributing a zero.
+   */
+  readonly cost: readonly CostFigure[];
+  /**
    * Present only when the case carries a scorecard placing its tensions.
    *
    * Placements are dated, so a decision may only show the placement made at its
@@ -159,6 +171,8 @@ interface DecisionExperienceSource {
   readonly profile: CaseProfile;
   /** Supplies tension placements. Omitted for decisions scored per release date. */
   readonly scorecard?: CaseScorecard;
+  /** Money this decision placed. Empty where the packet reports no dollars. */
+  readonly cost: readonly CostFigure[];
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
   readonly comparison: DecisionComparison;
@@ -174,6 +188,11 @@ const SOURCES: readonly DecisionExperienceSource[] = [
   CALIBRATED_COMMITMENT_EXPERIENCES[0],
   {
     profile: TARGET_CANADA,
+    cost: [resolveCostFigure(TARGET_CANADA, {
+      kind: 'realized',
+      factRef: 'canada-ebit-q2-2013',
+      basis: 'second-quarter segment operating loss',
+    })],
     decisionPoint: TARGET_CANADA_AUGUST_2013_DECISION_POINT,
     judgment: TARGET_CANADA_AUGUST_2013_JUDGMENT,
     comparison: TARGET_CANADA_AUGUST_2013_COMPARISON,
@@ -194,6 +213,7 @@ const TIMELINE_OPTIONS: readonly DecisionTimelineOption[] = SOURCES.map((source)
   decisionDate: source.decisionPoint.decisionDate,
   knowledgeCutoff: source.decisionPoint.knowledgeCutoff,
   companyName: source.companyName,
+  cost: source.cost,
 }));
 
 function presentationCause(cause: JudgmentCause, profile: CaseProfile): PresentationCause {
@@ -295,6 +315,7 @@ export function createDecisionExperienceViewModel(
       displayLabel: 'ASSUMPTION',
     })),
     hindsight: [...packet.hindsightInputs],
+    cost: source.cost,
     ...(source.scorecard ? { tensions: presentationTensions(source.scorecard) } : {}),
     cards: {
       currentCohort,

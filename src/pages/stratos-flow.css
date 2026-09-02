@@ -129,6 +129,47 @@
 }
 .sf-case:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--accent); }
 
+.sf-modes { display: flex; gap: 12px; }
+.sf-mode {
+  position: relative; cursor: pointer; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #59616e;
+  padding-bottom: 3px; border-bottom: 1.5px solid transparent;
+}
+.sf-mode.is-on { color: #e9eef4; border-bottom-color: var(--accent); }
+.sf-mode input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.sf-mode:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Cost axis. Tick labels replace the verdict bands in the same column. */
+.sf-bands--cost { position: relative; }
+.sf-ctick {
+  position: absolute; right: 0; transform: translateY(-50%);
+  font-size: 8.5px; font-weight: 600; letter-spacing: 0.06em; color: #59616e;
+  font-variant-numeric: tabular-nums;
+}
+.sf-committed {
+  stroke: var(--hindsight); stroke-width: 1.2; stroke-dasharray: 1 3; opacity: 0.85;
+}
+.sf-committed-stem { stroke: var(--hindsight); stroke-width: 1; opacity: 0.25; }
+/* A decision that published no figure still sits on the date axis. */
+.sf-silent { stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; stroke-dasharray: 2 4; }
+.sf-arc--cost { stroke-dasharray: 3 3; }
+
+.sf-cpt { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 2px; }
+.sf-cpt-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--screen-bg);
+}
+.sf-cpt--committed .sf-cpt-dot { background: var(--hindsight); }
+.sf-cpt--realized .sf-cpt-dot { background: var(--accent); }
+.sf-cpt--hindsight .sf-cpt-dot { background: var(--hindsight); opacity: 0.6; }
+.sf-cpt-val {
+  position: absolute; top: 11px; white-space: nowrap;
+  font-size: 8.5px; font-weight: 700; color: #e9eef4;
+  font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+}
+.sf-axis-year.is-silent { color: #3d434d; }
+.sf-legend--cost .sf-legend-label { white-space: normal; line-height: 1.35; }
+
 .sf-narrative { font-size: 16px; font-weight: 500; line-height: 1.26; letter-spacing: -0.02em; color: #e9eef4; }
 .sf-narrative b { color: var(--accent); font-weight: 600; }
 
