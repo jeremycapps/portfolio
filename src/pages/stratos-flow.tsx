@@ -87,10 +87,10 @@ function StatusBar() {
   );
 }
 
-function Phone({ children }: { children: ReactNode }) {
+function Phone({ children, hero = false }: { children: ReactNode; hero?: boolean }) {
   return (
-    <div className="sf-phone">
-      <div className="sf-screen">
+    <div className={`sf-phone${hero ? ' sf-phone--hero' : ''}`}>
+      <div className={`sf-screen${hero ? ' sf-screen--hero' : ''}`}>
         <StatusBar />
         <div className="sf-scr-body">
           {children}
@@ -279,6 +279,66 @@ const STAGES = [
   },
 ] as const;
 
+function TimelineScreen({
+  view,
+  onSelect,
+}: {
+  view: DecisionExperienceViewModel;
+  onSelect: (id: string) => void;
+}) {
+  const groups = timelineGroups(view);
+  const adverse = view.timeline.options.filter((option) => verdictFor(option.id) !== 'FOG').length;
+
+  return (
+    <>
+      <div className="sf-app-head">
+        <div className="sf-app-id"><span className="sf-avatar" /><span className="sf-app-name">StratOS</span></div>
+        <span className="sf-bell" aria-hidden="true">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="#9098A4" strokeWidth="1.4">
+            <path d="M4 7a4.5 4.5 0 0 1 9 0c0 4 1.5 5 1.5 5h-12S4 11 4 7Z" /><path d="M7 14.5a1.7 1.7 0 0 0 3 0" />
+          </svg>
+        </span>
+      </div>
+
+      <div className="sf-kicker">Decision library · {view.timeline.options.length} dated decisions</div>
+      <div className="sf-narrative">
+        {adverse === 0
+          ? <>Every decision so far reads <b>uncertain</b> rather than adverse.</>
+          : <>{adverse} of {view.timeline.options.length} decisions {adverse === 1 ? 'reads' : 'read'} <b>adverse</b> rather than merely uncertain.</>}
+      </div>
+
+      <div className="sf-tl" role="radiogroup" aria-label="Decision timeline">
+        {groups.map((group) => (
+          <div className="sf-tl-case" key={group.company}>
+            <div className="sf-tl-case-name">{group.company}</div>
+            <div className="sf-tl-run">
+              {group.options.map((option) => {
+                const selected = option.id === view.timeline.selectedId;
+                const verdict = verdictFor(option.id);
+                return (
+                  <label className={`sf-tl-stop${selected ? ' is-on' : ''}`} key={option.id}>
+                    <input
+                      type="radio"
+                      name="sf-decision"
+                      value={option.id}
+                      checked={selected}
+                      onChange={() => onSelect(option.id)}
+                    />
+                    <span className={`sf-tl-dot sf-tl-dot--${verdict.toLowerCase()}`} aria-hidden="true" />
+                    <span className="sf-tl-seq">{option.sequence}</span>
+                    <span className="sf-tl-date">{option.decisionDate}</span>
+                    <span className={`sf-tl-verdict sf-tl-verdict--${verdict.toLowerCase()}`}>{verdict}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 /** Each stop carries its own verdict, so the rail shows where the arc turns. */
 function verdictFor(id: string): DecisionExperienceViewModel['verdict'] {
   return createDecisionExperienceViewModel(id).verdict;
@@ -292,45 +352,27 @@ export default function StratosFlowPage() {
     <main className="app-shell sf-page">
       <SiteHeader current="stratos" />
       <div className="sf-wrap">
-        <div className="sf-eyebrow">StratOS · judgment flow</div>
-        <h1>Case hero <b>→</b> evidence drill <b>→</b> commit</h1>
-        <p className="sf-lede">
-          The three screens, driven by the real decision view model. Everything shown is read from
-          it or counted from it — where the data cannot supply what the design asks for, the screen
-          says so.
-        </p>
-
-        <div className="sf-timeline" role="radiogroup" aria-label="Decision timeline">
-          {timelineGroups(view).map((group) => (
-            <div className="sf-tl-group" key={group.company}>
-              <div className="sf-tl-case">{group.company}</div>
-              <div className="sf-tl-run">
-                {group.options.map((option) => {
-                  const selected = option.id === view.timeline.selectedId;
-                  const verdict = verdictFor(option.id);
-                  return (
-                    <label
-                      key={option.id}
-                      className={`sf-tl-stop${selected ? ' is-on' : ''}`}
-                      title={option.label}
-                    >
-                      <input
-                        type="radio"
-                        name="sf-decision"
-                        value={option.id}
-                        checked={selected}
-                        onChange={() => setDecisionId(option.id)}
-                      />
-                      <span className={`sf-tl-dot sf-tl-dot--${verdict.toLowerCase()}`} aria-hidden="true" />
-                      <span className="sf-tl-seq">{option.sequence}</span>
-                      <span className="sf-tl-date">{option.decisionDate}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+        <div className="sf-hero">
+          <div>
+            <div className="sf-eyebrow">StratOS · judgment flow</div>
+            <h1>The verdict <b>moves</b>. Watch where.</h1>
+            <p className="sf-lede">
+              A case is a run of dated decisions, not one judgment. The library opens on the arc —
+              pick a stop and the flow below re-resolves to it. Everything shown is read from the
+              real decision model or counted from it.
+            </p>
+          </div>
+          <div className="sf-hero-phone">
+            <Phone hero>
+              <TimelineScreen view={view} onSelect={setDecisionId} />
+            </Phone>
+          </div>
         </div>
+
+        <hr className="sf-rule" />
+
+        <div className="sf-sect-tag">01 — The flow</div>
+        <h2 className="sf-h2">Case hero → evidence drill → commit</h2>
 
         <p className="sf-sect-intro">
           <span className="sf-mono">
