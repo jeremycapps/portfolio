@@ -77,13 +77,16 @@ const TRACK_INSET_PCT = 5;
 const PCT_PER_MONTH = 4;
 
 /**
- * The library on a real time axis: every decision in date order, positioned by
- * when it happened rather than evenly spaced. The gaps carry information — the
- * 2013-to-2019 hole is a real thin patch in the library, and an evenly spaced
- * list would hide it.
+ * The case on two axes.
  *
- * Positions are nudged apart only where a cluster would overlap, so the axis
- * stays honest at the scale a phone screen can show.
+ * Horizontal is calendar date — the shared clock that release cadence and
+ * verification cadence both run on, so the gaps mean something: Target's
+ * decisions bunch up as the segment deteriorates. Elapsed-since-T0 would be the
+ * same shape re-based, and only earns its keep when overlaying several cases.
+ *
+ * Vertical is verdict severity, so the arc is a line rather than a caption. It
+ * only ever descends here because evidence only ever accumulates, but nothing
+ * forces that — a case that recovered would climb.
  */
 function timelineStops(view: DecisionExperienceViewModel) {
   const ordered = view.timeline.options
@@ -91,27 +94,22 @@ function timelineStops(view: DecisionExperienceViewModel) {
     .sort((a, b) => a.decisionDate.localeCompare(b.decisionDate));
   const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
   const first = time(ordered[0].decisionDate);
-  const MONTH_MS = 1000 * 60 * 60 * 24 * 30.44;
+  const span = time(ordered[ordered.length - 1].decisionDate) - first || 1;
 
   let previous = -Infinity;
-  const offsets = ordered.map((option) => {
-    const months = (time(option.decisionDate) - first) / MONTH_MS;
-    const nudged = Math.max(months * PCT_PER_MONTH, previous + MIN_GAP_PCT);
-    previous = nudged;
-    return nudged;
-  });
-
-  // A long arc can outgrow the track; rescale it rather than let stops fall off.
-  const usable = 100 - TRACK_INSET_PCT * 2;
-  const run = offsets[offsets.length - 1];
-  const scale = run > usable ? usable / run : 1;
-
   return ordered.map((option, index) => {
+    const exact = TRACK_INSET_PCT + ((time(option.decisionDate) - first) / span) * (100 - TRACK_INSET_PCT * 2);
+    const x = Math.max(exact, previous + MIN_GAP_PCT);
+    previous = x;
+    const band = bandFor(option.id);
     const year = option.decisionDate.slice(0, 4);
     return {
       option,
-      offset: TRACK_INSET_PCT + offsets[index] * scale,
-      // A year is labelled once, at its first stop.
+      band,
+      x,
+      // Bands run top-to-bottom worst-last, so severity reads as descent.
+      y: TRACK_INSET_PCT + (BANDS.indexOf(band) / (BANDS.length - 1)) * (100 - TRACK_INSET_PCT * 2),
+      // A year is labelled once, at its first decision.
       year: index === 0 || ordered[index - 1].decisionDate.slice(0, 4) !== year ? year : undefined,
     };
   });
@@ -341,6 +339,7 @@ function TimelineScreen({
   onSelect: (id: string) => void;
 }) {
   const stops = timelineStops(view);
+  const selectedStop = stops.find(({ option }) => option.id === view.timeline.selectedId);
   const adverse = stops.filter(({ option }) => verdictFor(option.id) !== 'FOG').length;
   const caseLabel = stops[0]?.option.companyName ?? TIMELINE_CASE;
 
@@ -362,40 +361,85 @@ function TimelineScreen({
           : <>{adverse} of {stops.length} decisions {adverse === 1 ? 'reads' : 'read'} <b>adverse</b> rather than merely uncertain.</>}
       </div>
 
-      <div className="sf-tl" role="radiogroup" aria-label="Decision timeline">
-        <span
-          className="sf-tl-spine"
-          aria-hidden="true"
-          style={{ top: `${stops[0]?.offset ?? 0}%`, bottom: `${100 - (stops[stops.length - 1]?.offset ?? 100)}%` }}
-        />
-        {stops.map(({ option, offset, year }) => {
-          const selected = option.id === view.timeline.selectedId;
-          const verdict = verdictFor(option.id);
-          return (
-            <label
-              className={`sf-tl-stop${selected ? ' is-on' : ''}`}
-              key={option.id}
-              style={{ top: `${offset}%` }}
-              title={`${option.companyName} · ${option.label}`}
-            >
-              <input
-                type="radio"
-                name="sf-decision"
-                value={option.id}
-                checked={selected}
-                onChange={() => onSelect(option.id)}
-              />
-              <span className="sf-tl-year">{year ?? ''}</span>
-              <span className={`sf-tl-dot sf-tl-dot--${verdict.toLowerCase()}`} aria-hidden="true" />
-              <span className="sf-tl-seq">{option.sequence}</span>
-              <span className="sf-tl-case">{option.label}</span>
-              <span className={`sf-tl-verdict sf-tl-verdict--${verdict.toLowerCase()}`}>{verdict}</span>
-            </label>
-          );
-        })}
+      <div className="sf-chart">
+        <div className="sf-bands" aria-hidden="true">
+          {BANDS.map((band) => <span key={band} className={`sf-band sf-band--${band.toLowerCase()}`}>{band}</span>)}
+        </div>
+
+        <div className="sf-plot" role="radiogroup" aria-label="Decision timeline">
+          <svg className="sf-plot-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {BANDS.map((band, index) => {
+              const y = TRACK_INSET_PCT + (index / (BANDS.length - 1)) * (100 - TRACK_INSET_PCT * 2);
+              return <line key={band} className="sf-gridline" x1="0" x2="100" y1={y} y2={y} />;
+            })}
+            <polyline
+              className="sf-arc"
+              points={stops.map(({ x, y }) => `${x},${y}`).join(' ')}
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+
+          {stops.map(({ option, band, x, y }) => {
+            const selected = option.id === view.timeline.selectedId;
+            return (
+              <label
+                className={`sf-pt${selected ? ' is-on' : ''}`}
+                key={option.id}
+                style={{ left: `${x}%`, top: `${y}%` }}
+                title={`${option.sequence} · ${option.decisionDate} · ${option.label}`}
+              >
+                <input
+                  type="radio"
+                  name="sf-decision"
+                  value={option.id}
+                  checked={selected}
+                  onChange={() => onSelect(option.id)}
+                />
+                <span className={`sf-pt-dot sf-pt-dot--${band.toLowerCase()}`} />
+                <span className="sf-pt-seq">{option.sequence}</span>
+              </label>
+            );
+          })}
+
+          {selectedStop && (
+            <span className="sf-tip" style={{ left: `${selectedStop.x}%`, top: `${selectedStop.y}%` }}>
+              {selectedStop.option.sequence} · {selectedStop.option.decisionDate}
+            </span>
+          )}
+        </div>
+
+        <div className="sf-axis" aria-hidden="true">
+          {stops.filter(({ year }) => year).map(({ year, x }) => (
+            <span key={year} className="sf-axis-year" style={{ left: `${x}%` }}>{year}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="sf-legend">
+        <span className="sf-legend-label">{selectedStop?.option.label}</span>
+        <span className={`sf-legend-verdict sf-legend-verdict--${(selectedStop?.band ?? 'fog').toLowerCase()}`}>
+          {selectedStop?.band}
+        </span>
       </div>
     </>
   );
+}
+
+/**
+ * Where a decision sits on the severity axis.
+ *
+ * The display vocabulary has three verdicts while the review has four outcomes,
+ * so a breached floor arrives as COLLISION. The cause recovers it: a value or
+ * risk floor is what the review calls FLOOR, and it belongs on its own band
+ * rather than flattened against a capacity collision.
+ */
+const BANDS = ['FIT', 'FOG', 'COLLISION', 'FLOOR'] as const;
+type Band = typeof BANDS[number];
+
+function bandFor(id: string): Band {
+  const { verdict, cause } = createDecisionExperienceViewModel(id);
+  if (cause.kind === 'value-floor' || cause.kind === 'risk-floor') return 'FLOOR';
+  return verdict as Band;
 }
 
 /** Each stop carries its own verdict, so the rail shows where the arc turns. */
