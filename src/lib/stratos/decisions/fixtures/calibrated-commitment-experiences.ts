@@ -88,7 +88,7 @@ function inputFromFact(
   factRef: string,
   id: string,
   label: string,
-  displayState: DecisionInput['displayState'] = 'OBSERVED',
+  materiality: DecisionInput['materiality'] = 'material',
 ): DecisionInput {
   const fact = requireFact(profile, factRef);
   const evidence = fact.evidence[0];
@@ -97,8 +97,10 @@ function inputFromFact(
   return {
     id,
     label,
-    displayState,
-    materiality: displayState === 'HINDSIGHT' ? 'context' : 'material',
+    // A reported fact is OBSERVED in itself. Whether it reads as HINDSIGHT here
+    // follows from its publication date against this decision's cutoff.
+    epistemicState: 'OBSERVED',
+    materiality,
     metric: fact.metric,
     factRef,
     evidence,
@@ -112,7 +114,7 @@ function inputFromFact(
 const fog = (id: string, label: string): DecisionInput => ({
   id,
   label,
-  displayState: 'FOG',
+  epistemicState: 'FOG',
   materiality: 'material',
   assumptionRefs: [],
 });
@@ -181,7 +183,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
       config.hindsightFactRef,
       'outcome-hindsight',
       'Later outcome evidence',
-      'HINDSIGHT',
+      'context',
     )],
   });
   resolveDecisionPoint(decisionPoint, config.profile);
