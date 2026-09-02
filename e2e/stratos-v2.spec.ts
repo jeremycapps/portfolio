@@ -2,6 +2,25 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 test.describe('StratOS decision library', () => {
+  test('renders the McDonald’s arc without inventing a zero-dollar cost line', async ({ page }) => {
+    await page.goto('/stratos-flow');
+
+    await page.getByRole('radio', { name: "McDonald's", exact: true }).check();
+
+    await expect(page.getByText('The commitment’s cost never became public while it was being decided.'))
+      .toBeVisible();
+
+    const timeline = page.getByRole('radiogroup', { name: 'Decision timeline' });
+    await expect(timeline.getByRole('radio')).toHaveCount(3);
+    await expect(timeline.getByText('no line', { exact: true })).toHaveCount(3);
+    await expect(timeline.locator('.sf-spend')).toHaveCount(0);
+
+    await timeline.getByRole('radio').last().check();
+    await expect(page.getByText(
+      "Get the restaurant-operations lead's read on order accuracy readiness before the next release.",
+    )).toBeVisible();
+  });
+
   test('switches between authored cutoff-safe packets with the native radio group', async ({ page }) => {
     await page.goto('/stratos-v2');
 

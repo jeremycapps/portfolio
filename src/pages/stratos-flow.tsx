@@ -167,6 +167,7 @@ function yearTicks(stops: readonly { option: { decisionDate: string } }[]) {
  */
 const SHORT_CASE_NAMES: Record<string, string> = {
   'Target Corporation': 'Target',
+  "McDonald's Corporation": "McDonald's",
   'U.S. Department of Veterans Affairs': 'VA',
   'The University of Texas MD Anderson Cancer Center': 'Watson',
 };
@@ -189,10 +190,15 @@ function shortCaseName(name: string): string {
  */
 function costScale(points: readonly CostSeriesPoint[]) {
   const totals = points.map(({ total }) => total);
-  const max = Math.max(...totals) * 1.12;
+  const observedMax = Math.max(0, ...totals);
+  // A case with no disclosed dollars has no money line. Keep the coordinate
+  // system finite for its dated decision markers without manufacturing a $0
+  // measurement or asking Math.log10(0) to produce chart ticks.
+  const max = observedMax === 0 ? 1 : observedMax * 1.12;
   return {
     y: (total: number) => (100 - TRACK_INSET_PCT) - (total / max) * (100 - TRACK_INSET_PCT * 2),
     ticks: (() => {
+      if (observedMax === 0) return [];
       // Three gridlines, on a round number that lands near the top of the data.
       const step = 10 ** Math.floor(Math.log10(max / 3));
       const rounded = Math.ceil(max / 3 / step) * step;
@@ -401,6 +407,7 @@ function SpendPlot({
   onSelect: (id: string) => void;
 }) {
   const scale = costScale(points);
+  const hasCostLine = stops.some(({ option }) => option.cost.length > 0);
   const at = (index: number) => ({ x: stops[index].x, y: scale.y(points[index].total) });
   // The goal line: an even burn from zero to what was committed, drawn dotted so
   // the solid actual line reads against it. Where actual sits above, the
@@ -442,7 +449,7 @@ function SpendPlot({
               vectorEffect="non-scaling-stroke"
             />
           )}
-          {points.map((point, index) => index === 0 ? null : (
+          {hasCostLine && points.map((point, index) => index === 0 ? null : (
             <line
               key={point.id}
               className="sf-spend"
@@ -466,9 +473,11 @@ function SpendPlot({
               className={`sf-cpt sf-cpt--${toneFor(stop)}${selected ? ' is-on' : ''}`}
               key={stop.option.id}
               style={{ left: `${stop.x}%`, top: `${scale.y(point.total)}%` }}
-              title={`${formatDecisionDate(stop.option.decisionDate)} · ${formatUsdMillions(point.total)}${
-                point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
-              }`}
+              title={hasCostLine
+                ? `${formatDecisionDate(stop.option.decisionDate)} · ${formatUsdMillions(point.total)}${
+                    point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
+                  }`
+                : `${formatDecisionDate(stop.option.decisionDate)} · no public cost figure`}
             >
               <input
                 type="radio"
@@ -478,7 +487,7 @@ function SpendPlot({
                 onChange={() => onSelect(stop.option.id)}
               />
               <span className={`sf-cpt-dot${point.implied ? ' is-implied' : ''}`} />
-              <span className="sf-cpt-val">{formatUsdMillions(point.total)}</span>
+              <span className="sf-cpt-val">{hasCostLine ? formatUsdMillions(point.total) : 'no line'}</span>
             </label>
           );
         })}
