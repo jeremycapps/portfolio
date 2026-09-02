@@ -401,6 +401,14 @@ function SpendPlot({
 }) {
   const scale = costScale(points);
   const at = (index: number) => ({ x: stops[index].x, y: scale.y(points[index].total) });
+  // The goal line: an even burn from zero to what was committed, drawn dotted so
+  // the solid actual line reads against it. Where actual sits above, the
+  // commitment is spending past what it set out to. Only drawn when a committed
+  // figure exists to anchor it.
+  const committed = points.map(({ figure }) => figure).find((f) => f?.kind === 'committed');
+  const goal = committed && stops.length > 1
+    ? { x1: stops[0].x, y1: scale.y(0), x2: stops[stops.length - 1].x, y2: scale.y(committed.usdMillions) }
+    : undefined;
 
   return (
     <div className="sf-chart">
@@ -420,6 +428,13 @@ function SpendPlot({
           {yearTicks(stops).map(({ year, x }) => (
             <line key={year} className="sf-yeargrid" x1={x} x2={x} y1="0" y2="100" />
           ))}
+          {goal && (
+            <line
+              className="sf-goal"
+              x1={goal.x1} y1={goal.y1} x2={goal.x2} y2={goal.y2}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
           {points.map((point, index) => index === 0 ? null : (
             <line
               key={point.id}
@@ -431,6 +446,11 @@ function SpendPlot({
           ))}
         </svg>
 
+        {goal && committed && (
+          <span className="sf-goal-tag" style={{ left: `${goal.x2}%`, top: `${goal.y2}%` }}>
+            goal · {formatUsdMillions(committed.usdMillions)}
+          </span>
+        )}
         {points.map((point, index) => {
           const stop = stops[index];
           const selected = stop.option.id === selectedId;
@@ -477,31 +497,17 @@ function SpendPlot({
  * different dot re-resolves the whole packet, so nothing here is written for
  * display.
  */
-function Recommendation({
-  view,
-  point,
-}: {
-  view: DecisionExperienceViewModel;
-  point?: CostSeriesPoint;
-}) {
+function Recommendation({ view }: { view: DecisionExperienceViewModel }) {
   const rec = decisionRecommendation(view);
   const adverse = rec.verb === 'HOLD' || rec.verb === 'EXIT' || rec.verb === 'TRIM';
 
-  // The glance version of the recommendation: the verdict in one line and the
-  // move underneath. Screen two expands the same call with its focus and legs.
+  // The glance card is the move and nothing else: the date and the running
+  // total are already on the chart, and the verdict's detail is one swipe away
+  // on the constraints screen.
   return (
     <div className={`sf-rec sf-rec--${adverse ? 'bad' : 'ok'}`}>
-      <div className="sf-rec-head">
-        <span className="sf-rec-seq">{formatDecisionDate(view.cutoff)}</span>
-        {point && (
-          <span className="sf-rec-spend">
-            {formatUsdMillions(point.total)} {point.implied ? 'implied' : 'recognised'}
-          </span>
-        )}
-      </div>
-      <p className="sf-rec-verdict">{rec.gap.charAt(0).toUpperCase()}{rec.gap.slice(1)}.</p>
-      <div className={`sf-move sf-move--glance sf-move--${adverse ? 'bad' : 'ok'}`}>
-        <span className="sf-move-tag">The move</span>
+      <div className="sf-move sf-move--glance">
+        <span className="sf-move-tag">At a glance</span>
         <p className="sf-move-text">{rec.move}</p>
       </div>
     </div>
@@ -585,7 +591,7 @@ function TimelineScreen({
 
       <SpendPlot stops={stops} points={points} selectedId={view.timeline.selectedId} onSelect={onSelect} />
 
-      <Recommendation view={view} point={points.find(({ id }) => id === view.timeline.selectedId)} />
+      <Recommendation view={view} />
 
       <div className="sf-legend sf-legend--cost">
         <span className="sf-legend-label">
