@@ -112,42 +112,44 @@
 .sf-narrative { font-size: 16px; font-weight: 500; line-height: 1.26; letter-spacing: -0.02em; color: #e9eef4; }
 .sf-narrative b { color: var(--accent); font-weight: 600; }
 
-.sf-tl {
-  flex: 1; display: flex; flex-direction: column; justify-content: space-between;
-  gap: 10px; overflow-y: auto; margin-right: -4px; padding-right: 4px;
-}
-.sf-tl-case-name {
-  font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: #6c7686; font-weight: 700; margin-bottom: 5px;
-}
-.sf-tl-run { display: flex; flex-direction: column; gap: 3px; position: relative; }
-/* the rail behind a multi-stop run */
-.sf-tl-run::before {
-  content: ''; position: absolute; left: 12px; top: 14px; bottom: 14px;
-  width: 1px; background: rgba(255, 255, 255, 0.1);
-}
+/* The axis. Stops are absolutely placed by date, so vertical distance is
+ * elapsed time and the spine runs unbroken through all of it. */
+.sf-tl { flex: 1; position: relative; margin: 4px 0 2px; min-height: 300px; }
+.sf-tl-spine { position: absolute; left: 46px; width: 1px; background: rgba(255, 255, 255, 0.16); }
 .sf-tl-stop {
-  position: relative; display: grid; grid-template-columns: 25px 26px 1fr auto;
-  align-items: center; gap: 7px; padding: 6px 9px 6px 0; border-radius: 11px;
+  position: absolute; left: 0; right: 0; transform: translateY(-50%);
+  display: grid; grid-template-columns: 38px 17px 22px 1fr auto;
+  align-items: center; gap: 6px; padding: 5px 8px 5px 0; border-radius: 10px;
   cursor: pointer; border: 1px solid transparent;
 }
 .sf-tl-stop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.sf-tl-stop:hover { background: rgba(255, 255, 255, 0.035); }
-.sf-tl-stop.is-on { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.09); }
+.sf-tl-stop:hover { background: rgba(255, 255, 255, 0.04); }
+.sf-tl-stop.is-on { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.1); }
 .sf-tl-stop input:focus-visible ~ .sf-tl-seq { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+.sf-tl-year {
+  font-size: 10px; font-weight: 700; color: #6c7686; text-align: right;
+  font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+}
+.sf-tl-stop.is-on .sf-tl-year { color: #9098a4; }
 .sf-tl-dot {
   width: 9px; height: 9px; border-radius: 50%; justify-self: center;
   box-shadow: 0 0 0 3px var(--screen-bg);
 }
 .sf-tl-dot--fog { background: #5e6875; }
-.sf-tl-dot--collision { background: var(--accent); box-shadow: 0 0 0 3px var(--screen-bg), 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent); }
+.sf-tl-dot--collision {
+  width: 11px; height: 11px; background: var(--accent);
+  box-shadow: 0 0 0 3px var(--screen-bg), 0 0 0 6px color-mix(in srgb, var(--accent) 24%, transparent);
+}
 .sf-tl-dot--fit { background: var(--observed); }
 .sf-tl-seq { font-size: 11.5px; font-weight: 700; color: #8b95a4; font-variant-numeric: tabular-nums; }
 .sf-tl-stop.is-on .sf-tl-seq { color: #e9eef4; }
-.sf-tl-date { font-size: 10px; color: #6c7686; font-variant-numeric: tabular-nums; }
-.sf-tl-stop.is-on .sf-tl-date { color: #9098a4; }
+.sf-tl-case {
+  font-size: 10px; color: #6c7686; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sf-tl-stop.is-on .sf-tl-case { color: #9098a4; }
 .sf-tl-verdict { font-size: 7.5px; font-weight: 700; letter-spacing: 0.07em; }
-.sf-tl-verdict--fog { color: #5e6875; }
+.sf-tl-verdict--fog { color: #4f5866; }
 .sf-tl-verdict--collision { color: var(--accent); }
 .sf-tl-verdict--fit { color: var(--observed); }
 
