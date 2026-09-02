@@ -49,6 +49,20 @@ function shortMetric(input: { metric?: { value: number; unit: string } | { low: 
   return 'value' in metric ? compact(metric.value) : `${compact(metric.low)}–${compact(metric.high)}`;
 }
 
+/** Decisions grouped by case, each case in date order, so a case's arc reads as one run. */
+function timelineGroups(view: DecisionExperienceViewModel) {
+  const groups: { company: string; options: typeof view.timeline.options[number][] }[] = [];
+  for (const option of view.timeline.options) {
+    const last = groups[groups.length - 1];
+    if (last && last.company === option.companyName) last.options.push(option);
+    else groups.push({ company: option.companyName, options: [option] });
+  }
+  return groups.map((group) => ({
+    ...group,
+    options: [...group.options].sort((a, b) => a.decisionDate.localeCompare(b.decisionDate)),
+  }));
+}
+
 /** The timeline's own label for this decision — the short form of the headline. */
 function shortLabel(view: DecisionExperienceViewModel): string {
   const option = view.timeline.options.find(({ id }) => id === view.timeline.selectedId);
@@ -148,7 +162,7 @@ function CaseScreen({ view }: { view: DecisionExperienceViewModel }) {
       <div className="sf-split">
         {view.recommendations.map((recommendation, index) => (
           <div key={recommendation.plane} className={index === 0 ? 'sf-split-a' : 'sf-split-b'}>
-            {recommendation.operation}{index === 1 ? ' ›' : ''}
+            {recommendation.displayLabel}{index === 1 ? ' ›' : ''}
           </div>
         ))}
       </div>
@@ -217,12 +231,12 @@ function CommitScreen({ view }: { view: DecisionExperienceViewModel }) {
   return (
     <>
       <div className="sf-kicker">Your judgment · {view.sequence}</div>
-      <div className="sf-scr-title">{commitment.operation} — {commitment.object}</div>
+      <div className="sf-scr-title">{commitment.displayLabel} — {commitment.object}</div>
       <p className="sf-scr-note">{commitment.authorizationReason}</p>
 
       <div className="sf-push" />
       <div className="sf-slip">
-        <div className="sf-slip-row"><span>Operation</span><b>{commitment.operation}</b></div>
+        <div className="sf-slip-row"><span>Operation</span><b>{commitment.displayLabel}</b></div>
         <div className="sf-slip-row"><span>Exposure staked</span><b>{shortMetric(view.primaryExposure.actualIntent)}</b></div>
         <div className="sf-slip-row"><span>Evidence basis</span><b>{basis}</b></div>
         <div className="sf-slip-row">
@@ -265,6 +279,11 @@ const STAGES = [
   },
 ] as const;
 
+/** Each stop carries its own verdict, so the rail shows where the arc turns. */
+function verdictFor(id: string): DecisionExperienceViewModel['verdict'] {
+  return createDecisionExperienceViewModel(id).verdict;
+}
+
 export default function StratosFlowPage() {
   const [decisionId, setDecisionId] = useState<string>();
   const view = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
@@ -281,16 +300,37 @@ export default function StratosFlowPage() {
           says so.
         </p>
 
-        <label className="sf-picker">
-          <span>Decision</span>
-          <select value={view.timeline.selectedId} onChange={(event) => setDecisionId(event.target.value)}>
-            {view.timeline.options.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.sequence} · {option.companyName} · {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="sf-timeline" role="radiogroup" aria-label="Decision timeline">
+          {timelineGroups(view).map((group) => (
+            <div className="sf-tl-group" key={group.company}>
+              <div className="sf-tl-case">{group.company}</div>
+              <div className="sf-tl-run">
+                {group.options.map((option) => {
+                  const selected = option.id === view.timeline.selectedId;
+                  const verdict = verdictFor(option.id);
+                  return (
+                    <label
+                      key={option.id}
+                      className={`sf-tl-stop${selected ? ' is-on' : ''}`}
+                      title={option.label}
+                    >
+                      <input
+                        type="radio"
+                        name="sf-decision"
+                        value={option.id}
+                        checked={selected}
+                        onChange={() => setDecisionId(option.id)}
+                      />
+                      <span className={`sf-tl-dot sf-tl-dot--${verdict.toLowerCase()}`} aria-hidden="true" />
+                      <span className="sf-tl-seq">{option.sequence}</span>
+                      <span className="sf-tl-date">{option.decisionDate}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
 
         <p className="sf-sect-intro">
           <span className="sf-mono">
