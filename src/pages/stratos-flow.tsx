@@ -253,65 +253,73 @@ const LEG_TAG: Record<PresentationLeg['status'], string> = {
  * what clears. A reader glancing at this wants the bad news at the top.
  */
 /**
- * The recommendation, expanded.
+ * Screen two — the constraints review, the "why" behind the move.
  *
- * Three plain-language parts: the verdict as a situated sentence (spend set
- * against what it has and hasn't bought), the focus (where the uncertainty
- * concentrates — the one place to look), and the move (whose read closes it).
- * The leg list is demoted to supporting detail underneath, the way a bet slip
- * carries the pick above and the legs below.
- *
- * `spendLabel` is the only thing passed in, because the running total lives on
- * the chart; everything else is read from the decision.
+ * No recommendation, no date, no verb: those live on screen one now. This screen
+ * exists to be swiped into and explains the call by showing each constraint the
+ * commitment has to clear. A row carries its own signal — a bar that is already
+ * over, within, or has no line to draw, and the overage as a figure — so the
+ * status word is redundant and gone. Tap a row for the reasoning and the
+ * evidence behind it.
  */
-function SlipScreen({ view, spendLabel }: { view: DecisionExperienceViewModel; spendLabel?: string }) {
-  const rec = useMemo(() => decisionRecommendation(view), [view]);
+function ConstraintsScreen({ view, onBack }: { view: DecisionExperienceViewModel; spendLabel?: string; onBack?: () => void }) {
+  const [openId, setOpenId] = useState<string>();
   const legs = useMemo(() => {
     const rank: Record<PresentationLeg['status'], number> = { fail: 0, 'no-line': 1, pass: 2 };
     return [...view.legs].sort((a, b) => rank[a.status] - rank[b.status]);
   }, [view]);
-  const adverse = rec.verb === 'HOLD' || rec.verb === 'EXIT' || rec.verb === 'TRIM';
 
   return (
     <>
-      <div className="sf-rec-top">
-        <span className="sf-kicker">Recommendation · {formatDecisionDate(view.cutoff)}</span>
-        <span className={`sf-verb sf-verb--${adverse ? 'bad' : 'ok'}`}>{rec.verb}</span>
+      <div className="sf-con-top">
+        <button className="sf-back" type="button" onClick={onBack}>
+          <span aria-hidden="true">‹</span> Back
+        </button>
+        <span className="sf-con-title">Constraints</span>
       </div>
 
-      {/* The verdict: money set against what it bought. Two clauses, one line. */}
-      <p className="sf-verdict">
-        {spendLabel && <b>{spendLabel}</b>}
-        {spendLabel ? ' — ' : ''}<span className="sf-verdict-gap">{rec.gap}</span>.
-      </p>
-
-      {rec.focus && (
-        <div className={`sf-focus sf-focus--${adverse ? 'bad' : 'ok'}`}>
-          <div className="sf-focus-tag">Where the uncertainty is</div>
-          <div className="sf-focus-name">{rec.focus.label}</div>
-          <p className="sf-focus-detail">{rec.focus.detail}</p>
-        </div>
-      )}
-
-      <div className="sf-move">
-        <span className="sf-move-tag">The move</span>
-        <p className="sf-move-text">{rec.move}</p>
-      </div>
-
-      <div className="sf-push" />
-      <div className="sf-legs">
-        {legs.map((leg) => (
-          <div className={`sf-leg sf-leg--${leg.status}`} key={`${leg.kind}-${leg.id}`} title={leg.detail}>
-            <span className="sf-leg-name">{leg.label}</span>
-            <span className="sf-leg-tag">{LEG_TAG[leg.status]}</span>
-          </div>
-        ))}
+      <div className="sf-cons">
+        {legs.map((leg) => {
+          const key = `${leg.kind}-${leg.id}`;
+          const open = openId === key;
+          return (
+            <div className={`sf-con sf-con--${leg.bar.state}${open ? ' is-open' : ''}`} key={key}>
+              <button
+                className="sf-con-head"
+                type="button"
+                aria-expanded={open}
+                onClick={() => setOpenId(open ? undefined : key)}
+              >
+                <span className="sf-con-name">{leg.label}</span>
+                <span className={`sf-con-bar sf-con-bar--${leg.bar.state}`}>
+                  <span style={{ width: `${Math.max(leg.bar.fill, leg.bar.state === 'none' ? 0 : 0.08) * 100}%` }} />
+                </span>
+                <span className="sf-con-fig">{leg.figure ?? (leg.bar.state === 'none' ? 'no line' : leg.bar.state === 'over' ? 'over' : 'clears')}</span>
+              </button>
+              {open && (
+                <div className="sf-con-body">
+                  <p className="sf-con-detail">{leg.detail}</p>
+                  {leg.evidence.length > 0 && (
+                    <div className="sf-con-ev">
+                      <span className="sf-con-ev-tag">Evidence</span>
+                      {leg.evidence.map((source) => (
+                        <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="sf-con-ev-link">
+                          {source.title} ↗
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </>
   );
 }
 
-function CommitScreen({ view }: { view: DecisionExperienceViewModel; spendLabel?: string }) {
+function CommitScreen({ view }: { view: DecisionExperienceViewModel; spendLabel?: string; onBack?: () => void }) {
   const basis = useMemo(() => {
     const counts = new Map<EvidenceDisplayState, number>();
     for (const input of view.inspectionInputs) {
@@ -346,12 +354,12 @@ function CommitScreen({ view }: { view: DecisionExperienceViewModel; spendLabel?
 const STAGES = [
   {
     num: 'i',
-    name: 'The recommendation',
-    sub: 'Where the money went, where the uncertainty is, and whose read closes it. The verdict is a sentence, not a category.',
-    gesture: 'scroll',
-    icon: '↕',
-    note: 'Tap a point on the chart above; this resolves to that date.',
-    Screen: SlipScreen,
+    name: 'Why — the constraints',
+    sub: 'The move on screen one, explained. Every constraint the commitment has to clear, each carrying its own overage. Tap a row for the reasoning and the evidence.',
+    gesture: 'swipe',
+    icon: '⇄',
+    note: 'Swiped into from the chart. Tap a row to expand it.',
+    Screen: ConstraintsScreen,
   },
   {
     num: 'ii',
@@ -374,8 +382,10 @@ type Stop = ReturnType<typeof timelineStops>[number];
  * glance without a legend. Green where the model would have let the commitment
  * continue, red where it would not.
  */
-function toneFor(stop: Stop): 'ok' | 'bad' {
-  return stop.band === 'COLLISION' || stop.band === 'FLOOR' ? 'bad' : 'ok';
+function toneFor(stop: Stop): 'ok' | 'bad' | 'uncertain' {
+  if (stop.band === 'COLLISION' || stop.band === 'FLOOR') return 'bad';
+  if (stop.band === 'FOG') return 'uncertain';
+  return 'ok';
 }
 
 function SpendPlot({
@@ -490,9 +500,9 @@ function Recommendation({
         )}
       </div>
       <p className="sf-rec-verdict">{rec.gap.charAt(0).toUpperCase()}{rec.gap.slice(1)}.</p>
-      <div className="sf-rec-move">
-        <span className={`sf-verb sf-verb--${adverse ? 'bad' : 'ok'}`}>{rec.verb}</span>
-        <span className="sf-rec-move-text">{rec.move}</span>
+      <div className={`sf-move sf-move--glance sf-move--${adverse ? 'bad' : 'ok'}`}>
+        <span className="sf-move-tag">The move</span>
+        <p className="sf-move-text">{rec.move}</p>
       </div>
     </div>
   );
@@ -636,6 +646,12 @@ export default function StratosFlowPage() {
     return `${formatUsdMillions(point.total)} ${point.implied ? 'implied' : 'recognised'}`;
   }, [view, caseName]);
 
+  // The constraints screen's back control returns attention to the chart, which
+  // is where the recommendation and the selection live.
+  const scrollToHero = () => {
+    document.querySelector('.sf-hero-phone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   // Switching case moves the selection with it. Leaving it behind would leave
   // the chart with no selected stop while the flow below still resolved to a
   // decision the chart no longer shows.
@@ -691,7 +707,7 @@ export default function StratosFlowPage() {
                 <span className="sf-stage-name">{name}</span>
               </div>
               <div className="sf-stage-sub">{sub}</div>
-              <Phone><Screen view={view} spendLabel={spendLabel} /></Phone>
+              <Phone><Screen view={view} spendLabel={spendLabel} onBack={scrollToHero} /></Phone>
               <span className={`sf-gbadge sf-g-${gesture}`}>
                 <span className="sf-gicon" aria-hidden="true">{icon}</span>
                 {gesture[0].toUpperCase() + gesture.slice(1)}
