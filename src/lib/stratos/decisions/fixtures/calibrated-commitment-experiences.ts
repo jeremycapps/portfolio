@@ -16,6 +16,8 @@ import {
 } from '../../scoring/commitment-scorecards';
 import type { CommitmentReviewInput } from '../../scoring/rubric';
 import type { CaseScorecard } from '../../scoring/scorecard';
+import { TARGET_CANADA_2014_WARNING_REVIEW_INPUT } from '../../scoring/target-canada-2014-review';
+import { TARGET_CANADA_2015_EXIT_REVIEW_INPUT } from '../../scoring/target-canada-2015-review';
 import { VA_EHR_2020_REVIEW_INPUT } from '../../scoring/va-ehr-2020-review';
 import { VA_EHR_2023_REVIEW_INPUT } from '../../scoring/va-ehr-2023-review';
 import {
@@ -74,7 +76,11 @@ interface ExperienceConfig {
   readonly irreversibility: 'medium' | 'high';
   readonly unknowns: readonly string[];
   readonly secondaryExposureLabels: readonly [string, string, string, string, string];
-  readonly hindsightFactRef: string;
+  /**
+   * Omitted when nothing in the case is published after this decision — a real
+   * property of the last decision in a closed case, not a gap to fill.
+   */
+  readonly hindsightFactRef?: string;
 }
 
 export interface AuthoredDecisionExperience {
@@ -192,13 +198,9 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
     },
     materialUnknowns,
     assumptions: ASSUMPTIONS,
-    hindsight: [inputFromFact(
-      config.profile,
-      config.hindsightFactRef,
-      'outcome-hindsight',
-      'Later outcome evidence',
-      'context',
-    )],
+    hindsight: config.hindsightFactRef
+      ? [inputFromFact(config.profile, config.hindsightFactRef, 'outcome-hindsight', 'Later outcome evidence', 'context')]
+      : [],
   });
   resolveDecisionPoint(decisionPoint, config.profile);
 
@@ -408,6 +410,57 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     unknowns: ['Demand-linked release gates', 'Battery and critical-role capacity', 'Plant ramp and quality thresholds', 'Capital loss tolerance'],
     secondaryExposureLabels: ['Supplier and battery-contract exposure', 'Manufacturing and platform capital exposure', 'Battery and vehicle inventory exposure', 'Engineering, software, and skilled-trades capacity', 'Investment and Model e loss exposure'],
     hindsightFactRef: 'run-rate-retimed-2023',
+  }),
+  buildExperience({
+    profile: TARGET_CANADA,
+    commitmentReview: TARGET_CANADA_2014_WARNING_REVIEW_INPUT,
+    snapshotId: 'warning-2014-02-26',
+    sequence: 'T3',
+    id: 'target-canada-t3-2014-02-26',
+    decisionDate: '2014-02-26',
+    reassessmentDate: '2014-08-20',
+    actor: 'Target management and board responsible for continuing the Canadian commitment',
+    current: { factRef: 'canada-sales-2013', label: 'Canadian segment operating at $1.3B annual sales' },
+    requested: { factRef: 'canada-ebit-2013', label: 'Absorb another operating year at the fiscal-2013 loss rate' },
+    cadence: { factRef: 'canada-q4-margin-2013', label: 'Clear excess inventory at a 4.4% fourth-quarter margin' },
+    requestedScale: 'another full operating year of the Canadian segment',
+    timelineLabel: 'First full-year operating evidence',
+    headline: 'A full year of economics against the operating floor',
+    irreversibility: 'high',
+    unknowns: ['Mature-store economics', 'Recovery investment authorization', 'Critical-role and training capacity', 'Board loss tolerance'],
+    secondaryExposureLabels: [
+      'Remaining lease obligations across the footprint',
+      'Capital already sunk in stores and distribution',
+      'Excess inventory still being cleared',
+      'Workforce carried against unrecovered economics',
+      'Cash consumed by continued operating losses',
+    ],
+    hindsightFactRef: 'stores-at-exit',
+  }),
+  buildExperience({
+    profile: TARGET_CANADA,
+    commitmentReview: TARGET_CANADA_2015_EXIT_REVIEW_INPUT,
+    snapshotId: 'outcome-2015-02-25',
+    sequence: 'T4',
+    id: 'target-canada-t4-2015-02-25',
+    decisionDate: '2015-02-25',
+    reassessmentDate: '2015-08-19',
+    actor: 'Target board responsible for discontinuing the Canadian commitment',
+    current: { factRef: 'stores-at-exit', label: '133 Canadian stores operating at the exit decision' },
+    requested: { factRef: 'board-approved-exit', label: 'Discontinue Canadian operations' },
+    cadence: { factRef: 'employees-at-exit', label: 'Wind down a 17,600-person workforce' },
+    requestedScale: 'discontinuation of the whole Canadian segment',
+    timelineLabel: 'Exit and loss recognition',
+    headline: 'The commitment leaves its own value floor',
+    irreversibility: 'high',
+    unknowns: ['Recoverable value of the disposed assets', 'Redeployment of released capacity', 'Supplier and landlord settlement terms', 'Reputational carry into the home market'],
+    secondaryExposureLabels: [
+      'Lease obligations settled on exit',
+      'Impaired store and distribution capital',
+      'Inventory liquidated in wind-down',
+      'Workforce released with the commitment',
+      'Cash cost of the exit charge',
+    ],
   }),
   buildExperience({
     profile: VA_EHR_MODERNIZATION,

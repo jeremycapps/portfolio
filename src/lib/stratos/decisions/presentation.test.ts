@@ -47,25 +47,35 @@ describe('decision experience presentation adapter', () => {
   it('offers authored Target, Adobe, Domino’s, Ford, and VA packets', () => {
     const view = createDecisionExperienceViewModel();
 
-    expect(view.timeline.options).toHaveLength(7);
+    expect(view.timeline.options).toHaveLength(9);
     expect(view.timeline.options.map(({ id }) => id)).toEqual([
       'target-canada-t0-2012-07-12',
       'target-canada-t2-2013-08-21',
       'adobe-creative-cloud-t0-2013-01-22',
       'dominos-growth-t0-2019-02-21',
       'ford-model-e-t0-2022-07-21',
+      'target-canada-t3-2014-02-26',
+      'target-canada-t4-2015-02-25',
       'va-ehr-t1-2020-10-24',
       'va-ehr-t3-2023-04-21',
     ]);
     expect(new Set(view.timeline.options.map(({ companyName }) => companyName)).size).toBe(5);
   });
 
-  it('carries two dated decisions for the one case that has them', () => {
-    const va = createDecisionExperienceViewModel().timeline.options
-      .filter(({ companyName }) => companyName.includes('Veterans Affairs'));
+  it('carries a full arc for the anchor case', () => {
+    const target = createDecisionExperienceViewModel().timeline.options
+      .filter(({ companyName }) => companyName === 'Target Corporation')
+      .sort((a, b) => a.decisionDate.localeCompare(b.decisionDate));
 
-    expect(va.map(({ sequence }) => sequence)).toEqual(['T1', 'T3']);
-    expect(va.map(({ knowledgeCutoff }) => knowledgeCutoff)).toEqual(['2020-10-24', '2023-04-21']);
+    expect(target.map(({ sequence }) => sequence)).toEqual(['T0', 'T2', 'T3', 'T4']);
+    expect(target.map(({ knowledgeCutoff }) => knowledgeCutoff))
+      .toEqual(['2012-07-12', '2013-08-21', '2014-02-26', '2015-02-25']);
+  });
+
+  it('leaves the last decision of a closed case without a hindsight layer', () => {
+    // Nothing in the Target packet is published after 2015-02-25, so an empty
+    // outcome layer is the honest reading rather than a missing one.
+    expect(createDecisionExperienceViewModel('target-canada-t4-2015-02-25').hindsight).toHaveLength(0);
   });
 
   it('keeps every authored selection cutoff-safe and hindsight structurally separate', () => {
@@ -76,7 +86,9 @@ describe('decision experience presentation adapter', () => {
       expect(view.timeline.selectedId).toBe(view.id);
       expect(view.evidence.every(({ publishedAt }) => publishedAt <= view.cutoff)).toBe(true);
       expect(view.evidence.every(({ displayState }) => displayState !== 'HINDSIGHT')).toBe(true);
-      expect(view.hindsight).not.toHaveLength(0);
+      // Hindsight may legitimately be empty: nothing in a closed case is
+      // published after its last decision. What it may never contain is
+      // something admissible at the cutoff.
       expect(view.hindsight.every(({ displayState }) => displayState === 'HINDSIGHT')).toBe(true);
       expect(view.hindsight.every(({ publishedAt }) => publishedAt! > view.cutoff)).toBe(true);
       expect(['FIT', 'FOG', 'COLLISION']).toContain(view.verdict);
@@ -94,6 +106,9 @@ describe('decision experience presentation adapter', () => {
 
     expect(Object.fromEntries(verdicts)).toMatchObject({
       'target-canada-t0-2012-07-12': 'FOG',
+      'target-canada-t2-2013-08-21': 'FOG',
+      'target-canada-t3-2014-02-26': 'COLLISION',
+      'target-canada-t4-2015-02-25': 'COLLISION',
       'va-ehr-t1-2020-10-24': 'COLLISION',
       'va-ehr-t3-2023-04-21': 'FOG',
     });

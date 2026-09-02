@@ -41,10 +41,14 @@ const EVIDENCE_ROWS = 5;
 function shortMetric(input: { metric?: { value: number; unit: string } | { low: number; high: number; unit: string } }): string {
   const { metric } = input;
   if (!metric) return '—';
+  // Compact notation only where the digits would not fit; rounding 17,600 to
+  // "18K" loses precision the source actually reports.
   const compact = (value: number) => (
-    Math.abs(value) >= 1000
+    Math.abs(value) >= 1_000_000
       ? value.toLocaleString(undefined, { notation: 'compact' })
-      : String(Math.round(value * 10) / 10)
+      : Math.abs(value) >= 1000
+        ? Math.round(value).toLocaleString()
+        : String(Math.round(value * 10) / 10)
   );
   return 'value' in metric ? compact(metric.value) : `${compact(metric.low)}–${compact(metric.high)}`;
 }
