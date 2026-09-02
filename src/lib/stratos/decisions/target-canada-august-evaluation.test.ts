@@ -46,14 +46,14 @@ describe('Target Canada bounded August judgment', () => {
       expect(['OBSERVED', 'ESTIMATED', 'FOG']).toContain(comparison.actualIntent.status);
       expect(['OBSERVED', 'ESTIMATED', 'FOG']).toContain(comparison.stratosScenario.status);
     }
-    expect(TARGET_CANADA_AUGUST_2013_EXPOSURE_COMPARISON.storeActivation.stratosScenario)
+    expect(TARGET_CANADA_AUGUST_2013_EXPOSURE_COMPARISON.scopeActivation.stratosScenario)
       .toMatchObject({
         status: 'ESTIMATED',
         metric: { low: 0, high: 56, unit: 'store activations not released before reassessment' },
         calculation: expect.stringContaining('maximum scenario bound of 56'),
         assumption: expect.stringContaining('not a documented Target action'),
       });
-    for (const category of EXPOSURE_CATEGORIES.filter((item) => item !== 'storeActivation')) {
+    for (const category of EXPOSURE_CATEGORIES.filter((item) => item !== 'scopeActivation')) {
       expect(TARGET_CANADA_AUGUST_2013_EXPOSURE_COMPARISON[category].stratosScenario.status).toBe('FOG');
     }
   });

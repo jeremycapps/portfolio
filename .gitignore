@@ -9,4 +9,6 @@ eval/reports/
 worktrees/
 .context-index/
 .vercel/
+playwright-report/
+test-results/
 .env.local

@@ -11,9 +11,9 @@
     "gen:blog": "node scripts/gen-blog.mjs",
     "gen:stratos": "node --import tsx scripts/gen-stratos-recipes.ts",
     "build:facia": "npm run build --workspace packages/facia-core",
-    "predev": "npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos",
+    "predev": "npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos && npm run gen:case-sources",
     "dev": "vite",
-    "prebuild": "npm run context:reindex-if-requested && npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos",
+    "prebuild": "npm run context:reindex-if-requested && npm run gen:profile && npm run gen:blog && npm run build:facia && npm run gen:stratos && npm run gen:case-sources",
     "build": "vite build",
     "preview": "vite preview",
     "pretypecheck": "npm run build:facia",
@@ -22,6 +22,7 @@
     "typecheck": "npm run typecheck:app && npm run typecheck:facia",
     "test:app": "vitest run",
     "test:facia": "npm run test --workspace packages/facia-core",
+    "test:e2e": "playwright test",
     "pretest": "npm run build:facia",
     "test": "npm run test:app && npm run test:facia",
     "preeval": "npm run gen:profile",
@@ -31,10 +32,13 @@
     "context:search-build": "node scripts/context-build-search-db.mjs",
     "context:reindex-if-requested": "node scripts/context-reindex-r2.mjs",
     "context:upload": "node scripts/context-upload.mjs",
-    "verify:chat-context-prod": "node scripts/verify-chat-context-prod.mjs"
+    "verify:chat-context-prod": "node scripts/verify-chat-context-prod.mjs",
+    "gen:case-sources": "node --import tsx scripts/gen-case-sources.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@hookform/resolvers": "^3.10.0",
+    "@playwright/test": "^1.62.1",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-alert-dialog": "^1.1.7",
     "@radix-ui/react-aspect-ratio": "^1.1.3",
@@ -105,6 +109,7 @@
     "@facia/core": "0.1.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",
+    "@vercel/analytics": "^2.0.1",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1"
   }

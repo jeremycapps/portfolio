@@ -23,9 +23,11 @@ describe('StratOS commitment-date scorecards', () => {
       expect(scorecard.evidencePacket.profileId).toBeTruthy();
     }
     for (const profile of STRATOS_CASE_PROFILES) {
-      expect(profile.scoring.status).toBe('scored');
-      if (profile.scoring.status === 'scored') {
-        expect(STRATOS_CASE_SCORECARDS.some((scorecard) => scorecard.id === profile.scoring.scorecardId)).toBe(true);
+      // Unscored profiles are under construction; a scored one must resolve to a
+      // scorecard that actually exists.
+      const scoring = profile.scoring;
+      if (scoring.status === 'scored') {
+        expect(STRATOS_CASE_SCORECARDS.some((scorecard) => scorecard.id === scoring.scorecardId), profile.id).toBe(true);
       }
     }
   });
