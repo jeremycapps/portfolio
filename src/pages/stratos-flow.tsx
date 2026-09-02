@@ -3,8 +3,8 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { SiteHeader } from '@/components/site-header';
 import {
   createDecisionExperienceViewModel,
+  decisionRecommendation,
   type DecisionExperienceViewModel,
-  type PresentationTension,
   type PresentationLeg,
 } from '@/lib/stratos/decisions/presentation';
 import type { EvidenceDisplayState } from '@/lib/stratos/decisions/decision-point';
@@ -167,7 +167,9 @@ function yearTicks(stops: readonly { option: { decisionDate: string } }[]) {
  */
 const SHORT_CASE_NAMES: Record<string, string> = {
   'Target Corporation': 'Target',
+  "McDonald's Corporation": "McDonald's",
   'U.S. Department of Veterans Affairs': 'VA',
+  'The University of Texas MD Anderson Cancer Center': 'Watson',
 };
 
 function shortCaseName(name: string): string {
@@ -188,10 +190,15 @@ function shortCaseName(name: string): string {
  */
 function costScale(points: readonly CostSeriesPoint[]) {
   const totals = points.map(({ total }) => total);
-  const max = Math.max(...totals) * 1.12;
+  const observedMax = Math.max(0, ...totals);
+  // A case with no disclosed dollars has no money line. Keep the coordinate
+  // system finite for its dated decision markers without manufacturing a $0
+  // measurement or asking Math.log10(0) to produce chart ticks.
+  const max = observedMax === 0 ? 1 : observedMax * 1.12;
   return {
     y: (total: number) => (100 - TRACK_INSET_PCT) - (total / max) * (100 - TRACK_INSET_PCT * 2),
     ticks: (() => {
+      if (observedMax === 0) return [];
       // Three gridlines, on a round number that lands near the top of the data.
       const step = 10 ** Math.floor(Math.log10(max / 3));
       const rounded = Math.ceil(max / 3 / step) * step;
@@ -199,12 +206,6 @@ function costScale(points: readonly CostSeriesPoint[]) {
     })(),
     max,
   };
-}
-
-/** The timeline's own label for this decision — the short form of the headline. */
-function shortLabel(view: DecisionExperienceViewModel): string {
-  const option = view.timeline.options.find(({ id }) => id === view.timeline.selectedId);
-  return option?.label ?? view.headline;
 }
 
 function StatusBar() {
@@ -239,75 +240,6 @@ function Phone({ children, hero = false }: { children: ReactNode; hero?: boolean
   );
 }
 
-/** The placement on its real track. Replaces the reference sparkline, which
- *  would need a series the model does not have. */
-function PoleCard({ tension, tone }: { tension: PresentationTension; tone: 'cool' | 'warm' }) {
-  const offset = ((tension.position + 1) / 2) * 100;
-  return (
-    <div className={`sf-scard sf-scard--${tone}`}>
-      <div className="sf-scard-top">
-        <div>
-          {/* The tension's own name is internal vocabulary. What a reader can
-              act on is the pole it leans to and what would prove it. */}
-          <div className="sf-scard-name">{tension.poleLabel ?? 'Unresolved'}</div>
-          <div className="sf-scard-status">{tension.proof ?? 'No pole placed at this date'}</div>
-        </div>
-        <span className="sf-scard-chev" aria-hidden="true">›</span>
-      </div>
-      <div
-        className="sf-track"
-        role="img"
-        aria-label={`Placed at ${tension.position} between ${tension.leftLabel} and ${tension.rightLabel}`}
-      >
-        <span className="sf-track-line" />
-        <span className="sf-track-mid" />
-        <span className={`sf-track-dot sf-track-dot--${tone}`} style={{ left: `${offset}%` }} />
-      </div>
-      <div className="sf-scard-poles">
-        <span className={tension.side === 'l' ? 'is-on' : undefined}>{tension.leftLabel}</span>
-        <span className={tension.side === 'r' ? 'is-on' : undefined}>{tension.rightLabel}</span>
-      </div>
-    </div>
-  );
-}
-
-function CaseScreen({ view }: { view: DecisionExperienceViewModel }) {
-  const placed = (view.tensions ?? []).filter((tension) => tension.side !== 'neutral').slice(0, 2);
-  return (
-    <>
-      <div className="sf-kicker">Case · {view.caseName}</div>
-      <div className="sf-scr-title sf-scr-title--big">{view.companyName}</div>
-      <div className="sf-kicker sf-kicker--accent">{formatDecisionDate(view.cutoff)} · {shortLabel(view)}</div>
-
-      <div className="sf-verdict-line">
-        <strong className={`sf-v sf-v--${view.verdict.toLowerCase()}`}>{view.verdict}</strong>
-        <span className="sf-cause">{view.cause.displayLabel}</span>
-      </div>
-
-      {placed.length > 0 ? (
-        placed.map((tension, index) => (
-          <PoleCard key={tension.id} tension={tension} tone={index === 0 ? 'cool' : 'warm'} />
-        ))
-      ) : (
-        <div className="sf-scard sf-scard--empty">
-          <div className="sf-scard-name">No dated placement</div>
-          <p>Placements are dated. This decision has no scorecard of its own, so it shows no poles rather than borrowing another date&rsquo;s.</p>
-        </div>
-      )}
-
-      <div className="sf-push" />
-      <div className="sf-kicker">Pending judgment</div>
-      <div className="sf-split">
-        {view.recommendations.map((recommendation, index) => (
-          <div key={recommendation.plane} className={index === 0 ? 'sf-split-a' : 'sf-split-b'}>
-            {recommendation.displayLabel}{index === 1 ? ' ›' : ''}
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
 const LEG_TAG: Record<PresentationLeg['status'], string> = {
   pass: 'CLEARS',
   fail: 'BREAKS',
@@ -327,60 +259,74 @@ const LEG_TAG: Record<PresentationLeg['status'], string> = {
  * The order is deliberate: what breaks first, then what cannot be priced, then
  * what clears. A reader glancing at this wants the bad news at the top.
  */
-function SlipScreen({ view }: { view: DecisionExperienceViewModel }) {
+/**
+ * Screen two — the constraints review, the "why" behind the move.
+ *
+ * No recommendation, no date, no verb: those live on screen one now. This screen
+ * exists to be swiped into and explains the call by showing each constraint the
+ * commitment has to clear. A row carries its own signal — a bar that is already
+ * over, within, or has no line to draw, and the overage as a figure — so the
+ * status word is redundant and gone. Tap a row for the reasoning and the
+ * evidence behind it.
+ */
+function ConstraintsScreen({ view, onBack }: { view: DecisionExperienceViewModel; spendLabel?: string; onBack?: () => void }) {
+  const [openId, setOpenId] = useState<string>();
   const legs = useMemo(() => {
     const rank: Record<PresentationLeg['status'], number> = { fail: 0, 'no-line': 1, pass: 2 };
-    return [...view.legs].sort((a, b) => rank[a.status] - rank[b.status]).slice(0, EVIDENCE_ROWS);
+    return [...view.legs].sort((a, b) => rank[a.status] - rank[b.status]);
   }, [view]);
-
-  // Confidence is the share of the material evidence that was actually
-  // observed rather than estimated or absent. It is counted, not assigned.
-  const observed = view.inspectionInputs.filter(({ displayState }) => displayState === 'OBSERVED').length;
-  const confidence = view.inspectionInputs.length > 0
-    ? Math.round((observed / view.inspectionInputs.length) * 100)
-    : 0;
-
-  const [, change] = view.recommendations;
-  const broken = view.legs.filter(({ status }) => status === 'fail').length;
 
   return (
     <>
-      <div className="sf-kicker">The call · {formatDecisionDate(view.cutoff)}</div>
-      <div className="sf-pick">
-        <span className={`sf-pick-op sf-pick-op--${broken > 0 ? 'bad' : 'ok'}`}>{change.displayLabel}</span>
-        <span className="sf-pick-obj">{change.object}</span>
+      <div className="sf-con-top">
+        <button className="sf-back" type="button" onClick={onBack}>
+          <span aria-hidden="true">‹</span> Back
+        </button>
+        <span className="sf-con-title">Constraints</span>
       </div>
 
-      <div className="sf-odds">
-        <div className="sf-odds-row">
-          <span>Evidence observed</span>
-          <b>{confidence}%</b>
-        </div>
-        <div className="sf-odds-bar" role="img" aria-label={`${confidence} percent of material evidence observed`}>
-          <span style={{ width: `${confidence}%` }} />
-        </div>
-      </div>
-
-      <div className="sf-legs">
-        {legs.map((leg) => (
-          <div className={`sf-leg sf-leg--${leg.status}`} key={`${leg.kind}-${leg.id}`} title={leg.detail}>
-            <span className="sf-leg-name">{leg.label}</span>
-            <span className="sf-leg-tag">{LEG_TAG[leg.status]}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="sf-push" />
-      <div className="sf-kicker sf-kicker--centre">
-        {broken > 0
-          ? `${broken} leg${broken === 1 ? ' breaks' : 's break'} — the call cannot come in`
-          : 'Nothing breaks; what is unpriced is what to buy next'}
+      <div className="sf-cons">
+        {legs.map((leg) => {
+          const key = `${leg.kind}-${leg.id}`;
+          const open = openId === key;
+          return (
+            <div className={`sf-con sf-con--${leg.bar.state}${open ? ' is-open' : ''}`} key={key}>
+              <button
+                className="sf-con-head"
+                type="button"
+                aria-expanded={open}
+                onClick={() => setOpenId(open ? undefined : key)}
+              >
+                <span className="sf-con-name">{leg.label}</span>
+                <span className={`sf-con-bar sf-con-bar--${leg.bar.state}`}>
+                  <span style={{ width: `${Math.max(leg.bar.fill, leg.bar.state === 'none' ? 0 : 0.08) * 100}%` }} />
+                </span>
+                <span className="sf-con-fig">{leg.figure ?? (leg.bar.state === 'none' ? 'no line' : leg.bar.state === 'over' ? 'over' : 'clears')}</span>
+              </button>
+              {open && (
+                <div className="sf-con-body">
+                  <p className="sf-con-detail">{leg.detail}</p>
+                  {leg.evidence.length > 0 && (
+                    <div className="sf-con-ev">
+                      <span className="sf-con-ev-tag">Evidence</span>
+                      {leg.evidence.map((source) => (
+                        <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="sf-con-ev-link">
+                          {source.title} ↗
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </>
   );
 }
 
-function CommitScreen({ view }: { view: DecisionExperienceViewModel }) {
+function CommitScreen({ view }: { view: DecisionExperienceViewModel; spendLabel?: string; onBack?: () => void }) {
   const basis = useMemo(() => {
     const counts = new Map<EvidenceDisplayState, number>();
     for (const input of view.inspectionInputs) {
@@ -415,26 +361,17 @@ function CommitScreen({ view }: { view: DecisionExperienceViewModel }) {
 const STAGES = [
   {
     num: 'i',
-    name: 'Case hero',
-    sub: 'A self-contained verdict card. Glanceable thesis, current pole placement, the pending question.',
+    name: 'Why — the constraints',
+    sub: 'The move on screen one, explained. Every constraint the commitment has to clear, each carrying its own overage. Tap a row for the reasoning and the evidence.',
     gesture: 'swipe',
     icon: '⇄',
-    note: 'Between cases & tensions. Fully reversible — swipe back costs nothing.',
-    Screen: CaseScreen,
+    note: 'Swiped into from the chart. Tap a row to expand it.',
+    Screen: ConstraintsScreen,
   },
   {
     num: 'ii',
-    name: 'The slip',
-    sub: 'The call, and every leg that has to come in for it to hold. What cannot be priced says so.',
-    gesture: 'scroll',
-    icon: '↕',
-    note: 'Depth within one call. Pure browsing — no commitment implied.',
-    Screen: SlipScreen,
-  },
-  {
-    num: 'iii',
     name: 'Commit',
-    sub: 'The bet slip. The one weighty act — a deliberate tap that locks your call and your exposure.',
+    sub: 'The one weighty act — a deliberate tap that locks your call and your exposure.',
     gesture: 'tap',
     icon: '◉',
     note: 'Reserved for commitment. It should feel like it cost something.',
@@ -452,8 +389,10 @@ type Stop = ReturnType<typeof timelineStops>[number];
  * glance without a legend. Green where the model would have let the commitment
  * continue, red where it would not.
  */
-function toneFor(stop: Stop): 'ok' | 'bad' {
-  return stop.band === 'COLLISION' || stop.band === 'FLOOR' ? 'bad' : 'ok';
+function toneFor(stop: Stop): 'ok' | 'bad' | 'uncertain' {
+  if (stop.band === 'COLLISION' || stop.band === 'FLOOR') return 'bad';
+  if (stop.band === 'FOG') return 'uncertain';
+  return 'ok';
 }
 
 function SpendPlot({
@@ -468,7 +407,22 @@ function SpendPlot({
   onSelect: (id: string) => void;
 }) {
   const scale = costScale(points);
+  const hasCostLine = stops.some(({ option }) => option.cost.length > 0);
   const at = (index: number) => ({ x: stops[index].x, y: scale.y(points[index].total) });
+  // The goal line: an even burn from zero to what was committed, drawn dotted so
+  // the solid actual line reads against it. Where actual sits above, the
+  // commitment is spending past what it set out to. Only drawn when a committed
+  // figure exists to anchor it.
+  // A later audit can place the complete contracted commitment alongside the
+  // realized figure used for the solid spend line. Read every figure attached
+  // to the case and keep the strongest committed anchor for the goal line.
+  const committed = stops
+    .flatMap(({ option }) => option.cost)
+    .filter((figure) => figure.kind === 'committed')
+    .sort((a, b) => b.usdMillions - a.usdMillions)[0];
+  const goal = committed && stops.length > 1
+    ? { x1: stops[0].x, y1: scale.y(0), x2: stops[stops.length - 1].x, y2: scale.y(committed.usdMillions) }
+    : undefined;
 
   return (
     <div className="sf-chart">
@@ -488,7 +442,14 @@ function SpendPlot({
           {yearTicks(stops).map(({ year, x }) => (
             <line key={year} className="sf-yeargrid" x1={x} x2={x} y1="0" y2="100" />
           ))}
-          {points.map((point, index) => index === 0 ? null : (
+          {goal && (
+            <line
+              className="sf-goal"
+              x1={goal.x1} y1={goal.y1} x2={goal.x2} y2={goal.y2}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
+          {hasCostLine && points.map((point, index) => index === 0 ? null : (
             <line
               key={point.id}
               className="sf-spend"
@@ -499,6 +460,11 @@ function SpendPlot({
           ))}
         </svg>
 
+        {goal && committed && (
+          <span className="sf-goal-tag" style={{ left: `${goal.x2}%`, top: `${goal.y2}%` }}>
+            goal · {formatUsdMillions(committed.usdMillions)}
+          </span>
+        )}
         {points.map((point, index) => {
           const stop = stops[index];
           const selected = stop.option.id === selectedId;
@@ -507,9 +473,11 @@ function SpendPlot({
               className={`sf-cpt sf-cpt--${toneFor(stop)}${selected ? ' is-on' : ''}`}
               key={stop.option.id}
               style={{ left: `${stop.x}%`, top: `${scale.y(point.total)}%` }}
-              title={`${formatDecisionDate(stop.option.decisionDate)} · ${formatUsdMillions(point.total)}${
-                point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
-              }`}
+              title={hasCostLine
+                ? `${formatDecisionDate(stop.option.decisionDate)} · ${formatUsdMillions(point.total)}${
+                    point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
+                  }`
+                : `${formatDecisionDate(stop.option.decisionDate)} · no public cost figure`}
             >
               <input
                 type="radio"
@@ -519,7 +487,7 @@ function SpendPlot({
                 onChange={() => onSelect(stop.option.id)}
               />
               <span className={`sf-cpt-dot${point.implied ? ' is-implied' : ''}`} />
-              <span className="sf-cpt-val">{formatUsdMillions(point.total)}</span>
+              <span className="sf-cpt-val">{hasCostLine ? formatUsdMillions(point.total) : 'no line'}</span>
             </label>
           );
         })}
@@ -545,35 +513,18 @@ function SpendPlot({
  * different dot re-resolves the whole packet, so nothing here is written for
  * display.
  */
-function Recommendation({
-  view,
-  point,
-}: {
-  view: DecisionExperienceViewModel;
-  point?: CostSeriesPoint;
-}) {
-  const [hold, change] = view.recommendations;
-  const adverse = view.cause.kind === 'value-floor' || view.cause.kind === 'risk-floor'
-    || view.verdict === 'COLLISION';
+function Recommendation({ view }: { view: DecisionExperienceViewModel }) {
+  const rec = decisionRecommendation(view);
+  const adverse = rec.verb === 'HOLD' || rec.verb === 'EXIT' || rec.verb === 'TRIM';
 
+  // The glance card is the move and nothing else: the date and the running
+  // total are already on the chart, and the verdict's detail is one swipe away
+  // on the constraints screen.
   return (
     <div className={`sf-rec sf-rec--${adverse ? 'bad' : 'ok'}`}>
-      <div className="sf-rec-head">
-        <span className="sf-rec-seq">{formatDecisionDate(view.cutoff)}</span>
-        {point && (
-          <span className="sf-rec-spend">
-            {formatUsdMillions(point.total)} {point.implied ? 'implied' : 'recognised'}
-          </span>
-        )}
-      </div>
-      <div className="sf-rec-call">{hold.displayLabel} · {change.displayLabel}</div>
-      <p className="sf-rec-why">{view.cause.displayLabel}</p>
-      {/* `validatedScale` reads not-determined at every decision in the library,
-          so it would be the same dead row on every tap. What binds actually
-          moves — people at the VA release, people and finance at Target's exit. */}
-      <div className="sf-rec-scale">
-        <span>What binds</span>
-        <b>{view.bindingDimensions.length > 0 ? view.bindingDimensions.join(' · ') : 'nothing placed'}</b>
+      <div className="sf-move sf-move--glance">
+        <span className="sf-move-tag">At a glance</span>
+        <p className="sf-move-text">{rec.move}</p>
       </div>
     </div>
   );
@@ -656,7 +607,7 @@ function TimelineScreen({
 
       <SpendPlot stops={stops} points={points} selectedId={view.timeline.selectedId} onSelect={onSelect} />
 
-      <Recommendation view={view} point={points.find(({ id }) => id === view.timeline.selectedId)} />
+      <Recommendation view={view} />
 
       <div className="sf-legend sf-legend--cost">
         <span className="sf-legend-label">
@@ -699,6 +650,29 @@ export default function StratosFlowPage() {
   const [caseName, setCaseName] = useState(cases[0]);
   const [decisionId, setDecisionId] = useState<string>();
   const view = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
+
+  // The selected decision's cumulative spend, composed once here and handed to
+  // the recommendation screens — the running total is a property of the case,
+  // not of the decision, so it cannot come from the view model alone.
+  const spendLabel = useMemo(() => {
+    const stops = timelineStops(view, caseName);
+    const points = costSeries(stops.map(({ option, band }) => ({
+      id: option.id,
+      sequence: option.sequence,
+      decisionDate: option.decisionDate,
+      cost: option.cost,
+      adverse: band === 'COLLISION' || band === 'FLOOR',
+    })));
+    const point = points.find(({ id }) => id === view.timeline.selectedId);
+    if (!point) return undefined;
+    return `${formatUsdMillions(point.total)} ${point.implied ? 'implied' : 'recognised'}`;
+  }, [view, caseName]);
+
+  // The constraints screen's back control returns attention to the chart, which
+  // is where the recommendation and the selection live.
+  const scrollToHero = () => {
+    document.querySelector('.sf-hero-phone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
   // Switching case moves the selection with it. Leaving it behind would leave
   // the chart with no selected stop while the flow below still resolved to a
@@ -755,7 +729,7 @@ export default function StratosFlowPage() {
                 <span className="sf-stage-name">{name}</span>
               </div>
               <div className="sf-stage-sub">{sub}</div>
-              <Phone><Screen view={view} /></Phone>
+              <Phone><Screen view={view} spendLabel={spendLabel} onBack={scrollToHero} /></Phone>
               <span className={`sf-gbadge sf-g-${gesture}`}>
                 <span className="sf-gicon" aria-hidden="true">{icon}</span>
                 {gesture[0].toUpperCase() + gesture.slice(1)}

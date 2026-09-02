@@ -11,7 +11,7 @@ decision is allowed to see.
 `Reported` facts reproduce a figure the document states. `Derived` facts are
 computed from reported ones and carry their calculation in the profile.
 
-**5 cases · 28 sources · 103 facts**
+**7 cases · 37 sources · 136 facts**
 
 | Case | Sources | Facts | Evidence spans |
 | --- | ---: | ---: | --- |
@@ -19,7 +19,9 @@ computed from reported ones and carry their calculation in the profile.
 | [Adobe Systems Incorporated](#adobe-creative-cloud-2012-2016) | 3 | 17 | 2013-01-22 → 2017-01-20 |
 | [Domino's Pizza, Inc.](#dominos-growth-2018-2025) | 3 | 16 | 2019-02-21 → 2026-02-23 |
 | [Ford Motor Company](#ford-model-e-2022-2026) | 4 | 15 | 2022-07-21 → 2025-02-06 |
+| [McDonald's Corporation](#mcdonalds-ibm-aot-2021-2024) | 5 | 17 | 2021-06-03 → 2024-06-17 |
 | [U.S. Department of Veterans Affairs](#va-ehr-modernization-2018-2025) | 10 | 21 | 2018-05-17 → 2023-05-18 |
+| [The University of Texas MD Anderson Cancer Center](#watson-md-anderson-2013-2017) | 4 | 16 | 2013-10-18 → 2017-02-19 |
 
 ---
 
@@ -323,6 +325,79 @@ No fact currently cites this source.
 
 ---
 
+## McDonald's Corporation (NYSE: MCD)
+
+`mcdonalds-ibm-aot-2021-2024`
+
+### 2021-06-03 · McDonald's pilots automated drive-thru ordering in Chicago
+
+- **Publisher** — Restaurant Dive
+- **Kind** — News report
+- **Reference** — `restaurant-dive-aot-pilot-2021`
+- **URL** — <https://www.restaurantdive.com/news/mcdonalds-pilots-automated-drive-thru-ordering-in-chicago/601210/>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-pre-transfer-pilot` — Before the IBM transfer, McDonald's was testing automated voice ordering at ten Chicago drive-thrus. | 2021-06-03 | Reported | 10 restaurants in field test |
+| `mcd-aot-pre-transfer-accuracy` — McDonald's CEO reported roughly 85% order accuracy in the ten-restaurant pre-transfer pilot. | 2021-06-03 | Reported | 85 percent order accuracy, approximate |
+| `mcd-aot-pre-transfer-intervention` — McDonald's CEO said employees still had to record about 20% of orders in the ten-restaurant pilot. | 2021-06-03 | Reported | 20 percent of orders requiring employee intervention, approximate |
+
+### 2021-10-27 · Joint Statement from McDonald’s and IBM
+
+- **Publisher** — IBM Newsroom
+- **Kind** — Company release
+- **Reference** — `ibm-mcdonalds-aot-2021`
+- **URL** — <https://newsroom.ibm.com/Joint-Statement-from-McDonalds-and-IBM>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-apprente-origin` — McDonald's created McD Tech Labs after acquiring voice-AI company Apprente in 2019. | 2019 | Reported | — |
+| `mcd-tech-labs-transfer` — IBM agreed to acquire McD Tech Labs and take its team into the IBM Cloud and Cognitive Software division to accelerate AOT development and deployment. | 2021-10-27 | Reported | — |
+| `mcd-aot-benefit-claim` — McDonald's and IBM said restaurant testing had shown substantial customer and crew-experience benefits. | 2021-10-27 | Reported | — |
+| `mcd-aot-scale-work` — IBM was expected to help scale AOT across markets and address additional languages, dialects, and menu variations. | 2021-10-27 | Reported | — |
+
+### 2022-06-23 · McDonald's AI voice ordering tests underperforming on accuracy, survey says
+
+- **Publisher** — Restaurant Dive
+- **Kind** — News report
+- **Reference** — `restaurant-dive-aot-accuracy-2022`
+- **URL** — <https://www.restaurantdive.com/news/mcdonalds-ai-drive-thru-voice-ordering-accuracy/625923/>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-test-24-restaurants` — McDonald's had expanded its voice-ordering test to 24 Illinois restaurants. | 2022-06-23 | Reported | 24 restaurants in field test |
+| `mcd-aot-low-80s-accuracy` — A BTIG franchisee survey reported AOT order accuracy in the low-80% range at the 24 Illinois test restaurants. | 2022-06-23 | Reported | — |
+| `mcd-aot-95-percent-gate` — The same report placed McDonald's desired order-accuracy threshold for broader adoption at 95% or higher. | 2022-06-23 | Reported | 95 percent order accuracy minimum |
+| `mcd-aot-improvement-path-2022` — BTIG said the technology was evolving rapidly and could become ready for wider adoption later in 2022, but did not place an evidenced improvement cycle. | 2022-06-23 | Reported | — |
+
+### 2024-06-17 · McDonald’s ends IBM drive-thru voice order test
+
+- **Publisher** — Restaurant Dive
+- **Kind** — News report
+- **Reference** — `restaurant-dive-aot-halt-2024`
+- **URL** — <https://www.restaurantdive.com/news/mcdonalds-ibm-drive-thru-automation-voice-ordering-ai/719085/>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-operational-test-purpose` — McDonald’s said the AOT tests were intended to determine operational savings and speed-of-service improvements. | 2024-06-17 | Reported | — |
+| `mcd-voice-ordering-still-valued` — McDonald's said the IBM work gave it confidence that a voice-ordering solution would be part of the future drive-thru experience. | 2024-06-17 | Reported | — |
+
+### 2024-06-17 · McDonald's Drops IBM's AI Order Tech, Seeks New Drive-Thru Tech
+
+- **Publisher** — AI Business
+- **Kind** — News report
+- **Reference** — `ai-business-aot-halt-2024`
+- **URL** — <https://aibusiness.com/nlp/mcdonald-s-drops-ibm-s-ai-order-tech-seeks-new-drive-thru-tech>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-over-100-restaurants` — The AOT system had been deployed at more than 100 restaurant locations. | 2024-06-17 | Reported | 100 restaurants, lower bound |
+| `mcd-aot-partnership-ended` — McDonald's decided not to renew the IBM AOT partnership and to explore other voice-ordering solutions. | 2024-06-17 | Reported | — |
+| `mcd-aot-shutoff-by-july` — McDonald’s told franchisees the IBM AOT systems would be shut off in all test restaurants no later than July 26, 2024. | 2024-06-17 | Reported | — |
+| `mcd-aot-operations-owner` — McDonald's chief restaurant officer said the company saw an opportunity to explore voice-ordering solutions more broadly despite successes in the IBM test. | 2024-06-17 | Reported | — |
+
+---
+
 ## U.S. Department of Veterans Affairs
 
 `va-ehr-modernization-2018-2025`
@@ -447,3 +522,65 @@ No fact currently cites this source.
 | Fact | Observed | Origin | Metric |
 | --- | --- | --- | --- |
 | `va-lifecycle-estimate-2022` — An independent September 2022 estimate placed electronic health record modernization lifecycle cost at $49.8 billion, comprising $32.7 billion of implementation and $17.1 billion of sustainment. | 2022-09-01 | Reported | 49.8 USD billions lifecycle cost |
+
+---
+
+## The University of Texas MD Anderson Cancer Center
+
+`watson-md-anderson-2013-2017`
+
+### 2013-10-18 · MD Anderson Taps IBM Watson to Power “Moon Shots” Mission Aimed at Ending Cancer, Starting with Leukemia
+
+- **Publisher** — The University of Texas MD Anderson Cancer Center and IBM
+- **Kind** — Company release
+- **Reference** — `mda-ibm-announce-2013`
+- **URL** — <https://www.mdanderson.org/newsroom/md-anderson--ibm-watson-work-together-to-fight-cancer.h00-158833590.html>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `oea-prototype-after-year` — MD Anderson and IBM presented an Oncology Expert Advisor prototype after a year-long collaboration. | 2013-10-18 | Reported | — |
+| `oea-routine-care-goal` — The Oncology Expert Advisor was intended to combine patient and research data with clinical expertise to support safe, evidence-based treatment decisions in routine oncology care. | 2013-10-18 | Reported | — |
+| `oea-leukemia-first` — The announced deployment path started with leukemia before extending the advisor to other cancers and care settings. | 2013-10-18 | Reported | — |
+
+### 2014-02-06 · Meeting No. 1,116 of the Board of Regents of The University of Texas System
+
+- **Publisher** — The University of Texas System Board of Regents
+- **Kind** — Agency release
+- **Reference** — `ut-regents-oea-2014`
+- **URL** — <https://www.utsystem.edu/sites/default/files/offices/board-of-regents/board-meetings/board-minutes/02-2014meeting1116.pdf>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `oea-live-testing-2013` — MD Anderson and IBM launched the leukemia advisor for live-system testing and clinical evaluation on October 1, 2013, and reported initial results as positive. | 2013-10-01 | Reported | — |
+| `oea-phase-1a-authorization` — The Regents authorized up to $15 million from restricted gift funds for an external transformation team for OEA Phase 1A. | 2014-02-06 | Reported | 15 USD millions authorized |
+| `oea-community-adoption-unproven` — At the Phase 1A authorization, MD Anderson said willingness of physicians outside a specialty cancer center to use the tool in everyday practice still needed to be established. | 2014-02-06 | Reported | — |
+| `oea-community-integration-next` — The authorized transformation phase was intended to integrate and test OEA in MD Anderson network delivery systems and establish whether the application could scale broadly. | 2014-02-06 | Reported | — |
+
+### 2017-02-19 · Special Review of Procurement Procedures Related to the M.D. Anderson Cancer Center Oncology Expert Advisor Project
+
+- **Publisher** — The University of Texas System Audit Office
+- **Kind** — Audit report
+- **Reference** — `ut-audit-oea-2017`
+- **URL** — <https://web.archive.org/web/20171022000000/https://www.utsystem.edu/sites/default/files/documents/UT/System/Administration/Special/Review/of/Procurement/Procedures/Related/to/utmdacc-oncology-expert-advis.pdf>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `oea-total-spend` — MD Anderson recorded $62,113,459.55 of Oncology Expert Advisor project spending through the audit period. | 2016-11-11 | Reported | 62.1135 USD millions total spend |
+| `oea-noncompetitive-awards` — The audit reviewed six noncompetitive procurements to IBM and PwC with a total value of approximately $51.4 million. | 2016-11-11 | Reported | 51.4 USD millions noncompetitively awarded |
+| `oea-spend-overshoot` — Reported total spend exceeded the audited value of the six noncompetitive awards by approximately $10.7 million. | 2016-11-11 | Derived | 10.7135 USD millions above reviewed awards |
+| `oea-contract-extensions` — The IBM agreement was extended twelve times while the project remained under development. | 2016-11-11 | Reported | 12 contract extensions |
+| `oea-gift-fund-deficit` — The audit identified approximately $11.6 million of deficits across gift-funded project accounts after spending preceded receipt of the related gifts. | 2016-11-11 | Reported | 11.6 USD millions gift-fund deficit |
+| `oea-incomplete-work-paid` — The audit identified vendor payments for work that was not completed. | 2016-11-11 | Reported | — |
+| `oea-no-epic-integration` — OEA had not been updated to integrate with MD Anderson’s current Epic electronic health record. | 2016-11-11 | Reported | — |
+
+### 2017-02-19 · MD Anderson Benches IBM Watson In Setback For Artificial Intelligence In Medicine
+
+- **Publisher** — Forbes
+- **Kind** — News report
+- **Reference** — `forbes-oea-halt-2017`
+- **URL** — <https://www.forbes.com/sites/matthewherper/2017/02/19/md-anderson-benches-ibm-watson-in-setback-for-artificial-intelligence-in-medicine/>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `oea-never-used-on-patients` — The Oncology Expert Advisor had not been used to direct care for an actual patient before the IBM contract expired. | 2017-02-19 | Reported | — |
+| `oea-benched-2017` — MD Anderson benched the Oncology Expert Advisor after the IBM contract expired and said it would seek bids from other contractors before further development. | 2017-02-19 | Reported | — |

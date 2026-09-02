@@ -15,6 +15,7 @@ const KIND_LABEL: Record<CaseSource['kind'], string> = {
   'company-release': 'Company release',
   'audit-report': 'Audit report',
   'agency-release': 'Agency release',
+  news: 'News report',
 };
 
 /** Facts resting on a source, in the order the profile declares them. */

@@ -100,12 +100,26 @@ export interface PresentationTension {
  * indeterminate placement: the evidence does not support pricing it either way,
  * which is a third answer rather than a soft pass.
  */
+export interface EvidenceLink {
+  readonly title: string;
+  readonly url: string;
+}
+
 export interface PresentationLeg {
   readonly id: string;
   readonly label: string;
   readonly kind: 'floor' | 'capacity';
   readonly status: 'pass' | 'fail' | 'no-line';
   readonly detail: string;
+  /**
+   * The overage as a figure, where one is placeable — "50% short", "$941M
+   * over". Capacity legs carry it; floors are qualitative and do not.
+   */
+  readonly figure?: string;
+  /** The bar signal: over capacity, within it, or no line to draw. */
+  readonly bar: { readonly state: 'over' | 'within' | 'none'; readonly fill: number };
+  /** The sources behind this leg, resolved to title and URL. */
+  readonly evidence: readonly EvidenceLink[];
 }
 
 /**
@@ -270,36 +284,233 @@ function presentationCause(cause: JudgmentCause, profile: CaseProfile): Presenta
   };
 }
 
+export type RecommendationVerb = 'PROCEED' | 'TRIM' | 'HOLD' | 'EXIT' | 'WAIT';
+
+export interface DecisionRecommendation {
+  /**
+   * The engine's call, kept as a quiet tag rather than the headline. The
+   * headline is the situated verdict the page composes; the verb is machinery.
+   */
+  readonly verb: RecommendationVerb;
+  /**
+   * The second half of the verdict sentence — what the spend has and hasn't
+   * bought. Paired in the page with the spend figure it is set against.
+   */
+  readonly gap: string;
+  readonly breaking: readonly string[];
+  readonly open: readonly string[];
+  /** Where the uncertainty concentrates — the one place to point attention. */
+  readonly focus?: { readonly label: string; readonly detail: string };
+  /** Who owns that focus, translated from the leg to a natural role. */
+  readonly owner?: string;
+  /** The concrete next step, usually social: get the owner's read before X. */
+  readonly move: string;
+}
+
+/**
+ * The role that owns a leg, in the words an operator would use.
+ *
+ * Derived rather than authored, so it survives the case data being rewritten.
+ * Capacity legs map by model; floor legs by the concept in their label. Kept
+ * central here rather than on the review inputs for the same reason — the whole
+ * point of screen two is that it reads from whatever cases exist.
+ */
+function ownerFor(leg: PresentationLeg): string {
+  if (leg.kind === 'capacity') {
+    return leg.id === 'finance' ? 'the CFO' : leg.id === 'people' ? 'the staffing lead' : 'the delivery lead';
+  }
+  const key = `${leg.id} ${leg.label}`.toLowerCase();
+  const rules: readonly [RegExp, string][] = [
+    [/liquid|econom|budget|financ|capital/, 'the CFO'],
+    [/staff|people|workforce|hiring/, 'the staffing lead'],
+    [/accuracy|order|service|restaurant|crew|operations/, 'the restaurant-operations lead'],
+    [/safety|exposure|risk|toler/, 'the risk owner'],
+    [/authority|legitimacy|governance|sponsor/, 'the sponsor'],
+    [/infrastruc|readiness|conversion|remediat|release|capabil|operab|deploy/, 'the delivery lead'],
+  ];
+  return rules.find(([re]) => re.test(key))?.[1] ?? 'the owner';
+}
+
+const MOVE_TEMPLATE: Record<RecommendationVerb, (owner: string, focus: string) => string> = {
+  PROCEED: () => 'Clear to proceed at the placed scale.',
+  TRIM: (owner, focus) => `Get ${owner}'s read on ${focus} before the next increment.`,
+  HOLD: (owner, focus) => `Get ${owner}'s read on ${focus} before the next release.`,
+  WAIT: (owner, focus) => `Get ${owner}'s read on ${focus} before committing further.`,
+  EXIT: () => 'No read left to get — this is the wind-down call.',
+};
+
+function verbFor(view: DecisionExperienceViewModel): RecommendationVerb {
+  if (view.cause.kind === 'value-floor') return 'EXIT';
+  if (view.cause.kind === 'risk-floor') return 'HOLD';
+  if (view.verdict === 'COLLISION') return 'TRIM';
+  if (view.verdict === 'FIT') return 'PROCEED';
+  return 'WAIT';
+}
+
+/**
+ * The recommendation as three plain-language parts: where the money went, where
+ * the uncertainty is, and whose read closes it.
+ *
+ * Pure over the view model, so a browser never runs it and a test can. The
+ * spend half of the verdict is composed in the page, where the running total
+ * lives; everything that comes from the decision itself is here.
+ */
+export function decisionRecommendation(view: DecisionExperienceViewModel): DecisionRecommendation {
+  const verb = verbFor(view);
+  const breaking = view.legs.filter(({ status }) => status === 'fail').map(({ label }) => label);
+  const open = view.legs.filter(({ status }) => status === 'no-line').map(({ label }) => label);
+  const cleared = view.legs.filter(({ status }) => status === 'pass');
+
+  // The focus is the single item most worth attention: what breaks first, then
+  // what cannot be priced. A commitment that clears everything has none.
+  const focusLeg = view.legs.find(({ status }) => status === 'fail')
+    ?? view.legs.find(({ status }) => status === 'no-line');
+
+  const gap = breaking.length > 0
+    ? `${listLabels(breaking)} ${breaking.length === 1 ? 'falls' : 'fall'} short`
+    : open.length === view.legs.length
+      ? 'nothing is proven yet'
+      : cleared.length === view.legs.length
+        ? 'every condition clears'
+        : `every condition clears; only ${listLabels(open).toLowerCase()} ${open.length === 1 ? 'is' : 'are'} unpriced`;
+
+  const owner = verb === 'EXIT' || verb === 'PROCEED' || !focusLeg ? undefined : ownerFor(focusLeg);
+  const move = MOVE_TEMPLATE[verb](owner ?? 'the owner', focusLeg?.label.toLowerCase() ?? 'the open question');
+
+  return {
+    verb,
+    gap,
+    breaking,
+    open,
+    ...(focusLeg ? { focus: { label: focusLeg.label, detail: focusLeg.detail } } : {}),
+    ...(owner ? { owner } : {}),
+    move,
+  };
+}
+
+/** "A, B and C" — the verdict reads as a sentence, not a slug list. */
+function listLabels(labels: readonly string[]): string {
+  if (labels.length <= 1) return labels[0] ?? '';
+  return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
+}
+
+/** A capacity placement, read for the short overage figure and bar signal. */
+function readCapacityFigure(
+  placement: CommitmentReviewInput['placements'][SpendModel],
+): { figure?: string; bar: PresentationLeg['bar'] } {
+  const mid = (r: { low: number; high: number }) => (r.low + r.high) / 2;
+  const money = (unit: string, n: number) => /usd|\$|dollar|billion|million/i.test(unit)
+    ? (Math.abs(n) >= 1000 ? `$${(Math.abs(n) / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}B` : `$${Math.round(Math.abs(n)).toLocaleString('en-US')}M`)
+    : Math.round(Math.abs(n)).toLocaleString('en-US');
+
+  switch (placement.kind) {
+    case 'evidenced-shortfall': {
+      const req = mid(placement.required.value);
+      const avail = mid(placement.available.value);
+      const shortFrac = req > 0 ? Math.max(0, (req - avail) / req) : 0;
+      return {
+        figure: `${Math.round(shortFrac * 100)}% short`,
+        bar: { state: avail < req ? 'over' : 'within', fill: Math.min(1, shortFrac) },
+      };
+    }
+    case 'structural-upper-bound':
+      // A negative bound is a collision by the amount of the shortfall.
+      return placement.fitAtMost < 0
+        ? { figure: `${money(placement.unit, placement.fitAtMost)} over`, bar: { state: 'over', fill: 0.8 } }
+        : { bar: { state: 'within', fill: 0.35 } };
+    case 'structural-lower-bound':
+      return { figure: 'within', bar: { state: 'within', fill: 0.35 } };
+    case 'structural-bound': {
+      if (placement.fit.high < 0) return { figure: `${money(placement.unit, placement.fit.high)} over`, bar: { state: 'over', fill: 0.8 } };
+      if (placement.fit.low >= 0) return { figure: 'within', bar: { state: 'within', fill: 0.35 } };
+      return { bar: { state: 'none', fill: 0 } };
+    }
+    default:
+      return { bar: { state: 'none', fill: 0 } };
+  }
+}
+
+/** Fact refs resolved to their sources, deduped by URL. */
+function resolveEvidence(profile: CaseProfile, factRefs: readonly string[]): EvidenceLink[] {
+  const links = new Map<string, string>();
+  for (const ref of factRefs) {
+    const fact = profile.facts.find(({ id }) => id === ref);
+    for (const { sourceId } of fact?.evidence ?? []) {
+      const source = profile.sources.find(({ id }) => id === sourceId);
+      if (source) links.set(source.url, source.title);
+    }
+  }
+  return [...links].map(([url, title]) => ({ title, url }));
+}
+
+function capacityFactRefs(placement: CommitmentReviewInput['placements'][SpendModel]): string[] {
+  switch (placement.kind) {
+    case 'evidenced-shortfall': return [placement.required.sourceRef, placement.available.sourceRef];
+    case 'structural-upper-bound':
+    case 'structural-lower-bound':
+    case 'structural-bound': return placement.sources.map(({ ref }) => ref);
+    default: return [];
+  }
+}
+
 const CAPACITY_LABEL: Record<SpendModel, string> = {
   people: 'People',
   time: 'Time',
   finance: 'Budget',
 };
 
+/** Floor ids read as slugs; give the reader words, and fold legitimacy into
+ *  a plain "Stakeholders". */
+function floorLabel(id: string): string {
+  if (/stakeholder|legitimacy/i.test(id)) return 'Stakeholders';
+  return id.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
+}
+
+/** A readable explanation for a capacity leg, composed from figures where the
+ *  placement carries no rationale of its own (as evidenced-shortfall does not). */
+function capacityDetail(
+  authored: CommitmentReviewInput['placements'][SpendModel],
+  placed: CommitmentReviewResult['placements'][SpendModel],
+): string {
+  if (authored.kind === 'indeterminate') return authored.reason;
+  if ('rationale' in authored) return authored.rationale;
+  if (authored.kind === 'evidenced-shortfall') {
+    const range = (r: { low: number; high: number }) =>
+      r.low === r.high ? `${r.low}` : `${r.low}–${r.high}`;
+    return `${range(authored.required.value)} ${authored.required.unit} required against `
+      + `${range(authored.available.value)} available — ${authored.scope}.`;
+  }
+  return placed.reason ?? '';
+}
+
 function presentationLegs(
   input: CommitmentReviewInput,
   review: CommitmentReviewResult,
+  profile: CaseProfile,
 ): PresentationLeg[] {
   const floors = input.riskFloors.map((floor): PresentationLeg => ({
     id: floor.id,
-    // Floor ids are authored as slugs; the reader gets words.
-    label: floor.id.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()),
+    label: floorLabel(floor.id),
     kind: 'floor',
     status: floor.status === 'trip' ? 'fail' : floor.status === 'pass' ? 'pass' : 'no-line',
     detail: floor.rationale,
+    bar: { state: floor.status === 'trip' ? 'over' : floor.status === 'pass' ? 'within' : 'none', fill: floor.status === 'unknown' ? 0 : floor.status === 'trip' ? 0.85 : 0.35 },
+    evidence: resolveEvidence(profile, floor.sourceRefs),
   }));
 
   const capacity = (Object.keys(CAPACITY_LABEL) as SpendModel[]).map((model): PresentationLeg => {
     const placed = review.placements[model];
     const authored = input.placements[model];
+    const { figure, bar } = readCapacityFigure(authored);
     return {
       id: model,
       label: CAPACITY_LABEL[model],
       kind: 'capacity',
       status: placed.status === 'collides' ? 'fail' : placed.status === 'fits' ? 'pass' : 'no-line',
-      detail: authored.kind === 'indeterminate'
-        ? authored.reason
-        : 'rationale' in authored ? authored.rationale : (placed.reason ?? ''),
+      detail: capacityDetail(authored, placed),
+      ...(figure ? { figure } : {}),
+      bar,
+      evidence: resolveEvidence(profile, capacityFactRefs(authored)),
     };
   });
 
@@ -394,7 +605,7 @@ export function createDecisionExperienceViewModel(
     })),
     hindsight: [...packet.hindsightInputs],
     cost: source.cost,
-    legs: presentationLegs(source.reviewInput, source.review),
+    legs: presentationLegs(source.reviewInput, source.review, source.profile),
     ...(source.scorecard ? { tensions: presentationTensions(source.scorecard) } : {}),
     cards: {
       currentCohort,

@@ -11,6 +11,8 @@ public disclosures reveal the full internal organization.
 - `dominos-growth-2018-2025`: explicit endpoints missed amid continued growth.
 - `ford-model-e-2022-2026`: ongoing transformation with re-timed milestones.
 - `va-ehr-modernization-2018-2025`: public-sector program whose verdict recovers.
+- `watson-md-anderson-2013-2017`: clinical-AI commitment that terminates on value and readiness floors.
+- `mcdonalds-ibm-aot-2021-2024`: transferred drive-thru voice-AI capability that terminates on its wider-adoption readiness floor, with finance explicitly unplaced.
 
 The VA case is the library's worked example. It is the only case scored at four
 consecutive decisions where the verdict moves in both directions — fog at the

@@ -158,7 +158,11 @@ export function costSeries(decisions: readonly CostSeriesInput[]): CostSeriesPoi
   const totalAt = (when: number): number => {
     const next = dates.find((date) => date >= when);
     if (next === undefined) return anchors.get(dates[dates.length - 1]!)!;
-    if (next === when || dates[0] === next) return anchors.get(next)!;
+    if (next === when) return anchors.get(next)!;
+    // A decision before the first published money figure is not evidence that
+    // the later amount had already been spent. Start it at zero and let the
+    // first evidenced anchor establish the slope.
+    if (dates[0] === next) return 0;
     const previous = dates[dates.indexOf(next) - 1]!;
     const share = (when - previous) / (next - previous);
     const from = anchors.get(previous)!;

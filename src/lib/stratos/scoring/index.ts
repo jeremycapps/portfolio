@@ -1,4 +1,7 @@
 export * from './commitment-scorecards';
+export * from './mcdonalds-ibm-aot-2021-review';
+export * from './mcdonalds-ibm-aot-2022-review';
+export * from './mcdonalds-ibm-aot-2024-review';
 export * from './profile-adapter';
 export * from './rubric';
 export * from './scorecard';
@@ -9,3 +12,6 @@ export * from './va-ehr-2018-review';
 export * from './va-ehr-2020-review';
 export * from './va-ehr-2022-review';
 export * from './va-ehr-2023-review';
+export * from './watson-md-anderson-2013-review';
+export * from './watson-md-anderson-2014-review';
+export * from './watson-md-anderson-2017-review';

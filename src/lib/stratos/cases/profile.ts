@@ -39,7 +39,8 @@ export interface CaseSource {
     | 'earnings-release'
     | 'company-release'
     | 'audit-report'
-    | 'agency-release';
+    | 'agency-release'
+    | 'news';
   /** Date on which a public analyst could first use this source. */
   readonly publishedAt: string;
   readonly url: string;

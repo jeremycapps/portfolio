@@ -1,0 +1,327 @@
+import {
+  CASE_PROFILE_SCHEMA,
+  defineCaseProfile,
+  type CaseAssessment,
+} from './profile';
+
+const unknown = (
+  summary: string,
+  unknowns: readonly string[],
+  factRefs: readonly string[] = [],
+): CaseAssessment => ({
+  status: 'insufficient-evidence',
+  confidence: 'not-assessed',
+  summary,
+  factRefs,
+  unknowns,
+});
+
+const inferred = (
+  summary: string,
+  factRefs: readonly string[],
+  unknowns: readonly string[],
+): CaseAssessment => ({
+  status: 'inferred',
+  confidence: 'low',
+  summary,
+  factRefs,
+  unknowns,
+});
+
+const evidenced = (
+  summary: string,
+  factRefs: readonly string[],
+  unknowns: readonly string[] = [],
+  confidence: CaseAssessment['confidence'] = 'high',
+): CaseAssessment => ({
+  status: 'evidenced',
+  confidence,
+  summary,
+  factRefs,
+  unknowns,
+});
+
+/**
+ * McDonald's IBM Automated Order Taking test, read at the capability transfer,
+ * the first public accuracy warning, and the decision to end the IBM path.
+ *
+ * The case deliberately carries no cost facts. McDonald's did not disclose a
+ * budget, spend, or impairment for AOT, so finance remains unplaced throughout
+ * rather than turning the absence of a public number into a zero-dollar claim.
+ */
+export const MCDONALDS_IBM_AOT = defineCaseProfile({
+  schema: CASE_PROFILE_SCHEMA,
+  id: 'mcdonalds-ibm-aot-2021-2024',
+  version: '1.0.0',
+  company: { name: "McDonald's Corporation", ticker: 'MCD', exchange: 'NYSE' },
+  case: {
+    name: 'IBM Automated Order Taking',
+    scope: "McDonald's transfer of its in-house drive-thru voice-ordering capability to IBM, the field test, and the 2024 decision to end that AOT path.",
+    announcedAt: '2021-10-27',
+    status: 'completed',
+    commitment: 'Use IBM to develop and scale Automated Order Taking across markets, improving the drive-thru experience for customers and restaurant crews while handling real-world language, dialect, and menu variation.',
+    targets: [
+      {
+        id: 'aot-broader-adoption-accuracy',
+        label: 'Reach at least 95% order accuracy before broader adoption.',
+        target: { value: 95, unit: 'percent order accuracy minimum' },
+        evidence: [{ sourceId: 'restaurant-dive-aot-accuracy-2022', locator: 'Dive Brief, first bullet' }],
+      },
+    ],
+  },
+  scoring: {
+    status: 'unscored',
+    reason: 'Decision-point reviews are authored separately for the capability transfer, the public field-accuracy warning, and the terminal IBM-path halt.',
+  },
+  sources: [
+    {
+      id: 'restaurant-dive-aot-pilot-2021',
+      title: "McDonald's pilots automated drive-thru ordering in Chicago",
+      publisher: 'Restaurant Dive',
+      kind: 'news',
+      publishedAt: '2021-06-03',
+      url: 'https://www.restaurantdive.com/news/mcdonalds-pilots-automated-drive-thru-ordering-in-chicago/601210/',
+    },
+    {
+      id: 'ibm-mcdonalds-aot-2021',
+      title: "Joint Statement from McDonald’s and IBM",
+      publisher: 'IBM Newsroom',
+      kind: 'company-release',
+      publishedAt: '2021-10-27',
+      url: 'https://newsroom.ibm.com/Joint-Statement-from-McDonalds-and-IBM',
+    },
+    {
+      id: 'restaurant-dive-aot-accuracy-2022',
+      title: "McDonald's AI voice ordering tests underperforming on accuracy, survey says",
+      publisher: 'Restaurant Dive',
+      kind: 'news',
+      publishedAt: '2022-06-23',
+      url: 'https://www.restaurantdive.com/news/mcdonalds-ai-drive-thru-voice-ordering-accuracy/625923/',
+    },
+    {
+      id: 'restaurant-dive-aot-halt-2024',
+      title: 'McDonald’s ends IBM drive-thru voice order test',
+      publisher: 'Restaurant Dive',
+      kind: 'news',
+      publishedAt: '2024-06-17',
+      url: 'https://www.restaurantdive.com/news/mcdonalds-ibm-drive-thru-automation-voice-ordering-ai/719085/',
+    },
+    {
+      id: 'ai-business-aot-halt-2024',
+      title: "McDonald's Drops IBM's AI Order Tech, Seeks New Drive-Thru Tech",
+      publisher: 'AI Business',
+      kind: 'news',
+      publishedAt: '2024-06-17',
+      url: 'https://aibusiness.com/nlp/mcdonald-s-drops-ibm-s-ai-order-tech-seeks-new-drive-thru-tech',
+    },
+  ],
+  facts: [
+    {
+      id: 'mcd-aot-pre-transfer-pilot',
+      statement: "Before the IBM transfer, McDonald's was testing automated voice ordering at ten Chicago drive-thrus.",
+      observedAt: '2021-06-03',
+      origin: 'reported',
+      metric: { value: 10, unit: 'restaurants in field test' },
+      evidence: [{ sourceId: 'restaurant-dive-aot-pilot-2021', locator: 'Dive Brief, first bullet' }],
+    },
+    {
+      id: 'mcd-aot-pre-transfer-accuracy',
+      statement: "McDonald's CEO reported roughly 85% order accuracy in the ten-restaurant pre-transfer pilot.",
+      observedAt: '2021-06-03',
+      origin: 'reported',
+      metric: { value: 85, unit: 'percent order accuracy, approximate' },
+      evidence: [{ sourceId: 'restaurant-dive-aot-pilot-2021', locator: 'Dive Brief, second bullet' }],
+    },
+    {
+      id: 'mcd-aot-pre-transfer-intervention',
+      statement: "McDonald's CEO said employees still had to record about 20% of orders in the ten-restaurant pilot.",
+      observedAt: '2021-06-03',
+      origin: 'reported',
+      metric: { value: 20, unit: 'percent of orders requiring employee intervention, approximate' },
+      evidence: [{ sourceId: 'restaurant-dive-aot-pilot-2021', locator: 'Dive Brief, second bullet' }],
+    },
+    {
+      id: 'mcd-apprente-origin',
+      statement: "McDonald's created McD Tech Labs after acquiring voice-AI company Apprente in 2019.",
+      observedAt: '2019',
+      origin: 'reported',
+      evidence: [{ sourceId: 'ibm-mcdonalds-aot-2021', locator: 'Joint statement, first paragraph' }],
+    },
+    {
+      id: 'mcd-tech-labs-transfer',
+      statement: 'IBM agreed to acquire McD Tech Labs and take its team into the IBM Cloud and Cognitive Software division to accelerate AOT development and deployment.',
+      observedAt: '2021-10-27',
+      origin: 'reported',
+      evidence: [{ sourceId: 'ibm-mcdonalds-aot-2021', locator: 'Joint statement, first and final paragraphs' }],
+    },
+    {
+      id: 'mcd-aot-benefit-claim',
+      statement: "McDonald's and IBM said restaurant testing had shown substantial customer and crew-experience benefits.",
+      observedAt: '2021-10-27',
+      origin: 'reported',
+      evidence: [{ sourceId: 'ibm-mcdonalds-aot-2021', locator: 'Joint statement, third paragraph' }],
+    },
+    {
+      id: 'mcd-aot-scale-work',
+      statement: 'IBM was expected to help scale AOT across markets and address additional languages, dialects, and menu variations.',
+      observedAt: '2021-10-27',
+      origin: 'reported',
+      evidence: [{ sourceId: 'ibm-mcdonalds-aot-2021', locator: 'Joint statement, third paragraph' }],
+    },
+    {
+      id: 'mcd-aot-test-24-restaurants',
+      statement: "McDonald's had expanded its voice-ordering test to 24 Illinois restaurants.",
+      observedAt: '2022-06-23',
+      origin: 'reported',
+      metric: { value: 24, unit: 'restaurants in field test' },
+      evidence: [{ sourceId: 'restaurant-dive-aot-accuracy-2022', locator: 'Dive Brief, first bullet' }],
+    },
+    {
+      id: 'mcd-aot-low-80s-accuracy',
+      statement: 'A BTIG franchisee survey reported AOT order accuracy in the low-80% range at the 24 Illinois test restaurants.',
+      observedAt: '2022-06-23',
+      origin: 'reported',
+      evidence: [{ sourceId: 'restaurant-dive-aot-accuracy-2022', locator: 'Dive Brief, first bullet' }],
+    },
+    {
+      id: 'mcd-aot-95-percent-gate',
+      statement: "The same report placed McDonald's desired order-accuracy threshold for broader adoption at 95% or higher.",
+      observedAt: '2022-06-23',
+      origin: 'reported',
+      metric: { value: 95, unit: 'percent order accuracy minimum' },
+      evidence: [{ sourceId: 'restaurant-dive-aot-accuracy-2022', locator: 'Dive Brief, first bullet' }],
+    },
+    {
+      id: 'mcd-aot-improvement-path-2022',
+      statement: 'BTIG said the technology was evolving rapidly and could become ready for wider adoption later in 2022, but did not place an evidenced improvement cycle.',
+      observedAt: '2022-06-23',
+      origin: 'reported',
+      evidence: [{ sourceId: 'restaurant-dive-aot-accuracy-2022', locator: 'Dive Brief, second bullet' }],
+    },
+    {
+      id: 'mcd-aot-operational-test-purpose',
+      statement: 'McDonald’s said the AOT tests were intended to determine operational savings and speed-of-service improvements.',
+      observedAt: '2024-06-17',
+      origin: 'reported',
+      evidence: [{ sourceId: 'restaurant-dive-aot-halt-2024', locator: 'Dive Brief, second bullet' }],
+    },
+    {
+      id: 'mcd-aot-over-100-restaurants',
+      statement: 'The AOT system had been deployed at more than 100 restaurant locations.',
+      observedAt: '2024-06-17',
+      origin: 'reported',
+      metric: { value: 100, unit: 'restaurants, lower bound' },
+      evidence: [{ sourceId: 'ai-business-aot-halt-2024', locator: 'Article, opening two paragraphs' }],
+    },
+    {
+      id: 'mcd-aot-partnership-ended',
+      statement: "McDonald's decided not to renew the IBM AOT partnership and to explore other voice-ordering solutions.",
+      observedAt: '2024-06-17',
+      origin: 'reported',
+      evidence: [{ sourceId: 'ai-business-aot-halt-2024', locator: 'Article, opening and partnership-decision paragraphs' }],
+    },
+    {
+      id: 'mcd-aot-shutoff-by-july',
+      statement: 'McDonald’s told franchisees the IBM AOT systems would be shut off in all test restaurants no later than July 26, 2024.',
+      observedAt: '2024-06-17',
+      origin: 'reported',
+      evidence: [{ sourceId: 'ai-business-aot-halt-2024', locator: 'Article, shutoff paragraph' }],
+    },
+    {
+      id: 'mcd-aot-operations-owner',
+      statement: "McDonald's chief restaurant officer said the company saw an opportunity to explore voice-ordering solutions more broadly despite successes in the IBM test.",
+      observedAt: '2024-06-17',
+      origin: 'reported',
+      evidence: [{ sourceId: 'ai-business-aot-halt-2024', locator: 'Article, Mason Smoot statement' }],
+    },
+    {
+      id: 'mcd-voice-ordering-still-valued',
+      statement: "McDonald's said the IBM work gave it confidence that a voice-ordering solution would be part of the future drive-thru experience.",
+      observedAt: '2024-06-17',
+      origin: 'reported',
+      evidence: [{ sourceId: 'restaurant-dive-aot-halt-2024', locator: 'Dive Brief, third bullet' }],
+    },
+  ],
+  snapshots: [
+    {
+      id: 'capability-transfer-2021-10-27',
+      label: 'In-house AOT capability transferred to IBM',
+      phase: 'commitment',
+      knowledgeCutoff: '2021-10-27',
+      factRefs: [
+        'mcd-aot-pre-transfer-pilot',
+        'mcd-aot-pre-transfer-accuracy',
+        'mcd-aot-pre-transfer-intervention',
+        'mcd-apprente-origin',
+        'mcd-tech-labs-transfer',
+        'mcd-aot-benefit-claim',
+        'mcd-aot-scale-work',
+      ],
+      systems: {
+        discernment: inferred('The partnership named the scaling ambition and claimed benefits, but disclosed no acceptance gate for expanding AOT across markets.', ['mcd-aot-benefit-claim', 'mcd-aot-scale-work'], ['Order-accuracy threshold', 'Operational-savings threshold', 'Stop condition']),
+        invention: evidenced('AOT had progressed from the acquired Apprente capability into a ten-restaurant pilot before IBM took over development and deployment.', ['mcd-aot-pre-transfer-pilot', 'mcd-apprente-origin', 'mcd-tech-labs-transfer'], ['Independent test results'], 'medium'),
+        operations: inferred('The pilot reported roughly 85% accuracy and 20% employee intervention while languages, dialects, and menu variations remained scaling work.', ['mcd-aot-pre-transfer-accuracy', 'mcd-aot-pre-transfer-intervention', 'mcd-aot-scale-work'], ['Accuracy by operating condition', 'Support model']),
+        execution: inferred('The agreement transferred the team and the scale task to IBM without a public release sequence or rollback boundary.', ['mcd-tech-labs-transfer', 'mcd-aot-scale-work'], ['Pilot stages', 'Release criteria', 'Rollback conditions']),
+        advantage: inferred('Customer convenience and crew experience were the stated benefits, supported only by an unquantified joint claim.', ['mcd-aot-benefit-claim'], ['Speed-of-service result', 'Crew-time savings', 'Customer experience measure']),
+        resource: unknown('No budget, staffing requirement, or maximum exposure was disclosed with the IBM agreement.', ['Budget envelope', 'Critical-role capacity', 'Maximum exposure'], ['mcd-tech-labs-transfer']),
+      },
+      constraints: {
+        people: unknown('The record did not place IBM, restaurant-crew, or support capacity against the cross-market scaling work.', ['Engineering capacity', 'Restaurant support capacity', 'Crew-change capacity'], ['mcd-aot-scale-work']),
+        finance: unknown('No purchase price, program budget, spend, or loss tolerance was publicly placed for AOT.', ['Transaction value', 'Program budget', 'Loss tolerance'], ['mcd-tech-labs-transfer']),
+        time: unknown('The joint statement supplied no deadline or verified cycle from restaurant test to wider deployment.', ['Deployment deadline', 'Verification cycle', 'Schedule slack'], ['mcd-aot-scale-work']),
+        risk: unknown('Pilot accuracy and intervention were reported, but no release floor said what those measures had to reach before wider deployment.', ['Order-accuracy floor', 'Crew-intervention ceiling', 'Release stop condition'], ['mcd-aot-pre-transfer-accuracy', 'mcd-aot-pre-transfer-intervention']),
+      },
+    },
+    {
+      id: 'accuracy-warning-2022-06-23',
+      label: 'Field accuracy below the broader-adoption gate',
+      phase: 'material-update',
+      knowledgeCutoff: '2022-06-23',
+      factRefs: ['mcd-aot-test-24-restaurants', 'mcd-aot-low-80s-accuracy', 'mcd-aot-95-percent-gate', 'mcd-aot-improvement-path-2022'],
+      systems: {
+        discernment: evidenced('The public record now placed both a field-accuracy warning and a 95%-plus threshold for broader adoption.', ['mcd-aot-low-80s-accuracy', 'mcd-aot-95-percent-gate'], ['Decision rule if improvement stalled'], 'medium'),
+        invention: evidenced('AOT was operating in 24 restaurants, but its reported accuracy remained in the low-80% range.', ['mcd-aot-test-24-restaurants', 'mcd-aot-low-80s-accuracy'], ['Accuracy distribution by order type', 'Crew-intervention rate'], 'medium'),
+        operations: evidenced('Field performance at 24 Illinois restaurants remained below the stated wider-adoption gate.', ['mcd-aot-test-24-restaurants', 'mcd-aot-low-80s-accuracy', 'mcd-aot-95-percent-gate'], ['Noise, dialect, and menu-variation performance'], 'medium'),
+        execution: inferred('The test had expanded while the technology remained below its broader-adoption threshold; no evidenced improvement cadence was public.', ['mcd-aot-test-24-restaurants', 'mcd-aot-improvement-path-2022'], ['Next test boundary', 'Improvement cycle', 'Exit condition']),
+        advantage: inferred('Automation still had a plausible labor and speed benefit, but the public warning did not place realized savings or service improvement.', ['mcd-aot-improvement-path-2022'], ['Crew-time savings', 'Speed-of-service improvement', 'Incremental economics']),
+        resource: unknown('The expanded test still disclosed no budget, staffing load, or financial reserve.', ['Test cost', 'IBM and McDonald’s staffing', 'Maximum exposure'], ['mcd-aot-test-24-restaurants']),
+      },
+      constraints: {
+        people: unknown('No field-support or crew-intervention requirement was placed against available restaurant capacity.', ['Crew-intervention load', 'Field support staffing', 'Training requirement'], ['mcd-aot-test-24-restaurants']),
+        finance: unknown('No program spend, savings, or affordability envelope was public at the warning boundary.', ['Program spend', 'Per-restaurant economics', 'Loss tolerance'], ['mcd-aot-test-24-restaurants']),
+        time: unknown('The report said the technology could improve later in 2022 but supplied no evidenced cycle time to the 95% gate.', ['Measured improvement velocity', 'Next decision date', 'Schedule slack'], ['mcd-aot-improvement-path-2022']),
+        risk: evidenced('The reported low-80% accuracy did not clear the stated 95%-plus condition for broader adoption.', ['mcd-aot-low-80s-accuracy', 'mcd-aot-95-percent-gate'], ['Accuracy confidence interval', 'Performance across operating conditions'], 'medium'),
+      },
+    },
+    {
+      id: 'ibm-path-halt-2024-06-17',
+      label: 'IBM AOT path ended after the 100-plus-restaurant test',
+      phase: 'outcome',
+      knowledgeCutoff: '2024-06-17',
+      factRefs: [
+        'mcd-aot-low-80s-accuracy',
+        'mcd-aot-95-percent-gate',
+        'mcd-aot-operational-test-purpose',
+        'mcd-aot-over-100-restaurants',
+        'mcd-aot-partnership-ended',
+        'mcd-aot-shutoff-by-july',
+        'mcd-aot-operations-owner',
+        'mcd-voice-ordering-still-valued',
+      ],
+      systems: {
+        discernment: evidenced('McDonald’s ended the IBM AOT path after a 100-plus-restaurant test while explicitly retaining the broader voice-ordering thesis.', ['mcd-aot-over-100-restaurants', 'mcd-aot-partnership-ended', 'mcd-voice-ordering-still-valued']),
+        invention: evidenced('The transferred capability reached more than 100 restaurants but did not become the selected path for wider deployment.', ['mcd-tech-labs-transfer', 'mcd-aot-over-100-restaurants', 'mcd-aot-partnership-ended'], ['Reusable IBM-path assets'], 'medium'),
+        operations: evidenced('The last public accuracy measure remained below the wider-adoption gate; no terminal accuracy was disclosed, and the deployed IBM systems were scheduled to be removed from every test restaurant.', ['mcd-aot-low-80s-accuracy', 'mcd-aot-95-percent-gate', 'mcd-aot-shutoff-by-july']),
+        execution: evidenced('The field test grew beyond 100 restaurants before McDonald’s ended the partnership and set a complete shutoff date.', ['mcd-aot-over-100-restaurants', 'mcd-aot-partnership-ended', 'mcd-aot-shutoff-by-july']),
+        advantage: inferred('McDonald’s retained confidence in voice ordering as a category, but did not report that IBM AOT had produced the intended savings or speed improvement.', ['mcd-aot-operational-test-purpose', 'mcd-aot-partnership-ended', 'mcd-voice-ordering-still-valued'], ['Observed operational savings', 'Observed speed improvement', 'Customer-experience result']),
+        resource: unknown('The terminal public record still placed no budget, spend, impairment, or recoverable financial value for the IBM AOT path.', ['Total spend', 'Contract value', 'Exit cost', 'Recoverable value'], ['mcd-aot-partnership-ended']),
+      },
+      constraints: {
+        people: unknown('The terminal record did not place crew, support, or redeployment load against available capacity.', ['Crew-intervention load', 'Support staffing', 'Redeployment requirement'], ['mcd-aot-shutoff-by-july']),
+        finance: unknown('McDonald’s disclosed no AOT budget, spend, impairment, savings, or financial reserve at any decision boundary.', ['Program spend', 'Avoided labor cost', 'Shutoff cost', 'Loss tolerance'], ['mcd-aot-partnership-ended']),
+        time: evidenced('The shutoff date bounded the end of the IBM test path, but no public record placed the development time required for a successor solution.', ['mcd-aot-shutoff-by-july'], ['Successor-development cycle']),
+        risk: evidenced('No later public accuracy measure established that the IBM path cleared the 95%-plus broader-adoption gate before the partnership ended and the systems were removed.', ['mcd-aot-low-80s-accuracy', 'mcd-aot-95-percent-gate', 'mcd-aot-partnership-ended', 'mcd-aot-shutoff-by-july']),
+      },
+    },
+  ],
+});
