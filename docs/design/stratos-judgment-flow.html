@@ -1,0 +1,400 @@
+<title>StratOS Judgment Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap">
+<style>
+  :root{
+    --ground:#EBEEF2; --panel:#FFFFFF; --panel-grad:linear-gradient(155deg,#FBFCFD,#F1F4F8);
+    --panel-2:#F4F6F9; --hair:#DEE3EB; --hair-soft:#E9EDF2;
+    --ink:#1A2029; --muted:#5E6773; --faint:#9098A4;
+    --accent:#B9791A;
+    --observed:#2E8C64; --estimated:#3F5EA8; --fog:#79808C; --hindsight:#7E5AAE;
+    --swipe:#3F5EA8; --scroll:#79808C; --tap:#B9791A;
+    --shadow:0 1px 2px rgba(20,25,35,.05), 0 18px 40px -18px rgba(20,25,35,.20);
+    --phone-shadow:0 2px 6px rgba(20,25,35,.08), 0 40px 80px -30px rgba(20,25,35,.4);
+    --frame:#20262F; --screen-bg:#0E1420;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --ground:#0B0F15; --panel:#141A22; --panel-grad:linear-gradient(155deg,#182029,#111620);
+      --panel-2:#0F141C; --hair:#232B36; --hair-soft:#1B222C;
+      --ink:#E9EEF4; --muted:#8A94A2; --faint:#59616E;
+      --accent:#E8A13A;
+      --observed:#54B98D; --estimated:#7796D2; --fog:#828B98; --hindsight:#B197D6;
+      --swipe:#7796D2; --scroll:#828B98; --tap:#E8A13A;
+      --shadow:0 20px 50px -20px rgba(0,0,0,.7);
+      --phone-shadow:0 50px 90px -30px rgba(0,0,0,.8);
+      --frame:#05080C; --screen-bg:#0C121C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0B0F15; --panel:#141A22; --panel-grad:linear-gradient(155deg,#182029,#111620);
+    --panel-2:#0F141C; --hair:#232B36; --hair-soft:#1B222C;
+    --ink:#E9EEF4; --muted:#8A94A2; --faint:#59616E;
+    --accent:#E8A13A;
+    --observed:#54B98D; --estimated:#7796D2; --fog:#828B98; --hindsight:#B197D6;
+    --swipe:#7796D2; --scroll:#828B98; --tap:#E8A13A;
+    --shadow:0 20px 50px -20px rgba(0,0,0,.7);
+    --phone-shadow:0 50px 90px -30px rgba(0,0,0,.8);
+    --frame:#05080C; --screen-bg:#0C121C;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:"Manrope",system-ui,-apple-system,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased; letter-spacing:-.006em;
+  }
+  .wrap{max-width:1060px; margin:0 auto; padding:clamp(32px,5vw,80px) clamp(20px,4vw,44px)}
+  .num{font-variant-numeric:tabular-nums}
+
+  .eyebrow{font-size:11.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  h1{font-weight:300; font-size:clamp(32px,5.4vw,56px); line-height:1.06; letter-spacing:-.03em; margin:.4em 0 .22em; text-wrap:balance; max-width:16ch}
+  h1 b{font-weight:700}
+  .lede{font-size:clamp(15px,1.6vw,17.5px); color:var(--muted); max-width:56ch; margin:0; font-weight:400}
+  .lede b{color:var(--ink); font-weight:600}
+
+  /* ---------- hero ---------- */
+  .hero{display:grid; grid-template-columns:1fr auto; gap:clamp(30px,5vw,64px); align-items:center}
+  @media(max-width:800px){ .hero{grid-template-columns:1fr; justify-items:start} .hero .phone-wrap{justify-self:center} }
+
+  .rule{height:1px; background:var(--hair); border:0; margin:clamp(46px,7vw,78px) 0}
+  h2{font-weight:600; font-size:clamp(23px,3.2vw,32px); line-height:1.14; margin:0 0 .2em; letter-spacing:-.025em; text-wrap:balance}
+  .sect-tag{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); margin-bottom:14px; font-weight:600}
+  .sect-intro{color:var(--muted); max-width:64ch; margin:.35em 0 clamp(30px,4vw,46px); font-size:15.5px}
+  .sect-intro em{color:var(--ink); font-style:normal; font-weight:600}
+  .mono-ish{font-variant-numeric:tabular-nums; letter-spacing:0}
+
+  /* ---------- phone shell ---------- */
+  .phone{background:var(--frame); border-radius:44px; padding:9px; box-shadow:var(--phone-shadow)}
+  .phone.sm{border-radius:34px; padding:8px; box-shadow:var(--shadow)}
+  .screen{background:var(--screen-bg); border-radius:36px; overflow:hidden; display:flex; flex-direction:column; position:relative; color:#E9EEF4}
+  .phone.sm .screen{border-radius:27px}
+  .hero-screen{width:min(330px,74vw); aspect-ratio:330/690}
+  .sm .screen{aspect-ratio:311/636}
+
+  /* iOS status bar */
+  .ios-top{display:flex; justify-content:space-between; align-items:center; padding:14px 26px 2px; font-weight:600; font-size:13px; color:#E9EEF4}
+  .phone.sm .ios-top{padding:12px 20px 2px; font-size:11px}
+  .ios-icons{display:flex; align-items:center; gap:6px}
+  .ios-icons svg{display:block; fill:#E9EEF4}
+  .home-ind{height:5px; width:120px; background:#E9EEF4; opacity:.85; border-radius:3px; margin:6px auto 9px}
+  .phone.sm .home-ind{width:100px; margin:4px auto 8px; height:4px}
+
+  .scr-body{flex:1; padding:14px 18px 6px; display:flex; flex-direction:column; gap:14px; overflow:hidden}
+  .phone.sm .scr-body{padding:10px 16px 6px; gap:12px}
+
+  .app-head{display:flex; justify-content:space-between; align-items:center}
+  .app-id{display:flex; align-items:center; gap:9px}
+  .avatar{width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--accent),#7E5AAE)}
+  .app-name{font-weight:600; font-size:14px}
+  .bell{color:#9098A4}
+
+  .kicker{font-size:9.5px; letter-spacing:.15em; text-transform:uppercase; color:#7d8797; font-weight:600}
+  .narrative{font-size:19px; font-weight:500; line-height:1.24; letter-spacing:-.02em; color:#E9EEF4}
+  .narrative b{color:var(--accent); font-weight:600}
+  .scr-title{font-size:19px; font-weight:600; line-height:1.16; letter-spacing:-.02em}
+  .scr-title.big{font-size:22px}
+
+  /* Oura-style score card */
+  .scard{background:linear-gradient(155deg,rgba(126,90,174,.14),rgba(20,26,34,.2)); border:1px solid rgba(255,255,255,.06); border-radius:18px; padding:15px 16px; display:flex; flex-direction:column; gap:11px}
+  .scard.warm{background:linear-gradient(155deg,rgba(232,161,58,.14),rgba(20,26,34,.2))}
+  .scard-top{display:flex; justify-content:space-between; align-items:flex-start}
+  .scard-name{font-size:13px; font-weight:600; color:#E9EEF4}
+  .scard-status{font-size:8.5px; letter-spacing:.08em; color:#8b95a4; margin-top:3px; font-weight:600}
+  .scard-chev{color:#6c7686; font-size:15px}
+  .bars{display:flex; align-items:flex-end; gap:4px; height:30px}
+  .bars span{flex:1; border-radius:2px}
+  .scard-poles{display:flex; justify-content:space-between; font-size:9px; color:#7d8797; font-weight:500}
+
+  .split{display:flex; height:40px; gap:5px}
+  .split div{display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:600; border-radius:11px; letter-spacing:.02em}
+  .split .a{flex:1; background:rgba(130,139,152,.14); color:#9098A4}
+  .split .b{flex:1.35; background:color-mix(in srgb,var(--accent) 20%,transparent); color:var(--accent)}
+
+  /* Ask input (Oura Advisor) */
+  .ask{margin-top:auto; display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:22px; padding:11px 15px; font-size:12px; color:#8b95a4}
+  .ask .spark{color:var(--accent)}
+
+  /* tab bar */
+  .tabbar{display:flex; justify-content:space-around; align-items:center; padding:11px 8px 4px; border-top:1px solid rgba(255,255,255,.06)}
+  .tab{display:flex; flex-direction:column; align-items:center; gap:3px; font-size:8.5px; font-weight:600; color:#5e6875}
+  .tab.on{color:var(--accent)}
+  .tab svg{display:block; fill:none; stroke:currentColor; stroke-width:1.7}
+
+  /* evidence rows */
+  .ev{display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid rgba(255,255,255,.06)}
+  .ev:last-child{border-bottom:0}
+  .ev-tag{font-size:7.5px; font-weight:700; letter-spacing:.06em; padding:3px 6px; border-radius:5px; white-space:nowrap}
+  .t-obs{background:color-mix(in srgb,var(--observed) 18%,transparent); color:var(--observed)}
+  .t-fog{background:color-mix(in srgb,var(--fog) 22%,transparent); color:#9aa2ae}
+  .t-hind{background:color-mix(in srgb,var(--hindsight) 18%,transparent); color:var(--hindsight)}
+  .ev-label{font-size:10.5px; line-height:1.3; flex:1; color:#9098A4}
+  .ev-val{font-size:16px; font-weight:600; font-variant-numeric:tabular-nums}
+
+  .push{margin-top:auto}
+  .slip{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:15px}
+  .slip-row{display:flex; justify-content:space-between; font-size:10.5px; color:#9098A4; padding:4px 0}
+  .slip-row b{color:#E9EEF4; font-weight:600; font-variant-numeric:tabular-nums}
+  .commit{margin-top:12px; background:var(--accent); color:#160f02; border:0; border-radius:13px; padding:13px; width:100%; font-family:"Manrope",sans-serif; font-weight:700; font-size:12.5px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; letter-spacing:-.01em}
+
+  /* stage labels under flow phones */
+  .flow{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(18px,3vw,34px); align-items:start}
+  @media(max-width:820px){ .flow{grid-template-columns:1fr; max-width:330px; margin:0 auto} }
+  .stage{display:flex; flex-direction:column; gap:16px}
+  .stage-head{display:flex; align-items:center; gap:11px}
+  .stage-num{font-size:12px; color:var(--accent); font-weight:700; font-variant-numeric:tabular-nums}
+  .stage-name{font-weight:600; font-size:15px}
+  .stage-sub{color:var(--muted); font-size:13px; line-height:1.5; min-height:38px; margin-top:-4px}
+  .gbadge{display:inline-flex; align-items:center; gap:8px; align-self:flex-start; font-size:11px; font-weight:600; padding:7px 14px; border-radius:22px; border:1px solid}
+  .g-swipe{color:var(--swipe); border-color:color-mix(in srgb,var(--swipe) 40%,transparent); background:color-mix(in srgb,var(--swipe) 9%,transparent)}
+  .g-scroll{color:var(--scroll); border-color:color-mix(in srgb,var(--scroll) 40%,transparent); background:color-mix(in srgb,var(--scroll) 9%,transparent)}
+  .g-tap{color:var(--tap); border-color:color-mix(in srgb,var(--tap) 40%,transparent); background:color-mix(in srgb,var(--tap) 11%,transparent)}
+  .gicon{font-size:14px; line-height:1}
+  .gnote{color:var(--muted); font-size:12px; line-height:1.5; margin-top:-6px}
+
+  /* gesture table */
+  .gtable{width:100%; border-collapse:collapse; font-size:14.5px}
+  .gtable th{text-align:left; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); font-weight:600; padding:0 18px 14px; border-bottom:1px solid var(--hair)}
+  .gtable td{padding:22px 18px; border-bottom:1px solid var(--hair-soft); vertical-align:top; color:var(--muted); line-height:1.5}
+  .gtable tr td:first-child{width:150px}
+  .gname{font-weight:600; color:var(--ink); display:flex; align-items:center; gap:10px; font-size:16px}
+  .swatch{width:8px; height:8px; border-radius:50%; flex:none}
+  .gtable td b{color:var(--ink); font-weight:600}
+  .cost{font-variant-numeric:tabular-nums}
+  .cost.lbl{color:var(--faint); margin-top:7px; font-size:12px}
+
+  /* comps */
+  .ledger{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:720px){ .ledger{grid-template-columns:1fr} }
+  .comp{background:var(--panel-grad); border:1px solid var(--hair-soft); border-radius:18px; padding:20px 22px; display:flex; flex-direction:column; gap:9px}
+  .comp-top{display:flex; justify-content:space-between; align-items:baseline; gap:12px}
+  .comp-app{font-weight:600; font-size:15px}
+  .comp-app a{color:inherit; text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 55%,transparent); padding-bottom:1px}
+  .comp-app a:hover{border-bottom-color:var(--accent)}
+  .comp-role{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); text-align:right; white-space:nowrap; padding-top:3px; font-weight:600}
+  .comp-teach{font-size:13.5px; color:var(--muted); line-height:1.5}
+  .comp-take{font-size:13px; color:var(--ink); line-height:1.5}
+  .comp-take::before{content:"&rarr; "; color:var(--accent)}
+  .comp-gest{margin-top:3px; display:flex; gap:6px}
+  .mini{font-size:9px; font-weight:600; padding:3px 8px; border-radius:12px; border:1px solid}
+
+  footer{margin-top:clamp(48px,6vw,78px); padding-top:26px; border-top:1px solid var(--hair); color:var(--faint); font-size:12px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; letter-spacing:.01em; font-weight:500}
+
+  @media(prefers-reduced-motion:no-preference){ .commit{transition:transform .14s ease} .commit:active{transform:scale(.97)} }
+</style>
+
+<div class="wrap">
+
+  <!-- ===================== HERO ===================== -->
+  <div class="hero">
+    <div>
+      <div class="eyebrow">StratOS &middot; Mobile Design Direction</div>
+      <h1>A verdict you <b>swipe into</b> and <b>tap to own</b>.</h1>
+      <p class="lede">The dashboard isn't a readout &mdash; it's a decision you walk through. The home screen opens on the <b>live thesis</b>, the tensions in play, and one question waiting for your judgment.</p>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen hero-screen">
+        <div class="ios-top">
+          <span>9:41</span>
+          <span class="ios-icons">
+            <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.7" y="5" width="3" height="6" rx="1"/><rect x="9.3" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.9" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.2 9.6 9.4a2.2 2.2 0 0 0-3.2 0L8 11.2Zm0-4.1a4.6 4.6 0 0 1 3.4 1.5l1.4-1.6a6.8 6.8 0 0 0-9.6 0l1.4 1.6A4.6 4.6 0 0 1 8 7.1Zm0-4A8 8 0 0 1 13.9 5l1.5-1.7a10.2 10.2 0 0 0-14.8 0L2.1 5A8 8 0 0 1 8 3Z"/></svg>
+            <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0.5" y="0.9" width="22" height="10.2" rx="3" fill="none" stroke="#E9EEF4" opacity=".4"/><rect x="2" y="2.4" width="17" height="7.2" rx="1.6" fill="#E9EEF4"/><rect x="23.4" y="4" width="1.6" height="4" rx=".8" fill="#E9EEF4" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <div class="scr-body">
+          <div class="app-head">
+            <div class="app-id"><span class="avatar"></span><span class="app-name">StratOS</span></div>
+            <span class="bell">
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="#9098A4" stroke-width="1.4"><path d="M4 7a4.5 4.5 0 0 1 9 0c0 4 1.5 5 1.5 5h-12S4 11 4 7Z"/><path d="M7 14.5a1.7 1.7 0 0 0 3 0"/></svg>
+            </span>
+          </div>
+
+          <div class="kicker">In focus &middot; 1 open decision</div>
+          <div class="narrative">Target Canada is leaning toward <b>premature commitment</b> &mdash; conviction is running ahead of the evidence.</div>
+
+          <div class="scard">
+            <div class="scard-top">
+              <div><div class="scard-name">Discernment</div><div class="scard-status">LEANING &middot; STRUCTURED CONVICTION</div></div>
+              <span class="scard-chev">&rsaquo;</span>
+            </div>
+            <div class="bars">
+              <span style="height:38%;background:var(--hindsight);opacity:.5"></span><span style="height:52%;background:var(--hindsight);opacity:.6"></span><span style="height:44%;background:var(--hindsight);opacity:.7"></span><span style="height:72%;background:var(--hindsight)"></span><span style="height:60%;background:var(--hindsight);opacity:.85"></span><span style="height:34%;background:var(--hindsight);opacity:.6"></span><span style="height:48%;background:var(--hindsight);opacity:.7"></span>
+            </div>
+            <div class="scard-poles"><span>Structured conviction</span><span>Open inquiry</span></div>
+          </div>
+
+          <div class="scard warm">
+            <div class="scard-top">
+              <div><div class="scard-name">Execution</div><div class="scard-status">LEANING &middot; RELEASE</div></div>
+              <span class="scard-chev">&rsaquo;</span>
+            </div>
+            <div class="bars">
+              <span style="height:36%;background:var(--accent);opacity:.55"></span><span style="height:30%;background:var(--accent);opacity:.5"></span><span style="height:50%;background:var(--accent);opacity:.7"></span><span style="height:44%;background:var(--accent);opacity:.65"></span><span style="height:66%;background:var(--accent);opacity:.9"></span><span style="height:74%;background:var(--accent)"></span><span style="height:58%;background:var(--accent);opacity:.8"></span>
+            </div>
+            <div class="scard-poles"><span>Risk friction</span><span>Release</span></div>
+          </div>
+
+          <div class="ask"><span class="spark">&#10022;</span> Ask the instrument&hellip;</div>
+
+          <div class="tabbar">
+            <div class="tab on"><svg width="19" height="19" viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Cases</div>
+            <div class="tab"><svg width="19" height="19" viewBox="0 0 20 20"><path d="M4 14 8 8l3 3 5-6"/><circle cx="16" cy="5" r="1.2" fill="currentColor" stroke="none"/></svg>Evidence</div>
+            <div class="tab"><svg width="19" height="19" viewBox="0 0 20 20"><path d="M10 3v14M4 8l6-5 6 5"/></svg>Verdict</div>
+            <div class="tab"><svg width="19" height="19" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3.2"/><path d="M4 17c0-3.3 2.7-5 6-5s6 1.7 6 5"/></svg>You</div>
+          </div>
+          <div class="home-ind"></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ===================== FLOW ===================== -->
+  <div class="sect-tag">01 &mdash; The flow</div>
+  <h2>Case hero &rarr; evidence drill &rarr; commit</h2>
+  <p class="sect-intro">One real decision point: <span class="mono-ish">Target Canada, T2 &mdash; the 68-store scaling boundary, August 2013.</span> Each screen owns one job, and each job gets the gesture whose stakes match it.</p>
+
+  <div class="flow">
+
+    <!-- STAGE 1 -->
+    <div class="stage">
+      <div class="stage-head"><span class="stage-num">i</span><span class="stage-name">Case hero</span></div>
+      <div class="stage-sub">A self-contained verdict card. Glanceable thesis, current pole placement, the pending question.</div>
+      <div class="phone sm"><div class="screen">
+        <div class="ios-top"><span>9:41</span><span class="ios-icons"><svg width="15" height="10" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.7" y="5" width="3" height="6" rx="1"/><rect x="9.3" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.9" y="0" width="3" height="11" rx="1"/></svg><svg width="20" height="10" viewBox="0 0 26 12"><rect x="0.5" y="0.9" width="22" height="10.2" rx="3" fill="none" stroke="#E9EEF4" opacity=".4"/><rect x="2" y="2.4" width="17" height="7.2" rx="1.6" fill="#E9EEF4"/></svg></span></div>
+        <div class="scr-body">
+          <div class="kicker">Case &middot; Retail expansion</div>
+          <div class="scr-title big">Target Canada</div>
+          <div class="kicker" style="color:var(--accent)">T2 &middot; 68-STORE BOUNDARY</div>
+          <div class="scard" style="margin-top:2px">
+            <div class="scard-top"><div><div class="scard-name">Discernment</div><div class="scard-status">LEANING &middot; CONVICTION</div></div><span class="scard-chev">&rsaquo;</span></div>
+            <div class="bars"><span style="height:40%;background:var(--hindsight);opacity:.6"></span><span style="height:55%;background:var(--hindsight);opacity:.7"></span><span style="height:45%;background:var(--hindsight);opacity:.75"></span><span style="height:72%;background:var(--hindsight)"></span><span style="height:58%;background:var(--hindsight);opacity:.85"></span><span style="height:35%;background:var(--hindsight);opacity:.6"></span></div>
+            <div class="scard-poles"><span>Conviction</span><span>Open inquiry</span></div>
+          </div>
+          <div class="push"></div>
+          <div class="kicker">Pending judgment</div>
+          <div class="split"><div class="a">CONTINUE</div><div class="b">PREPARE &rsaquo;</div></div>
+          <div class="home-ind"></div>
+        </div>
+      </div></div>
+      <span class="gbadge g-swipe"><span class="gicon">&#8644;</span> Swipe</span>
+      <div class="gnote">Between cases &amp; tensions. Fully reversible &mdash; swipe back costs nothing.</div>
+    </div>
+
+    <!-- STAGE 2 -->
+    <div class="stage">
+      <div class="stage-head"><span class="stage-num">ii</span><span class="stage-name">Evidence drill</span></div>
+      <div class="stage-sub">Unpack what the verdict stands on. Every fact carries its provenance state &mdash; the honesty layer.</div>
+      <div class="phone sm"><div class="screen">
+        <div class="ios-top"><span>9:41</span><span class="ios-icons"><svg width="15" height="10" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.7" y="5" width="3" height="6" rx="1"/><rect x="9.3" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.9" y="0" width="3" height="11" rx="1"/></svg><svg width="20" height="10" viewBox="0 0 26 12"><rect x="0.5" y="0.9" width="22" height="10.2" rx="3" fill="none" stroke="#E9EEF4" opacity=".4"/><rect x="2" y="2.4" width="17" height="7.2" rx="1.6" fill="#E9EEF4"/></svg></span></div>
+        <div class="scr-body">
+          <div class="kicker">Store-activation exposure</div>
+          <div class="scr-title">What the 56-store push rests on</div>
+          <div style="margin-top:2px">
+            <div class="ev"><span class="ev-tag t-obs">OBSERVED</span><span class="ev-label">Canadian stores operating after Q2</span><span class="ev-val">68</span></div>
+            <div class="ev"><span class="ev-tag t-obs">OBSERVED</span><span class="ev-label">Remaining stores planned by year-end</span><span class="ev-val">56</span></div>
+            <div class="ev"><span class="ev-tag t-fog">FOG</span><span class="ev-label">Management ownership of the rollout</span><span class="ev-val" style="color:#9aa2ae">?</span></div>
+            <div class="ev"><span class="ev-tag t-hind">HINDSIGHT</span><span class="ev-label">Q3 Canadian warning evidence</span><span class="ev-val" style="color:var(--hindsight);font-size:11px">held</span></div>
+          </div>
+          <div class="push"></div>
+          <div class="kicker" style="text-align:center;padding:4px 0">&#8597; pull for assumptions &amp; sources</div>
+          <div class="home-ind"></div>
+        </div>
+      </div></div>
+      <span class="gbadge g-scroll"><span class="gicon">&#8597;</span> Scroll</span>
+      <div class="gnote">Depth within one verdict. Pure browsing &mdash; no commitment implied.</div>
+    </div>
+
+    <!-- STAGE 3 -->
+    <div class="stage">
+      <div class="stage-head"><span class="stage-num">iii</span><span class="stage-name">Commit</span></div>
+      <div class="stage-sub">The bet slip. The one weighty act &mdash; a deliberate tap that locks your call and your exposure.</div>
+      <div class="phone sm"><div class="screen">
+        <div class="ios-top"><span>9:41</span><span class="ios-icons"><svg width="15" height="10" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.7" y="5" width="3" height="6" rx="1"/><rect x="9.3" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.9" y="0" width="3" height="11" rx="1"/></svg><svg width="20" height="10" viewBox="0 0 26 12"><rect x="0.5" y="0.9" width="22" height="10.2" rx="3" fill="none" stroke="#E9EEF4" opacity=".4"/><rect x="2" y="2.4" width="17" height="7.2" rx="1.6" fill="#E9EEF4"/></svg></span></div>
+        <div class="scr-body">
+          <div class="kicker">Your judgment &middot; T2</div>
+          <div class="scr-title">Prepare &mdash; gate the 56-store cohort</div>
+          <p style="font-size:11px;color:#9098A4;margin:0;line-height:1.45">Release readiness gates before activation. A smaller increment than requested.</p>
+          <div class="push"></div>
+          <div class="slip">
+            <div class="slip-row"><span>Operation</span><b>PREPARE</b></div>
+            <div class="slip-row"><span>Exposure staked</span><b>56 stores</b></div>
+            <div class="slip-row"><span>Evidence basis</span><b>2 OBS &middot; 1 FOG</b></div>
+            <div class="slip-row"><span>Reversible?</span><b style="color:var(--observed)">Yes &middot; at T3</b></div>
+            <button class="commit">&#9673;&nbsp;&nbsp;Commit judgment</button>
+          </div>
+          <div class="home-ind"></div>
+        </div>
+      </div></div>
+      <span class="gbadge g-tap"><span class="gicon">&#9673;</span> Tap</span>
+      <div class="gnote">Reserved for commitment. It should feel like it cost something.</div>
+    </div>
+
+  </div>
+
+  <hr class="rule">
+
+  <!-- ===================== LOGIC ===================== -->
+  <div class="sect-tag">02 &mdash; The logic</div>
+  <h2>Gesture maps to stakes, not to effort</h2>
+  <p class="sect-intro">TikTok makes swipe feel "easiest" because there each item is self-contained, a wrong swipe is free, and the swipe only means <em>next</em>. In a judgment tool, none of that is automatic &mdash; so bind each gesture to what a mistake with it would cost.</p>
+
+  <div style="overflow-x:auto">
+  <table class="gtable">
+    <thead><tr><th>Gesture</th><th>Cost of a mistake</th><th>Its job in StratOS</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="gname"><span class="swatch" style="background:var(--swipe)"></span>Swipe</span><div class="cost lbl">lateral</div></td>
+        <td><span class="cost" style="color:var(--ink)">~zero</span> &middot; instantly reversible</td>
+        <td>Move between self-contained <b>cases and tensions</b> &mdash; the cheap, exploratory browse. Nothing is decided by arriving somewhere.</td>
+      </tr>
+      <tr>
+        <td><span class="gname"><span class="swatch" style="background:var(--scroll)"></span>Scroll</span><div class="cost lbl">vertical</div></td>
+        <td><span class="cost" style="color:var(--ink)">none</span> &middot; it's just depth</td>
+        <td>Drill into the <b>evidence behind one verdict</b> &mdash; OBSERVED &rarr; ESTIMATED &rarr; FOG &rarr; assumptions. Reading, never committing.</td>
+      </tr>
+      <tr>
+        <td><span class="gname"><span class="swatch" style="background:var(--tap)"></span>Tap</span><div class="cost lbl">deliberate</div></td>
+        <td><span class="cost" style="color:var(--ink)">you meant it</span> &middot; locks state</td>
+        <td>The single act that <b>commits</b> &mdash; place a pole, accept the verdict, stake exposure. The bet-slip moment. Guard it; make it feel weighty.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ===================== COMPS ===================== -->
+  <div class="sect-tag">03 &mdash; The comps</div>
+  <h2>What each reference teaches, and how StratOS takes it</h2>
+  <p class="sect-intro">Pulled from Mobbin, filtered to the patterns that translate. Screens open on Mobbin (auth required).</p>
+
+  <div class="ledger">
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/screens/3d206be7-b48f-4e5d-8168-3848a611e105" target="_blank" rel="noopener">Oura &middot; Advisor</a></div><div class="comp-role">Core structure</div></div><div class="comp-teach">Big score cards stacked vertically, a narrative verdict on top, an &ldquo;Ask Advisor&rdquo; input pinned below.</div><div class="comp-take">The home screen, almost verbatim &mdash; score card = tension pole, average = evidence state.</div><div class="comp-gest"><span class="mini g-scroll">&#8597; scroll</span></div></div>
+
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/screens/1f6f9b84-3a31-46d7-8af7-3ab7c5914b2a" target="_blank" rel="noopener">Blinkist &middot; Shorts</a></div><div class="comp-role">Verdict card</div></div><div class="comp-teach">Full-screen &ldquo;Key takeaways,&rdquo; source attributed at the foot, judged with a thumb.</div><div class="comp-take">One claim per screen, self-contained &mdash; the swipeable case hero.</div><div class="comp-gest"><span class="mini g-swipe">&#8644; swipe</span></div></div>
+
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/flows/07238cc8-6ae5-4ce4-be79-6e4c954b0c53" target="_blank" rel="noopener">Phantom &middot; Predictions</a></div><div class="comp-role">Commit / bet slip</div></div><div class="comp-teach">Browse markets freely; placing the position is always a deliberate, confirmed tap.</div><div class="comp-take">The verdict is your bet slip &mdash; frictionless up to it, weighty at it.</div><div class="comp-gest"><span class="mini g-tap">&#9673; tap</span></div></div>
+
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/screens/54bf4efc-d878-48f1-a478-23f3db15b316" target="_blank" rel="noopener">Instagram &middot; Story poll</a></div><div class="comp-role">Pole split</div></div><div class="comp-teach">&ldquo;Love it / Hate it &mdash; 46 / 54&rdquo; as a two-segment split bar.</div><div class="comp-take">A literal L&harr;R tension visualization for pole placement.</div><div class="comp-gest"><span class="mini g-swipe">&#8644; swipe</span></div></div>
+
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/screens/dd6a8028-eb2f-4fbc-bf7e-12a60e493f65" target="_blank" rel="noopener">Garmin &middot; Connect home</a></div><div class="comp-role">Dashboard-as-feed</div></div><div class="comp-teach">&ldquo;Today / In Focus&rdquo; &mdash; a scrollable stack of self-contained insight cards.</div><div class="comp-take">The dashboard-with-scrollability hybrid, done seriously.</div><div class="comp-gest"><span class="mini g-scroll">&#8597; scroll</span></div></div>
+
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/flows/e91bc9a4-db92-449a-8de2-2d5e81381f6b" target="_blank" rel="noopener">Life Reset &middot; &ldquo;We see you&rdquo;</a></div><div class="comp-role">Emotional register</div></div><div class="comp-teach">Answer honestly &rarr; the app synthesizes a verdict about you, one question per screen.</div><div class="comp-take">The felt experience: onboarding that delivers a judgment.</div><div class="comp-gest"><span class="mini g-swipe">&#8644; swipe</span> <span class="mini g-tap">&#9673; tap</span></div></div>
+
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/screens/f41976a6-dc7b-47f1-b2c6-5e28640d8f77" target="_blank" rel="noopener">Letterboxd &middot; Year in Review</a></div><div class="comp-role">Ranked hero</div></div><div class="comp-teach">&ldquo;#1 Highest Rated&rdquo; &mdash; full-bleed, a score, a pull-quote.</div><div class="comp-take">A scored case presented as a swipeable hero.</div><div class="comp-gest"><span class="mini g-swipe">&#8644; swipe</span></div></div>
+
+    <div class="comp"><div class="comp-top"><div class="comp-app"><a href="https://mobbin.com/screens/5c7dc9dc-0dbc-4b23-a895-fb625071742a" target="_blank" rel="noopener">Revolut &middot; Business analytics</a></div><div class="comp-role">Visual tone</div></div><div class="comp-teach">Dark ground, one big number per card, one chart each.</div><div class="comp-take">The financial-seriousness register &mdash; over pastel wellness.</div><div class="comp-gest"><span class="mini g-scroll">&#8597; scroll</span></div></div>
+  </div>
+
+  <footer>
+    <span>StratOS v5.1 &middot; six-tension ontology</span>
+    <span>Comps via Mobbin &middot; flow: case &rarr; evidence &rarr; commit</span>
+  </footer>
+
+</div>
