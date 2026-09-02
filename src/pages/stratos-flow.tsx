@@ -5,8 +5,9 @@ import {
   createDecisionExperienceViewModel,
   type DecisionExperienceViewModel,
   type PresentationTension,
+  type PresentationLeg,
 } from '@/lib/stratos/decisions/presentation';
-import type { EvidenceDisplayState, ResolvedDecisionInput } from '@/lib/stratos/decisions/decision-point';
+import type { EvidenceDisplayState } from '@/lib/stratos/decisions/decision-point';
 import { costSeries, formatUsdMillions, type CostSeriesPoint } from '@/lib/stratos/decisions/cost';
 import './stratos-flow.css';
 
@@ -78,8 +79,12 @@ function timelineCases(view: DecisionExperienceViewModel): readonly string[] {
     .sort((a, b) => firstDate.get(a)!.localeCompare(firstDate.get(b)!));
 }
 
-/** Smallest share of the track between two stops, so a cluster stays readable. */
-const MIN_GAP_PCT = 11.5;
+/** `2013-08-21` reads as `Aug 21, 2013`. */
+function formatDecisionDate(iso: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+  });
+}
 /** Stops are centred on their date, so the run is inset by half a row at each end. */
 const TRACK_INSET_PCT = 5;
 /**
@@ -112,23 +117,43 @@ function timelineStops(view: DecisionExperienceViewModel, caseName: string) {
   const first = time(ordered[0].decisionDate);
   const span = time(ordered[ordered.length - 1].decisionDate) - first || 1;
 
-  let previous = -Infinity;
-  return ordered.map((option, index) => {
-    const exact = TRACK_INSET_PCT + ((time(option.decisionDate) - first) / span) * (100 - TRACK_INSET_PCT * 2);
-    const x = Math.max(exact, previous + MIN_GAP_PCT);
-    previous = x;
-    const band = bandFor(option.id);
-    const year = option.decisionDate.slice(0, 4);
-    return {
-      option,
-      band,
-      x,
-      // Bands run top-to-bottom worst-last, so severity reads as descent.
-      y: TRACK_INSET_PCT + (BANDS.indexOf(band) / (BANDS.length - 1)) * (100 - TRACK_INSET_PCT * 2),
-      // A year is labelled once, at its first decision.
-      year: index === 0 || ordered[index - 1].decisionDate.slice(0, 4) !== year ? year : undefined,
-    };
-  });
+  return ordered.map((option) => ({
+    option,
+    band: bandFor(option.id),
+    // The true share of the elapsed span. Nothing nudges a crowded pair apart
+    // any more: on a chart whose slope is dollars per month, moving a point off
+    // its date changes the number it appears to report.
+    x: TRACK_INSET_PCT + ((time(option.decisionDate) - first) / span) * (100 - TRACK_INSET_PCT * 2),
+  }));
+}
+
+/**
+ * Calendar years across the span, evenly spaced because years are.
+ *
+ * The axis used to label each decision with its own year, which put the ticks
+ * wherever the decisions happened to fall — so four years of even time read as
+ * four uneven gaps. The ticks now come from the calendar and the dots sit
+ * wherever they truly land against them.
+ */
+function yearTicks(stops: readonly { option: { decisionDate: string } }[]) {
+  if (stops.length === 0) return [];
+  const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
+  const first = time(stops[0].option.decisionDate);
+  const span = time(stops[stops.length - 1].option.decisionDate) - first || 1;
+  const firstYear = new Date(first).getUTCFullYear();
+  const lastYear = new Date(first + span).getUTCFullYear();
+
+  const ticks: { year: number; x: number }[] = [];
+  for (let year = firstYear; year <= lastYear; year += 1) {
+    const at = Date.UTC(year, 0, 1);
+    ticks.push({
+      year,
+      x: TRACK_INSET_PCT + ((at - first) / span) * (100 - TRACK_INSET_PCT * 2),
+    });
+  }
+  // A tick for a year whose January sits before the first decision would hang
+  // off the left edge, so it is dropped rather than clamped onto the axis.
+  return ticks.filter(({ x }) => x >= 0 && x <= 100);
 }
 
 /**
@@ -222,17 +247,17 @@ function PoleCard({ tension, tone }: { tension: PresentationTension; tone: 'cool
     <div className={`sf-scard sf-scard--${tone}`}>
       <div className="sf-scard-top">
         <div>
-          <div className="sf-scard-name">{tension.name}</div>
-          <div className="sf-scard-status">
-            {tension.poleLabel ? `LEANING · ${tension.poleLabel.toUpperCase()}` : 'UNRESOLVED'}
-          </div>
+          {/* The tension's own name is internal vocabulary. What a reader can
+              act on is the pole it leans to and what would prove it. */}
+          <div className="sf-scard-name">{tension.poleLabel ?? 'Unresolved'}</div>
+          <div className="sf-scard-status">{tension.proof ?? 'No pole placed at this date'}</div>
         </div>
         <span className="sf-scard-chev" aria-hidden="true">›</span>
       </div>
       <div
         className="sf-track"
         role="img"
-        aria-label={`${tension.name} placed at ${tension.position} between ${tension.leftLabel} and ${tension.rightLabel}`}
+        aria-label={`Placed at ${tension.position} between ${tension.leftLabel} and ${tension.rightLabel}`}
       >
         <span className="sf-track-line" />
         <span className="sf-track-mid" />
@@ -252,7 +277,7 @@ function CaseScreen({ view }: { view: DecisionExperienceViewModel }) {
     <>
       <div className="sf-kicker">Case · {view.caseName}</div>
       <div className="sf-scr-title sf-scr-title--big">{view.companyName}</div>
-      <div className="sf-kicker sf-kicker--accent">{view.sequence} · {shortLabel(view)}</div>
+      <div className="sf-kicker sf-kicker--accent">{formatDecisionDate(view.cutoff)} · {shortLabel(view)}</div>
 
       <div className="sf-verdict-line">
         <strong className={`sf-v sf-v--${view.verdict.toLowerCase()}`}>{view.verdict}</strong>
@@ -283,48 +308,73 @@ function CaseScreen({ view }: { view: DecisionExperienceViewModel }) {
   );
 }
 
-function EvidenceScreen({ view }: { view: DecisionExperienceViewModel }) {
-  const rows = useMemo(() => {
-    const seen = new Set<string>();
-    const material = view.inspectionInputs.filter((input) => {
-      if (input.materiality !== 'material') return false;
-      const key = input.factRef ?? input.id;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    const ordered = [...material].sort((a, b) => (a.displayState === 'FOG' ? 1 : 0) - (b.displayState === 'FOG' ? 1 : 0));
-    return ordered.slice(0, EVIDENCE_ROWS);
+const LEG_TAG: Record<PresentationLeg['status'], string> = {
+  pass: 'CLEARS',
+  fail: 'BREAKS',
+  'no-line': 'NO LINE',
+};
+
+/**
+ * The slip.
+ *
+ * Borrowed from a betting slip because the shape of the question is the same:
+ * one call at the top, and under it every leg that has to come in for the call
+ * to hold. What a book does that a scorecard usually will not is refuse to
+ * price something it cannot price — it pulls the line. That is exactly the
+ * model's FOG state, and giving it the same treatment stops an unpriceable
+ * condition from reading as a quiet pass.
+ *
+ * The order is deliberate: what breaks first, then what cannot be priced, then
+ * what clears. A reader glancing at this wants the bad news at the top.
+ */
+function SlipScreen({ view }: { view: DecisionExperienceViewModel }) {
+  const legs = useMemo(() => {
+    const rank: Record<PresentationLeg['status'], number> = { fail: 0, 'no-line': 1, pass: 2 };
+    return [...view.legs].sort((a, b) => rank[a.status] - rank[b.status]).slice(0, EVIDENCE_ROWS);
   }, [view]);
-  const remaining = view.inspectionInputs.length - rows.length;
+
+  // Confidence is the share of the material evidence that was actually
+  // observed rather than estimated or absent. It is counted, not assigned.
+  const observed = view.inspectionInputs.filter(({ displayState }) => displayState === 'OBSERVED').length;
+  const confidence = view.inspectionInputs.length > 0
+    ? Math.round((observed / view.inspectionInputs.length) * 100)
+    : 0;
+
+  const [, change] = view.recommendations;
+  const broken = view.legs.filter(({ status }) => status === 'fail').length;
 
   return (
     <>
-      <div className="sf-kicker">{view.primaryExposureTitle}</div>
-      <div className="sf-scr-title">What the verdict rests on</div>
+      <div className="sf-kicker">The call · {formatDecisionDate(view.cutoff)}</div>
+      <div className="sf-pick">
+        <span className={`sf-pick-op sf-pick-op--${broken > 0 ? 'bad' : 'ok'}`}>{change.displayLabel}</span>
+        <span className="sf-pick-obj">{change.object}</span>
+      </div>
 
-      <div className="sf-ev-list">
-        {rows.map((input: ResolvedDecisionInput) => (
-          <div className="sf-ev" key={input.id}>
-            <span className={`sf-ev-tag ${STATE_TAG[input.displayState]}`}>{input.displayState}</span>
-            <span className="sf-ev-label">{input.label}</span>
-            <span className={`sf-ev-val ${input.displayState === 'FOG' ? 'is-fog' : ''}`}>
-              {input.displayState === 'FOG' ? '?' : shortMetric(input)}
-            </span>
-          </div>
-        ))}
-        {view.hindsight.slice(0, 1).map((input) => (
-          <div className="sf-ev" key={input.id}>
-            <span className={`sf-ev-tag ${STATE_TAG.HINDSIGHT}`}>HINDSIGHT</span>
-            <span className="sf-ev-label">{input.label}</span>
-            <span className="sf-ev-val is-hind">held</span>
+      <div className="sf-odds">
+        <div className="sf-odds-row">
+          <span>Evidence observed</span>
+          <b>{confidence}%</b>
+        </div>
+        <div className="sf-odds-bar" role="img" aria-label={`${confidence} percent of material evidence observed`}>
+          <span style={{ width: `${confidence}%` }} />
+        </div>
+      </div>
+
+      <div className="sf-legs">
+        {legs.map((leg) => (
+          <div className={`sf-leg sf-leg--${leg.status}`} key={`${leg.kind}-${leg.id}`} title={leg.detail}>
+            <span className="sf-leg-name">{leg.label}</span>
+            <span className="sf-leg-tag">{LEG_TAG[leg.status]}</span>
           </div>
         ))}
       </div>
 
       <div className="sf-push" />
       <div className="sf-kicker sf-kicker--centre">
-        ↕ {remaining > 0 ? `${remaining} more · ` : ''}assumptions &amp; sources
+        {broken > 0
+          ? `${broken} leg${broken === 1 ? ' breaks' : 's break'} — the call cannot come in`
+          : 'Nothing breaks; what is unpriced is what to buy next'}
       </div>
     </>
   );
@@ -343,7 +393,7 @@ function CommitScreen({ view }: { view: DecisionExperienceViewModel }) {
 
   return (
     <>
-      <div className="sf-kicker">Your judgment · {view.sequence}</div>
+      <div className="sf-kicker">Your judgment · {formatDecisionDate(view.cutoff)}</div>
       <div className="sf-scr-title">{commitment.displayLabel} — {commitment.object}</div>
       <p className="sf-scr-note">{commitment.authorizationReason}</p>
 
@@ -374,12 +424,12 @@ const STAGES = [
   },
   {
     num: 'ii',
-    name: 'Evidence drill',
-    sub: 'Unpack what the verdict stands on. Every fact carries its provenance state — the honesty layer.',
+    name: 'The slip',
+    sub: 'The call, and every leg that has to come in for it to hold. What cannot be priced says so.',
     gesture: 'scroll',
     icon: '↕',
-    note: 'Depth within one verdict. Pure browsing — no commitment implied.',
-    Screen: EvidenceScreen,
+    note: 'Depth within one call. Pure browsing — no commitment implied.',
+    Screen: SlipScreen,
   },
   {
     num: 'iii',
@@ -435,6 +485,9 @@ function SpendPlot({
           {scale.ticks.map((tick) => (
             <line key={tick} className="sf-gridline" x1="0" x2="100" y1={scale.y(tick)} y2={scale.y(tick)} />
           ))}
+          {yearTicks(stops).map(({ year, x }) => (
+            <line key={year} className="sf-yeargrid" x1={x} x2={x} y1="0" y2="100" />
+          ))}
           {points.map((point, index) => index === 0 ? null : (
             <line
               key={point.id}
@@ -454,7 +507,7 @@ function SpendPlot({
               className={`sf-cpt sf-cpt--${toneFor(stop)}${selected ? ' is-on' : ''}`}
               key={stop.option.id}
               style={{ left: `${stop.x}%`, top: `${scale.y(point.total)}%` }}
-              title={`${point.sequence} · ${stop.option.decisionDate} · ${formatUsdMillions(point.total)}${
+              title={`${formatDecisionDate(stop.option.decisionDate)} · ${formatUsdMillions(point.total)}${
                 point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
               }`}
             >
@@ -474,10 +527,8 @@ function SpendPlot({
       </div>
 
       <div className="sf-axis" aria-hidden="true">
-        {stops.map(({ option, x }) => (
-          <span key={option.id} className="sf-axis-year" style={{ left: `${x}%` }}>
-            {option.decisionDate.slice(0, 4)}
-          </span>
+        {yearTicks(stops).map(({ year, x }) => (
+          <span key={year} className="sf-axis-year" style={{ left: `${x}%` }}>{year}</span>
         ))}
       </div>
 
@@ -508,7 +559,7 @@ function Recommendation({
   return (
     <div className={`sf-rec sf-rec--${adverse ? 'bad' : 'ok'}`}>
       <div className="sf-rec-head">
-        <span className="sf-rec-seq">{view.sequence} · {view.cutoff}</span>
+        <span className="sf-rec-seq">{formatDecisionDate(view.cutoff)}</span>
         {point && (
           <span className="sf-rec-spend">
             {formatUsdMillions(point.total)} {point.implied ? 'implied' : 'recognised'}
@@ -599,7 +650,7 @@ function TimelineScreen({
       <div className="sf-kicker">{caseName} · money recognised against the commitment</div>
       <div className="sf-narrative">
         {rate > 0
-          ? <>Averaged <b>{formatUsdMillions(rate)} a month</b>{firstAdverse ? <> — and kept running past <b>{firstAdverse.option.decisionDate.slice(0, 4)}</b>.</> : '.'}</>
+          ? <>Averaged <b>{formatUsdMillions(rate)} a month</b>{firstAdverse ? <> — and kept running past <b>{formatDecisionDate(firstAdverse.option.decisionDate)}</b>.</> : '.'}</>
           : <>The commitment&rsquo;s cost never became public while it was being decided.</>}
       </div>
 
@@ -691,7 +742,7 @@ export default function StratosFlowPage() {
 
         <p className="sf-sect-intro">
           <span className="sf-mono">
-            {view.companyName}, {view.sequence} — {view.headline}, cutoff {view.cutoff}.
+            {view.companyName} — {view.headline}, as of {formatDecisionDate(view.cutoff)}.
           </span>{' '}
           Each screen owns one job, and each job gets the gesture whose stakes match it.
         </p>

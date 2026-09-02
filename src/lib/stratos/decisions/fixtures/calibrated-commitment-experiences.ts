@@ -36,6 +36,10 @@ import type {
 import { resolveDecisionPoint } from '../evidence-integrity';
 import { assertValidJudgmentResult, type JudgmentResult } from '../judgment';
 import { resolveCostFigure, type CostFigure, type CostFigureRef } from '../cost';
+import {
+  evaluateCommitmentReview,
+  type CommitmentReviewResult,
+} from '../../scoring/rubric';
 import { generateRecommendations } from '../recommendation-policy';
 import { adaptCommitmentReview } from '../verdict-adapter';
 
@@ -99,6 +103,8 @@ export interface AuthoredDecisionExperience {
   readonly profile: CaseProfile;
   readonly scorecard?: CaseScorecard;
   readonly cost: readonly CostFigure[];
+  readonly reviewInput: CommitmentReviewInput;
+  readonly review: CommitmentReviewResult;
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
   readonly comparison: DecisionComparison;
@@ -328,6 +334,8 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
     profile: config.profile,
     scorecard: config.scorecard,
     cost: (config.cost ?? []).map((ref) => resolveCostFigure(config.profile, ref)),
+    reviewInput: config.commitmentReview,
+    review: evaluateCommitmentReview(config.commitmentReview),
     decisionPoint,
     judgment,
     comparison,

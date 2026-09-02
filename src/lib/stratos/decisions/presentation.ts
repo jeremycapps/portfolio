@@ -2,6 +2,15 @@ import type { CaseProfile, EvidenceRef, SystemId } from '../cases/profile';
 import { SYSTEM_IDS, TARGET_CANADA } from '../cases';
 import { TENSIONS, poleName, poleSideFor, type PoleSide } from '../ontology';
 import type { CaseScorecard } from '../scoring/scorecard';
+import type {
+  CommitmentReviewInput,
+  CommitmentReviewResult,
+  SpendModel,
+} from '../scoring/rubric';
+import {
+  TARGET_CANADA_AUGUST_2013_REVIEW,
+  TARGET_CANADA_AUGUST_2013_REVIEW_INPUT,
+} from '../scoring/target-canada-august-review';
 import {
   EXPOSURE_CATEGORIES,
   type DecisionPacket,
@@ -72,6 +81,31 @@ export interface PresentationTension {
   readonly leftLabel: string;
   readonly rightLabel: string;
   readonly confidence: number;
+  /**
+   * What the placed pole is proven by.
+   *
+   * The tension's own name is internal vocabulary — a reader has no reason to
+   * know what "Discernment" means, and being told is not the same as being
+   * shown. The proof is the part that carries meaning on its own.
+   */
+  readonly proof?: string;
+}
+
+/**
+ * One condition the commitment has to clear, and whether it clears it.
+ *
+ * Floors and capacity models are different tests — a floor is a precondition,
+ * a model is a reserve — but they answer the same reader question, so they are
+ * presented together. `no-line` covers both an unknown floor and an
+ * indeterminate placement: the evidence does not support pricing it either way,
+ * which is a third answer rather than a soft pass.
+ */
+export interface PresentationLeg {
+  readonly id: string;
+  readonly label: string;
+  readonly kind: 'floor' | 'capacity';
+  readonly status: 'pass' | 'fail' | 'no-line';
+  readonly detail: string;
 }
 
 /**
@@ -144,6 +178,8 @@ export interface DecisionExperienceViewModel {
    * view, which is not the same as contributing a zero.
    */
   readonly cost: readonly CostFigure[];
+  /** Every condition the commitment has to clear, and how each one reads. */
+  readonly legs: readonly PresentationLeg[];
   /**
    * Present only when the case carries a scorecard placing its tensions.
    *
@@ -173,6 +209,8 @@ interface DecisionExperienceSource {
   readonly scorecard?: CaseScorecard;
   /** Money this decision placed. Empty where the packet reports no dollars. */
   readonly cost: readonly CostFigure[];
+  readonly reviewInput: CommitmentReviewInput;
+  readonly review: CommitmentReviewResult;
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
   readonly comparison: DecisionComparison;
@@ -194,6 +232,8 @@ const SOURCES: readonly DecisionExperienceSource[] = [
       basis: 'second-quarter segment operating loss',
       accrual: 'adds',
     })],
+    reviewInput: TARGET_CANADA_AUGUST_2013_REVIEW_INPUT,
+    review: TARGET_CANADA_AUGUST_2013_REVIEW,
     decisionPoint: TARGET_CANADA_AUGUST_2013_DECISION_POINT,
     judgment: TARGET_CANADA_AUGUST_2013_JUDGMENT,
     comparison: TARGET_CANADA_AUGUST_2013_COMPARISON,
@@ -230,6 +270,42 @@ function presentationCause(cause: JudgmentCause, profile: CaseProfile): Presenta
   };
 }
 
+const CAPACITY_LABEL: Record<SpendModel, string> = {
+  people: 'People',
+  time: 'Time',
+  finance: 'Budget',
+};
+
+function presentationLegs(
+  input: CommitmentReviewInput,
+  review: CommitmentReviewResult,
+): PresentationLeg[] {
+  const floors = input.riskFloors.map((floor): PresentationLeg => ({
+    id: floor.id,
+    // Floor ids are authored as slugs; the reader gets words.
+    label: floor.id.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()),
+    kind: 'floor',
+    status: floor.status === 'trip' ? 'fail' : floor.status === 'pass' ? 'pass' : 'no-line',
+    detail: floor.rationale,
+  }));
+
+  const capacity = (Object.keys(CAPACITY_LABEL) as SpendModel[]).map((model): PresentationLeg => {
+    const placed = review.placements[model];
+    const authored = input.placements[model];
+    return {
+      id: model,
+      label: CAPACITY_LABEL[model],
+      kind: 'capacity',
+      status: placed.status === 'collides' ? 'fail' : placed.status === 'fits' ? 'pass' : 'no-line',
+      detail: authored.kind === 'indeterminate'
+        ? authored.reason
+        : 'rationale' in authored ? authored.rationale : (placed.reason ?? ''),
+    };
+  });
+
+  return [...floors, ...capacity];
+}
+
 function presentationTensions(scorecard: CaseScorecard): PresentationTension[] {
   return SYSTEM_IDS.map((id: SystemId) => {
     const tension = TENSIONS.find((candidate) => candidate.id === id);
@@ -243,6 +319,7 @@ function presentationTensions(scorecard: CaseScorecard): PresentationTension[] {
       position: placed.position,
       side,
       poleLabel: side === 'neutral' ? undefined : poleName(tension, side),
+      ...(side === 'neutral' ? {} : { proof: side === 'r' ? tension.proofRight : tension.proofLeft }),
       leftLabel: tension.left,
       rightLabel: tension.right,
       confidence: placed.confidence,
@@ -317,6 +394,7 @@ export function createDecisionExperienceViewModel(
     })),
     hindsight: [...packet.hindsightInputs],
     cost: source.cost,
+    legs: presentationLegs(source.reviewInput, source.review),
     ...(source.scorecard ? { tensions: presentationTensions(source.scorecard) } : {}),
     cards: {
       currentCohort,
