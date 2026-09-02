@@ -270,6 +270,115 @@ function presentationCause(cause: JudgmentCause, profile: CaseProfile): Presenta
   };
 }
 
+export type RecommendationVerb = 'PROCEED' | 'TRIM' | 'HOLD' | 'EXIT' | 'WAIT';
+
+export interface DecisionRecommendation {
+  /**
+   * The engine's call, kept as a quiet tag rather than the headline. The
+   * headline is the situated verdict the page composes; the verb is machinery.
+   */
+  readonly verb: RecommendationVerb;
+  /**
+   * The second half of the verdict sentence — what the spend has and hasn't
+   * bought. Paired in the page with the spend figure it is set against.
+   */
+  readonly gap: string;
+  readonly breaking: readonly string[];
+  readonly open: readonly string[];
+  /** Where the uncertainty concentrates — the one place to point attention. */
+  readonly focus?: { readonly label: string; readonly detail: string };
+  /** Who owns that focus, translated from the leg to a natural role. */
+  readonly owner?: string;
+  /** The concrete next step, usually social: get the owner's read before X. */
+  readonly move: string;
+}
+
+/**
+ * The role that owns a leg, in the words an operator would use.
+ *
+ * Derived rather than authored, so it survives the case data being rewritten.
+ * Capacity legs map by model; floor legs by the concept in their label. Kept
+ * central here rather than on the review inputs for the same reason — the whole
+ * point of screen two is that it reads from whatever cases exist.
+ */
+function ownerFor(leg: PresentationLeg): string {
+  if (leg.kind === 'capacity') {
+    return leg.id === 'finance' ? 'the CFO' : leg.id === 'people' ? 'the staffing lead' : 'the delivery lead';
+  }
+  const key = `${leg.id} ${leg.label}`.toLowerCase();
+  const rules: readonly [RegExp, string][] = [
+    [/liquid|econom|budget|financ|capital/, 'the CFO'],
+    [/staff|people|workforce|hiring/, 'the staffing lead'],
+    [/safety|exposure|risk|toler/, 'the risk owner'],
+    [/authority|legitimacy|governance|sponsor/, 'the sponsor'],
+    [/infrastruc|readiness|conversion|remediat|release|capabil|operab|deploy/, 'the delivery lead'],
+  ];
+  return rules.find(([re]) => re.test(key))?.[1] ?? 'the owner';
+}
+
+const MOVE_TEMPLATE: Record<RecommendationVerb, (owner: string, focus: string) => string> = {
+  PROCEED: () => 'Clear to proceed at the placed scale.',
+  TRIM: (owner, focus) => `Get ${owner}'s read on ${focus} before the next increment.`,
+  HOLD: (owner, focus) => `Get ${owner}'s read on ${focus} before the next release.`,
+  WAIT: (owner, focus) => `Get ${owner}'s read on ${focus} before committing further.`,
+  EXIT: () => 'No read left to get — this is the wind-down call.',
+};
+
+function verbFor(view: DecisionExperienceViewModel): RecommendationVerb {
+  if (view.cause.kind === 'value-floor') return 'EXIT';
+  if (view.cause.kind === 'risk-floor') return 'HOLD';
+  if (view.verdict === 'COLLISION') return 'TRIM';
+  if (view.verdict === 'FIT') return 'PROCEED';
+  return 'WAIT';
+}
+
+/**
+ * The recommendation as three plain-language parts: where the money went, where
+ * the uncertainty is, and whose read closes it.
+ *
+ * Pure over the view model, so a browser never runs it and a test can. The
+ * spend half of the verdict is composed in the page, where the running total
+ * lives; everything that comes from the decision itself is here.
+ */
+export function decisionRecommendation(view: DecisionExperienceViewModel): DecisionRecommendation {
+  const verb = verbFor(view);
+  const breaking = view.legs.filter(({ status }) => status === 'fail').map(({ label }) => label);
+  const open = view.legs.filter(({ status }) => status === 'no-line').map(({ label }) => label);
+  const cleared = view.legs.filter(({ status }) => status === 'pass');
+
+  // The focus is the single item most worth attention: what breaks first, then
+  // what cannot be priced. A commitment that clears everything has none.
+  const focusLeg = view.legs.find(({ status }) => status === 'fail')
+    ?? view.legs.find(({ status }) => status === 'no-line');
+
+  const gap = breaking.length > 0
+    ? `${listLabels(breaking)} ${breaking.length === 1 ? 'falls' : 'fall'} short`
+    : open.length === view.legs.length
+      ? 'nothing is proven yet'
+      : cleared.length === view.legs.length
+        ? 'every condition clears'
+        : `every condition clears; only ${listLabels(open).toLowerCase()} ${open.length === 1 ? 'is' : 'are'} unpriced`;
+
+  const owner = verb === 'EXIT' || verb === 'PROCEED' || !focusLeg ? undefined : ownerFor(focusLeg);
+  const move = MOVE_TEMPLATE[verb](owner ?? 'the owner', focusLeg?.label.toLowerCase() ?? 'the open question');
+
+  return {
+    verb,
+    gap,
+    breaking,
+    open,
+    ...(focusLeg ? { focus: { label: focusLeg.label, detail: focusLeg.detail } } : {}),
+    ...(owner ? { owner } : {}),
+    move,
+  };
+}
+
+/** "A, B and C" — the verdict reads as a sentence, not a slug list. */
+function listLabels(labels: readonly string[]): string {
+  if (labels.length <= 1) return labels[0] ?? '';
+  return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
+}
+
 const CAPACITY_LABEL: Record<SpendModel, string> = {
   people: 'People',
   time: 'Time',

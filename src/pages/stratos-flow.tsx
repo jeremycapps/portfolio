@@ -3,8 +3,8 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { SiteHeader } from '@/components/site-header';
 import {
   createDecisionExperienceViewModel,
+  decisionRecommendation,
   type DecisionExperienceViewModel,
-  type PresentationTension,
   type PresentationLeg,
 } from '@/lib/stratos/decisions/presentation';
 import type { EvidenceDisplayState } from '@/lib/stratos/decisions/decision-point';
@@ -201,12 +201,6 @@ function costScale(points: readonly CostSeriesPoint[]) {
   };
 }
 
-/** The timeline's own label for this decision — the short form of the headline. */
-function shortLabel(view: DecisionExperienceViewModel): string {
-  const option = view.timeline.options.find(({ id }) => id === view.timeline.selectedId);
-  return option?.label ?? view.headline;
-}
-
 function StatusBar() {
   return (
     <div className="sf-ios-top">
@@ -239,75 +233,6 @@ function Phone({ children, hero = false }: { children: ReactNode; hero?: boolean
   );
 }
 
-/** The placement on its real track. Replaces the reference sparkline, which
- *  would need a series the model does not have. */
-function PoleCard({ tension, tone }: { tension: PresentationTension; tone: 'cool' | 'warm' }) {
-  const offset = ((tension.position + 1) / 2) * 100;
-  return (
-    <div className={`sf-scard sf-scard--${tone}`}>
-      <div className="sf-scard-top">
-        <div>
-          {/* The tension's own name is internal vocabulary. What a reader can
-              act on is the pole it leans to and what would prove it. */}
-          <div className="sf-scard-name">{tension.poleLabel ?? 'Unresolved'}</div>
-          <div className="sf-scard-status">{tension.proof ?? 'No pole placed at this date'}</div>
-        </div>
-        <span className="sf-scard-chev" aria-hidden="true">›</span>
-      </div>
-      <div
-        className="sf-track"
-        role="img"
-        aria-label={`Placed at ${tension.position} between ${tension.leftLabel} and ${tension.rightLabel}`}
-      >
-        <span className="sf-track-line" />
-        <span className="sf-track-mid" />
-        <span className={`sf-track-dot sf-track-dot--${tone}`} style={{ left: `${offset}%` }} />
-      </div>
-      <div className="sf-scard-poles">
-        <span className={tension.side === 'l' ? 'is-on' : undefined}>{tension.leftLabel}</span>
-        <span className={tension.side === 'r' ? 'is-on' : undefined}>{tension.rightLabel}</span>
-      </div>
-    </div>
-  );
-}
-
-function CaseScreen({ view }: { view: DecisionExperienceViewModel }) {
-  const placed = (view.tensions ?? []).filter((tension) => tension.side !== 'neutral').slice(0, 2);
-  return (
-    <>
-      <div className="sf-kicker">Case · {view.caseName}</div>
-      <div className="sf-scr-title sf-scr-title--big">{view.companyName}</div>
-      <div className="sf-kicker sf-kicker--accent">{formatDecisionDate(view.cutoff)} · {shortLabel(view)}</div>
-
-      <div className="sf-verdict-line">
-        <strong className={`sf-v sf-v--${view.verdict.toLowerCase()}`}>{view.verdict}</strong>
-        <span className="sf-cause">{view.cause.displayLabel}</span>
-      </div>
-
-      {placed.length > 0 ? (
-        placed.map((tension, index) => (
-          <PoleCard key={tension.id} tension={tension} tone={index === 0 ? 'cool' : 'warm'} />
-        ))
-      ) : (
-        <div className="sf-scard sf-scard--empty">
-          <div className="sf-scard-name">No dated placement</div>
-          <p>Placements are dated. This decision has no scorecard of its own, so it shows no poles rather than borrowing another date&rsquo;s.</p>
-        </div>
-      )}
-
-      <div className="sf-push" />
-      <div className="sf-kicker">Pending judgment</div>
-      <div className="sf-split">
-        {view.recommendations.map((recommendation, index) => (
-          <div key={recommendation.plane} className={index === 0 ? 'sf-split-a' : 'sf-split-b'}>
-            {recommendation.displayLabel}{index === 1 ? ' ›' : ''}
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
 const LEG_TAG: Record<PresentationLeg['status'], string> = {
   pass: 'CLEARS',
   fail: 'BREAKS',
@@ -327,40 +252,53 @@ const LEG_TAG: Record<PresentationLeg['status'], string> = {
  * The order is deliberate: what breaks first, then what cannot be priced, then
  * what clears. A reader glancing at this wants the bad news at the top.
  */
-function SlipScreen({ view }: { view: DecisionExperienceViewModel }) {
+/**
+ * The recommendation, expanded.
+ *
+ * Three plain-language parts: the verdict as a situated sentence (spend set
+ * against what it has and hasn't bought), the focus (where the uncertainty
+ * concentrates — the one place to look), and the move (whose read closes it).
+ * The leg list is demoted to supporting detail underneath, the way a bet slip
+ * carries the pick above and the legs below.
+ *
+ * `spendLabel` is the only thing passed in, because the running total lives on
+ * the chart; everything else is read from the decision.
+ */
+function SlipScreen({ view, spendLabel }: { view: DecisionExperienceViewModel; spendLabel?: string }) {
+  const rec = useMemo(() => decisionRecommendation(view), [view]);
   const legs = useMemo(() => {
     const rank: Record<PresentationLeg['status'], number> = { fail: 0, 'no-line': 1, pass: 2 };
-    return [...view.legs].sort((a, b) => rank[a.status] - rank[b.status]).slice(0, EVIDENCE_ROWS);
+    return [...view.legs].sort((a, b) => rank[a.status] - rank[b.status]);
   }, [view]);
-
-  // Confidence is the share of the material evidence that was actually
-  // observed rather than estimated or absent. It is counted, not assigned.
-  const observed = view.inspectionInputs.filter(({ displayState }) => displayState === 'OBSERVED').length;
-  const confidence = view.inspectionInputs.length > 0
-    ? Math.round((observed / view.inspectionInputs.length) * 100)
-    : 0;
-
-  const [, change] = view.recommendations;
-  const broken = view.legs.filter(({ status }) => status === 'fail').length;
+  const adverse = rec.verb === 'HOLD' || rec.verb === 'EXIT' || rec.verb === 'TRIM';
 
   return (
     <>
-      <div className="sf-kicker">The call · {formatDecisionDate(view.cutoff)}</div>
-      <div className="sf-pick">
-        <span className={`sf-pick-op sf-pick-op--${broken > 0 ? 'bad' : 'ok'}`}>{change.displayLabel}</span>
-        <span className="sf-pick-obj">{change.object}</span>
+      <div className="sf-rec-top">
+        <span className="sf-kicker">Recommendation · {formatDecisionDate(view.cutoff)}</span>
+        <span className={`sf-verb sf-verb--${adverse ? 'bad' : 'ok'}`}>{rec.verb}</span>
       </div>
 
-      <div className="sf-odds">
-        <div className="sf-odds-row">
-          <span>Evidence observed</span>
-          <b>{confidence}%</b>
+      {/* The verdict: money set against what it bought. Two clauses, one line. */}
+      <p className="sf-verdict">
+        {spendLabel && <b>{spendLabel}</b>}
+        {spendLabel ? ' — ' : ''}<span className="sf-verdict-gap">{rec.gap}</span>.
+      </p>
+
+      {rec.focus && (
+        <div className={`sf-focus sf-focus--${adverse ? 'bad' : 'ok'}`}>
+          <div className="sf-focus-tag">Where the uncertainty is</div>
+          <div className="sf-focus-name">{rec.focus.label}</div>
+          <p className="sf-focus-detail">{rec.focus.detail}</p>
         </div>
-        <div className="sf-odds-bar" role="img" aria-label={`${confidence} percent of material evidence observed`}>
-          <span style={{ width: `${confidence}%` }} />
-        </div>
+      )}
+
+      <div className="sf-move">
+        <span className="sf-move-tag">The move</span>
+        <p className="sf-move-text">{rec.move}</p>
       </div>
 
+      <div className="sf-push" />
       <div className="sf-legs">
         {legs.map((leg) => (
           <div className={`sf-leg sf-leg--${leg.status}`} key={`${leg.kind}-${leg.id}`} title={leg.detail}>
@@ -369,18 +307,11 @@ function SlipScreen({ view }: { view: DecisionExperienceViewModel }) {
           </div>
         ))}
       </div>
-
-      <div className="sf-push" />
-      <div className="sf-kicker sf-kicker--centre">
-        {broken > 0
-          ? `${broken} leg${broken === 1 ? ' breaks' : 's break'} — the call cannot come in`
-          : 'Nothing breaks; what is unpriced is what to buy next'}
-      </div>
     </>
   );
 }
 
-function CommitScreen({ view }: { view: DecisionExperienceViewModel }) {
+function CommitScreen({ view }: { view: DecisionExperienceViewModel; spendLabel?: string }) {
   const basis = useMemo(() => {
     const counts = new Map<EvidenceDisplayState, number>();
     for (const input of view.inspectionInputs) {
@@ -415,26 +346,17 @@ function CommitScreen({ view }: { view: DecisionExperienceViewModel }) {
 const STAGES = [
   {
     num: 'i',
-    name: 'Case hero',
-    sub: 'A self-contained verdict card. Glanceable thesis, current pole placement, the pending question.',
-    gesture: 'swipe',
-    icon: '⇄',
-    note: 'Between cases & tensions. Fully reversible — swipe back costs nothing.',
-    Screen: CaseScreen,
-  },
-  {
-    num: 'ii',
-    name: 'The slip',
-    sub: 'The call, and every leg that has to come in for it to hold. What cannot be priced says so.',
+    name: 'The recommendation',
+    sub: 'Where the money went, where the uncertainty is, and whose read closes it. The verdict is a sentence, not a category.',
     gesture: 'scroll',
     icon: '↕',
-    note: 'Depth within one call. Pure browsing — no commitment implied.',
+    note: 'Tap a point on the chart above; this resolves to that date.',
     Screen: SlipScreen,
   },
   {
-    num: 'iii',
+    num: 'ii',
     name: 'Commit',
-    sub: 'The bet slip. The one weighty act — a deliberate tap that locks your call and your exposure.',
+    sub: 'The one weighty act — a deliberate tap that locks your call and your exposure.',
     gesture: 'tap',
     icon: '◉',
     note: 'Reserved for commitment. It should feel like it cost something.',
@@ -552,10 +474,11 @@ function Recommendation({
   view: DecisionExperienceViewModel;
   point?: CostSeriesPoint;
 }) {
-  const [hold, change] = view.recommendations;
-  const adverse = view.cause.kind === 'value-floor' || view.cause.kind === 'risk-floor'
-    || view.verdict === 'COLLISION';
+  const rec = decisionRecommendation(view);
+  const adverse = rec.verb === 'HOLD' || rec.verb === 'EXIT' || rec.verb === 'TRIM';
 
+  // The glance version of the recommendation: the verdict in one line and the
+  // move underneath. Screen two expands the same call with its focus and legs.
   return (
     <div className={`sf-rec sf-rec--${adverse ? 'bad' : 'ok'}`}>
       <div className="sf-rec-head">
@@ -566,14 +489,10 @@ function Recommendation({
           </span>
         )}
       </div>
-      <div className="sf-rec-call">{hold.displayLabel} · {change.displayLabel}</div>
-      <p className="sf-rec-why">{view.cause.displayLabel}</p>
-      {/* `validatedScale` reads not-determined at every decision in the library,
-          so it would be the same dead row on every tap. What binds actually
-          moves — people at the VA release, people and finance at Target's exit. */}
-      <div className="sf-rec-scale">
-        <span>What binds</span>
-        <b>{view.bindingDimensions.length > 0 ? view.bindingDimensions.join(' · ') : 'nothing placed'}</b>
+      <p className="sf-rec-verdict">{rec.gap.charAt(0).toUpperCase()}{rec.gap.slice(1)}.</p>
+      <div className="sf-rec-move">
+        <span className={`sf-verb sf-verb--${adverse ? 'bad' : 'ok'}`}>{rec.verb}</span>
+        <span className="sf-rec-move-text">{rec.move}</span>
       </div>
     </div>
   );
@@ -700,6 +619,23 @@ export default function StratosFlowPage() {
   const [decisionId, setDecisionId] = useState<string>();
   const view = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
 
+  // The selected decision's cumulative spend, composed once here and handed to
+  // the recommendation screens — the running total is a property of the case,
+  // not of the decision, so it cannot come from the view model alone.
+  const spendLabel = useMemo(() => {
+    const stops = timelineStops(view, caseName);
+    const points = costSeries(stops.map(({ option, band }) => ({
+      id: option.id,
+      sequence: option.sequence,
+      decisionDate: option.decisionDate,
+      cost: option.cost,
+      adverse: band === 'COLLISION' || band === 'FLOOR',
+    })));
+    const point = points.find(({ id }) => id === view.timeline.selectedId);
+    if (!point) return undefined;
+    return `${formatUsdMillions(point.total)} ${point.implied ? 'implied' : 'recognised'}`;
+  }, [view, caseName]);
+
   // Switching case moves the selection with it. Leaving it behind would leave
   // the chart with no selected stop while the flow below still resolved to a
   // decision the chart no longer shows.
@@ -755,7 +691,7 @@ export default function StratosFlowPage() {
                 <span className="sf-stage-name">{name}</span>
               </div>
               <div className="sf-stage-sub">{sub}</div>
-              <Phone><Screen view={view} /></Phone>
+              <Phone><Screen view={view} spendLabel={spendLabel} /></Phone>
               <span className={`sf-gbadge sf-g-${gesture}`}>
                 <span className="sf-gicon" aria-hidden="true">{icon}</span>
                 {gesture[0].toUpperCase() + gesture.slice(1)}

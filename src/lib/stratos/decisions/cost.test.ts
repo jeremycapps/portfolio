@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { TARGET_CANADA, VA_EHR_MODERNIZATION } from '../cases';
 import type { CaseFact } from '../cases/profile';
 import { costSeries, formatUsdMillions, resolveCostFigure, usdMillions } from './cost';
-import { createDecisionExperienceViewModel } from './presentation';
+import { createDecisionExperienceViewModel, decisionRecommendation } from './presentation';
 
 const costOf = (id: string) => createDecisionExperienceViewModel(id).cost;
 
@@ -140,5 +140,44 @@ describe('the running total and its slope', () => {
       const totals = series(company).map(({ total }) => total);
       expect(totals).toEqual([...totals].sort((a, b) => a - b));
     }
+  });
+});
+
+describe('the decision recommendation', () => {
+  const rec = (id: string) => decisionRecommendation(createDecisionExperienceViewModel(id));
+
+  it('names the verb from the cause, not the verdict token', () => {
+    expect(rec('target-canada-t4-2015-02-25').verb).toBe('EXIT');   // value floor
+    expect(rec('va-ehr-t1-2020-10-24').verb).toBe('HOLD');          // risk floor
+    expect(rec('target-canada-t3-2014-02-26').verb).toBe('TRIM');   // capacity collision
+    expect(rec('target-canada-t0-2012-07-12').verb).toBe('WAIT');   // fog
+  });
+
+  it('points the move at the owner of wherever the uncertainty sits', () => {
+    expect(rec('va-ehr-t1-2020-10-24').owner).toBe('the delivery lead');
+    expect(rec('target-canada-t3-2014-02-26').owner).toBe('the CFO');
+    expect(rec('va-ehr-t1-2020-10-24').move).toMatch(/delivery lead.*before the next release/);
+  });
+
+  it('gives EXIT no owner, because there is no read left to get', () => {
+    const exit = rec('target-canada-t4-2015-02-25');
+    expect(exit.owner).toBeUndefined();
+    expect(exit.move).toMatch(/wind-down/);
+  });
+
+  it('reads the reset as one open line, not a stop', () => {
+    // Every readiness leg clears; only budget is unpriced. The instrument at its
+    // best: not "stop", but "here is the single number left to get".
+    const reset = rec('va-ehr-t3-2023-04-21');
+    expect(reset.verb).toBe('WAIT');
+    expect(reset.gap).toMatch(/every condition clears/);
+    expect(reset.focus?.label).toBe('Budget');
+    expect(reset.owner).toBe('the CFO');
+  });
+
+  it('states the gap as a sentence, joining what breaks', () => {
+    expect(rec('va-ehr-t1-2020-10-24').gap)
+      .toBe('Infrastructure readiness, Capability availability and People fall short');
+    expect(rec('target-canada-t0-2012-07-12').gap).toBe('nothing is proven yet');
   });
 });
