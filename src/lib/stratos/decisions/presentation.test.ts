@@ -47,7 +47,7 @@ describe('decision experience presentation adapter', () => {
   it('offers authored Target, Adobe, Domino’s, Ford, and VA packets', () => {
     const view = createDecisionExperienceViewModel();
 
-    expect(view.timeline.options).toHaveLength(9);
+    expect(view.timeline.options).toHaveLength(11);
     expect(view.timeline.options.map(({ id }) => id)).toEqual([
       'target-canada-t0-2012-07-12',
       'target-canada-t2-2013-08-21',
@@ -56,7 +56,9 @@ describe('decision experience presentation adapter', () => {
       'ford-model-e-t0-2022-07-21',
       'target-canada-t3-2014-02-26',
       'target-canada-t4-2015-02-25',
+      'va-ehr-t0-2018-05-17',
       'va-ehr-t1-2020-10-24',
+      'va-ehr-t2-2022-03-26',
       'va-ehr-t3-2023-04-21',
     ]);
     expect(new Set(view.timeline.options.map(({ companyName }) => companyName)).size).toBe(5);

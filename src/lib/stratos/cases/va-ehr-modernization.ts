@@ -91,6 +91,14 @@ export const VA_EHR_MODERNIZATION = defineCaseProfile({
       url: 'https://www.vaoig.gov/reports/hotline-healthcare-inspection/ticket-process-concerns-and-underlying-factors-contributing',
     },
     {
+      id: 'va-walla-walla-live-2022',
+      title: 'The Walla Walla VA is now live on VA\'s new electronic health record',
+      publisher: 'U.S. Department of Veterans Affairs',
+      kind: 'agency-release',
+      publishedAt: '2022-03-26',
+      url: 'https://www.va.gov/walla-walla-health-care/stories/the-walla-walla-va-is-now-live-on-vas-new-electronic-health-record/',
+    },
+    {
       id: 'gao-user-satisfaction-2023',
       title: 'Electronic Health Records: VA Needs to Address Ongoing Challenges with New System (GAO-23-106685)',
       publisher: 'U.S. Government Accountability Office',
@@ -248,6 +256,14 @@ export const VA_EHR_MODERNIZATION = defineCaseProfile({
       evidence: [{ sourceId: 'va-oig-ticket-process-2022', locator: 'Report summary, ticket resolution findings' }],
     },
     {
+      id: 'va-second-site-live-2022',
+      statement: 'The Jonathan M. Wainwright Memorial VA Medical Center in Walla Walla became the second VA facility operating the new electronic health record, effective March 26, 2022, covering sites of care across Washington, Oregon, and Idaho.',
+      observedAt: '2022-03-26',
+      origin: 'reported',
+      metric: { value: 2, unit: 'VA medical centers live' },
+      evidence: [{ sourceId: 'va-walla-walla-live-2022', locator: 'Announcement, go-live date and sites of care' }],
+    },
+    {
       id: 'va-user-experience-2023',
       statement: 'Users described inadequate training, lower morale and job satisfaction, and increased burnout, and VA had not established goals for assessing user satisfaction with the new system.',
       observedAt: '2023-03-15',
@@ -346,6 +362,7 @@ export const VA_EHR_MODERNIZATION = defineCaseProfile({
         'va-go-live-2020',
         'va-support-tickets-2021',
         'va-unresolved-medication-tickets-2021',
+        'va-second-site-live-2022',
       ],
       systems: {
         discernment: { status: 'evidenced', confidence: 'high', summary: 'Nine days before the next site went live, the inspector general reported that first-site problems remained unresolved and said resolving them before further deployment could reduce patient-safety risk.', factRefs: ['va-support-tickets-2021', 'va-unresolved-medication-tickets-2021'], unknowns: ['Whether the finding reached the release decision', 'Internal readiness criteria for site two', 'Who held the expansion decision'] },

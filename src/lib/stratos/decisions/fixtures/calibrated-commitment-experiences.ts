@@ -18,7 +18,9 @@ import type { CommitmentReviewInput } from '../../scoring/rubric';
 import type { CaseScorecard } from '../../scoring/scorecard';
 import { TARGET_CANADA_2014_WARNING_REVIEW_INPUT } from '../../scoring/target-canada-2014-review';
 import { TARGET_CANADA_2015_EXIT_REVIEW_INPUT } from '../../scoring/target-canada-2015-review';
+import { VA_EHR_2018_REVIEW_INPUT } from '../../scoring/va-ehr-2018-review';
 import { VA_EHR_2020_REVIEW_INPUT } from '../../scoring/va-ehr-2020-review';
+import { VA_EHR_2022_REVIEW_INPUT } from '../../scoring/va-ehr-2022-review';
 import { VA_EHR_2023_REVIEW_INPUT } from '../../scoring/va-ehr-2023-review';
 import {
   EXPOSURE_CATEGORIES,
@@ -464,6 +466,32 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   }),
   buildExperience({
     profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2018_REVIEW_INPUT,
+    snapshotId: 'authorization-2018-05-17',
+    sequence: 'T0',
+    id: 'va-ehr-t0-2018-05-17',
+    decisionDate: '2018-05-17',
+    reassessmentDate: '2019-05-17',
+    actor: 'VA leadership responsible for authorizing the electronic health record replacement',
+    current: { factRef: 'va-fy2018-appropriation', label: '$782 million appropriated for fiscal 2018' },
+    requested: { factRef: 'va-contract-ceiling-2018', label: 'Authorize a ten-year record replacement at a $10 billion ceiling' },
+    cadence: { factRef: 'va-specific-capability-additions-2018', label: 'Add Veteran, clinician, and community-care capabilities to the DoD platform' },
+    requestedScale: 'enterprise-wide record replacement',
+    timelineLabel: 'Contract authorization',
+    headline: 'Authorizing the commitment before any reserve is placed',
+    irreversibility: 'high',
+    unknowns: ['Implementation staffing requirement', 'Site conversion cycle time', 'Total lifecycle cost', 'Release gates and stopping conditions'],
+    secondaryExposureLabels: [
+      'Ten-year contract ceiling committed at award',
+      'Enterprise configuration and integration scope',
+      'Conversion load across every VA medical center',
+      'Clinical and implementation staffing not yet placed',
+      'Sustainment cost beyond the appropriated year',
+    ],
+    hindsightFactRef: 'va-lifecycle-estimate-2022',
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
     commitmentReview: VA_EHR_2020_REVIEW_INPUT,
     snapshotId: 'first-release-2020-10-24',
     sequence: 'T1',
@@ -487,6 +515,32 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
       'Site deployment and remediation spend exposure',
     ],
     hindsightFactRef: 'va-support-tickets-2021',
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2022_REVIEW_INPUT,
+    snapshotId: 'expansion-2022-03-26',
+    sequence: 'T2',
+    id: 'va-ehr-t2-2022-03-26',
+    decisionDate: '2022-03-26',
+    reassessmentDate: '2022-09-26',
+    actor: 'VA leadership responsible for the deployment schedule beyond the first site',
+    current: { factRef: 'va-support-tickets-2021', label: 'More than 38,700 support tickets raised at the first site' },
+    requested: { factRef: 'va-second-site-live-2022', label: 'Bring a second medical center onto the new record' },
+    cadence: { factRef: 'va-unresolved-medication-tickets-2021', label: 'Deploy with a third of reviewed medication tickets closed unresolved' },
+    requestedScale: 'one additional medical center',
+    timelineLabel: 'Expansion beyond the first site',
+    headline: 'Adding a site nine days after the findings on the first',
+    irreversibility: 'high',
+    unknowns: ['Support staffing required per site', 'Remediation cycle time for the open findings', 'Gate criteria for the second site', 'Quantified patient-safety tolerance'],
+    secondaryExposureLabels: [
+      'Contract and sustainment exposure carried forward',
+      'Configuration gaps replicated at a second site',
+      'Open ticket backlog inherited by the expansion',
+      'Support staffing spread across two live sites',
+      'Deployment and remediation spend drawn from one budget',
+    ],
+    hindsightFactRef: 'va-user-experience-2023',
   }),
   buildExperience({
     profile: VA_EHR_MODERNIZATION,

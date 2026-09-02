@@ -5,5 +5,7 @@ export * from './scorecard';
 export * from './target-canada-2014-review';
 export * from './target-canada-2015-review';
 export * from './target-canada-august-review';
+export * from './va-ehr-2018-review';
 export * from './va-ehr-2020-review';
+export * from './va-ehr-2022-review';
 export * from './va-ehr-2023-review';

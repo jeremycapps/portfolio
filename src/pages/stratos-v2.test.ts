@@ -91,7 +91,11 @@ describe('StratOS v2 decision experience', () => {
     expect(html).toContain('name="stratos-decision-date"');
     expect(html).toContain('checked=""');
     expect(html).toContain('T2 · August 21, 2013');
-    expect(html.match(/name="stratos-decision-date"/g)).toHaveLength(9);
+    // One radio per authored decision, counted from the model rather than
+    // pinned to a literal, so adding a case cannot silently stop rendering one.
+    expect(html.match(/name="stratos-decision-date"/g)).toHaveLength(
+      createDecisionExperienceViewModel().timeline.options.length,
+    );
     expect(html).toContain('Adobe Systems Incorporated');
     expect(html).toContain('Domino&#x27;s Pizza, Inc.');
     expect(html).toContain('Ford Motor Company');
