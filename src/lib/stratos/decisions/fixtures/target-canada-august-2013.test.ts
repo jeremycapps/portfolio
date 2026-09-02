@@ -62,7 +62,7 @@ describe('Target Canada August 2013 decision point', () => {
       'authority-unknown',
     ]);
     expect(TARGET_CANADA_AUGUST_2013_DECISION_POINT.materialUnknowns.every((input) => (
-      input.displayState === 'FOG' && input.materiality === 'material' && !('metric' in input)
+      input.epistemicState === 'FOG' && input.materiality === 'material' && !('metric' in input)
     ))).toBe(true);
   });
 

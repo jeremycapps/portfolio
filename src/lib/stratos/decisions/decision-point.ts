@@ -2,6 +2,17 @@ import type { CaseProfile, EvidenceOrigin, EvidenceRef, MetricRange, MetricValue
 
 export const DECISION_POINT_SCHEMA = 'stratos.decision-point/1' as const;
 export const DECISION_SEQUENCES = ['T0', 'T1', 'T2', 'T3', 'T4'] as const;
+/**
+ * What a claim is in itself, independent of any decision: reported, derived, or
+ * unplaceable. Authors write this.
+ */
+export const EVIDENCE_EPISTEMIC_STATES = ['OBSERVED', 'ESTIMATED', 'FOG'] as const;
+/**
+ * How a claim reads from one decision's vantage. `HINDSIGHT` is not a property a
+ * claim carries — it is the relationship between the claim's publication and a
+ * cutoff, so the same claim is HINDSIGHT at T1 and OBSERVED at T2. Derived, never
+ * authored.
+ */
 export const EVIDENCE_DISPLAY_STATES = ['OBSERVED', 'ESTIMATED', 'FOG', 'HINDSIGHT'] as const;
 export const EXPOSURE_CATEGORIES = [
   'scopeActivation',
@@ -13,6 +24,7 @@ export const EXPOSURE_CATEGORIES = [
 ] as const;
 
 export type DecisionSequence = typeof DECISION_SEQUENCES[number];
+export type EvidenceEpistemicState = typeof EVIDENCE_EPISTEMIC_STATES[number];
 export type EvidenceDisplayState = typeof EVIDENCE_DISPLAY_STATES[number];
 export type ExposureCategory = typeof EXPOSURE_CATEGORIES[number];
 export type ConstructProvenance = 'documented' | 'inferred' | 'analytical' | 'assumption';
@@ -20,7 +32,7 @@ export type ConstructProvenance = 'documented' | 'inferred' | 'analytical' | 'as
 export interface DecisionInput {
   readonly id: string;
   readonly label: string;
-  readonly displayState: EvidenceDisplayState;
+  readonly epistemicState: EvidenceEpistemicState;
   readonly materiality: 'material' | 'context';
   readonly metric?: MetricValue | MetricRange;
   readonly factRef?: string;
@@ -94,7 +106,27 @@ export interface DecisionValidationIssue {
 }
 
 export interface ResolvedDecisionInput extends DecisionInput {
+  /** Derived by {@link admitInput}; never authored. */
+  readonly displayState: EvidenceDisplayState;
   readonly sourceTitle?: string;
+}
+
+/**
+ * Read one claim from one decision's vantage.
+ *
+ * A claim published after the cutoff is inadmissible there and reads as
+ * HINDSIGHT, whatever it is in itself. An unplaceable claim stays FOG: it cites
+ * nothing that a cutoff could exclude. A claim with no publication date — an
+ * analytical construct, a stated commitment — keeps its authored state.
+ */
+export function admitInput(
+  epistemicState: EvidenceEpistemicState,
+  publishedAt: string | undefined,
+  knowledgeCutoff: string,
+): EvidenceDisplayState {
+  if (epistemicState === 'FOG') return 'FOG';
+  if (publishedAt !== undefined && publishedAt > knowledgeCutoff) return 'HINDSIGHT';
+  return epistemicState;
 }
 
 export interface DecisionPacket {

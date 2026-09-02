@@ -103,6 +103,9 @@ function collectScorecardRefs(authoring: CaseScorecardAuthoring): string[] {
           ...placement.transferability.sourceRefs,
         ];
       }
+      if (placement.kind === 'evidenced-shortfall') {
+        return [placement.required.sourceRef, placement.available.sourceRef];
+      }
       if (placement.kind === 'structural-bound' || placement.kind === 'structural-upper-bound'
         || placement.kind === 'structural-lower-bound') {
         return placement.sources.map((source) => source.ref);

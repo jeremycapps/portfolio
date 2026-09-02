@@ -403,6 +403,20 @@ export type CapacityPlacement =
       }[];
     }
   | {
+      /**
+       * A locally scoped shortfall: an evidenced requirement against an evidenced
+       * supply, both bounded to one named scope. Public evidence can establish a
+       * local collision — VA's 48 of 108 filled rollout-support positions — without
+       * claiming to know the organization's hidden reserve, so this kind is
+       * admissible at desk tier where `computed` is not. Both sides keep their own
+       * source, as-of date, and confidence rather than collapsing into one scalar.
+       */
+      readonly kind: 'evidenced-shortfall';
+      readonly scope: string;
+      readonly required: CapacityFigure;
+      readonly available: CapacityFigure;
+    }
+  | {
       readonly kind: 'indeterminate';
       readonly reason: string;
     };
@@ -507,6 +521,39 @@ export function evaluateCapacityPlacement(
       fitLowerBound: placement.fitAtLeast,
       unit: placement.unit,
       confidenceFloor: placement.confidence,
+      method: placement.kind,
+    };
+  }
+
+  if (placement.kind === 'evidenced-shortfall') {
+    if (!placement.scope.trim()) {
+      throw new Error('An evidenced shortfall requires a scope naming the local boundary it measures.');
+    }
+    for (const [name, figure] of [
+      ['required', placement.required],
+      ['available', placement.available],
+    ] as const) {
+      const issues = validateCapacityFigure(figure, accessTier);
+      if (issues.length > 0) throw new Error(`${name}: ${issues.join(' ')}`);
+      if (figure.state === 'committed' || figure.state === 'actual') {
+        throw new Error(
+          `${name}: an evidenced shortfall models a local position, not organizational reserve; `
+          + 'use a computed placement for committed or actual figures.',
+        );
+      }
+    }
+    if (placement.required.unit !== placement.available.unit) {
+      throw new Error('Required and available figures must use the same unit.');
+    }
+    const fit = {
+      low: placement.available.value.low - placement.required.value.high,
+      high: placement.available.value.high - placement.required.value.low,
+    };
+    return {
+      status: classifyFit(fit),
+      fit,
+      unit: placement.required.unit,
+      confidenceFloor: Math.min(placement.required.confidence, placement.available.confidence),
       method: placement.kind,
     };
   }

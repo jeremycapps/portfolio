@@ -10,6 +10,21 @@ public disclosures reveal the full internal organization.
 - `adobe-creative-cloud-2012-2016`: completed business-model transition.
 - `dominos-growth-2018-2025`: explicit endpoints missed amid continued growth.
 - `ford-model-e-2022-2026`: ongoing transformation with re-timed milestones.
+- `va-ehr-modernization-2018-2025`: public-sector program whose verdict recovers.
+
+The VA case is the library's worked example. It is the only case scored at four
+consecutive decisions where the verdict moves in both directions — fog at the
+authorization, floor at the first release and again at the expansion, then fog
+at the reset — which is what demonstrates that the engine reads the increment
+in front of it rather than the program's reputation. It is also the only case
+whose sources are audit reports rather than the subject's own disclosures.
+
+## Documented sources
+
+[`SOURCES.md`](./SOURCES.md) lists every document in the library with the facts
+resting on it and the date a public analyst could first use it. It is generated
+from the profiles by `npm run gen:case-sources` and guarded by a drift test, so
+it cannot fall behind the code it documents. Edit the profiles, not the sheet.
 
 Each profile contains public sources, atomic facts, a declared commitment, and
 knowledge-cutoff snapshots. Every snapshot explicitly assesses all six StratOS

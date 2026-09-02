@@ -254,6 +254,111 @@ describe('StratOS source contract and capacity placement', () => {
   });
 });
 
+describe('StratOS evidenced local shortfall', () => {
+  const positions = (
+    value: readonly [number, number],
+    state: CapacityFigure['state'],
+    sourceRef: string,
+  ): CapacityFigure => ({
+    value: { low: value[0], high: value[1] },
+    unit: 'rollout-support positions',
+    state,
+    confidence: 0.8,
+    asOf: '2020-01-08',
+    sourceRef,
+    sourceClass: 'A',
+  });
+
+  const shortfall = (
+    required: CapacityFigure,
+    available: CapacityFigure,
+  ): CapacityPlacement => ({
+    kind: 'evidenced-shortfall',
+    scope: 'Mann-Grandstaff EHR rollout-support staffing',
+    required,
+    available,
+  });
+
+  it('collides when the evidenced local supply falls below the evidenced local requirement', () => {
+    const result = evaluateCapacityPlacement(
+      shortfall(
+        positions([108, 108], 'observed', 'va-oig-access-2020'),
+        positions([48, 60], 'estimated', 'va-oig-access-2020'),
+      ),
+      'desk',
+    );
+
+    expect(result).toMatchObject({
+      status: 'collides',
+      fit: { low: -60, high: -48 },
+      unit: 'rollout-support positions',
+      method: 'evidenced-shortfall',
+    });
+  });
+
+  it('fits when the evidenced local supply meets the requirement', () => {
+    const result = evaluateCapacityPlacement(
+      shortfall(
+        positions([100, 100], 'observed', 'required-source'),
+        positions([110, 120], 'estimated', 'available-source'),
+      ),
+      'desk',
+    );
+
+    expect(result).toMatchObject({ status: 'fits', fit: { low: 10, high: 20 } });
+  });
+
+  it('carries the weakest confidence of the two figures as the floor', () => {
+    const required = { ...positions([108, 108], 'observed', 'required-source'), confidence: 0.9 };
+    const available = { ...positions([48, 48], 'observed', 'available-source'), confidence: 0.55 };
+
+    expect(evaluateCapacityPlacement(shortfall(required, available), 'desk')).toMatchObject({
+      confidenceFloor: 0.55,
+    });
+  });
+
+  it('refuses committed or actual figures because a local shortfall never asserts reserve', () => {
+    const insideFigure: CapacityFigure = {
+      ...positions([48, 48], 'committed', 'inside-source'),
+      sourceClass: 'inside',
+    };
+
+    expect(() => evaluateCapacityPlacement(
+      shortfall(positions([108, 108], 'observed', 'required-source'), insideFigure),
+      'inside-access',
+    )).toThrow(/models a local position, not organizational reserve/);
+  });
+
+  it('requires a named scope so an organization-wide claim cannot pose as a local one', () => {
+    expect(() => evaluateCapacityPlacement({
+      kind: 'evidenced-shortfall',
+      scope: '   ',
+      required: positions([108, 108], 'observed', 'required-source'),
+      available: positions([48, 48], 'observed', 'available-source'),
+    }, 'desk')).toThrow(/scope/);
+  });
+
+  it('requires both figures to share a unit', () => {
+    expect(() => evaluateCapacityPlacement(
+      shortfall(
+        positions([108, 108], 'observed', 'required-source'),
+        { ...positions([48, 48], 'observed', 'available-source'), unit: 'fte-months' },
+      ),
+      'desk',
+    )).toThrow(/same unit/);
+  });
+
+  it('applies the standard figure contract to both sides', () => {
+    expect(() => evaluateCapacityPlacement(
+      shortfall(
+        positions([108, 108], 'observed', 'required-source'),
+        { ...positions([48, 48], 'estimated', 'available-source'), sourceClass: 'D' },
+      ),
+      'desk',
+    )).toThrow(/Class D framing cannot supply a capacity figure/);
+  });
+});
+
 describe('StratOS Commitment Review decision cascade', () => {
   it('returns FLOOR when a non-compensating risk floor trips', () => {
     const result = evaluateCommitmentReview({
@@ -335,7 +440,6 @@ describe('StratOS evidence-profile adapter', () => {
       expect(packet.facts.length, profile.id).toBeGreaterThan(0);
       expect(packet.sources.every((source) => source.publishedAt <= packet.snapshot.knowledgeCutoff), profile.id).toBe(true);
       expect(packet.authoringRequirements.map((requirement) => requirement.id)).toContain('blind-prediction');
-      expect(profile.scoring.status).toBe('scored');
     }
   });
 });

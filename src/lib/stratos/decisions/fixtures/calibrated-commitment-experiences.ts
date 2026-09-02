@@ -3,6 +3,7 @@ import {
   DOMINOS_2025_GROWTH,
   FORD_MODEL_E,
   TARGET_CANADA,
+  VA_EHR_MODERNIZATION,
   type CaseFact,
   type CaseProfile,
   type EvidenceRef,
@@ -13,7 +14,14 @@ import {
   FORD_MODEL_E_COMMITMENT_SCORECARD,
   TARGET_CANADA_COMMITMENT_SCORECARD,
 } from '../../scoring/commitment-scorecards';
+import type { CommitmentReviewInput } from '../../scoring/rubric';
 import type { CaseScorecard } from '../../scoring/scorecard';
+import { TARGET_CANADA_2014_WARNING_REVIEW_INPUT } from '../../scoring/target-canada-2014-review';
+import { TARGET_CANADA_2015_EXIT_REVIEW_INPUT } from '../../scoring/target-canada-2015-review';
+import { VA_EHR_2018_REVIEW_INPUT } from '../../scoring/va-ehr-2018-review';
+import { VA_EHR_2020_REVIEW_INPUT } from '../../scoring/va-ehr-2020-review';
+import { VA_EHR_2022_REVIEW_INPUT } from '../../scoring/va-ehr-2022-review';
+import { VA_EHR_2023_REVIEW_INPUT } from '../../scoring/va-ehr-2023-review';
 import {
   EXPOSURE_CATEGORIES,
   defineDecisionPoint,
@@ -27,6 +35,11 @@ import type {
 } from '../decision-comparison';
 import { resolveDecisionPoint } from '../evidence-integrity';
 import { assertValidJudgmentResult, type JudgmentResult } from '../judgment';
+import { resolveCostFigure, type CostFigure, type CostFigureRef } from '../cost';
+import {
+  evaluateCommitmentReview,
+  type CommitmentReviewResult,
+} from '../../scoring/rubric';
 import { generateRecommendations } from '../recommendation-policy';
 import { adaptCommitmentReview } from '../verdict-adapter';
 
@@ -34,7 +47,7 @@ const ASSUMPTIONS = [
   { id: 'analytical-actor', statement: 'The aggregate decision actor is an analytical label; the public packet does not identify a single authorization owner.' },
   { id: 'analytical-boundary', statement: 'The bounded hold and reassessment date are StratOS controls, not reported company actions.' },
   { id: 'analytical-gates', statement: 'The proposed evidence gates are analytical and do not imply that the company used them.' },
-  { id: 'analytical-sequence', statement: 'T0 is a StratOS sequence label for the commitment-date packet.' },
+  { id: 'analytical-sequence', statement: 'T0, T1, T3 and the rest are StratOS sequence labels for dated decision packets; the organization did not number its decisions.' },
 ] as const;
 
 const SECONDARY_EXPOSURES = [
@@ -47,7 +60,25 @@ const SECONDARY_EXPOSURES = [
 
 interface ExperienceConfig {
   readonly profile: CaseProfile;
-  readonly scorecard: CaseScorecard;
+  /**
+   * The commitment review this decision renders. Commitment-date packets pass
+   * their scorecard's review; a case scored per release date passes the review
+   * authored for that date, since no scorecard spans them.
+   */
+  readonly commitmentReview: CommitmentReviewInput;
+  /** Supplies dated tension placements. A decision without one renders no poles. */
+  readonly scorecard?: CaseScorecard;
+  readonly snapshotId: string;
+  readonly sequence: DecisionPoint['sequence'];
+  /**
+   * Money this decision placed, if the case has a fact for it.
+   *
+   * Optional because most decisions have none: the packet at a release date
+   * reports readiness, not dollars. A decision without a figure contributes no
+   * point to the cost view rather than a zero, since "nothing was on the books
+   * yet" and "it cost nothing" are opposite claims.
+   */
+  readonly cost?: readonly CostFigureRef[];
   readonly id: string;
   readonly decisionDate: string;
   readonly reassessmentDate: string;
@@ -61,11 +92,19 @@ interface ExperienceConfig {
   readonly irreversibility: 'medium' | 'high';
   readonly unknowns: readonly string[];
   readonly secondaryExposureLabels: readonly [string, string, string, string, string];
-  readonly hindsightFactRef: string;
+  /**
+   * Omitted when nothing in the case is published after this decision — a real
+   * property of the last decision in a closed case, not a gap to fill.
+   */
+  readonly hindsightFactRef?: string;
 }
 
 export interface AuthoredDecisionExperience {
   readonly profile: CaseProfile;
+  readonly scorecard?: CaseScorecard;
+  readonly cost: readonly CostFigure[];
+  readonly reviewInput: CommitmentReviewInput;
+  readonly review: CommitmentReviewResult;
   readonly decisionPoint: DecisionPoint;
   readonly judgment: JudgmentResult;
   readonly comparison: DecisionComparison;
@@ -88,7 +127,7 @@ function inputFromFact(
   factRef: string,
   id: string,
   label: string,
-  displayState: DecisionInput['displayState'] = 'OBSERVED',
+  materiality: DecisionInput['materiality'] = 'material',
 ): DecisionInput {
   const fact = requireFact(profile, factRef);
   const evidence = fact.evidence[0];
@@ -97,8 +136,10 @@ function inputFromFact(
   return {
     id,
     label,
-    displayState,
-    materiality: displayState === 'HINDSIGHT' ? 'context' : 'material',
+    // A reported fact is OBSERVED in itself. Whether it reads as HINDSIGHT here
+    // follows from its publication date against this decision's cutoff.
+    epistemicState: 'OBSERVED',
+    materiality,
     metric: fact.metric,
     factRef,
     evidence,
@@ -112,14 +153,14 @@ function inputFromFact(
 const fog = (id: string, label: string): DecisionInput => ({
   id,
   label,
-  displayState: 'FOG',
+  epistemicState: 'FOG',
   materiality: 'material',
   assumptionRefs: [],
 });
 
 function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
-  const snapshot = config.profile.snapshots.find(({ id }) => id === config.scorecard.evidencePacket.snapshot.id);
-  if (!snapshot) throw new Error(`${config.profile.id} is missing its commitment snapshot.`);
+  const snapshot = config.profile.snapshots.find(({ id }) => id === config.snapshotId);
+  if (!snapshot) throw new Error(`${config.profile.id} is missing snapshot ${config.snapshotId}.`);
   const current = inputFromFact(config.profile, config.current.factRef, 'current-commitment', config.current.label);
   const requested = inputFromFact(config.profile, config.requested.factRef, 'requested-increment', config.requested.label);
   const cadence = inputFromFact(config.profile, config.cadence.factRef, 'commitment-cadence', config.cadence.label);
@@ -135,7 +176,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
     id: config.id,
     caseId: config.profile.id,
     evidenceSnapshotId: snapshot.id,
-    sequence: 'T0',
+    sequence: config.sequence,
     decisionDate: config.decisionDate,
     knowledgeCutoff: snapshot.knowledgeCutoff,
     actor: {
@@ -163,7 +204,7 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
       assumptionRefs: ['analytical-boundary'],
     },
     constructs: [
-      { id: `${config.id}-t0`, label: 'T0: commitment boundary', provenance: 'analytical', assumptionRefs: ['analytical-sequence'] },
+      { id: `${config.id}-sequence`, label: `${config.sequence}: decision boundary`, provenance: 'analytical', assumptionRefs: ['analytical-sequence'] },
       { id: `${config.id}-gates`, label: 'Proposed evidence release gates', provenance: 'assumption', assumptionRefs: ['analytical-gates'] },
     ],
     actualOperations: [
@@ -176,19 +217,15 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
     },
     materialUnknowns,
     assumptions: ASSUMPTIONS,
-    hindsight: [inputFromFact(
-      config.profile,
-      config.hindsightFactRef,
-      'outcome-hindsight',
-      'Later outcome evidence',
-      'HINDSIGHT',
-    )],
+    hindsight: config.hindsightFactRef
+      ? [inputFromFact(config.profile, config.hindsightFactRef, 'outcome-hindsight', 'Later outcome evidence', 'context')]
+      : [],
   });
   resolveDecisionPoint(decisionPoint, config.profile);
 
   const unknownLabels = materialUnknowns.map(({ label }) => label);
   const assessment = adaptCommitmentReview({
-    commitmentReview: config.scorecard.commitmentReviewInput,
+    commitmentReview: config.commitmentReview,
     materialUnknowns: unknownLabels,
     causeEvidenceRefs: [primaryEvidence],
   });
@@ -295,6 +332,10 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
 
   return {
     profile: config.profile,
+    scorecard: config.scorecard,
+    cost: (config.cost ?? []).map((ref) => resolveCostFigure(config.profile, ref)),
+    reviewInput: config.commitmentReview,
+    review: evaluateCommitmentReview(config.commitmentReview),
     decisionPoint,
     judgment,
     comparison,
@@ -310,7 +351,16 @@ function buildExperience(config: ExperienceConfig): AuthoredDecisionExperience {
 export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   buildExperience({
     profile: TARGET_CANADA,
+    commitmentReview: TARGET_CANADA_COMMITMENT_SCORECARD.commitmentReviewInput,
     scorecard: TARGET_CANADA_COMMITMENT_SCORECARD,
+    snapshotId: TARGET_CANADA_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
+    cost: [{
+      kind: 'committed',
+      factRef: 'canada-capital-committed-by-2012',
+      basis: 'capital placed by the opening announcement',
+      accrual: 'adds',
+    }],
     id: 'target-canada-t0-2012-07-12',
     decisionDate: '2012-07-12',
     reassessmentDate: '2013-03-05',
@@ -328,7 +378,10 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   }),
   buildExperience({
     profile: ADOBE_CREATIVE_CLOUD,
+    commitmentReview: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD.commitmentReviewInput,
     scorecard: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD,
+    snapshotId: ADOBE_CREATIVE_CLOUD_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
     id: 'adobe-creative-cloud-t0-2013-01-22',
     decisionDate: '2013-01-22',
     reassessmentDate: '2014-01-21',
@@ -346,7 +399,10 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   }),
   buildExperience({
     profile: DOMINOS_2025_GROWTH,
+    commitmentReview: DOMINOS_GROWTH_COMMITMENT_SCORECARD.commitmentReviewInput,
     scorecard: DOMINOS_GROWTH_COMMITMENT_SCORECARD,
+    snapshotId: DOMINOS_GROWTH_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
     id: 'dominos-growth-t0-2019-02-21',
     decisionDate: '2019-02-21',
     reassessmentDate: '2020-02-20',
@@ -364,7 +420,10 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
   }),
   buildExperience({
     profile: FORD_MODEL_E,
+    commitmentReview: FORD_MODEL_E_COMMITMENT_SCORECARD.commitmentReviewInput,
     scorecard: FORD_MODEL_E_COMMITMENT_SCORECARD,
+    snapshotId: FORD_MODEL_E_COMMITMENT_SCORECARD.evidencePacket.snapshot.id,
+    sequence: 'T0',
     id: 'ford-model-e-t0-2022-07-21',
     decisionDate: '2022-07-21',
     reassessmentDate: '2023-07-28',
@@ -379,5 +438,164 @@ export const CALIBRATED_COMMITMENT_EXPERIENCES = [
     unknowns: ['Demand-linked release gates', 'Battery and critical-role capacity', 'Plant ramp and quality thresholds', 'Capital loss tolerance'],
     secondaryExposureLabels: ['Supplier and battery-contract exposure', 'Manufacturing and platform capital exposure', 'Battery and vehicle inventory exposure', 'Engineering, software, and skilled-trades capacity', 'Investment and Model e loss exposure'],
     hindsightFactRef: 'run-rate-retimed-2023',
+  }),
+  buildExperience({
+    profile: TARGET_CANADA,
+    commitmentReview: TARGET_CANADA_2014_WARNING_REVIEW_INPUT,
+    snapshotId: 'warning-2014-02-26',
+    sequence: 'T3',
+    cost: [{ kind: 'realized', factRef: 'canada-ebit-2013', basis: 'first full-year segment operating loss', accrual: 'supersedes' }],
+    id: 'target-canada-t3-2014-02-26',
+    decisionDate: '2014-02-26',
+    reassessmentDate: '2014-08-20',
+    actor: 'Target management and board responsible for continuing the Canadian commitment',
+    current: { factRef: 'canada-sales-2013', label: 'Canadian segment operating at $1.3B annual sales' },
+    requested: { factRef: 'canada-ebit-2013', label: 'Absorb another operating year at the fiscal-2013 loss rate' },
+    cadence: { factRef: 'canada-q4-margin-2013', label: 'Clear excess inventory at a 4.4% fourth-quarter margin' },
+    requestedScale: 'another full operating year of the Canadian segment',
+    timelineLabel: 'First full-year operating evidence',
+    headline: 'A full year of economics against the operating floor',
+    irreversibility: 'high',
+    unknowns: ['Mature-store economics', 'Recovery investment authorization', 'Critical-role and training capacity', 'Board loss tolerance'],
+    secondaryExposureLabels: [
+      'Remaining lease obligations across the footprint',
+      'Capital already sunk in stores and distribution',
+      'Excess inventory still being cleared',
+      'Workforce carried against unrecovered economics',
+      'Cash consumed by continued operating losses',
+    ],
+    hindsightFactRef: 'stores-at-exit',
+  }),
+  buildExperience({
+    profile: TARGET_CANADA,
+    commitmentReview: TARGET_CANADA_2015_EXIT_REVIEW_INPUT,
+    snapshotId: 'outcome-2015-02-25',
+    sequence: 'T4',
+    cost: [{ kind: 'realized', factRef: 'exit-charge-2014', basis: 'pretax impairment and exit charge', accrual: 'adds' }],
+    id: 'target-canada-t4-2015-02-25',
+    decisionDate: '2015-02-25',
+    reassessmentDate: '2015-08-19',
+    actor: 'Target board responsible for discontinuing the Canadian commitment',
+    current: { factRef: 'stores-at-exit', label: '133 Canadian stores operating at the exit decision' },
+    requested: { factRef: 'board-approved-exit', label: 'Discontinue Canadian operations' },
+    cadence: { factRef: 'employees-at-exit', label: 'Wind down a 17,600-person workforce' },
+    requestedScale: 'discontinuation of the whole Canadian segment',
+    timelineLabel: 'Exit and loss recognition',
+    headline: 'The commitment leaves its own value floor',
+    irreversibility: 'high',
+    unknowns: ['Recoverable value of the disposed assets', 'Redeployment of released capacity', 'Supplier and landlord settlement terms', 'Reputational carry into the home market'],
+    secondaryExposureLabels: [
+      'Lease obligations settled on exit',
+      'Impaired store and distribution capital',
+      'Inventory liquidated in wind-down',
+      'Workforce released with the commitment',
+      'Cash cost of the exit charge',
+    ],
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2018_REVIEW_INPUT,
+    snapshotId: 'authorization-2018-05-17',
+    sequence: 'T0',
+    cost: [{ kind: 'committed', factRef: 'va-contract-ceiling-2018', basis: 'ten-year contract ceiling authorized at award', accrual: 'adds' }],
+    id: 'va-ehr-t0-2018-05-17',
+    decisionDate: '2018-05-17',
+    reassessmentDate: '2019-05-17',
+    actor: 'VA leadership responsible for authorizing the electronic health record replacement',
+    current: { factRef: 'va-fy2018-appropriation', label: '$782 million appropriated for fiscal 2018' },
+    requested: { factRef: 'va-contract-ceiling-2018', label: 'Authorize a ten-year record replacement at a $10 billion ceiling' },
+    cadence: { factRef: 'va-specific-capability-additions-2018', label: 'Add Veteran, clinician, and community-care capabilities to the DoD platform' },
+    requestedScale: 'enterprise-wide record replacement',
+    timelineLabel: 'Contract authorization',
+    headline: 'Authorizing the commitment before any reserve is placed',
+    irreversibility: 'high',
+    unknowns: ['Implementation staffing requirement', 'Site conversion cycle time', 'Total lifecycle cost', 'Release gates and stopping conditions'],
+    secondaryExposureLabels: [
+      'Ten-year contract ceiling committed at award',
+      'Enterprise configuration and integration scope',
+      'Conversion load across every VA medical center',
+      'Clinical and implementation staffing not yet placed',
+      'Sustainment cost beyond the appropriated year',
+    ],
+    hindsightFactRef: 'va-lifecycle-estimate-2022',
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2020_REVIEW_INPUT,
+    snapshotId: 'first-release-2020-10-24',
+    sequence: 'T1',
+    id: 'va-ehr-t1-2020-10-24',
+    decisionDate: '2020-10-24',
+    reassessmentDate: '2021-04-24',
+    actor: 'VA leadership responsible for authorizing the first production deployment',
+    current: { factRef: 'va-rollout-support-required-2020', label: '108 rollout-support positions identified as necessary' },
+    requested: { factRef: 'va-initial-population-2020', label: 'Move more than 24,000 primary-care Veterans onto the new record' },
+    cadence: { factRef: 'va-rollout-support-filled-2020', label: 'Release with a little more than 48 of those positions filled' },
+    requestedScale: 'first full production site',
+    timelineLabel: 'First production release',
+    headline: 'Release before readiness conditions held',
+    irreversibility: 'high',
+    unknowns: ['Quantified patient-safety tolerance', 'Verification cycle completion', 'Site-level financial capacity', 'Release gate criteria'],
+    secondaryExposureLabels: [
+      'Cerner contract and sustainment exposure',
+      'Infrastructure and hardware capital exposure',
+      'Clinical configuration and mitigation backlog',
+      'Clinical and rollout-support staffing exposure',
+      'Site deployment and remediation spend exposure',
+    ],
+    hindsightFactRef: 'va-support-tickets-2021',
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2022_REVIEW_INPUT,
+    snapshotId: 'expansion-2022-03-26',
+    sequence: 'T2',
+    id: 'va-ehr-t2-2022-03-26',
+    decisionDate: '2022-03-26',
+    reassessmentDate: '2022-09-26',
+    actor: 'VA leadership responsible for the deployment schedule beyond the first site',
+    current: { factRef: 'va-support-tickets-2021', label: 'More than 38,700 support tickets raised at the first site' },
+    requested: { factRef: 'va-second-site-live-2022', label: 'Bring a second medical center onto the new record' },
+    cadence: { factRef: 'va-unresolved-medication-tickets-2021', label: 'Deploy with a third of reviewed medication tickets closed unresolved' },
+    requestedScale: 'one additional medical center',
+    timelineLabel: 'Expansion beyond the first site',
+    headline: 'Adding a site nine days after the findings on the first',
+    irreversibility: 'high',
+    unknowns: ['Support staffing required per site', 'Remediation cycle time for the open findings', 'Gate criteria for the second site', 'Quantified patient-safety tolerance'],
+    secondaryExposureLabels: [
+      'Contract and sustainment exposure carried forward',
+      'Configuration gaps replicated at a second site',
+      'Open ticket backlog inherited by the expansion',
+      'Support staffing spread across two live sites',
+      'Deployment and remediation spend drawn from one budget',
+    ],
+    hindsightFactRef: 'va-user-experience-2023',
+  }),
+  buildExperience({
+    profile: VA_EHR_MODERNIZATION,
+    commitmentReview: VA_EHR_2023_REVIEW_INPUT,
+    snapshotId: 'reset-2023-04-21',
+    sequence: 'T3',
+    cost: [{ kind: 'hindsight', factRef: 'va-lifecycle-estimate-2022', basis: 'independent lifecycle estimate, public a month after this decision', accrual: 'supersedes' }],
+    id: 'va-ehr-t3-2023-04-21',
+    decisionDate: '2023-04-21',
+    reassessmentDate: '2024-04-21',
+    actor: 'VA leadership responsible for the deployment schedule and the reset',
+    current: { factRef: 'va-sites-live-at-reset-2023', label: 'Five VA medical-center systems operating on the new record' },
+    requested: { factRef: 'va-deployment-halt-2023', label: 'Halt further deployments and redirect resources to the operating sites' },
+    cadence: { factRef: 'va-user-experience-2023', label: 'Remediate against user-reported training, morale, and burnout evidence' },
+    requestedScale: 'no additional sites',
+    timelineLabel: 'Deployment reset',
+    headline: 'Stopping the release cadence to restore verification',
+    irreversibility: 'medium',
+    unknowns: ['Remediation cost against remaining funding', 'Criteria for resuming deployment', 'Announced pause duration', 'Thresholds the live sites must meet'],
+    secondaryExposureLabels: [
+      'Continuing Cerner contract and sustainment exposure',
+      'Capital already committed at the five live systems',
+      'Open configuration-change backlog',
+      'Support and remediation staffing at the live systems',
+      'Remediation spend against unplaced remaining funding',
+    ],
+    hindsightFactRef: 'va-lifecycle-estimate-2022',
   }),
 ] as const;

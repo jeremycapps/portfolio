@@ -27,7 +27,19 @@ export interface CaseSource {
   readonly id: string;
   readonly title: string;
   readonly publisher: string;
-  readonly kind: 'filing' | 'annual-report' | 'earnings-release' | 'company-release';
+  /**
+   * `audit-report` and `agency-release` carry the government cases. An inspector
+   * general or GAO report is the public-sector analogue of mandatory disclosure:
+   * independently produced, dated, and locatable, so it earns the same Class A
+   * standing as a filing.
+   */
+  readonly kind:
+    | 'filing'
+    | 'annual-report'
+    | 'earnings-release'
+    | 'company-release'
+    | 'audit-report'
+    | 'agency-release';
   /** Date on which a public analyst could first use this source. */
   readonly publishedAt: string;
   readonly url: string;
@@ -88,10 +100,11 @@ export interface CaseProfile {
   readonly schema: typeof CASE_PROFILE_SCHEMA;
   readonly id: string;
   readonly version: string;
+  /** The reporting organization. Government agencies have no ticker or exchange. */
   readonly company: {
     readonly name: string;
-    readonly ticker: string;
-    readonly exchange: string;
+    readonly ticker?: string;
+    readonly exchange?: string;
   };
   readonly case: {
     readonly name: string;
