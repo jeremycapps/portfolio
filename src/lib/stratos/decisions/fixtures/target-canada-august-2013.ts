@@ -104,7 +104,7 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
     },
   ],
   exposures: {
-    storeActivation: {
+    scopeActivation: {
       id: 'store-activation-exposure',
       label: 'Requested store-activation exposure',
       displayState: 'OBSERVED',
@@ -116,8 +116,8 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
       origin: 'reported',
       assumptionRefs: [],
     },
-    leases: fog('lease-exposure', 'Lease obligations for the remaining cohort'),
-    capitalRemodeling: fog('capital-remodeling-exposure', 'Capital and remodeling exposure for the remaining cohort'),
+    contracts: fog('lease-exposure', 'Lease obligations for the remaining cohort'),
+    capital: fog('capital-remodeling-exposure', 'Capital and remodeling exposure for the remaining cohort'),
     inventory: fog('inventory-exposure', 'Inventory exposure for the remaining cohort'),
     people: fog('people-exposure', 'People capacity and exposure for the remaining cohort'),
     cash: fog('cash-exposure', 'Cash exposure for the remaining cohort'),

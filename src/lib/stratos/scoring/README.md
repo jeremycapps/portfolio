@@ -4,6 +4,13 @@ This package translates the Tempo vault's Tension Model v5.1 and Commitment Revi
 
 The [decision-logic ledger](./DECISION_LOGIC.md) defines the permitted authoring anchors, distinguishes reported facts from coded judgments, and records the case for the initial numbers.
 
+The companion [judgment-layer guide](../decisions/README.md) documents how a
+dated v0.2 Commitment Review is projected into `FIT`, `FOG`, or `COLLISION`, an
+evidenced validated scale, material unknowns, and an ordered pair of bounded
+operations. Scoring remains the quantitative substrate; the judgment layer
+adds authorization semantics without collapsing people, time, and finance into
+a universal score.
+
 Each completed case has a separate outcome-calibrated retrodiction, while Ford has a latest-evidence calibration because its final 2026 horizon remains open. The original commitment-only `FOG` scorecards remain available for historical integrity. Calibrated outputs are Target `COLLISION`, Adobe `ABSORBABLE`, Domino's endpoint `COLLISION`, and Ford current `COLLISION` against the original plan.
 
 It deliberately does **not** produce one universal score. The output has two layers:
@@ -91,3 +98,9 @@ The four case files under `../cases` are evidence profiles linked to provisional
 8. A recorded prediction before the outcome window is opened.
 
 The outcome should stay sealed until the rubric version, lenses, and prediction are pinned. A historical reconstruction written by the same analyst is useful for method development, but it is not an independent blind validation.
+
+The Target August 2013 decision packet is a contemporaneous, cutoff-safe
+reconstruction. It must remain separate from the Target outcome-calibrated
+retrodiction described here: the former excludes later results when authoring
+its verdict and operations, while the latter intentionally uses outcomes to
+calibrate the method. Neither is a success prediction.

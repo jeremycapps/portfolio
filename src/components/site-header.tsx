@@ -35,11 +35,10 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
           <span className="brand-mark" aria-hidden="true">
             <Sparkles />
           </span>
-          <span data-testid="text-brand-name">Domain</span>
+          <span data-testid="text-brand-name">Jeremy Capps</span>
         </a>
 
         <nav className="nav-actions" aria-label="Main navigation">
-          <a className="nav-link" href="/" data-testid="link-portfolio" {...currentPage('portfolio')}>Portfolio</a>
           <a className="nav-link" href="/stratos-v2" data-testid="link-stratos" {...currentPage('stratos')}>StratOS v2</a>
           <a className="nav-link" href="/blog" data-testid="link-blog" {...currentPage('blog')}>Blog</a>
           <a className="nav-link" href="/about" data-testid="link-about" {...currentPage('about')}>About</a>
@@ -68,7 +67,6 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
         hidden={!menuOpen}
         data-testid="menu-mobile"
       >
-        <a href="/" data-testid="link-mobile-portfolio" {...currentPage('portfolio')}>Portfolio</a>
         <a href="/stratos-v2" data-testid="link-mobile-stratos" {...currentPage('stratos')}>StratOS v2</a>
         <a href="/blog" data-testid="link-mobile-blog" {...currentPage('blog')}>Blog</a>
         <a href="/about" data-testid="link-mobile-about" {...currentPage('about')}>About</a>

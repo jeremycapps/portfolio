@@ -108,6 +108,25 @@ These are descriptive indices. Higher does not mean better, safer, or more likel
 
 ## Commitment verdicts
 
+### Judgment-layer projection
+
+The scoring cascade is the substrate for the companion
+[judgment layer](../decisions/README.md). The projection adds authorization
+semantics without changing the v0.2 result:
+
+- `ABSORBABLE` becomes `FIT` only when a validated scale is independently
+  evidenced and no material unknown remains.
+- unresolved floors or placements remain `FOG` and cannot authorize the
+  requested scale;
+- `COLLISION`, and a known `FLOOR`, become `COLLISION`; known floor breaches
+  retain `value-floor` or `risk-floor` cause subtypes.
+
+Every projected judgment produces commitment-first and path-second operations
+from the canonical set `START`, `END`, `CONTINUE`, `CHANGE`, `EXCEPTION`, and
+`ESCALATE`. The pair is bounded by ownership, authority, gates, and
+reassessment. It is not a probability of success, and no operation may be
+inferred from a cross-unit ranking of people, time, and finance deficits.
+
 All four initial public scorecards currently return `FOG`, for different substantive reasons:
 
 | Case | Why the boundary cannot yet be placed | Strongest case that can be made from the packet |
@@ -146,6 +165,12 @@ Adobe's nonnegative people and time bounds do not claim quantified surplus. They
 ## Retrodiction limitation
 
 These scorecards were authored after some case outcomes were historically knowable. The software enforces the source cutoff, but it cannot erase an analyst's prior knowledge. They are therefore **cutoff-safe retrodictions**, not independent blind predictions. They are suitable for testing whether the method produces a coherent, contestable case from the permitted packet. Predictive validation requires freezing the rubric and scorecard on a genuinely unresolved case, timestamping it, and opening the outcome later.
+
+The `/stratos-v2` Target decision view uses the August 21, 2013 contemporaneous
+packet, not the outcome-calibrated scorecard above. `T1`, `T2`, proposed gates,
+and counterfactual quantities are visibly analytical; decision authority is
+unknown. Its category-specific exposure comparison cannot establish that all
+leases, capital, inventory, people, or cash obligations were avoidable.
 
 ## How to challenge a number
 

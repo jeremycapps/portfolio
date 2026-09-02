@@ -1,12 +1,12 @@
-import type { CaseProfile, EvidenceOrigin, EvidenceRef, MetricValue } from '../cases/profile';
+import type { CaseProfile, EvidenceOrigin, EvidenceRef, MetricRange, MetricValue } from '../cases/profile';
 
 export const DECISION_POINT_SCHEMA = 'stratos.decision-point/1' as const;
 export const DECISION_SEQUENCES = ['T0', 'T1', 'T2', 'T3', 'T4'] as const;
 export const EVIDENCE_DISPLAY_STATES = ['OBSERVED', 'ESTIMATED', 'FOG', 'HINDSIGHT'] as const;
 export const EXPOSURE_CATEGORIES = [
-  'storeActivation',
-  'leases',
-  'capitalRemodeling',
+  'scopeActivation',
+  'contracts',
+  'capital',
   'inventory',
   'people',
   'cash',
@@ -22,7 +22,7 @@ export interface DecisionInput {
   readonly label: string;
   readonly displayState: EvidenceDisplayState;
   readonly materiality: 'material' | 'context';
-  readonly metric?: MetricValue;
+  readonly metric?: MetricValue | MetricRange;
   readonly factRef?: string;
   readonly evidence?: EvidenceRef;
   readonly publishedAt?: string;

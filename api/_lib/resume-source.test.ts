@@ -629,6 +629,39 @@ describe('project split', () => {
     const { view } = await assembleResume('job', CORPUS_WITH_PROJECT, { hasModel: false });
     expect(view.projects[0].text).toBe('Built an LLM orchestration system. Added an evaluation harness.');
   });
+
+  it('presents the current bounded StratOS product description', async () => {
+    const stratosCorpus: ResumeCorpus = {
+      ...CORPUS_WITH_PROJECT,
+      engagements: [
+        ...CORPUS_WITH_PROJECT.engagements,
+        {
+          id: 'tempo_stratos_v5_governed_decision_product',
+          organization: 'Independent / Tempo',
+          roleContext: ['Independent 0-to-1 product project'],
+          timePeriod: '2026',
+          themes: ['strategy'],
+          roleFit: { strongest: [], secondary: [] },
+          caution: ['Never describe as a deployed or adopted product.'],
+          bullets: [
+            {
+              id: 'tempo_stratos_v5_governed_decision_product.b1',
+              text: 'Earlier v5 framing.',
+              evidenceRefs: [],
+              sourceRefs: ['stratos-source'],
+            },
+          ],
+        },
+      ],
+    };
+
+    const { view } = await assembleResume('strategy', stratosCorpus, { hasModel: false });
+    const stratos = view.projects.find((project) => project.id === 'tempo_stratos_v5_governed_decision_product');
+    expect(stratos?.name).toBe('StratOS — Commitment Judgment Prototype');
+    expect(stratos?.text).toContain('active 0-to-1 decision prototype');
+    expect(stratos?.text).toContain('release gate');
+    expect(stratos?.text).not.toContain('deployed');
+  });
 });
 
 describe('computeProvenance', () => {
