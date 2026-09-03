@@ -252,28 +252,51 @@ export function authorizeCommitment(input: CommitmentJudgmentInput): CommitmentE
   };
 }
 
+export interface MacroCompilationOptions {
+  readonly existingPath?: boolean;
+  readonly ownershipResolved?: boolean;
+}
+
+/** Compile a familiar display macro to the canonical operation grammar. */
+export function compileMacroOperation(
+  macro: FamiliarMacro,
+  options: MacroCompilationOptions = {},
+): CanonicalOperation {
+  if (macro === 'ADVANCE') return 'CONTINUE';
+  if (macro === 'EXIT') return 'END';
+  if (macro === 'LEARN' || macro === 'ADD') {
+    return options.existingPath ? 'CHANGE' : 'START';
+  }
+  if (macro === 'ROUTE_BACK') {
+    return options.ownershipResolved === false ? 'ESCALATE' : 'CHANGE';
+  }
+  return 'CHANGE';
+}
+
 export function compileMacro(
   macro: FamiliarMacro,
-  options: { readonly existingPath?: boolean; readonly ownershipResolved?: boolean } = {},
+  options: MacroCompilationOptions = {},
 ): Pick<OperationRecommendation, 'plane' | 'operation' | 'object' | 'parameters' | 'displayMacro'> {
-  type CompiledMacro = Pick<OperationRecommendation, 'plane' | 'operation' | 'object' | 'parameters'>;
-  const existingPath = options.existingPath ?? false;
-  const ownershipResolved = options.ownershipResolved ?? true;
+  type CompiledMacro = Pick<OperationRecommendation, 'plane' | 'object' | 'parameters'>;
   const compiled: Record<FamiliarMacro, CompiledMacro> = {
-    ADVANCE: { plane: 'commitment', operation: 'CONTINUE', object: 'commitment', parameters: { rate: 'planned_rate' } },
-    STAGE: { plane: 'commitment', operation: 'CHANGE', object: 'commitment', parameters: { tranche: 'smaller_tranche' } },
-    HOLD: { plane: 'commitment', operation: 'CHANGE', object: 'commitment', parameters: { release_rate: 0 } },
-    EXIT: { plane: 'commitment', operation: 'END', object: 'commitment', parameters: {} },
-    LEARN: { plane: 'path', operation: existingPath ? 'CHANGE' : 'START', object: 'validation', parameters: {} },
-    ADD: { plane: 'path', operation: existingPath ? 'CHANGE' : 'START', object: 'capacity', parameters: {} },
-    RESCOPE: { plane: 'commitment', operation: 'CHANGE', object: 'commitment_scope', parameters: {} },
-    REDESIGN: { plane: 'path', operation: 'CHANGE', object: 'configuration', parameters: {} },
-    ROUTE_BACK: ownershipResolved
-      ? { plane: 'path', operation: 'CHANGE', object: 'owner_or_prerequisite', parameters: {} }
-      : { plane: 'path', operation: 'ESCALATE', object: 'ownership', parameters: {} },
+    ADVANCE: { plane: 'commitment', object: 'commitment', parameters: { rate: 'planned_rate' } },
+    STAGE: { plane: 'commitment', object: 'commitment', parameters: { tranche: 'smaller_tranche' } },
+    HOLD: { plane: 'commitment', object: 'commitment', parameters: { release_rate: 0 } },
+    EXIT: { plane: 'commitment', object: 'commitment', parameters: {} },
+    LEARN: { plane: 'path', object: 'validation', parameters: {} },
+    ADD: { plane: 'path', object: 'capacity', parameters: {} },
+    RESCOPE: { plane: 'commitment', object: 'commitment_scope', parameters: {} },
+    REDESIGN: { plane: 'path', object: 'configuration', parameters: {} },
+    ROUTE_BACK: options.ownershipResolved === false
+      ? { plane: 'path', object: 'ownership', parameters: {} }
+      : { plane: 'path', object: 'owner_or_prerequisite', parameters: {} },
   };
 
-  return { ...compiled[macro], displayMacro: macro };
+  return {
+    ...compiled[macro],
+    operation: compileMacroOperation(macro, options),
+    displayMacro: macro,
+  };
 }
 
 export function validateEvaluation(evaluation: CommitmentEvaluation): ContractIssue[] {
