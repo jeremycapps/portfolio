@@ -1,4 +1,7 @@
 export * from './commitment-scorecards';
+export * from './mcdonalds-ibm-aot-2021-review';
+export * from './mcdonalds-ibm-aot-2022-review';
+export * from './mcdonalds-ibm-aot-2024-review';
 export * from './profile-adapter';
 export * from './rubric';
 export * from './scorecard';

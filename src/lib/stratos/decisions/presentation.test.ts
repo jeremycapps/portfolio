@@ -44,10 +44,10 @@ describe('decision experience presentation adapter', () => {
     expect(view.inspectionInputs.some(({ displayState }) => displayState === 'FOG')).toBe(true);
   });
 
-  it('offers authored Target, Adobe, Domino’s, Ford, VA, and Watson packets', () => {
+  it('offers authored Target, Adobe, Domino’s, Ford, VA, Watson, and McDonald’s packets', () => {
     const view = createDecisionExperienceViewModel();
 
-    expect(view.timeline.options).toHaveLength(14);
+    expect(view.timeline.options).toHaveLength(17);
     expect(view.timeline.options.map(({ id }) => id)).toEqual([
       'target-canada-t0-2012-07-12',
       'target-canada-t2-2013-08-21',
@@ -63,8 +63,11 @@ describe('decision experience presentation adapter', () => {
       'watson-md-anderson-t0-2013-10-18',
       'watson-md-anderson-t1-2014-02-06',
       'watson-md-anderson-t2-2017-02-19',
+      'mcdonalds-ibm-aot-t0-2021-10-27',
+      'mcdonalds-ibm-aot-t1-2022-06-23',
+      'mcdonalds-ibm-aot-t2-2024-06-17',
     ]);
-    expect(new Set(view.timeline.options.map(({ companyName }) => companyName)).size).toBe(6);
+    expect(new Set(view.timeline.options.map(({ companyName }) => companyName)).size).toBe(7);
   });
 
   it('carries a full arc for the anchor case', () => {

@@ -11,7 +11,7 @@ decision is allowed to see.
 `Reported` facts reproduce a figure the document states. `Derived` facts are
 computed from reported ones and carry their calculation in the profile.
 
-**6 cases · 32 sources · 119 facts**
+**7 cases · 37 sources · 136 facts**
 
 | Case | Sources | Facts | Evidence spans |
 | --- | ---: | ---: | --- |
@@ -19,6 +19,7 @@ computed from reported ones and carry their calculation in the profile.
 | [Adobe Systems Incorporated](#adobe-creative-cloud-2012-2016) | 3 | 17 | 2013-01-22 → 2017-01-20 |
 | [Domino's Pizza, Inc.](#dominos-growth-2018-2025) | 3 | 16 | 2019-02-21 → 2026-02-23 |
 | [Ford Motor Company](#ford-model-e-2022-2026) | 4 | 15 | 2022-07-21 → 2025-02-06 |
+| [McDonald's Corporation](#mcdonalds-ibm-aot-2021-2024) | 5 | 17 | 2021-06-03 → 2024-06-17 |
 | [U.S. Department of Veterans Affairs](#va-ehr-modernization-2018-2025) | 10 | 21 | 2018-05-17 → 2023-05-18 |
 | [The University of Texas MD Anderson Cancer Center](#watson-md-anderson-2013-2017) | 4 | 16 | 2013-10-18 → 2017-02-19 |
 
@@ -321,6 +322,79 @@ No fact currently cites this source.
 | `model-e-margin-gap-2024` — Ford Model e finished 2024 139.8 percentage points below the stated positive 8% EBIT-margin endpoint. | 2024-12-31 | Derived | -139.8 percentage points versus 8% EBIT-margin target |
 | `model-e-revenue-per-wholesale-2024` — Model e revenue averaged approximately $36,743 per wholesale unit in 2024 as a segment-scale ratio. | 2024-12-31 | Derived | 36,742.86 USD revenue per wholesale unit |
 | `model-e-ebit-per-wholesale-2024` — Model e EBIT averaged approximately negative $48,343 per wholesale unit in 2024 as a segment-scale ratio. | 2024-12-31 | Derived | -48,342.86 USD EBIT per wholesale unit |
+
+---
+
+## McDonald's Corporation (NYSE: MCD)
+
+`mcdonalds-ibm-aot-2021-2024`
+
+### 2021-06-03 · McDonald's pilots automated drive-thru ordering in Chicago
+
+- **Publisher** — Restaurant Dive
+- **Kind** — News report
+- **Reference** — `restaurant-dive-aot-pilot-2021`
+- **URL** — <https://www.restaurantdive.com/news/mcdonalds-pilots-automated-drive-thru-ordering-in-chicago/601210/>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-pre-transfer-pilot` — Before the IBM transfer, McDonald's was testing automated voice ordering at ten Chicago drive-thrus. | 2021-06-03 | Reported | 10 restaurants in field test |
+| `mcd-aot-pre-transfer-accuracy` — McDonald's CEO reported roughly 85% order accuracy in the ten-restaurant pre-transfer pilot. | 2021-06-03 | Reported | 85 percent order accuracy, approximate |
+| `mcd-aot-pre-transfer-intervention` — McDonald's CEO said employees still had to record about 20% of orders in the ten-restaurant pilot. | 2021-06-03 | Reported | 20 percent of orders requiring employee intervention, approximate |
+
+### 2021-10-27 · Joint Statement from McDonald’s and IBM
+
+- **Publisher** — IBM Newsroom
+- **Kind** — Company release
+- **Reference** — `ibm-mcdonalds-aot-2021`
+- **URL** — <https://newsroom.ibm.com/Joint-Statement-from-McDonalds-and-IBM>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-apprente-origin` — McDonald's created McD Tech Labs after acquiring voice-AI company Apprente in 2019. | 2019 | Reported | — |
+| `mcd-tech-labs-transfer` — IBM agreed to acquire McD Tech Labs and take its team into the IBM Cloud and Cognitive Software division to accelerate AOT development and deployment. | 2021-10-27 | Reported | — |
+| `mcd-aot-benefit-claim` — McDonald's and IBM said restaurant testing had shown substantial customer and crew-experience benefits. | 2021-10-27 | Reported | — |
+| `mcd-aot-scale-work` — IBM was expected to help scale AOT across markets and address additional languages, dialects, and menu variations. | 2021-10-27 | Reported | — |
+
+### 2022-06-23 · McDonald's AI voice ordering tests underperforming on accuracy, survey says
+
+- **Publisher** — Restaurant Dive
+- **Kind** — News report
+- **Reference** — `restaurant-dive-aot-accuracy-2022`
+- **URL** — <https://www.restaurantdive.com/news/mcdonalds-ai-drive-thru-voice-ordering-accuracy/625923/>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-test-24-restaurants` — McDonald's had expanded its voice-ordering test to 24 Illinois restaurants. | 2022-06-23 | Reported | 24 restaurants in field test |
+| `mcd-aot-low-80s-accuracy` — A BTIG franchisee survey reported AOT order accuracy in the low-80% range at the 24 Illinois test restaurants. | 2022-06-23 | Reported | — |
+| `mcd-aot-95-percent-gate` — The same report placed McDonald's desired order-accuracy threshold for broader adoption at 95% or higher. | 2022-06-23 | Reported | 95 percent order accuracy minimum |
+| `mcd-aot-improvement-path-2022` — BTIG said the technology was evolving rapidly and could become ready for wider adoption later in 2022, but did not place an evidenced improvement cycle. | 2022-06-23 | Reported | — |
+
+### 2024-06-17 · McDonald’s ends IBM drive-thru voice order test
+
+- **Publisher** — Restaurant Dive
+- **Kind** — News report
+- **Reference** — `restaurant-dive-aot-halt-2024`
+- **URL** — <https://www.restaurantdive.com/news/mcdonalds-ibm-drive-thru-automation-voice-ordering-ai/719085/>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-operational-test-purpose` — McDonald’s said the AOT tests were intended to determine operational savings and speed-of-service improvements. | 2024-06-17 | Reported | — |
+| `mcd-voice-ordering-still-valued` — McDonald's said the IBM work gave it confidence that a voice-ordering solution would be part of the future drive-thru experience. | 2024-06-17 | Reported | — |
+
+### 2024-06-17 · McDonald's Drops IBM's AI Order Tech, Seeks New Drive-Thru Tech
+
+- **Publisher** — AI Business
+- **Kind** — News report
+- **Reference** — `ai-business-aot-halt-2024`
+- **URL** — <https://aibusiness.com/nlp/mcdonald-s-drops-ibm-s-ai-order-tech-seeks-new-drive-thru-tech>
+
+| Fact | Observed | Origin | Metric |
+| --- | --- | --- | --- |
+| `mcd-aot-over-100-restaurants` — The AOT system had been deployed at more than 100 restaurant locations. | 2024-06-17 | Reported | 100 restaurants, lower bound |
+| `mcd-aot-partnership-ended` — McDonald's decided not to renew the IBM AOT partnership and to explore other voice-ordering solutions. | 2024-06-17 | Reported | — |
+| `mcd-aot-shutoff-by-july` — McDonald’s told franchisees the IBM AOT systems would be shut off in all test restaurants no later than July 26, 2024. | 2024-06-17 | Reported | — |
+| `mcd-aot-operations-owner` — McDonald's chief restaurant officer said the company saw an opportunity to explore voice-ordering solutions more broadly despite successes in the IBM test. | 2024-06-17 | Reported | — |
 
 ---
 

@@ -323,6 +323,7 @@ function ownerFor(leg: PresentationLeg): string {
   const rules: readonly [RegExp, string][] = [
     [/liquid|econom|budget|financ|capital/, 'the CFO'],
     [/staff|people|workforce|hiring/, 'the staffing lead'],
+    [/accuracy|order|service|restaurant|crew|operations/, 'the restaurant-operations lead'],
     [/safety|exposure|risk|toler/, 'the risk owner'],
     [/authority|legitimacy|governance|sponsor/, 'the sponsor'],
     [/infrastruc|readiness|conversion|remediat|release|capabil|operab|deploy/, 'the delivery lead'],
