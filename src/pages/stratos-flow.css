@@ -157,8 +157,9 @@
 .sf-cpt--ok .sf-cpt-dot { background: var(--ok); }
 .sf-cpt--bad .sf-cpt-dot { background: var(--bad); }
 /* An uncertain (fog) decision is neither good nor bad news yet — grey. */
-.sf-cpt--uncertain .sf-cpt-dot { background: #6b7280; }
-.sf-cpt--uncertain { color: #6b7280; }
+/* Unresolved is motion under thin evidence, not a stall — amber, not grey. */
+.sf-cpt--uncertain .sf-cpt-dot { background: var(--accent); }
+.sf-cpt--uncertain { color: var(--accent); }
 /* An implied point is read off the line rather than reported, so it is hollow. */
 .sf-cpt-dot.is-implied { background: var(--screen-bg); border: 2px solid currentColor; }
 .sf-cpt--ok { color: var(--ok); }
@@ -322,11 +323,47 @@
 .sf-narrative { font-size: 16px; font-weight: 500; line-height: 1.26; letter-spacing: -0.02em; color: #e9eef4; }
 .sf-narrative b { color: var(--accent); font-weight: 600; }
 
+/* ---------- convergence glance (screen 1, under the chart) ----------
+ * The chart is the convergence view; beneath it sit only the pivot that could
+ * still reach the goal and how much of the read is evidenced. Value is the dot
+ * labels, verdict is the colour, operation is screen three — so nothing else
+ * belongs here. A left rule in the verdict tone carries the verdict. */
+.sf-glance {
+  flex-shrink: 0; display: flex; flex-direction: column; gap: 7px;
+  padding: 9px 12px; background: var(--screen-bg);
+  border: 1px solid var(--hair); border-left-width: 2.5px; border-radius: 10px;
+}
+.sf-glance--ok { border-left-color: var(--ok); }
+.sf-glance--bad { border-left-color: var(--bad); }
+.sf-glance--uncertain { border-left-color: var(--accent); }
+.sf-glance-pivot { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.32; color: #e9eef4; letter-spacing: -0.01em; }
+.sf-glance-conf { display: flex; align-items: baseline; gap: 7px; }
+.sf-conf-tag { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #7d8797; }
+.sf-conf-val { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sf-glance--ok .sf-conf-val { color: var(--ok); }
+.sf-glance--bad .sf-conf-val { color: var(--bad); }
+.sf-glance--uncertain .sf-conf-val { color: var(--accent); }
+
+/* ---------- screen 3: the proposed task ---------- */
+.sf-task {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; background: var(--screen-bg);
+  border: 1px solid var(--hair); border-left-width: 3px; border-radius: 12px;
+}
+.sf-task--ok { border-left-color: var(--ok); }
+.sf-task--bad { border-left-color: var(--bad); }
+.sf-task--uncertain { border-left-color: var(--accent); }
+.sf-task-do { margin: 0; font-size: 15px; font-weight: 650; line-height: 1.3; letter-spacing: -0.02em; color: #e9eef4; }
+.sf-task-because { margin: 0; font-size: 12px; line-height: 1.4; color: #9098a4; }
+.sf-task-lead { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #7d8797; margin-right: 4px; }
+.sf-task-owner { font-size: 11.5px; color: #c6ccd6; }
+.sf-task-owner-tag { font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #7d8797; margin-right: 6px; }
+
 /* ---------- the chart ----------
  * Horizontal is calendar date, vertical is verdict severity, so the arc reads
  * as a descent rather than a caption. Band labels sit right, Oura-style; the
  * selected point carries a tooltip pill and a drop line to the axis. */
-.sf-chart { flex: 1; display: grid; grid-template-columns: 1fr 58px; grid-template-rows: 1fr 16px; gap: 0 8px; min-height: 210px; }
+.sf-chart { flex: 0 0 auto; height: 138px; display: grid; grid-template-columns: 1fr 58px; grid-template-rows: 1fr 16px; gap: 0 8px; }
 .sf-plot { position: relative; grid-column: 1; grid-row: 1; }
 .sf-plot-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .sf-gridline { stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; vector-effect: non-scaling-stroke; }
@@ -406,7 +443,8 @@
 .sf-phone { background: var(--frame); border-radius: 34px; padding: 8px; box-shadow: var(--phone-shadow); }
 .sf-phone--hero { border-radius: 44px; padding: 9px; }
 .sf-screen--hero { border-radius: 36px; aspect-ratio: 330 / 690; width: min(330px, 74vw); }
-.sf-screen--hero .sf-scr-body { padding: 14px 18px 6px; gap: 14px; }
+.sf-screen--hero .sf-scr-body { padding: 14px 18px 10px; gap: 10px; overflow-y: auto; scrollbar-width: none; }
+.sf-screen--hero .sf-scr-body::-webkit-scrollbar { display: none; }
 .sf-screen--hero .sf-ios-top { padding: 14px 26px 2px; font-size: 13px; }
 .sf-screen--hero .sf-home-ind { width: 120px; height: 5px; margin: 6px auto 9px; }
 .sf-screen {
@@ -423,7 +461,7 @@
 .sf-scr-body { flex: 1; padding: 10px 16px 6px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
 .sf-push { margin-top: auto; }
 
-.sf-kicker { font-size: 9.5px; letter-spacing: 0.15em; text-transform: uppercase; color: #7d8797; font-weight: 600; }
+.sf-kicker { font-size: 9.5px; letter-spacing: 0.15em; text-transform: uppercase; color: #7d8797; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sf-kicker--accent { color: var(--accent); }
 .sf-kicker--centre { text-align: center; padding: 4px 0; }
 .sf-scr-title { font-size: 19px; font-weight: 600; line-height: 1.16; letter-spacing: -0.02em; }

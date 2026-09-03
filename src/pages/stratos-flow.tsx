@@ -8,7 +8,7 @@ import {
   type PresentationLeg,
 } from '@/lib/stratos/decisions/presentation';
 import type { EvidenceDisplayState } from '@/lib/stratos/decisions/decision-point';
-import { costSeries, formatUsdMillions, type CostSeriesPoint } from '@/lib/stratos/decisions/cost';
+import { costSeries, formatUsdMillions, type CostFigure, type CostSeriesPoint } from '@/lib/stratos/decisions/cost';
 import './stratos-flow.css';
 
 /**
@@ -167,6 +167,7 @@ function yearTicks(stops: readonly { option: { decisionDate: string } }[]) {
  */
 const SHORT_CASE_NAMES: Record<string, string> = {
   'Target Corporation': 'Target',
+  "McDonald's Corporation": "McDonald's",
   'U.S. Department of Veterans Affairs': 'VA',
   'The University of Texas MD Anderson Cancer Center': 'Watson',
 };
@@ -189,10 +190,15 @@ function shortCaseName(name: string): string {
  */
 function costScale(points: readonly CostSeriesPoint[]) {
   const totals = points.map(({ total }) => total);
-  const max = Math.max(...totals) * 1.12;
+  const observedMax = Math.max(0, ...totals);
+  // A case with no disclosed dollars has no money line. Keep the coordinate
+  // system finite for its dated decision markers without manufacturing a $0
+  // measurement or asking Math.log10(0) to produce chart ticks.
+  const max = observedMax === 0 ? 1 : observedMax * 1.12;
   return {
     y: (total: number) => (100 - TRACK_INSET_PCT) - (total / max) * (100 - TRACK_INSET_PCT * 2),
     ticks: (() => {
+      if (observedMax === 0) return [];
       // Three gridlines, on a round number that lands near the top of the data.
       const step = 10 ** Math.floor(Math.log10(max / 3));
       const rounded = Math.ceil(max / 3 / step) * step;
@@ -352,6 +358,42 @@ function CommitScreen({ view }: { view: DecisionExperienceViewModel; spendLabel?
   );
 }
 
+/**
+ * Screen three — the operation role as one proposed task.
+ *
+ * "Do ___ because ___", from the situated recommendation rather than the raw
+ * engine token: the move is the action, the focus is the reason, and the owner
+ * is a natural role. An exit has no one left to ask, so the owner chip is
+ * dropped rather than faked. Verdict-toned, like the rest of the step.
+ */
+function ProposedTaskScreen({ view, onBack }: { view: DecisionExperienceViewModel; spendLabel?: string; onBack?: () => void }) {
+  const rec = decisionRecommendation(view);
+  const tone = toneOfBand(bandOf(view));
+
+  return (
+    <>
+      <div className="sf-con-top">
+        <button className="sf-back" type="button" onClick={onBack}>
+          <span aria-hidden="true">‹</span> Back
+        </button>
+        <span className="sf-con-title">Proposed task</span>
+      </div>
+
+      <div className="sf-push" />
+      <div className={`sf-task sf-task--${tone}`}>
+        <p className="sf-task-do">{rec.move}</p>
+        {rec.focus ? (
+          <p className="sf-task-because"><span className="sf-task-lead">Because</span> {rec.focus.detail}</p>
+        ) : null}
+        {rec.owner ? (
+          <div className="sf-task-owner"><span className="sf-task-owner-tag">Owner</span> {rec.owner}</div>
+        ) : null}
+      </div>
+      <div className="sf-push" />
+    </>
+  );
+}
+
 const STAGES = [
   {
     num: 'i',
@@ -364,6 +406,15 @@ const STAGES = [
   },
   {
     num: 'ii',
+    name: 'The task',
+    sub: 'The operation role, resolved to one thing to do: do this, because that. The owner is the natural role to get a read from before the next commitment.',
+    gesture: 'swipe',
+    icon: '⇄',
+    note: 'One proposed task, re-resolved to the selected step.',
+    Screen: ProposedTaskScreen,
+  },
+  {
+    num: 'iii',
     name: 'Commit',
     sub: 'The one weighty act — a deliberate tap that locks your call and your exposure.',
     gesture: 'tap',
@@ -401,6 +452,7 @@ function SpendPlot({
   onSelect: (id: string) => void;
 }) {
   const scale = costScale(points);
+  const hasCostLine = stops.some(({ option }) => option.cost.length > 0);
   const at = (index: number) => ({ x: stops[index].x, y: scale.y(points[index].total) });
   // The goal line: an even burn from zero to what was committed, drawn dotted so
   // the solid actual line reads against it. Where actual sits above, the
@@ -442,7 +494,7 @@ function SpendPlot({
               vectorEffect="non-scaling-stroke"
             />
           )}
-          {points.map((point, index) => index === 0 ? null : (
+          {hasCostLine && points.map((point, index) => index === 0 ? null : (
             <line
               key={point.id}
               className="sf-spend"
@@ -466,9 +518,11 @@ function SpendPlot({
               className={`sf-cpt sf-cpt--${toneFor(stop)}${selected ? ' is-on' : ''}`}
               key={stop.option.id}
               style={{ left: `${stop.x}%`, top: `${scale.y(point.total)}%` }}
-              title={`${formatDecisionDate(stop.option.decisionDate)} · ${formatUsdMillions(point.total)}${
-                point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
-              }`}
+              title={hasCostLine
+                ? `${formatDecisionDate(stop.option.decisionDate)} · ${formatUsdMillions(point.total)}${
+                    point.figure ? ` · ${point.figure.basis}` : ' · implied; no figure published at this date'
+                  }`
+                : `${formatDecisionDate(stop.option.decisionDate)} · no public cost figure`}
             >
               <input
                 type="radio"
@@ -478,7 +532,7 @@ function SpendPlot({
                 onChange={() => onSelect(stop.option.id)}
               />
               <span className={`sf-cpt-dot${point.implied ? ' is-implied' : ''}`} />
-              <span className="sf-cpt-val">{formatUsdMillions(point.total)}</span>
+              <span className="sf-cpt-val">{hasCostLine ? formatUsdMillions(point.total) : 'no line'}</span>
             </label>
           );
         })}
@@ -495,48 +549,79 @@ function SpendPlot({
   );
 }
 
-/**
- * What the model would have said at the tapped point.
- *
- * The chart shows the money; this shows the call. Keeping them on one screen is
- * the whole argument — the recommendation is dated, so reading it beside the
- * spend at that same date is what makes a verdict worth anything. Selecting a
- * different dot re-resolves the whole packet, so nothing here is written for
- * display.
- */
-function Recommendation({ view }: { view: DecisionExperienceViewModel }) {
-  const rec = decisionRecommendation(view);
-  const adverse = rec.verb === 'HOLD' || rec.verb === 'EXIT' || rec.verb === 'TRIM';
-
-  // The glance card is the move and nothing else: the date and the running
-  // total are already on the chart, and the verdict's detail is one swipe away
-  // on the constraints screen.
-  return (
-    <div className={`sf-rec sf-rec--${adverse ? 'bad' : 'ok'}`}>
-      <div className="sf-move sf-move--glance">
-        <span className="sf-move-tag">At a glance</span>
-        <p className="sf-move-text">{rec.move}</p>
-      </div>
-    </div>
-  );
+/** Band → tone class. The verdict is carried by colour, never a word on screen. */
+function toneOfBand(band: Band): 'ok' | 'uncertain' | 'bad' {
+  return band === 'FIT' ? 'ok' : band === 'FOG' ? 'uncertain' : 'bad';
 }
 
 /**
- * Money per month across the whole commitment.
+ * Confidence in the read, as evidence completeness of the decision's conditions.
  *
- * Deliberately the average and not the steepest segment. The steepest segment
- * on both cases is an artefact: Target's last leg divides a one-time exit
- * charge by the year before it, and VA's divides a whole-program lifecycle
- * estimate by the thirteen months before it was published. Neither is a rate
- * anything ran at, and quoting one would put a number on the screen that never
- * happened. The average over the commitment's own span is a real quantity.
+ * A leg priced either way (pass or fail) is evidence; a `no-line` leg is a
+ * condition the cutoff-safe packet could not place. The share that is priced is
+ * a real, countable confidence — low at commitment, higher as evidence lands —
+ * and it pairs honestly with the verdict colour. Undefined when there are no
+ * legs, so the caller suppresses it rather than printing 0 / NaN.
  */
-function averageRatePerMonth(points: readonly CostSeriesPoint[]): number {
-  if (points.length < 2) return 0;
-  const first = Date.parse(`${points[0].decisionDate}T00:00:00Z`);
-  const last = Date.parse(`${points.at(-1)!.decisionDate}T00:00:00Z`);
-  const months = (last - first) / (1000 * 60 * 60 * 24 * 365.25 / 12);
-  return months > 0 ? points.at(-1)!.total / months : 0;
+function confidenceOf(view: DecisionExperienceViewModel): number | undefined {
+  const total = view.legs.length;
+  if (total === 0) return undefined;
+  const resolved = view.legs.filter(({ status }) => status !== 'no-line').length;
+  return Math.round((resolved / total) * 100);
+}
+
+/** The derived possibility line, used when a decision has no authored pivot. */
+function convergenceFallback(
+  hasDollars: boolean,
+  committed: CostFigure | undefined,
+  point: CostSeriesPoint | undefined,
+  overshot: boolean,
+): string {
+  if (!hasDollars) return 'No dollar goal disclosed — convergence reads on the offering, not spend.';
+  if (!committed || !point) return 'No public goal to converge on yet.';
+  return overshot
+    ? `Past the goal — ${formatUsdMillions(point.total)} against a ${formatUsdMillions(committed.usdMillions)} commitment.`
+    : `${formatUsdMillions(point.total)} of ${formatUsdMillions(committed.usdMillions)} committed — still reachable.`;
+}
+
+/**
+ * The convergence answer, stated beneath the chart — and only this.
+ *
+ * The chart is the convergence view; the two things it cannot draw are the
+ * pivot that would still reach the goal and how much of the read is evidenced.
+ * Value is the dot labels, verdict is the colour, operation is screen three, so
+ * nothing else belongs here. Both lines inherit the step's verdict tone.
+ */
+function ConvergenceGlance({
+  view,
+  points,
+  committed,
+}: {
+  view: DecisionExperienceViewModel;
+  points: readonly CostSeriesPoint[];
+  committed?: CostFigure;
+}) {
+  const band = bandOf(view);
+  const tone = toneOfBand(band);
+  const point = points.find(({ id }) => id === view.timeline.selectedId) ?? points.at(-1);
+  const hasDollars = Boolean(committed) || points.some(({ total }) => total > 0);
+  const overshot = Boolean(committed && point && point.total > committed.usdMillions);
+  const pivot =
+    CONVERGENCE_PIVOTS[view.timeline.selectedId] ?? convergenceFallback(hasDollars, committed, point, overshot);
+  const confidence = confidenceOf(view);
+
+  return (
+    // The verdict is carried by colour; the word rides along only for a screen reader.
+    <div className={`sf-glance sf-glance--${tone}`} aria-label={`Convergence, verdict ${VERDICT_WORDS[band]}`}>
+      <p className="sf-glance-pivot">{pivot}</p>
+      {confidence !== undefined && (
+        <div className="sf-glance-conf">
+          <span className="sf-conf-tag">Confidence</span>
+          <span className="sf-conf-val">{confidence}%</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function TimelineScreen({
@@ -560,8 +645,12 @@ function TimelineScreen({
     cost: option.cost,
     adverse: band === 'COLLISION' || band === 'FLOOR',
   })));
-  const firstAdverse = stops.find((stop) => toneFor(stop) === 'bad');
-  const rate = averageRatePerMonth(points);
+  // The strongest committed figure anchors the goal line and the convergence
+  // read; kept here so the readout and the plot agree on the same goal.
+  const committed = stops
+    .flatMap(({ option }) => option.cost)
+    .filter((figure) => figure.kind === 'committed')
+    .sort((a, b) => b.usdMillions - a.usdMillions)[0];
 
   return (
     <>
@@ -589,27 +678,11 @@ function TimelineScreen({
         ))}
       </div>
 
-      <div className="sf-kicker">{caseName} · money recognised against the commitment</div>
-      <div className="sf-narrative">
-        {rate > 0
-          ? <>Averaged <b>{formatUsdMillions(rate)} a month</b>{firstAdverse ? <> — and kept running past <b>{formatDecisionDate(firstAdverse.option.decisionDate)}</b>.</> : '.'}</>
-          : <>The commitment&rsquo;s cost never became public while it was being decided.</>}
-      </div>
+      <div className="sf-kicker">{caseName}</div>
 
       <SpendPlot stops={stops} points={points} selectedId={view.timeline.selectedId} onSelect={onSelect} />
 
-      <Recommendation view={view} />
-
-      <div className="sf-legend sf-legend--cost">
-        <span className="sf-legend-label">
-          Totals are money recognised against the commitment, not cash out the door.
-          {/* Only the cases that end in a charge overstate, so only they say so. */}
-          {points.some(({ figure }) => figure?.basis.includes('exit charge'))
-            && ' An exit charge impairs capital already counted here.'}
-          {points.some(({ figure }) => figure?.kind === 'hindsight')
-            && ' The closing figure was published after the last decision could use it.'}
-        </span>
-      </div>
+      <ConvergenceGlance view={view} points={points} committed={committed} />
     </>
   );
 }
@@ -635,6 +708,42 @@ function bandFor(id: string): Band {
 function verdictFor(id: string): DecisionExperienceViewModel['verdict'] {
   return createDecisionExperienceViewModel(id).verdict;
 }
+
+/** The band a whole view resolves to, without re-fetching it by id. */
+function bandOf(view: DecisionExperienceViewModel): Band {
+  if (view.cause.kind === 'value-floor' || view.cause.kind === 'risk-floor') return 'FLOOR';
+  return view.verdict as Band;
+}
+
+/**
+ * Plain verdict words, stated relative to the goal rather than in engine terms.
+ *
+ * The engine's FIT/FOG/COLLISION are machine bands; on a convergence chart the
+ * only question is whether the commitment is closing on its goal, drifting, or
+ * has broken away. Kept as one map because the wording is still being tuned —
+ * change it here and every step re-labels.
+ */
+const VERDICT_WORDS: Record<Band, string> = {
+  FIT: 'Converging',
+  FOG: 'Unresolved',
+  COLLISION: 'Diverged',
+  FLOOR: 'Diverged',
+};
+
+/**
+ * The pivot that could still converge a commitment on its goal from a given
+ * step. Editorial — a "what would you do from here" line, not a counted case
+ * fact — so it lives with the page, keyed by decision id, until the case schema
+ * carries it. A missing key falls back to the possibility statement alone.
+ */
+const CONVERGENCE_PIVOTS: Record<string, string> = {
+  'watson-md-anderson-t0-2013-10-18':
+    'Gate the next dollar on one treated patient before scale.',
+  'watson-md-anderson-t1-2014-02-06':
+    'Prove adoption at one site before authorising wider rollout.',
+  'watson-md-anderson-t2-2017-02-19':
+    'Restart only behind a fixed EHR-integration and patient-use gate.',
+};
 
 export default function StratosFlowPage() {
   const cases = useMemo(() => timelineCases(createDecisionExperienceViewModel()), []);
