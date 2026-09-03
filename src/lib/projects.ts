@@ -27,7 +27,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     name: 'Libera',
     category: 'Context infrastructure',
     description:
-      'Libera turns the meaning discovered inside documents and workflows—rules, evidence, decisions, and state—into reusable software context. Its tested runtime executes those models deterministically; the next layer will package them for deployment through APIs, agents, and applications.',
+      'Libera turns the meaning inside documents and workflows—rules, evidence, decisions, state—into reusable software context. Its tested runtime executes those models deterministically; the next layer packages them for deployment across APIs, agents, and apps.',
     repositoryUrl: 'https://github.com/jeremycapps/libera',
   },
   {
@@ -35,7 +35,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     name: 'Facia',
     category: 'Interface infrastructure',
     description:
-      'Facia turns structured answers into reusable interface recipes. The shipped TypeScript package maps validated answers to UI patterns and disclosure levels, letting the same answer move from a quick summary to an auditable interface without rebuilding the logic for every surface.',
+      'Facia turns a structured answer into a reusable interface recipe, deterministically—so one answer moves from a quick summary to a fully auditable view. Shipped as a TypeScript package, and running this site.',
     repositoryUrl: 'https://github.com/jeremycapps/facia',
   },
   {
@@ -43,7 +43,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     name: 'StratOS',
     category: 'Decision infrastructure',
     description:
-      'StratOS tests whether a strategic commitment fits the evidence and the organization’s operating capacity. It turns that judgment into two bounded actions—what to do with the commitment and what must change alongside it—with an explicit release gate and reassessment rule.',
+      'StratOS weighs a strategic commitment against the evidence and an organization’s real operating capacity, then turns that judgment into two bounded moves—one on the commitment, one on the path that supports it—each with a clear owner, release gate, and reassessment rule.',
     pageUrl: '/stratos-v2',
   },
 ] as const;

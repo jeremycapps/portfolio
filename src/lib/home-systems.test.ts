@@ -12,7 +12,7 @@ describe('HOME_SYSTEMS', () => {
     expect(libera?.href).toBe('https://github.com/jeremycapps/libera');
     expect(libera?.external).toBe(true);
     expect(facia?.href).toBe('https://github.com/jeremycapps/facia');
-    expect(facia?.description).toContain('reusable interface recipes');
+    expect(facia?.description).toContain('reusable interface recipe');
   });
 
   it('links StratOS to its in-app route, not an external repo', () => {

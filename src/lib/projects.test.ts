@@ -20,7 +20,7 @@ describe('project explanation picker', () => {
       'StratOS',
     ]);
     expect(PORTFOLIO_PROJECTS[0].description).toContain('reusable software context');
-    expect(PORTFOLIO_PROJECTS[1].description).toContain('reusable interface recipes');
+    expect(PORTFOLIO_PROJECTS[1].description).toContain('reusable interface recipe');
     expect(PORTFOLIO_PROJECTS[2]).toMatchObject({
       category: 'Decision infrastructure',
       pageUrl: '/stratos-v2',

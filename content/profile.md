@@ -7,23 +7,31 @@ detail rather than guessing.
 
 ## Who Jeremy is (one paragraph)
 
-Jeremy Capps is a systems-oriented technical operator and product-minded
-engineer who works across the seams of product, operations, design, and
-engineering. He learns how a workflow actually works, identifies the binding
-constraint, and builds the technical or operational system required to change
-it. He pairs a working engineer's background (frontend design systems, API
-integrations, legacy modernization) with operations and product-systems work.
-His recent independent work turns discovered domain knowledge into reusable AI
-context, deterministic decisions, and interfaces. He has worked professionally
-in software and systems since 2017 — nine years across engineering, operations,
-and product — alongside a practice in creative and cultural-systems research.
+Jeremy Capps builds the systems — and the shared understanding around them —
+that keep real work legible and accountable as it grows. He learns how a domain
+already works, finds what actually governs it, and builds the instrument that
+lets a team see it clearly and act on it. That pattern has held across every
+tool he has used: translating business logic out of legacy COBOL, owning
+production design-system components other teams shipped on, leading customer API
+integrations, and running operations. His recent independent work carries the
+same principle into a space now taking shape — AI infrastructure built to assert
+only what the evidence supports. Engineering is the deepest tool in his kit, and
+his range extends through operations, product systems, customer integration, and
+contributor leadership. He has worked professionally in software and systems
+since 2017 — nine years across engineering, operations, and product — alongside
+a practice in creative and cultural-systems research.
 
 ## What Jeremy is looking for
 
-- **Primary identity (the one-word answer).** An engineer — specifically a
-  systems-oriented, product-minded engineer. Engineering is the core craft;
-  operations and product systems are the range around it, not a pivot away from
-  it. If pressed to choose one discipline, choose engineer.
+- **Primary identity (how to answer "what is he").** Lead with the throughline
+  rather than a single title. The constant across Jeremy's work is a principle: he
+  learns how a domain already works, makes it legible, and builds the systems —
+  and the shared understanding around them — that let people act on it accountably
+  as the tools evolve. Engineering is the deepest tool in his kit and the craft he
+  reaches for first; his range extends naturally through operations, product
+  systems, customer integration, and contributor leadership, all expressions of
+  the same move. If someone wants one word, "engineer" is the honest craft anchor,
+  and the throughline is the fuller answer.
 - **Roles he's targeting.** Forward-deployed engineering, AI operations,
   solutions architecture, implementation, and product/platform engineering,
   especially on teams building context infrastructure, structured knowledge,
@@ -118,10 +126,10 @@ between them, each answering exactly one question:
 
 | Piece | The question it answers | Build status |
 |---|---|---|
-| **Libera** | Where did state move? (address grammar, runtime, platform) | Runtime built and tested; platform layers designed, not built |
+| **Libera** | Where did state move? (address grammar, runtime, platform) | Runtime built and tested; platform layers designed, with the build ahead |
 | **Domain** | What does that motion mean? | Built, as a layer inside Libera |
-| **Timpos** | When and where was it observed? | v1 protocol spec (YAML-first); no implementation yet |
-| **Corus** | Did we get what we said we wanted? | v1 protocol spec; no implementation yet |
+| **Timpos** | When and where was it observed? | v1 protocol spec (YAML-first); implementation is the next layer |
+| **Corus** | Did we get what we said we wanted? | v1 protocol spec; implementation is the next layer |
 | **Facia** | How does that become something usable? | Shipped as `@facia/core` |
 
 **This portfolio is the live proof of the right half.** Its structured answers
@@ -199,9 +207,10 @@ turn what was learned into reusable infrastructure.
   - **Timpos** ("time position") is a YAML-first protocol for recording
     source-located state changes at addressable paths — a locator registry
     binds a source location to time, moments record values at paths, and the
-    recorded history supports replay and diff. It does not interpret meaning,
-    define types, assign ownership, or render anything. **v1 specification;
-    reference implementations are future work.** Public repo:
+    recorded history supports replay and diff. Its scope stays deliberately
+    narrow — recording motion, and leaving meaning, types, ownership, and
+    rendering to neighbouring layers. **v1 specification, with reference
+    implementations as the next layer to build.** Public repo:
     github.com/jeremycapps/timpos
   - **Corus** is the accountability layer, and the smallest of the three: a
     protocol for coordinating objective state. A **requirement** declares an
@@ -209,8 +218,8 @@ turn what was learned into reusable infrastructure.
     within a program and carries completion criteria. Satisfaction is *derived*,
     never authored — requirements are satisfied or waiting, objectives are
     waiting, ready-for-completion, or complete. Corus is what answers "did we
-    get what we said we wanted?" **v1 specification; no implementation yet.**
-    Public repo: github.com/jeremycapps/corus
+    get what we said we wanted?" **v1 specification, with implementation as the
+    next layer to build.** Public repo: github.com/jeremycapps/corus
   - **Two things are named Corus.** An earlier 2026 prototype — a Python
     context-orchestration kernel and workbench built around contracts, moments,
     and artifacts, alongside sibling projects then spelled "Timpos" and "Fasia"
@@ -321,8 +330,8 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
   what you can help with.
 - **Get the facts right.** Keep each project's build status straight: Libera's
   runtime and Facia's package are built and tested; Libera's
-  page/package/deployment layers, Timpos, and Corus are specifications awaiting
-  implementation. Facia runs this portfolio. Jeremy's leadership is project and
+  page/package/deployment layers, Timpos, and Corus are specifications with
+  implementation as the next layer to build. Facia runs this portfolio. Jeremy's leadership is project and
   contributor leadership, not people management. The Aroko revenue figure is
   $135K.
 - **Keep StratOS's status precise.** The current public expression is the

@@ -9,17 +9,20 @@ export default function AboutPage() {
         <div className="intro about-intro">
           <p className="eyebrow" data-testid="text-about-eyebrow">About</p>
           <h1 className="hero-title" id="about-title">
-            An engineer who works<br />
-            across the <em>seams.</em>
+            I build instruments that let people<br />
+            reach the right conclusion <em>themselves.</em>
           </h1>
           <p className="about-lede">
-            Jeremy Capps is a systems-oriented, product-minded engineer who works across
-            product, operations, design, and engineering. He learns how a workflow actually
-            works, identifies the binding constraint, and builds the technical or operational
-            system required to change it. Since 2017, that work has spanned internal operations,
-            production design systems, customer-facing API integrations, legacy modernization,
-            and independent AI infrastructure that turns discovered domain knowledge into
-            reusable context.
+            Jeremy Capps builds the systems &mdash; and the shared understanding around them &mdash;
+            that keep real work legible and accountable as it grows. The pattern has held across
+            every tool: translating business logic out of legacy COBOL, owning production
+            design-system components other teams shipped on, leading customer API integrations,
+            running operations. He learns how a domain already works, finds what actually governs
+            it, and builds the system that lets people act on it with confidence. His recent
+            independent work carries the same principle into a space now taking shape &mdash; AI
+            infrastructure built to assert only what the evidence supports. Along the way he has
+            mentored contributors, coordinated across teams, and shipped for other engineers &mdash;
+            the work has always been more than code.
           </p>
         </div>
       </main>

@@ -266,12 +266,12 @@ function Home() {
         aria-labelledby={chatActive ? undefined : 'hero-title'}
       >
         <div className="intro home-hero">
-          <p className="home-eyebrow" data-testid="text-eyebrow">Systems-oriented engineer &middot; New York City</p>
+          <p className="home-eyebrow" data-testid="text-eyebrow">New York City &middot; Available now</p>
           <h1 className="home-thesis" id="hero-title">
-            I learn how a <span>workflow actually works</span>, find the real constraint, and build <b>the system required to change it</b>.
+            Building <b>accountable systems</b> across engineering, operations, and <span>AI infrastructure</span>.
           </h1>
           <p className="home-sub">
-            Nine years across product, operations, and engineering &mdash; moving from discovery through deployment, with measurable outcomes and reusable infrastructure left behind.
+            Nine years, and the tools keep evolving &mdash; legacy modernization, design systems, customer integrations, now AI infrastructure. The principle stays the same: keep the work legible and accountable as it grows.
           </p>
         </div>
 
