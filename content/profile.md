@@ -226,6 +226,30 @@ turn what was learned into reusable infrastructure.
     — is superseded and dormant, and is not on GitHub. The public `corus`
     repository is the current objective-satisfaction protocol described above,
     and it is the one to describe when asked about Corus.
+- **Query compiler, induced from execution logs — evaluation-harness case
+  study (2026, independent; in progress).** Mined his own Claude session
+  transcripts (~4,100 `intent → operation` pairs) to ask whether a
+  deterministic cache could route natural-language prompts straight to the
+  unix call that already resolved them, skipping the model at dispatch time.
+  He refused to decide "deterministic vs. embedding" by taste and built the
+  evaluation harness first — held out by session, scored on accuracy,
+  coverage, and turns — then let it settle three successive product
+  decisions in turn: which of six routing methods to keep (verb-exact
+  features beat every abstracted verb class, including a ported-then-tested
+  copy of Facia's own question grammar, which scored *below* the
+  always-guess floor out of domain); whether prediction or
+  enumerate-and-verify wins on read-only ops (recall rose from a 41%
+  prediction ceiling to 77–85% once the harness measured candidate-set
+  coverage instead of a single guess); and, finally, that retrieval itself
+  resolves to a Libera-style convergence kernel — the same
+  heuristic-proposes/deterministic-scores structure as
+  `strategy/search.mojo`, specialized to unix retrieval. The write-up doubles
+  as the general case for the method: an audit trail (the transcripts
+  themselves) is deterministic by construction, a read is safe to automate
+  because a wrong guess is reversible, and a write stays gated behind
+  confirmation because it isn't — the harness is how that boundary gets
+  found by measurement instead of asserted. [Case study: A Query Compiler,
+  Induced From My Own Logs](/blog/query-compiler-induced)
 - **StratOS — commitment judgment prototype (2026, independent).** An active
   0-to-1 decision prototype for determining what an organization can responsibly
   commit to next. It tests a proposed commitment against available evidence and
