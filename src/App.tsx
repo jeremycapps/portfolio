@@ -23,6 +23,7 @@ import {
   sendChat,
   type ClientMessage,
 } from '@/lib/chat';
+import { DEFAULT_RESUME } from '@/lib/default-resume.generated';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
 import { EXPLAIN_PROJECT_CHOICES, PORTFOLIO_PROJECTS } from '@/lib/projects';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
@@ -186,9 +187,12 @@ function Home() {
 
   const armResume = () => {
     if (streaming) return;
+    setMessages([]);
+    setChatError(null);
+    setResumeResult(DEFAULT_RESUME);
     setResumeMode(true);
     setStatusTone('normal');
-    setStatusMessage('Paste the job description or a link, then send.');
+    setStatusMessage('Showing the standard resume. Paste a job description or link to tailor it.');
   };
 
   const submitResume = async (jobDescription: string) => {

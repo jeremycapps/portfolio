@@ -133,7 +133,10 @@ describe('sendResumeRequest', () => {
  */
 interface ContractResumeView {
   header: { name: string; contacts: string[] };
-  summary: { text: string; engine: 'model' | 'deterministic' };
+  // 'retrieved' is emitted whenever a JD routes to a reviewed summary
+  // (summary-router). It postdates the Task 7 contract but has always been on
+  // the wire; the baked standard resume made it observable on the client.
+  summary: { text: string; engine: 'model' | 'deterministic' | 'retrieved' };
   experience: Array<{
     organization: string;
     roleContext: string[];
@@ -150,7 +153,7 @@ interface ContractResumeView {
 interface ContractResumeProvenance {
   deterministicPct: number;
   modelPct: number;
-  operations: Array<{ kind: string; engine: 'deterministic' | 'model'; detail: string }>;
+  operations: Array<{ kind: string; engine: 'deterministic' | 'model' | 'retrieved'; detail: string }>;
 }
 
 interface ContractResumeResponse {

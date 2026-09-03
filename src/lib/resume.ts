@@ -1,6 +1,6 @@
 export interface ResumeView {
   header: { name: string; contacts: string[] };
-  summary: { text: string; engine: 'model' | 'deterministic' };
+  summary: { text: string; engine: 'model' | 'deterministic' | 'retrieved' };
   experience: Array<{
     organization: string;
     roleContext: string[];
@@ -17,7 +17,7 @@ export interface ResumeView {
 export interface ResumeProvenance {
   deterministicPct: number;
   modelPct: number;
-  operations: Array<{ kind: string; engine: 'deterministic' | 'model'; detail: string }>;
+  operations: Array<{ kind: string; engine: 'deterministic' | 'model' | 'retrieved'; detail: string }>;
 }
 
 export interface ResumeResponse {
