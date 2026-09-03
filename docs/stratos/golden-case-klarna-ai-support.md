@@ -58,3 +58,33 @@
 ## Tension mapping (six-tension ontology)
 
 Clears on **CIO** (systems & flow), **CTO** (release), **CFO** (capital return). Breaks on **COO** (exception handling — the transferred complex queue) and **CRO** (control & traceability — confidently-wrong policy answers). Fog on **CDO** (disconfirming evidence — segmented CSAT never surfaced) and **CPO** (workforce capacity — decommissioned). See `docs/stratos/tempo-enterprise-crosswalk.md` for the full crosswalk and the L0–L5 placement (the failure is at L2, the captured business-case firewall).
+
+---
+
+## Klarna through Tempo's gates (grounding in named frameworks)
+
+Tempo v1's Three-Gate Transformation is a diagnostic sequence. Run on Klarna in the frameworks' own sourced language, it reproduces the FIT/FOG/COLLISION verdict — clears on Base OPE, breaks on the Shatter Test — with nothing invented.
+
+- **Gate 1 · DNA** (Neilson/Pasternack, *Org DNA*): the execution profile is **Fits-and-Starts** — high initiative and speed, weak coordination and follow-through (commit-then-reverse). The specific defect is **information flows**: the signal that decided the case (segment-level quality) was never instrumented, so it never reached the decision. *PMO: no exception reporting; broken benefit-tracking loop.*
+- **Gate 2 · Protocol** (GitLab, *TeamOps*): elite decision **velocity** (23 markets, ship-fast) but on a bad single-source-of-truth — the SSOT was an aggregate-metrics dashboard, not a contestable written decision record. *PMO: fast CapEx cycle, no audit-ready decision log. Base OPE looks excellent.*
+- **Gate 3 · Fragility** (Taleb / IMF, the *Shatter Test*): efficiency (OPE) was raised by removing the **human buffer** (exception handlers) → the **Crystalline** state (high efficiency, no adaptive reserve). The complex/emotional-ticket spike is the black-swan bump; **Risk-Adjusted OPE shatters** though Base OPE was high. *PMO: unit economics optimized by decommissioning the resilience reserve; no SLO floor to trigger rollback before the break.*
+- **Humanocracy** (Hamel & Zanini) — **inverted**: its thesis is that human ingenuity/autonomy is the only durable advantage; Klarna automated precisely the judgment-dense work (disputes, hardship) where that ingenuity **was** the moat.
+- **Archetypes** (Zhang & Cabage): a fintech **insurgent** ran an insurgent efficiency play but placed an **incumbent-scale irreversible** bet — an Experimenter traversal on a Fortress decision.
+
+## The counter-move (the operation StratOS proposes)
+
+Not "you're wrong" — the smallest **reversible** path to the same goal. This is the engine's paired operation (commitment plane + path plane), and it is Klarna's own May-2025 fix, offered in early 2024 before the shatter.
+
+- **Commitment plane — Hold the tranche.** Freeze automation depth at L1; the L1 win continues. Do not route more of the complex queue. *(Owner: exec sponsor.)*
+- **Path plane — Install the missing L2 firewall.** Make the decision reversible before the next increment. *(Owner: ops + data lead.)*
+
+**Exit criteria — what opens the gate** (each restores one broken/fog pole):
+
+| Condition | Restores | Reading flips |
+|---|---|---|
+| Instrument segment CSAT + containment by contact driver | CDO · disconfirming evidence | FOG → visible |
+| Set SLO floors on dispute/fraud/hardship + auto-rollback | CRO · control & traceability | BREAKS → gated |
+| Name an exception owner (RACI-Accountable) for transfers | COO · exception handling | BREAKS → owned |
+| Size the human buffer to complex-queue volume | CPO · workforce capacity | Crystalline → Resilient |
+
+**Next safe commitment:** prove segment quality at L1 depth before the next increment; re-present at Gate 2.
