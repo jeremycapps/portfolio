@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { compileMacroOperation, type FamiliarMacro } from '../judgment/contract';
 import { validateRecommendationPair, type JudgmentVerdict } from './judgment';
 import {
   generateRecommendations,
@@ -67,6 +68,33 @@ function input(verdict: JudgmentVerdict): RecommendationPolicyInput {
 }
 
 describe('bounded recommendation policy', () => {
+  it.each([
+    ['FOG', 'high', 'missing', 'HOLD', 'LEARN'],
+    ['FOG', 'low', 'ineffective', 'STAGE', 'LEARN'],
+    ['COLLISION', 'medium', 'missing', 'STAGE', 'ADD'],
+    ['COLLISION', 'medium', 'ineffective', 'STAGE', 'REDESIGN'],
+  ] as const)(
+    'reuses the macro compiler for %s/%s recommendations',
+    (verdict, irreversibility, pathState, commitmentMacro, pathMacro) => {
+      const recommendations = generateRecommendations({
+        ...input(verdict),
+        irreversibility,
+        pathState,
+      });
+      const expectedOperation = (macro: FamiliarMacro, existingPath: boolean) =>
+        compileMacroOperation(macro, { existingPath });
+
+      expect(recommendations[0]).toMatchObject({
+        displayLabel: commitmentMacro,
+        operation: expectedOperation(commitmentMacro, false),
+      });
+      expect(recommendations[1]).toMatchObject({
+        displayLabel: pathMacro,
+        operation: expectedOperation(pathMacro, pathState === 'ineffective'),
+      });
+    },
+  );
+
   it.each([
     ['not-started', 'START', 'START'],
     ['active', 'CONTINUE', 'ADVANCE'],

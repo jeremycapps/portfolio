@@ -9,18 +9,20 @@ export default function AboutPage() {
         <div className="intro about-intro">
           <p className="eyebrow" data-testid="text-about-eyebrow">About</p>
           <h1 className="hero-title" id="about-title">
-            An engineer who works<br />
-            across the <em>seams.</em>
+            I build instruments that let people<br />
+            reach the right conclusion <em>themselves.</em>
           </h1>
           <p className="about-lede">
-            Jeremy Capps is a systems-oriented, product-minded engineer working across
-            product, operations, design, and engineering. His throughline is building the
-            source-of-truth and context layer for messy workflows — turning ambiguous,
-            scattered work into structured systems people can actually run. He's worked in
-            software and systems since 2017, pairing a working engineer's background
-            (frontend design systems, API integrations, legacy modernization) with
-            operations and product-systems work, and a parallel practice in creative and
-            cultural-systems research.
+            Jeremy Capps builds the systems &mdash; and the shared understanding around them &mdash;
+            that keep real work legible and accountable as it grows. The pattern has held across
+            every tool: translating business logic out of legacy COBOL, owning production
+            design-system components other teams shipped on, leading customer API integrations,
+            running operations. He learns how a domain already works, finds what actually governs
+            it, and builds the system that lets people act on it with confidence. His recent
+            independent work carries the same principle into a space now taking shape &mdash; AI
+            infrastructure built to assert only what the evidence supports. Along the way he has
+            mentored contributors, coordinated across teams, and shipped for other engineers &mdash;
+            the work has always been more than code.
           </p>
         </div>
       </main>

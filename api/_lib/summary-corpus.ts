@@ -26,14 +26,14 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
     id: 'integration-engineer',
     signal: ['integration', 'integrations', 'api', 'implementation', 'implementation engineer',
       'payments', 'authentication', 'data mapping', 'customer', 'client', 'go-live',
-      'forward deployed', 'solutions', 'connectors'],
+      'forward deployed', 'solutions', 'connectors', 'workflow', 'deployment', 'adoption'],
     summary:
-      'Implementation-minded engineer who takes client integrations from design through launch: '
-      + 'API research, authentication, data mapping, testing, release support, and customer '
-      + 'troubleshooting. Inherited and extended a multi-platform data-integration product’s '
-      + 'connectors to four external systems end-to-end, working directly with technical customers '
-      + 'through go-live. Also owns production front-end (React/TypeScript), so I can consult on '
-      + 'both sides of an integration and translate business requirements into technical solutions.',
+      'Implementation-minded engineer who moves customer workflows from discovery through deployment: '
+      + 'API research, authentication, data mapping, testing, release support, adoption, and '
+      + 'troubleshooting. I inherited and extended a multi-platform data-integration product’s '
+      + 'connectors to four external systems end to end, working directly with technical customers '
+      + 'through go-live. Production React/TypeScript experience lets me work on both sides of an '
+      + 'integration and turn business requirements into reusable technical patterns.',
     roles: {
       "Aroko": "Technical Director, Client Web Work",
       "Zocdoc": "Design Systems Engineer",
@@ -46,13 +46,12 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
     signal: ['applied ai', 'agents', 'agent', 'evaluation', 'eval', 'reliability', 'llm',
       'orchestration', 'langgraph', 'runtime', 'observability', 'guardrails', 'harness'],
     summary:
-      'Applied-AI engineer focused on making agents reliable and measurable, not just capable. '
-      + 'I built a multi-provider LLM orchestration system with an evaluation harness that scores '
-      + 'every run on evidence accuracy and unsupported claims against a golden baseline, and a '
-      + 'deterministic agent runtime on LangGraph with enforced role boundaries and crash-recovery '
-      + 'testing. The through-line of my work is closing the gap between an agent that looks good '
-      + 'in a demo and one dependable enough to run unattended. Backend fundamentals from years of '
-      + 'API-integration delivery; React/TypeScript from production design-systems work.',
+      'Applied-AI engineer focused on making AI systems reliable, measurable, and reusable in real '
+      + 'workflows. I built multi-provider LLM orchestration with an evaluation harness that scores '
+      + 'evidence accuracy and unsupported claims against a golden baseline, then extended that '
+      + 'deterministic-first approach into Libera’s semantic runtime and Facia’s shipped '
+      + 'answer-to-interface package. The through-line is turning ambiguous model behavior into '
+      + 'explicit contracts, testable decisions, and software other systems can safely use.',
     roles: {
       "Aroko": "Head of Operations / Technical Director",
       "Zocdoc": "Design Systems Engineer",
@@ -64,16 +63,14 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
     id: 'zero-to-one-generalist',
     signal: ['0-to-1', 'zero to one', 'founder', 'founding', 'generalist', 'ambiguous',
       'internal tooling', 'high agency', 'special projects', 'ai-native', 'first principles',
-      'prototype', 'builder'],
+      'prototype', 'builder', 'discovery', 'deployment', 'constraint'],
     summary:
-      'High-agency builder who takes ambiguous 0-to-1 problems from first principles to working '
-      + 'systems, and who works AI-natively by default. I took an independent AI product through '
-      + 'five generations end to end (now live at jeremycapps.com/stratos), built internal '
-      + 'source-of-truth tooling that ran real operations, and direct multiple AI coding agents '
-      + 'across research, implementation, and validation while owning every schema and claim '
-      + 'myself. My instinct is to ask why a process exists before automating it, then build the '
-      + 'smallest thing that actually moves the outcome. Engineering background across product, '
-      + 'operations, and integration.',
+      'High-agency builder who takes ambiguous 0-to-1 problems from workflow discovery to working '
+      + 'systems. I designed and built StratOS, a public commitment-judgment prototype, alongside '
+      + 'internal operating tools and independent AI infrastructure for reusable context and '
+      + 'interfaces. My instinct is to learn why a process exists, identify the binding constraint, '
+      + 'build the smallest mechanism that can change the outcome, and make the result measurable. '
+      + 'Engineering background across product, operations, and integration.',
     roles: {
       "Aroko": "Head of Operations",
       "Zocdoc": "Design Systems Engineer",
@@ -86,13 +83,12 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       'entrepreneur', 'eir', 'entrepreneur in residence', 'range', 'generalist', 'breadth'],
     summary:
       'Builder-operator and product-minded engineer who moves across product, operations, design, '
-      + 'and engineering without losing depth in any of them. Engineering is the hard skill; the '
-      + 'range is the edge. Ships real work: led technical delivery on an enterprise corporate-site '
-      + 'rebuild that remains live, owned production design-system components in a healthcare '
-      + 'product, and delivered customer-facing API integrations. For the past year, building AI '
-      + 'infrastructure 0-to-1: multi-provider LLM orchestration, a deterministic agent runtime, '
-      + 'and evaluation harnesses that make unsupported model claims a measured metric. Live work '
-      + 'is public at jeremycapps.com and jeremycapps.com/stratos.',
+      + 'and engineering without losing technical depth. I learn the workflow, identify the real '
+      + 'constraint, and own the path from implementation through measurable outcome: enterprise '
+      + 'web delivery, production healthcare design systems, customer-facing API integrations, and '
+      + 'internal operating infrastructure. Recent independent work turns domain knowledge into '
+      + 'reusable AI context, deterministic decisions, and interfaces, with public product '
+      + 'expressions in Libera, Facia, and StratOS.',
     roles: {
       "Aroko": "Technical Director, Client Web Work",
       "Zocdoc": "Design Systems Engineer",
@@ -103,15 +99,15 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
     id: 'frontend-design-systems',
     signal: ['frontend', 'front-end', 'react', 'typescript', 'design systems', 'design-system',
       'developer tools', 'developer-facing', 'ui', 'components', 'observability', 'evals',
-      'agent tooling'],
+      'agent tooling', 'deployment', 'interface infrastructure'],
     summary:
       'Senior frontend engineer specializing in TypeScript/React design systems and '
       + 'developer-facing product surfaces. At Zocdoc I owned a portfolio of shared production '
-      + 'React components and drove their migration across healthcare surfaces, shipping behind '
-      + 'A/B experiments. I pair that frontend depth with deep fluency in the agent-tooling domain '
-      + 'observability and evals products serve: I built an agent runtime on LangGraph and an '
-      + 'evaluation harness that scores LLM runs for accuracy and unsupported claims, so I '
-      + 'understand the product from the user’s side, not just the UI’s.',
+      + 'React components and drove their migration across healthcare workflows through progressive '
+      + 'deployment and A/B experiments. I pair that frontend depth with firsthand AI-interface '
+      + 'infrastructure: Facia is a shipped TypeScript package that turns validated answers into '
+      + 'reusable UI recipes, and this portfolio runs it. That combination supports both the '
+      + 'product surface and the contracts, evaluation, and context beneath it.',
     roles: {
       "Aroko": "Head of Operations / Lead Web Designer / Technical Director",
       "Zocdoc": "Design Systems Engineer",
@@ -122,16 +118,16 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
     id: 'forward-deployed-solutions',
     signal: ['forward deployed', 'forward-deployed', 'solutions engineer', 'solutions',
       'customer-facing', 'mcp', 'model context protocol', 'migration', 'api', 'integrations',
-      'gtm', 'stakeholders', 'agent apis'],
+      'gtm', 'stakeholders', 'agent apis', 'workflow', 'discovery', 'deployment',
+      'implementation', 'adoption', 'reusable'],
     summary:
-      'Customer-facing engineer who owns technical delivery end to end: from building external API '
-      + 'integrations start-to-completion for a construction-software platform, to designing a '
-      + 'multi-provider LLM orchestration system and a Model Context Protocol (MCP) server that '
-      + 'exposes a provenance-attached corpus as queryable tools. Fluent moving between production '
-      + 'code, migration scoping with stakeholders, and explaining architectural tradeoffs to '
-      + 'technical and business audiences. Strongest fit: forward-deployed / solutions engineering '
-      + 'across API integration, AI workflows (MCP, Agent APIs, LLM orchestration), and '
-      + 'large-scale data migration.',
+      'Customer-facing engineer who moves from workflow discovery through implementation, '
+      + 'deployment, and durable handoff. I built external API integrations end to end for a '
+      + 'construction-software platform, scoped migrations with stakeholders, shipped production '
+      + 'React systems, and built internal operating tools around real business constraints. Recent '
+      + 'independent work turns discovered domain knowledge into reusable AI context and interfaces. '
+      + 'Strongest fit: forward-deployed and solutions engineering across integrations, AI workflows, '
+      + 'technical discovery, and product feedback.',
     roles: {
       "Aroko": "Head of Operations / Lead Web Designer / Technical Director",
       "Zocdoc": "Design Systems Engineer",

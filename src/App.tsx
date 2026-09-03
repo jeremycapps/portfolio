@@ -23,6 +23,7 @@ import {
   sendChat,
   type ClientMessage,
 } from '@/lib/chat';
+import { DEFAULT_RESUME } from '@/lib/default-resume.generated';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
 import { EXPLAIN_PROJECT_CHOICES } from '@/lib/projects';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
@@ -47,9 +48,9 @@ const HOME_QUESTIONS: readonly { label: string; prompt: string }[] = [
       'Explain the Libera project in depth — what it is, how it works, and why it matters.',
   },
   {
-    label: 'Why ontology?',
+    label: 'How does the work connect?',
     prompt:
-      "What is the throughline of Jeremy's work, and why does he focus on ontology and context infrastructure?",
+      "What is the throughline of Jeremy's work across operations, engineering, and his independent projects?",
   },
 ];
 
@@ -193,9 +194,12 @@ function Home() {
 
   const armResume = () => {
     if (streaming) return;
+    setMessages([]);
+    setChatError(null);
+    setResumeResult(DEFAULT_RESUME);
     setResumeMode(true);
     setStatusTone('normal');
-    setStatusMessage('Paste the job description or a link, then send.');
+    setStatusMessage('Showing the standard resume. Paste a job description or link to tailor it.');
   };
 
   const submitResume = async (jobDescription: string) => {
@@ -262,12 +266,12 @@ function Home() {
         aria-labelledby={chatActive ? undefined : 'hero-title'}
       >
         <div className="intro home-hero">
-          <p className="home-eyebrow" data-testid="text-eyebrow">Knowledge &amp; ontology engineer &middot; New York City</p>
+          <p className="home-eyebrow" data-testid="text-eyebrow">New York City &middot; Available now</p>
           <h1 className="home-thesis" id="hero-title">
-            I build the <span>source-of-truth layer</span> for messy work &mdash; turning scattered, ambiguous work into <b>structured systems people can run</b>.
+            Building <b>accountable systems</b> across engineering, operations, and <span>AI infrastructure</span>.
           </h1>
           <p className="home-sub">
-            Nine years across engineering, operations, and product, working the seams between them. The throughline is <b>ontology</b>: turning ambiguous sources into explicit, auditable structure &mdash; the literal subject of the three systems below.
+            Nine years, and the tools keep evolving &mdash; legacy modernization, design systems, customer integrations, now AI infrastructure. The principle stays the same: keep the work legible and accountable as it grows.
           </p>
         </div>
 

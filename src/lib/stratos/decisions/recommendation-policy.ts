@@ -1,5 +1,10 @@
 import type { EvidenceRef } from '../cases/profile';
 import {
+  compileMacroOperation,
+  type FamiliarMacro,
+  type MacroCompilationOptions,
+} from '../judgment/contract';
+import {
   validateRecommendationPair,
   type Operation,
   type OperationParameter,
@@ -60,6 +65,18 @@ interface OperationChoice {
   readonly parameters: Readonly<Record<string, OperationParameter>>;
 }
 
+function compiledChoice(
+  macro: FamiliarMacro,
+  parameters: Readonly<Record<string, OperationParameter>>,
+  options?: MacroCompilationOptions,
+): OperationChoice {
+  return {
+    operation: compileMacroOperation(macro, options),
+    displayLabel: macro,
+    parameters,
+  };
+}
+
 function requireText(value: string, name: string): string {
   const normalized = value.trim();
   if (!normalized) throw new Error(`${name} is required.`);
@@ -80,41 +97,27 @@ function commitmentChoice(input: RecommendationPolicyInput): OperationChoice {
     if (input.assessment.validatedScale === VALIDATED_SCALE_NOT_DETERMINED) {
       throw new Error('FIT requires an evidenced validated scale.');
     }
-    return {
-      operation: input.commitmentState === 'not-started' ? 'START' : 'CONTINUE',
-      displayLabel: input.commitmentState === 'not-started' ? 'START' : 'ADVANCE',
-      parameters: { ...common, authorizedScale: input.assessment.validatedScale },
-    };
+    const parameters = { ...common, authorizedScale: input.assessment.validatedScale };
+    return input.commitmentState === 'not-started'
+      ? { operation: 'START', displayLabel: 'START', parameters }
+      : compiledChoice('ADVANCE', parameters);
   }
 
   if (input.assessment.verdict === 'FOG') {
     const smallerScale = input.smallerScale?.trim();
     if (input.irreversibility !== 'high' && smallerScale) {
-      return {
-        operation: 'CHANGE',
-        displayLabel: 'STAGE',
-        parameters: { ...common, authorizedScale: smallerScale, experiment: true },
-      };
+      return compiledChoice(
+        'STAGE',
+        { ...common, authorizedScale: smallerScale, experiment: true },
+      );
     }
-    return {
-      operation: 'CHANGE',
-      displayLabel: 'HOLD',
-      parameters: { ...common, releaseRate: 0 },
-    };
+    return compiledChoice('HOLD', { ...common, releaseRate: 0 });
   }
 
   const smallerScale = input.smallerScale?.trim();
   return smallerScale
-    ? {
-        operation: 'CHANGE',
-        displayLabel: 'STAGE',
-        parameters: { ...common, authorizedScale: smallerScale },
-      }
-    : {
-        operation: 'CHANGE',
-        displayLabel: 'HOLD',
-        parameters: { ...common, releaseRate: 0 },
-      };
+    ? compiledChoice('STAGE', { ...common, authorizedScale: smallerScale })
+    : compiledChoice('HOLD', { ...common, releaseRate: 0 });
 }
 
 function pathChoice(input: RecommendationPolicyInput): OperationChoice {
@@ -129,28 +132,29 @@ function pathChoice(input: RecommendationPolicyInput): OperationChoice {
 
   if (input.assessment.verdict === 'FIT') {
     const start = input.pathState === 'missing' || input.pathState === 'complete';
-    return {
-      operation: start ? 'START' : input.pathState === 'converging' ? 'CONTINUE' : 'CHANGE',
-      displayLabel: start ? 'START' : input.pathState === 'converging' ? 'CONTINUE' : 'REDESIGN',
-      parameters: { ...common, purpose: 'assurance' },
-    };
+    const parameters = { ...common, purpose: 'assurance' };
+    if (start) return { operation: 'START', displayLabel: 'START', parameters };
+    if (input.pathState === 'converging') {
+      return { operation: 'CONTINUE', displayLabel: 'CONTINUE', parameters };
+    }
+    return compiledChoice('REDESIGN', parameters, { existingPath: true });
   }
 
   if (input.assessment.verdict === 'FOG') {
     const start = input.pathState === 'missing' || input.pathState === 'complete';
-    return {
-      operation: start ? 'START' : 'CHANGE',
-      displayLabel: 'LEARN',
-      parameters: { ...common, purpose: 'uncertainty-resolution' },
-    };
+    return compiledChoice(
+      'LEARN',
+      { ...common, purpose: 'uncertainty-resolution' },
+      { existingPath: !start },
+    );
   }
 
   const start = input.pathState === 'missing' || input.pathState === 'complete';
-  return {
-    operation: start ? 'START' : 'CHANGE',
-    displayLabel: start ? 'ADD' : 'REDESIGN',
-    parameters: { ...common, purpose: 'remediation' },
-  };
+  return compiledChoice(
+    start ? 'ADD' : 'REDESIGN',
+    { ...common, purpose: 'remediation' },
+    { existingPath: !start },
+  );
 }
 
 function materialize(
@@ -182,7 +186,7 @@ function applyAuthorityOverrun(
   if (!overrun || recommendation.plane !== overrun.plane) return recommendation;
   return {
     ...recommendation,
-    operation: 'ESCALATE',
+    operation: compileMacroOperation('ROUTE_BACK', { ownershipResolved: false }),
     displayLabel: 'ROUTE_BACK',
     escalation: {
       unresolvedDecision: requireText(overrun.unresolvedDecision, 'authorityOverrun.unresolvedDecision'),

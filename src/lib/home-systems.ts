@@ -2,8 +2,8 @@ import { PORTFOLIO_PROJECTS } from './projects';
 
 // The homepage surfaces three systems as "score cards". Each sits on an axis
 // between two poles drawn from the system's own description — not an invented
-// metric. Libera and Facia reuse the canonical project copy (source of truth in
-// projects.ts); StratOS is the judgment instrument, linked to its in-app route.
+// metric. All three reuse the canonical project copy (source of truth in
+// projects.ts); StratOS links to its current commitment-judgment prototype.
 export interface HomeSystem {
   readonly id: 'libera' | 'facia' | 'stratos';
   readonly name: string;
@@ -20,7 +20,7 @@ export interface HomeSystem {
   readonly accent: 'libera' | 'facia' | 'stratos';
 }
 
-const canonical = (id: 'libera' | 'facia') => {
+const canonical = (id: HomeSystem['id']) => {
   const project = PORTFOLIO_PROJECTS.find((p) => p.id === id);
   if (!project) throw new Error(`Missing canonical project: ${id}`);
   return project;
@@ -28,6 +28,7 @@ const canonical = (id: 'libera' | 'facia') => {
 
 const libera = canonical('libera');
 const facia = canonical('facia');
+const stratos = canonical('stratos');
 
 export const HOME_SYSTEMS: readonly HomeSystem[] = [
   {
@@ -37,7 +38,7 @@ export const HOME_SYSTEMS: readonly HomeSystem[] = [
     description: libera.description,
     href: libera.repositoryUrl ?? '#',
     external: true,
-    poles: ['State motion', 'Meaning'],
+    poles: ['Discovered meaning', 'Reusable context'],
     position: 0.28,
     accent: 'libera',
   },
@@ -48,19 +49,18 @@ export const HOME_SYSTEMS: readonly HomeSystem[] = [
     description: facia.description,
     href: facia.repositoryUrl ?? '#',
     external: true,
-    poles: ['Answer', 'Surface'],
+    poles: ['Structured answer', 'Usable interface'],
     position: 0.62,
     accent: 'facia',
   },
   {
     id: 'stratos',
-    name: 'StratOS',
-    category: 'Paired-tension ontology',
-    description:
-      'A judgment instrument. A six-tension model that surfaces where conviction runs ahead of the evidence — built so others reach the conclusion rather than being told it.',
-    href: '/stratos',
+    name: stratos.name,
+    category: stratos.category,
+    description: stratos.description,
+    href: stratos.pageUrl ?? '#',
     external: false,
-    poles: ['Conviction', 'Inquiry'],
+    poles: ['Commitment', 'Operating capacity'],
     position: 0.46,
     accent: 'stratos',
   },

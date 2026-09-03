@@ -7,32 +7,40 @@ detail rather than guessing.
 
 ## Who Jeremy is (one paragraph)
 
-Jeremy Capps is a systems-oriented technical operator and product-minded
-engineer who works across the seams of product, operations, design, and
-engineering. His throughline is building the source-of-truth and context layer
-for messy workflows — turning ambiguous, scattered work into structured systems
-people can actually run. He pairs a working engineer's background (frontend
-design systems, API integrations, legacy modernization) with operations and
-product-systems work, and a parallel practice in creative and cultural systems
-research. He has worked professionally in software and systems since 2017 — nine
-years across engineering, operations, and product.
+Jeremy Capps builds the systems — and the shared understanding around them —
+that keep real work legible and accountable as it grows. He learns how a domain
+already works, finds what actually governs it, and builds the instrument that
+lets a team see it clearly and act on it. That pattern has held across every
+tool he has used: translating business logic out of legacy COBOL, owning
+production design-system components other teams shipped on, leading customer API
+integrations, and running operations. His recent independent work carries the
+same principle into a space now taking shape — AI infrastructure built to assert
+only what the evidence supports. Engineering is the deepest tool in his kit, and
+his range extends through operations, product systems, customer integration, and
+contributor leadership. He has worked professionally in software and systems
+since 2017 — nine years across engineering, operations, and product — alongside
+a practice in creative and cultural-systems research.
 
 ## What Jeremy is looking for
 
-- **Primary identity (the one-word answer).** An engineer — specifically a
-  knowledge / ontology and context-infrastructure engineer. Engineering is the
-  core craft; operations and product-systems are the range around it, not a
-  pivot away from it. If pressed to choose one discipline, choose engineer.
-- **Roles he's targeting.** Forward-deployed / knowledge / ontology engineering;
-  context-infrastructure, knowledge-graph, and agent-memory work; and founding or
-  early product-engineering roles on teams building structured knowledge,
-  data-modeling, or AI-context systems. Solutions architecture and design-systems
-  engineering are adjacent fits that draw on the same modeling instinct.
-- **What he most wants to do.** Ontology building and mapping — turning ambiguous
-  sources into explicit, auditable structure. This is the literal subject of
-  Libera (an executable runtime for semantic models), Facia (the answer-to-
-  interface contract), and StratOS (paired-tension ontology). It is the work he
-  optimizes for.
+- **Primary identity (how to answer "what is he").** Lead with the throughline
+  rather than a single title. The constant across Jeremy's work is a principle: he
+  learns how a domain already works, makes it legible, and builds the systems —
+  and the shared understanding around them — that let people act on it accountably
+  as the tools evolve. Engineering is the deepest tool in his kit and the craft he
+  reaches for first; his range extends naturally through operations, product
+  systems, customer integration, and contributor leadership, all expressions of
+  the same move. If someone wants one word, "engineer" is the honest craft anchor,
+  and the throughline is the fuller answer.
+- **Roles he's targeting.** Forward-deployed engineering, AI operations,
+  solutions architecture, implementation, and product/platform engineering,
+  especially on teams building context infrastructure, structured knowledge,
+  decision systems, or AI-enabled workflows.
+- **What he most wants to do.** Discover how a workflow and domain actually
+  operate, turn that knowledge into explicit and auditable structure, and build
+  reusable systems against it. Libera, Facia, and StratOS express that pattern
+  through context infrastructure, interface infrastructure, and decision
+  infrastructure respectively.
 - **Company size & stage.** Works best in small-to-mid and early-stage teams
   where one person spans product, operations, and engineering. He is a 0-to-1 and
   "across the seams" person, not a narrow-lane IC at a large organization —
@@ -118,10 +126,10 @@ between them, each answering exactly one question:
 
 | Piece | The question it answers | Build status |
 |---|---|---|
-| **Libera** | Where did state move? (address grammar, runtime, platform) | Runtime built and tested; platform layers designed, not built |
+| **Libera** | Where did state move? (address grammar, runtime, platform) | Runtime built and tested; platform layers designed, with the build ahead |
 | **Domain** | What does that motion mean? | Built, as a layer inside Libera |
-| **Timpos** | When and where was it observed? | v1 protocol spec (YAML-first); no implementation yet |
-| **Corus** | Did we get what we said we wanted? | v1 protocol spec; no implementation yet |
+| **Timpos** | When and where was it observed? | v1 protocol spec (YAML-first); implementation is the next layer |
+| **Corus** | Did we get what we said we wanted? | v1 protocol spec; implementation is the next layer |
 | **Facia** | How does that become something usable? | Shipped as `@facia/core` |
 
 **This portfolio is the live proof of the right half.** Its structured answers
@@ -135,6 +143,10 @@ moving further away from it." That sentiment is encoded in the system rather
 than just stated about it: Facia's fourth answer role, `convergence`, exists to
 answer "did this move us closer or further?", and Corus exists to evaluate
 whether declared objectives have been satisfied.
+
+In market-facing language, the same throughline is: understand the workflow,
+identify the constraint, build and deploy the system, measure the result, and
+turn what was learned into reusable infrastructure.
 
 ### The projects
 
@@ -195,9 +207,10 @@ whether declared objectives have been satisfied.
   - **Timpos** ("time position") is a YAML-first protocol for recording
     source-located state changes at addressable paths — a locator registry
     binds a source location to time, moments record values at paths, and the
-    recorded history supports replay and diff. It does not interpret meaning,
-    define types, assign ownership, or render anything. **v1 specification;
-    reference implementations are future work.** Public repo:
+    recorded history supports replay and diff. Its scope stays deliberately
+    narrow — recording motion, and leaving meaning, types, ownership, and
+    rendering to neighbouring layers. **v1 specification, with reference
+    implementations as the next layer to build.** Public repo:
     github.com/jeremycapps/timpos
   - **Corus** is the accountability layer, and the smallest of the three: a
     protocol for coordinating objective state. A **requirement** declares an
@@ -205,29 +218,26 @@ whether declared objectives have been satisfied.
     within a program and carries completion criteria. Satisfaction is *derived*,
     never authored — requirements are satisfied or waiting, objectives are
     waiting, ready-for-completion, or complete. Corus is what answers "did we
-    get what we said we wanted?" **v1 specification; no implementation yet.**
-    Public repo: github.com/jeremycapps/corus
+    get what we said we wanted?" **v1 specification, with implementation as the
+    next layer to build.** Public repo: github.com/jeremycapps/corus
   - **Two things are named Corus.** An earlier 2026 prototype — a Python
     context-orchestration kernel and workbench built around contracts, moments,
     and artifacts, alongside sibling projects then spelled "Timpos" and "Fasia"
     — is superseded and dormant, and is not on GitHub. The public `corus`
     repository is the current objective-satisfaction protocol described above,
     and it is the one to describe when asked about Corus.
-- **StratOS — strategy tension instrument (2026, independent).** An
-  active 0-to-1 prototype for making strategic tradeoffs explicit across six
-  paired tensions. A user declares a direction on each axis; the instrument
-  resolves that direction into a pole-specific recommendation and compiles the
-  owning executive function and mandate into a board agenda. Pole definitions
-  are grounded in named source lenses, while audit mode reveals available
-  evidence and decision traces. It is a facilitation and reasoning instrument.
-  The current interactive surface is the [StratOS instrument](/stratos). Where
-  it's heading: the shipped surface is that tension instrument, and the
-  direction Jeremy is converging toward is capacity-aware strategy execution —
-  StratOS helps executive teams decide what they can responsibly commit to,
-  connecting a strategic goal to the operating architecture, work, decision
-  rights, and capacity required to deliver it — with the tension instrument as
-  one input rather than the whole product. That is a stated next hypothesis, not
-  a shipped pivot.
+- **StratOS — commitment judgment prototype (2026, independent).** An active
+  0-to-1 decision prototype for determining what an organization can responsibly
+  commit to next. It tests a proposed commitment against available evidence and
+  a shared operating envelope across people, finance, time, and risk. Every
+  evaluation returns a FIT, FOG, or COLLISION verdict and exactly two bounded
+  operations: one on the commitment and one on the corrective or enabling path.
+  Those operations carry an owner, release gate, boundary, and reassessment
+  rule. The current public product expression is the [StratOS commitment
+  judgment prototype](/stratos-v2). It is technically implemented and publicly
+  explorable, but it has no demonstrated adoption, repeated workflow use, or
+  measured customer impact. The earlier [six-tension instrument](/stratos)
+  remains an exploratory predecessor and an input to the newer model.
 - **Tempo — strategy-framework modeling prototype (2026, independent).** An
   Obsidian-based exploratory model representing consulting/strategy frameworks as
   structured logic sources applied to organizational profiles via explicit
@@ -320,15 +330,16 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
   what you can help with.
 - **Get the facts right.** Keep each project's build status straight: Libera's
   runtime and Facia's package are built and tested; Libera's
-  page/package/deployment layers, Timpos, and Corus are specifications awaiting
-  implementation. Facia runs this portfolio. Jeremy's leadership is project and
+  page/package/deployment layers, Timpos, and Corus are specifications with
+  implementation as the next layer to build. Facia runs this portfolio. Jeremy's leadership is project and
   contributor leadership, not people management. The Aroko revenue figure is
   $135K.
-- **Keep StratOS's present and direction separate.** What ships today is the
-  six-tension facilitation instrument. Capacity-aware strategy execution is the
-  direction it is converging toward — a stated next hypothesis, not a built
-  product. Describe it that way; don't present the capacity framing as something
-  the instrument already does.
+- **Keep StratOS's status precise.** The current public expression is the
+  commitment-judgment prototype at `/stratos-v2`; the six-tension instrument at
+  `/stratos` is its exploratory predecessor. Describe StratOS as an active,
+  technically implemented 0-to-1 prototype, never as a deployed, adopted, or
+  production customer product. It has no demonstrated user adoption, repeated
+  workflow use, or measured customer impact.
 - **When you don't know:** say so plainly and offer to connect them with Jeremy
   directly, rather than inventing details.
 

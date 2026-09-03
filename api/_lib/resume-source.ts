@@ -13,6 +13,7 @@ export const RESUME_PROVIDER_DEADLINE_MS = 8_000;
 
 import { matchSummary } from './summary-router';
 import { CANONICAL_SUMMARY } from './professional-summary';
+import { lexicalTokens, matchingTokenCount } from './lexical-kernel';
 
 export interface RankedBullet {
   engagementId: string;
@@ -96,7 +97,29 @@ export interface ResumeDiagnostics {
 }
 
 export function tokenize(text: string): string[] {
-  return text.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+  return lexicalTokens(text);
+}
+
+interface CompiledResumeEngagement {
+  readonly engagement: ResumeCorpus['engagements'][number];
+  readonly themeTokens: readonly (readonly string[])[];
+  readonly fitTokens: readonly (readonly string[])[];
+  readonly bulletTokens: ReadonlyMap<string, readonly string[]>;
+}
+
+const rankingIndex = new WeakMap<ResumeCorpus, readonly CompiledResumeEngagement[]>();
+
+function compileRankingIndex(corpus: ResumeCorpus): readonly CompiledResumeEngagement[] {
+  const cached = rankingIndex.get(corpus);
+  if (cached) return cached;
+  const compiled = corpus.engagements.map((engagement) => ({
+    engagement,
+    themeTokens: engagement.themes.map(tokenize),
+    fitTokens: [...engagement.roleFit.strongest, ...engagement.roleFit.secondary].map(tokenize),
+    bulletTokens: new Map(engagement.bullets.map((bullet) => [bullet.id, tokenize(bullet.text)])),
+  }));
+  rankingIndex.set(corpus, compiled);
+  return compiled;
 }
 
 // The source corpus stores independent builds alongside employment engagements
@@ -110,15 +133,16 @@ function isProjectOrg(organization: string): boolean {
 
 export function prerank(job: string, corpus: ResumeCorpus): RankedBullet[] {
   const jobTokens = new Set(tokenize(job));
-  const phraseHits = (phrases: string[]) =>
-    phrases.reduce((n, p) => n + (tokenize(p).some((t) => jobTokens.has(t)) ? 1 : 0), 0);
+  const phraseHits = (phrases: readonly (readonly string[])[]) =>
+    phrases.reduce((count, tokens) => count + (tokens.some((token) => jobTokens.has(token)) ? 1 : 0), 0);
 
   const ranked: RankedBullet[] = [];
-  for (const eng of corpus.engagements) {
-    const themeScore = phraseHits(eng.themes) * 3;
-    const fitScore = phraseHits([...eng.roleFit.strongest, ...eng.roleFit.secondary]) * 2;
+  for (const compiled of compileRankingIndex(corpus)) {
+    const eng = compiled.engagement;
+    const themeScore = phraseHits(compiled.themeTokens) * 3;
+    const fitScore = phraseHits(compiled.fitTokens) * 2;
     for (const b of eng.bullets) {
-      const bulletScore = tokenize(b.text).filter((t) => jobTokens.has(t)).length;
+      const bulletScore = matchingTokenCount(compiled.bulletTokens.get(b.id) ?? [], jobTokens);
       ranked.push({
         engagementId: eng.id,
         bulletId: b.id,
@@ -186,7 +210,7 @@ function summaryMessages(job: string, selected: RankedBullet[]): ChatMessage[] {
     {
       role: 'system',
       content:
-        'Write ONE short professional-summary paragraph (2-3 sentences) tailoring the candidate to the job. Use only facts present in the provided bullets and obey every caution. Clearly distinguish career experience from independent project work. Never describe an independent project as employment, client work, a commercial or production deployment, team experience, or external-user impact. Prefer the phrase "independent project work" when referring to project evidence. Do not call the person "this candidate." No lists, no headers.',
+        'Write ONE short professional-summary paragraph (2-3 sentences) tailoring the candidate to the job. Use only facts present in the provided bullets and obey every caution. Preserve the candidate spine: a systems-oriented, product-minded engineer who learns the workflow, identifies the binding constraint, builds the required system, measures the result, and leaves reusable infrastructure. Use that sequence selectively where the evidence supports it, not as a slogan. Clearly distinguish career experience from independent project work. Never describe an independent project as employment, client work, a commercial or production deployment, team experience, or external-user impact. Prefer the phrase "independent project work" when referring to project evidence. Do not call the person "this candidate." No lists, no headers.',
     },
     { role: 'user', content: `Job:\n${job}\n\nSelected source material:\n${bullets}` },
   ];
@@ -278,8 +302,16 @@ const PROJECT_NAMES: Record<string, string> = {
     'Corus — Chatbot Filesystem Runtime Contract',
   jeremy_domain_langgraph_reference_runtime: 'Domain — Deterministic Agent Runtime on LangGraph',
   tempo_stratos_v5_governed_decision_product:
-    'StratOS / Tempo — Governed Executive Decision Product',
+    'StratOS — Commitment Judgment Prototype',
   tempo_strategy_framework_model: 'Tempo — Strategy Framework Model',
+};
+
+// The source corpus predates the current public StratOS product expression.
+// Keep selection grounded in the captured source bullets, but render the current,
+// bounded description instead of presenting the earlier v5 framing as the product.
+const PROJECT_COPY: Record<string, string> = {
+  tempo_stratos_v5_governed_decision_product:
+    'Designed and built an active 0-to-1 decision prototype that tests whether a strategic commitment fits the available evidence, operating capacity, time, and risk. It returns a bounded next action, release gate, and reassessment rule while keeping uncertainty and unsupported assumptions visible.',
 };
 
 // Projects stay lighter than experience: fewer entries, fewer bullets each.
@@ -495,7 +527,8 @@ function buildProjects(groups: EngagementGroup[]): RenderedProjects {
     items: rendered.map((group) => ({
       id: group.engagementId,
       name: PROJECT_NAMES[group.engagementId] ?? group.organization,
-      text: group.bullets.slice(0, MAX_PROJECT_BULLETS).join(' '),
+      text: PROJECT_COPY[group.engagementId]
+        ?? group.bullets.slice(0, MAX_PROJECT_BULLETS).join(' '),
       sourceRefs: group.sourceRefs,
     })),
     bulletIds: rendered.flatMap((group) => group.bulletIds.slice(0, MAX_PROJECT_BULLETS)),

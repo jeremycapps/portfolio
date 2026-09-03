@@ -4,6 +4,7 @@
 // declines, and the caller falls back to the canonical summary or the model.
 
 import { SUMMARY_CORPUS, type TailoredSummary } from './summary-corpus';
+import { lexicalTerms, overlapCount } from './lexical-kernel';
 
 const STOPWORDS = new Set([
   'a', 'an', 'and', 'the', 'to', 'of', 'for', 'in', 'on', 'with', 'our', 'we', 'you',
@@ -12,24 +13,21 @@ const STOPWORDS = new Set([
   'across', 'end', 'product', 'products', 'experience', 'years', 'strong',
 ]);
 
-function terms(text: string): Set<string> {
-  const single = text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
-    .filter((w) => w.length > 2 && !STOPWORDS.has(w));
-  const out = new Set(single);
-  // keep authored two-word signals as bigrams so "data mapping", "0 to 1" match
-  for (let i = 0; i < single.length - 1; i += 1) out.add(`${single[i]} ${single[i + 1]}`);
-  return out;
-}
+const SUMMARY_TERMS = { minLength: 3, stopwords: STOPWORDS, bigrams: true } as const;
+const SUMMARY_INDEX = SUMMARY_CORPUS.map((entry) => ({
+  entry,
+  signal: new Set(entry.signal.map((signal) => signal.toLowerCase())),
+  prose: lexicalTerms(entry.summary, SUMMARY_TERMS),
+}));
 
 /** A signal term is worth more than an incidental word in the prose. */
-function score(jdTerms: Set<string>, entry: TailoredSummary): number {
-  const signal = new Set(entry.signal.map((s) => s.toLowerCase()));
-  const prose = terms(entry.summary);
-  let s = 0;
-  for (const t of jdTerms) {
-    if (signal.has(t)) s += 3;
-    else if (prose.has(t)) s += 1;
-  }
+function score(
+  jdTerms: Set<string>,
+  entry: { signal: ReadonlySet<string>; prose: ReadonlySet<string> },
+): number {
+  const signalMatches = overlapCount(jdTerms, entry.signal);
+  const proseOnly = new Set([...jdTerms].filter((term) => !entry.signal.has(term)));
+  const s = signalMatches * 3 + overlapCount(proseOnly, entry.prose);
   // normalise by JD size so a long JD does not automatically win
   return s / Math.sqrt(jdTerms.size);
 }
@@ -43,9 +41,9 @@ export interface SummaryRouting {
 const MATCH_THRESHOLD = 2.0;
 
 export function routeSummary(job: string): SummaryRouting {
-  const jd = terms(job);
-  const ranked = SUMMARY_CORPUS
-    .map((entry) => ({ id: entry.id, score: score(jd, entry) }))
+  const jd = lexicalTerms(job, SUMMARY_TERMS);
+  const ranked = SUMMARY_INDEX
+    .map((compiled) => ({ id: compiled.entry.id, score: score(jd, compiled) }))
     .sort((a, b) => b.score - a.score);
   const top = ranked[0];
   const match = top !== undefined && top.score >= MATCH_THRESHOLD
