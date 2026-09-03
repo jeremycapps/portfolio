@@ -240,11 +240,61 @@ function Phone({ children, hero = false }: { children: ReactNode; hero?: boolean
   );
 }
 
-const LEG_TAG: Record<PresentationLeg['status'], string> = {
-  pass: 'CLEARS',
-  fail: 'BREAKS',
-  'no-line': 'NO LINE',
-};
+/**
+ * The three verdict buckets, in "bad news first" order.
+ *
+ * Each constraint carries one of exactly three readings, and they are the same
+ * three the whole engine speaks: a priced line that breaks (COLLISION), a line
+ * that cannot be priced at all (FOG), and a line that clears (FIT). The engine
+ * rolls these up to a single overall verdict — one COLLISION buries every clear
+ * and every fog beneath it — so a case that is genuinely mixed reads as one flat
+ * word. This tally is where the mix stays visible: it counts the legs by reading
+ * before the roll-up hides them, which is the only place all three coexist on
+ * screen at once.
+ */
+const VERDICT_BUCKETS = [
+  { status: 'fail', word: 'Breaks', tone: 'bad' },
+  { status: 'no-line', word: 'No line', tone: 'uncertain' },
+  { status: 'pass', word: 'Clears', tone: 'ok' },
+] as const satisfies readonly {
+  status: PresentationLeg['status'];
+  word: string;
+  tone: 'ok' | 'uncertain' | 'bad';
+}[];
+
+/**
+ * The tally strip — a verdict count across the case's constraints.
+ *
+ * Sits above the leg list on screen two and answers, at a glance, the question
+ * the single rolled-up verdict cannot: how many conditions clear, how many are
+ * unpriceable, how many break. A bucket at zero still renders, dimmed, so the
+ * shape of the read is honest — three zeros would be a lie the mixed case tells.
+ */
+function ConstraintTally({ legs }: { legs: readonly PresentationLeg[] }) {
+  const counts = useMemo(() => {
+    const tally: Record<PresentationLeg['status'], number> = { pass: 0, fail: 0, 'no-line': 0 };
+    for (const leg of legs) tally[leg.status] += 1;
+    return tally;
+  }, [legs]);
+
+  return (
+    <div className="sf-tally" role="list" aria-label="Constraint verdicts">
+      {VERDICT_BUCKETS.map(({ status, word, tone }) => {
+        const n = counts[status];
+        return (
+          <span
+            key={status}
+            role="listitem"
+            className={`sf-tally-item sf-tally-item--${tone}${n === 0 ? ' is-empty' : ''}`}
+          >
+            <b className="sf-tally-n">{n}</b>
+            <span className="sf-tally-word">{word}</span>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 
 /**
  * The slip.
@@ -284,6 +334,8 @@ function ConstraintsScreen({ view, onBack }: { view: DecisionExperienceViewModel
         </button>
         <span className="sf-con-title">Constraints</span>
       </div>
+
+      <ConstraintTally legs={view.legs} />
 
       <div className="sf-cons">
         {legs.map((leg) => {
