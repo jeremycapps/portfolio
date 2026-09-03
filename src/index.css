@@ -1491,6 +1491,13 @@ textarea:focus-visible {
 }
 .chat-markdown > :first-child { margin-top: 0; }
 .chat-markdown > :last-child { margin-bottom: 0; }
+/* Tailwind Typography wraps inline <code> in literal backticks via
+   code::before/::after. The markdown already renders a <code> element, so those
+   quote marks are redundant noise — suppress them on both prose surfaces. */
+.chat-markdown code::before,
+.chat-markdown code::after,
+.blog-markdown code::before,
+.blog-markdown code::after { content: none; }
 .chat-markdown :where(a):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 .chat-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .chat-error { color: var(--danger); font-size: 0.9rem; }
