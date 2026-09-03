@@ -13,6 +13,7 @@ export const RESUME_PROVIDER_DEADLINE_MS = 8_000;
 
 import { matchSummary } from './summary-router';
 import { CANONICAL_SUMMARY } from './professional-summary';
+import { lexicalTokens, matchingTokenCount } from './lexical-kernel';
 
 export interface RankedBullet {
   engagementId: string;
@@ -96,7 +97,29 @@ export interface ResumeDiagnostics {
 }
 
 export function tokenize(text: string): string[] {
-  return text.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+  return lexicalTokens(text);
+}
+
+interface CompiledResumeEngagement {
+  readonly engagement: ResumeCorpus['engagements'][number];
+  readonly themeTokens: readonly (readonly string[])[];
+  readonly fitTokens: readonly (readonly string[])[];
+  readonly bulletTokens: ReadonlyMap<string, readonly string[]>;
+}
+
+const rankingIndex = new WeakMap<ResumeCorpus, readonly CompiledResumeEngagement[]>();
+
+function compileRankingIndex(corpus: ResumeCorpus): readonly CompiledResumeEngagement[] {
+  const cached = rankingIndex.get(corpus);
+  if (cached) return cached;
+  const compiled = corpus.engagements.map((engagement) => ({
+    engagement,
+    themeTokens: engagement.themes.map(tokenize),
+    fitTokens: [...engagement.roleFit.strongest, ...engagement.roleFit.secondary].map(tokenize),
+    bulletTokens: new Map(engagement.bullets.map((bullet) => [bullet.id, tokenize(bullet.text)])),
+  }));
+  rankingIndex.set(corpus, compiled);
+  return compiled;
 }
 
 // The source corpus stores independent builds alongside employment engagements
@@ -110,15 +133,16 @@ function isProjectOrg(organization: string): boolean {
 
 export function prerank(job: string, corpus: ResumeCorpus): RankedBullet[] {
   const jobTokens = new Set(tokenize(job));
-  const phraseHits = (phrases: string[]) =>
-    phrases.reduce((n, p) => n + (tokenize(p).some((t) => jobTokens.has(t)) ? 1 : 0), 0);
+  const phraseHits = (phrases: readonly (readonly string[])[]) =>
+    phrases.reduce((count, tokens) => count + (tokens.some((token) => jobTokens.has(token)) ? 1 : 0), 0);
 
   const ranked: RankedBullet[] = [];
-  for (const eng of corpus.engagements) {
-    const themeScore = phraseHits(eng.themes) * 3;
-    const fitScore = phraseHits([...eng.roleFit.strongest, ...eng.roleFit.secondary]) * 2;
+  for (const compiled of compileRankingIndex(corpus)) {
+    const eng = compiled.engagement;
+    const themeScore = phraseHits(compiled.themeTokens) * 3;
+    const fitScore = phraseHits(compiled.fitTokens) * 2;
     for (const b of eng.bullets) {
-      const bulletScore = tokenize(b.text).filter((t) => jobTokens.has(t)).length;
+      const bulletScore = matchingTokenCount(compiled.bulletTokens.get(b.id) ?? [], jobTokens);
       ranked.push({
         engagementId: eng.id,
         bulletId: b.id,
