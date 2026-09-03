@@ -88,3 +88,41 @@ Not "you're wrong" — the smallest **reversible** path to the same goal. This i
 | Size the human buffer to complex-queue volume | CPO · workforce capacity | Crystalline → Resilient |
 
 **Next safe commitment:** prove segment quality at L1 depth before the next increment; re-present at Gate 2.
+
+---
+
+## Teams, people & the backlog signal (L3 grounding)
+
+The L3 collision has named owners and a dated, on-the-ground signal that preceded every headline metric.
+
+**Who:**
+- **Champion:** Sebastian Siemiatkowski (CEO) — the AI-first thesis and the claims.
+- **Build (clears):** Klarna Engineering — Martin Elwin, Sr. Director of Engineering — with OpenAI (Brad Lightcap, COO) as model partner.
+- **Bore the cost (breaks):** ~250 staff → **Foundever** (Sep 2023); ~500 roles → **Foundever + Accenture** (Oct 2023; Accenture took financial-crime prevention); external agent pool ~3,000 → ~2,300.
+
+**The backlog signal — the metric they should have watched.** Following the 750 outsourced roles, unresolved customer/merchant queries **quadrupled**; merchants waited **up to a month** (two outsourced employees + internal documents, per Sifted). Concentrated in merchant / smaller-business queries across the UK, Belgium, the Netherlands, and France — the judgment-heavy segment.
+
+**Timeline — the cuts came first.** The outsourcing (Sep–Oct 2023) and the quadrupled backlog **predate the Feb 2024 assistant launch**. The AI was deployed onto a queue that was already backing up. So deflection and blended CSAT (Feb 2024) measured throughput *share* on a system whose real health metric — **backlog / queue depth (arrivals vs completions)** — was already red, and moving *opposite* to deflection: the more the assistant deflected simple tickets, the more the complex queue piled into the human capacity that had just been cut.
+
+**Implication:** the correct guiding metric is **queue depth / backlog age by segment**, not deflection or blended CSAT. Backlog is the leading indicator of the break; it was observable in late 2023; it was not the steering metric.
+
+### Additional sources (add to `sources[]`)
+
+| id | title | publisher | kind | publishedAt | url |
+|---|---|---|---|---|---|
+| sifted-cut-250 | "Klarna outsources customer services staff, cutting 250 employees" | Sifted | news | 2023-09 | https://sifted.eu/articles/klarna-cuts-250-customer-services-employees-news |
+| sifted-cut-500 | "Klarna transfers another 500 jobs globally to Foundever and Accenture" | Sifted | news | 2023-10 | https://sifted.eu/articles/klarna-outsources-another-500-jobs-globally-news |
+| sifted-backlog | "Support backlog grows at Klarna following outsourcing of roles, former employees say" | Sifted | news | ~2024 | https://sifted.eu/articles/support-backlog-grows-at-klarna-following-outsourcing-of-roles-former-employees-say-news |
+| cxdive-uber | "Klarna pursues 'Uber' style customer service model" | CX Dive | news | 2025 | https://www.customerexperiencedive.com/news/klarna-pursues-uber-style-customer-service-model/812763/ |
+
+### Additional facts (add to `facts[]`)
+
+| fact | value | status | source |
+|---|---|---|---|
+| Support roles outsourced | 250 (Sep 2023) + 500 (Oct 2023) = 750 | OBSERVED | sifted-cut-250 / sifted-cut-500 |
+| Outsourcing partners | Foundever (support); Accenture (financial-crime prevention) | OBSERVED | sifted-cut-500 |
+| Unresolved queries after outsourcing | quadrupled | OBSERVED | sifted-backlog |
+| Merchant support wait | up to one month | OBSERVED | sifted-backlog |
+| External agent pool | ~3,000 → ~2,300 | OBSERVED | bigeye |
+| Build lead | Martin Elwin, Sr. Director of Engineering | OBSERVED | — |
+| Cut-vs-launch ordering | cuts + backlog (late 2023) precede AI launch (Feb 2024) | OBSERVED | sifted / klarna-pr-2024 |
