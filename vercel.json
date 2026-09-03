@@ -21,6 +21,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/stratos-flow-preview-2cebd2c17d1887106cb0",
+      "destination": "/index.html"
+    },
+    {
       "source": "/blog",
       "destination": "/index.html"
     },

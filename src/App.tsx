@@ -482,6 +482,14 @@ function Router() {
         <Route path="/stratos-flow">
           {() => <Suspense fallback={null}><StratosFlowPage /></Suspense>}
         </Route>
+        {/*
+         * Unlisted preview of the flow view, reachable only by its random path.
+         * Not linked from anywhere and kept out of the sitemap; the suffix is
+         * obscurity, not a secret — the path ships in the public bundle and repo.
+         */}
+        <Route path="/stratos-flow-preview-2cebd2c17d1887106cb0">
+          {() => <Suspense fallback={null}><StratosFlowPage /></Suspense>}
+        </Route>
         <Route path="/blog">
           {() => <Suspense fallback={null}><BlogPage /></Suspense>}
         </Route>
