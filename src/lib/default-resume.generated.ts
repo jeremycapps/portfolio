@@ -15,7 +15,7 @@ export const DEFAULT_RESUME: ResumeResponse = {
       ]
     },
     "summary": {
-      "text": "Customer-facing engineer who owns technical delivery end to end: from building external API integrations start-to-completion for a construction-software platform, to designing a multi-provider LLM orchestration system and a Model Context Protocol (MCP) server that exposes a provenance-attached corpus as queryable tools. Fluent moving between production code, migration scoping with stakeholders, and explaining architectural tradeoffs to technical and business audiences. Strongest fit: forward-deployed / solutions engineering across API integration, AI workflows (MCP, Agent APIs, LLM orchestration), and large-scale data migration.",
+      "text": "Customer-facing engineer who moves from workflow discovery through implementation, deployment, and durable handoff. I built external API integrations end to end for a construction-software platform, scoped migrations with stakeholders, shipped production React systems, and built internal operating tools around real business constraints. Recent independent work turns discovered domain knowledge into reusable AI context and interfaces. Strongest fit: forward-deployed and solutions engineering across integrations, AI workflows, technical discovery, and product feedback.",
       "engine": "retrieved"
     },
     "experience": [
@@ -114,8 +114,8 @@ export const DEFAULT_RESUME: ResumeResponse = {
       },
       {
         "id": "tempo_stratos_v5_governed_decision_product",
-        "name": "StratOS / Tempo — Governed Executive Decision Product",
-        "text": "Removed Coherence, the model's most persuasive output, after determining a desk audit cannot observe a firm's intended target and the system was grading firms against an invented intention; replaced it with Layer Balance and a Commitment index, and deferred Coherence to an inside-access tier where the customer defines the goal. Designed a product contract that keeps four claims separate and refuses to collapse them into one score: where a firm sits (descriptive, never a grade), how well the product knows (confidence, which changes interval width only), whether material choices were made, and whether non-compensating viability floors are cleared — with only the last able to decide a verdict.",
+        "name": "StratOS — Commitment Judgment Prototype",
+        "text": "Designed and built an active 0-to-1 decision prototype that tests whether a strategic commitment fits the available evidence, operating capacity, time, and risk. It returns a bounded next action, release gate, and reassessment rule while keeping uncertainty and unsupported assumptions visible.",
         "sourceRefs": [
           "engagements.yaml#tempo_stratos_v5_governed_decision_product"
         ]

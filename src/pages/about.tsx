@@ -13,14 +13,13 @@ export default function AboutPage() {
             across the <em>seams.</em>
           </h1>
           <p className="about-lede">
-            Jeremy Capps is a systems-oriented, product-minded engineer working across
-            product, operations, design, and engineering. His throughline is building the
-            source-of-truth and context layer for messy workflows — turning ambiguous,
-            scattered work into structured systems people can actually run. He's worked in
-            software and systems since 2017, pairing a working engineer's background
-            (frontend design systems, API integrations, legacy modernization) with
-            operations and product-systems work, and a parallel practice in creative and
-            cultural-systems research.
+            Jeremy Capps is a systems-oriented, product-minded engineer who works across
+            product, operations, design, and engineering. He learns how a workflow actually
+            works, identifies the binding constraint, and builds the technical or operational
+            system required to change it. Since 2017, that work has spanned internal operations,
+            production design systems, customer-facing API integrations, legacy modernization,
+            and independent AI infrastructure that turns discovered domain knowledge into
+            reusable context.
           </p>
         </div>
       </main>

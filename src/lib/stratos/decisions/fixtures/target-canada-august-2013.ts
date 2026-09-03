@@ -14,7 +14,7 @@ const q2Evidence = {
 const fog = (id: string, label: string) => ({
   id,
   label,
-  displayState: 'FOG' as const,
+  epistemicState: 'FOG' as const,
   materiality: 'material' as const,
   assumptionRefs: [],
 });
@@ -37,7 +37,7 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
   currentCommitment: {
     id: 'active-store-cohort',
     label: 'Canadian stores operating after Q2',
-    displayState: 'OBSERVED',
+    epistemicState: 'OBSERVED',
     materiality: 'material',
     metric: { value: 68, unit: 'stores operating' },
     factRef: 'canada-stores-operating-q2',
@@ -49,7 +49,7 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
   requestedIncrement: {
     id: 'remaining-store-increment',
     label: 'Remaining Canadian stores planned by year-end',
-    displayState: 'OBSERVED',
+    epistemicState: 'OBSERVED',
     materiality: 'material',
     metric: { value: 56, unit: 'stores planned to open' },
     factRef: 'canada-stores-remaining-2013',
@@ -61,7 +61,7 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
   cadence: {
     id: 'remaining-rollout-cadence',
     label: 'Prepare and open the remaining cohort by year-end',
-    displayState: 'OBSERVED',
+    epistemicState: 'OBSERVED',
     materiality: 'material',
     factRef: 'canada-stores-remaining-2013',
     evidence: { sourceId: 'target-q2-results-2013', locator: 'Chief executive quotation, Canadian launch outlook' },
@@ -104,10 +104,10 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
     },
   ],
   exposures: {
-    storeActivation: {
+    scopeActivation: {
       id: 'store-activation-exposure',
       label: 'Requested store-activation exposure',
-      displayState: 'OBSERVED',
+      epistemicState: 'OBSERVED',
       materiality: 'material',
       metric: { value: 56, unit: 'stores planned to open' },
       factRef: 'canada-stores-remaining-2013',
@@ -116,8 +116,8 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
       origin: 'reported',
       assumptionRefs: [],
     },
-    leases: fog('lease-exposure', 'Lease obligations for the remaining cohort'),
-    capitalRemodeling: fog('capital-remodeling-exposure', 'Capital and remodeling exposure for the remaining cohort'),
+    contracts: fog('lease-exposure', 'Lease obligations for the remaining cohort'),
+    capital: fog('capital-remodeling-exposure', 'Capital and remodeling exposure for the remaining cohort'),
     inventory: fog('inventory-exposure', 'Inventory exposure for the remaining cohort'),
     people: fog('people-exposure', 'People capacity and exposure for the remaining cohort'),
     cash: fog('cash-exposure', 'Cash exposure for the remaining cohort'),
@@ -142,7 +142,7 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
     {
       id: 'q3-warning-hindsight',
       label: 'Third-quarter Canadian warning evidence',
-      displayState: 'HINDSIGHT',
+      epistemicState: 'OBSERVED',
       materiality: 'context',
       evidence: { sourceId: 'target-q3-results-2013', locator: 'Canadian Segment Results' },
       publishedAt: '2013-11-21',
@@ -152,7 +152,7 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
     {
       id: 'full-year-outcome-hindsight',
       label: 'Full-year Canadian operating evidence',
-      displayState: 'HINDSIGHT',
+      epistemicState: 'OBSERVED',
       materiality: 'context',
       factRef: 'canada-ebit-2013',
       evidence: { sourceId: 'target-results-2013', locator: 'Canadian Segment Results' },
@@ -163,7 +163,7 @@ export const TARGET_CANADA_AUGUST_2013_DECISION_POINT = defineDecisionPoint({
     {
       id: 'exit-outcome-hindsight',
       label: 'Canadian exit footprint',
-      displayState: 'HINDSIGHT',
+      epistemicState: 'OBSERVED',
       materiality: 'context',
       factRef: 'stores-at-exit',
       evidence: { sourceId: 'target-exit-2015', locator: 'Canada operations summary' },

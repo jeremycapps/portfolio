@@ -16,7 +16,7 @@
   --st-right-soft: rgba(117, 91, 123, 0.13);
   --st-accent: #315f80;
   --st-accent-soft: rgba(220, 238, 241, 0.66);
-  --st-focus: hsl(var(--ring));
+  --st-focus: var(--focus);
 
   min-height: 100dvh;
   color: var(--st-ink);

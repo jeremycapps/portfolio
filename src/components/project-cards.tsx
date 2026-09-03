@@ -28,23 +28,29 @@ function ProjectCardContent({ project, index, total }: {
 export function ProjectCards({ projects = PORTFOLIO_PROJECTS }: ProjectCardsProps) {
   return (
     <div className="document-grid">
-      {projects.map((project, index) => project.repositoryUrl ? (
-        <a
-          className="document-card"
-          key={project.id}
-          href={project.repositoryUrl}
-          target="_blank"
-          rel="noreferrer noopener"
-          aria-label={`${project.name} on GitHub`}
-          data-testid={`card-${project.id}`}
-        >
-          <ProjectCardContent project={project} index={index} total={projects.length} />
-        </a>
-      ) : (
-        <article className="document-card" key={project.id} data-testid={`card-${project.id}`}>
-          <ProjectCardContent project={project} index={index} total={projects.length} />
-        </article>
-      ))}
+      {projects.map((project, index) => {
+        const href = project.repositoryUrl ?? project.pageUrl;
+        const externalProps = project.repositoryUrl
+          ? { target: '_blank' as const, rel: 'noreferrer noopener' }
+          : {};
+
+        return href ? (
+          <a
+            className="document-card"
+            key={project.id}
+            href={href}
+            {...externalProps}
+            aria-label={project.repositoryUrl ? `${project.name} on GitHub` : `Explore ${project.name}`}
+            data-testid={`card-${project.id}`}
+          >
+            <ProjectCardContent project={project} index={index} total={projects.length} />
+          </a>
+        ) : (
+          <article className="document-card" key={project.id} data-testid={`card-${project.id}`}>
+            <ProjectCardContent project={project} index={index} total={projects.length} />
+          </article>
+        );
+      })}
     </div>
   );
 }

@@ -9,30 +9,30 @@ detail rather than guessing.
 
 Jeremy Capps is a systems-oriented technical operator and product-minded
 engineer who works across the seams of product, operations, design, and
-engineering. His throughline is building the source-of-truth and context layer
-for messy workflows — turning ambiguous, scattered work into structured systems
-people can actually run. He pairs a working engineer's background (frontend
-design systems, API integrations, legacy modernization) with operations and
-product-systems work, and a parallel practice in creative and cultural systems
-research. He has worked professionally in software and systems since 2017 — nine
-years across engineering, operations, and product.
+engineering. He learns how a workflow actually works, identifies the binding
+constraint, and builds the technical or operational system required to change
+it. He pairs a working engineer's background (frontend design systems, API
+integrations, legacy modernization) with operations and product-systems work.
+His recent independent work turns discovered domain knowledge into reusable AI
+context, deterministic decisions, and interfaces. He has worked professionally
+in software and systems since 2017 — nine years across engineering, operations,
+and product — alongside a practice in creative and cultural-systems research.
 
 ## What Jeremy is looking for
 
 - **Primary identity (the one-word answer).** An engineer — specifically a
-  knowledge / ontology and context-infrastructure engineer. Engineering is the
-  core craft; operations and product-systems are the range around it, not a
-  pivot away from it. If pressed to choose one discipline, choose engineer.
-- **Roles he's targeting.** Forward-deployed / knowledge / ontology engineering;
-  context-infrastructure, knowledge-graph, and agent-memory work; and founding or
-  early product-engineering roles on teams building structured knowledge,
-  data-modeling, or AI-context systems. Solutions architecture and design-systems
-  engineering are adjacent fits that draw on the same modeling instinct.
-- **What he most wants to do.** Ontology building and mapping — turning ambiguous
-  sources into explicit, auditable structure. This is the literal subject of
-  Libera (an executable runtime for semantic models), Facia (the answer-to-
-  interface contract), and StratOS (paired-tension ontology). It is the work he
-  optimizes for.
+  systems-oriented, product-minded engineer. Engineering is the core craft;
+  operations and product systems are the range around it, not a pivot away from
+  it. If pressed to choose one discipline, choose engineer.
+- **Roles he's targeting.** Forward-deployed engineering, AI operations,
+  solutions architecture, implementation, and product/platform engineering,
+  especially on teams building context infrastructure, structured knowledge,
+  decision systems, or AI-enabled workflows.
+- **What he most wants to do.** Discover how a workflow and domain actually
+  operate, turn that knowledge into explicit and auditable structure, and build
+  reusable systems against it. Libera, Facia, and StratOS express that pattern
+  through context infrastructure, interface infrastructure, and decision
+  infrastructure respectively.
 - **Company size & stage.** Works best in small-to-mid and early-stage teams
   where one person spans product, operations, and engineering. He is a 0-to-1 and
   "across the seams" person, not a narrow-lane IC at a large organization —
@@ -136,6 +136,10 @@ than just stated about it: Facia's fourth answer role, `convergence`, exists to
 answer "did this move us closer or further?", and Corus exists to evaluate
 whether declared objectives have been satisfied.
 
+In market-facing language, the same throughline is: understand the workflow,
+identify the constraint, build and deploy the system, measure the result, and
+turn what was learned into reusable infrastructure.
+
 ### The projects
 
 - **Libera — platform for executable semantic models (2026–present,
@@ -213,21 +217,18 @@ whether declared objectives have been satisfied.
     — is superseded and dormant, and is not on GitHub. The public `corus`
     repository is the current objective-satisfaction protocol described above,
     and it is the one to describe when asked about Corus.
-- **StratOS — strategy tension instrument (2026, independent).** An
-  active 0-to-1 prototype for making strategic tradeoffs explicit across six
-  paired tensions. A user declares a direction on each axis; the instrument
-  resolves that direction into a pole-specific recommendation and compiles the
-  owning executive function and mandate into a board agenda. Pole definitions
-  are grounded in named source lenses, while audit mode reveals available
-  evidence and decision traces. It is a facilitation and reasoning instrument.
-  The current interactive surface is the [StratOS instrument](/stratos). Where
-  it's heading: the shipped surface is that tension instrument, and the
-  direction Jeremy is converging toward is capacity-aware strategy execution —
-  StratOS helps executive teams decide what they can responsibly commit to,
-  connecting a strategic goal to the operating architecture, work, decision
-  rights, and capacity required to deliver it — with the tension instrument as
-  one input rather than the whole product. That is a stated next hypothesis, not
-  a shipped pivot.
+- **StratOS — commitment judgment prototype (2026, independent).** An active
+  0-to-1 decision prototype for determining what an organization can responsibly
+  commit to next. It tests a proposed commitment against available evidence and
+  a shared operating envelope across people, finance, time, and risk. Every
+  evaluation returns a FIT, FOG, or COLLISION verdict and exactly two bounded
+  operations: one on the commitment and one on the corrective or enabling path.
+  Those operations carry an owner, release gate, boundary, and reassessment
+  rule. The current public product expression is the [StratOS commitment
+  judgment prototype](/stratos-v2). It is technically implemented and publicly
+  explorable, but it has no demonstrated adoption, repeated workflow use, or
+  measured customer impact. The earlier [six-tension instrument](/stratos)
+  remains an exploratory predecessor and an input to the newer model.
 - **Tempo — strategy-framework modeling prototype (2026, independent).** An
   Obsidian-based exploratory model representing consulting/strategy frameworks as
   structured logic sources applied to organizational profiles via explicit
@@ -324,11 +325,12 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
   implementation. Facia runs this portfolio. Jeremy's leadership is project and
   contributor leadership, not people management. The Aroko revenue figure is
   $135K.
-- **Keep StratOS's present and direction separate.** What ships today is the
-  six-tension facilitation instrument. Capacity-aware strategy execution is the
-  direction it is converging toward — a stated next hypothesis, not a built
-  product. Describe it that way; don't present the capacity framing as something
-  the instrument already does.
+- **Keep StratOS's status precise.** The current public expression is the
+  commitment-judgment prototype at `/stratos-v2`; the six-tension instrument at
+  `/stratos` is its exploratory predecessor. Describe StratOS as an active,
+  technically implemented 0-to-1 prototype, never as a deployed, adopted, or
+  production customer product. It has no demonstrated user adoption, repeated
+  workflow use, or measured customer impact.
 - **When you don't know:** say so plainly and offer to connect them with Jeremy
   directly, rather than inventing details.
 

@@ -1,6 +1,9 @@
-import type { MetricRange, MetricValue } from '../cases/profile';
 import { TARGET_CANADA_AUGUST_2013_REVIEW_INPUT } from '../scoring/target-canada-august-review';
-import type { EvidenceDisplayState, ExposureCategory } from './decision-point';
+import type { ExposureCategory } from './decision-point';
+import type {
+  DecisionComparison,
+  ExposureComparisonCategory,
+} from './decision-comparison';
 import {
   TARGET_CANADA_AUGUST_2013_DECISION_POINT,
 } from './fixtures/target-canada-august-2013';
@@ -123,21 +126,6 @@ export const TARGET_CANADA_AUGUST_2013_JUDGMENT: JudgmentResult = {
 
 assertValidJudgmentResult(TARGET_CANADA_AUGUST_2013_JUDGMENT);
 
-export interface ExposureComparisonValue {
-  readonly status: EvidenceDisplayState;
-  readonly label: string;
-  readonly metric?: MetricValue | MetricRange;
-  readonly calculation?: string;
-  readonly assumption?: string;
-}
-
-export interface ExposureComparisonCategory {
-  readonly category: ExposureCategory;
-  readonly actualIntent: ExposureComparisonValue;
-  readonly stratosScenario: ExposureComparisonValue;
-  readonly limitation: string;
-}
-
 const fogComparison = (
   category: ExposureCategory,
   label: string,
@@ -152,8 +140,8 @@ const fogComparison = (
 export const TARGET_CANADA_AUGUST_2013_EXPOSURE_COMPARISON: Readonly<
 Record<ExposureCategory, ExposureComparisonCategory>
 > = {
-  storeActivation: {
-    category: 'storeActivation',
+  scopeActivation: {
+    category: 'scopeActivation',
     actualIntent: {
       status: 'OBSERVED',
       label: 'Target stated it was preparing to open another 56 stores by year-end.',
@@ -168,14 +156,14 @@ Record<ExposureCategory, ExposureComparisonCategory>
     },
     limitation: 'This compares store activation only; it does not establish that leases, remodeling, inventory, employment, or cash obligations could be avoided.',
   },
-  leases: fogComparison('leases', 'Lease exposure through the comparison interval', 'The August packet does not place cancellation rights, sunk lease obligations, or avoidable lease exposure.'),
-  capitalRemodeling: fogComparison('capitalRemodeling', 'Capital and remodeling exposure through the comparison interval', 'The August packet does not separate already-spent, committed, or avoidable capital for the remaining cohort.'),
+  contracts: fogComparison('contracts', 'Lease exposure through the comparison interval', 'The August packet does not place cancellation rights, sunk lease obligations, or avoidable lease exposure.'),
+  capital: fogComparison('capital', 'Capital and remodeling exposure through the comparison interval', 'The August packet does not separate already-spent, committed, or avoidable capital for the remaining cohort.'),
   inventory: fogComparison('inventory', 'Inventory exposure through the comparison interval', 'The August packet does not quantify inventory purchased, cancellable, transferable, or avoidable for the remaining cohort.'),
   people: fogComparison('people', 'Employment exposure through the comparison interval', 'The August packet does not quantify hiring commitments, redeployment options, or employment avoided by a hold.'),
   cash: fogComparison('cash', 'Cash exposure through the comparison interval', 'The August packet does not place cash outflows, loss tolerance, or the counterfactual cash effect of a hold.'),
 };
 
-export const TARGET_CANADA_AUGUST_2013_COMPARISON = {
+export const TARGET_CANADA_AUGUST_2013_COMPARISON: DecisionComparison = {
   decisionPointId: TARGET_CANADA_AUGUST_2013_DECISION_POINT.id,
   period: {
     startsAt: '2013-08-21',
@@ -191,4 +179,4 @@ export const TARGET_CANADA_AUGUST_2013_COMPARISON = {
     'The comparison does not claim that every unreleased obligation was avoidable.',
     'The dated verdict and recommendations use no evidence published after 2013-08-21.',
   ],
-} as const;
+};

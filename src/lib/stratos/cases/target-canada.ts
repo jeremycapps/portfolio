@@ -30,6 +30,14 @@ export const TARGET_CANADA = defineCaseProfile({
   },
   sources: [
     {
+      id: 'target-10k-fy2011',
+      title: 'Annual Report on Form 10-K for the fiscal year ended January 28, 2012',
+      publisher: 'Target Corporation',
+      kind: 'filing',
+      publishedAt: '2012-03-15',
+      url: 'https://www.sec.gov/Archives/edgar/data/27419/000104746912002714/a2207838z10-k.htm',
+    },
+    {
       id: 'target-store-plan-2012',
       title: 'Target Confirms Store Locations Opening in 2013',
       publisher: 'Target Corporation',
@@ -87,6 +95,50 @@ export const TARGET_CANADA = defineCaseProfile({
     },
   ],
   facts: [
+    {
+      id: 'canada-leasehold-net-price',
+      statement: 'Target acquired leasehold interests in 189 Zellers sites for $1,861 million and resold the right to acquire 54 of them for $225 million, a final net purchase price of $1,636 million.',
+      observedAt: '2012-01-28',
+      origin: 'reported',
+      metric: { value: 1636, unit: 'USD millions net purchase price' },
+      evidence: [{ sourceId: 'target-10k-fy2011', locator: 'Note 7, Canadian Leasehold Acquisition' }],
+    },
+    {
+      id: 'canada-capex-2011',
+      statement: 'Canadian Segment capital expenditures were $1,892 million in fiscal 2011, of which $1,619 million was new stores.',
+      observedAt: '2012-01-28',
+      origin: 'reported',
+      metric: { value: 1892, unit: 'USD millions capital expenditures' },
+      evidence: [{ sourceId: 'target-10k-fy2011', locator: 'Capital Expenditures table, Canada column' }],
+    },
+    {
+      id: 'canada-capex-planned-2012',
+      statement: 'Target expected approximately $3.3 billion of capital expenditures in 2012, of which approximately $800 million was in the Canadian Segment.',
+      observedAt: '2012-03-15',
+      origin: 'reported',
+      metric: { value: 800, unit: 'USD millions planned capital expenditures' },
+      evidence: [{ sourceId: 'target-10k-fy2011', locator: 'Liquidity and Capital Resources, capital expenditure outlook' }],
+    },
+    {
+      id: 'canada-startup-costs-2011',
+      statement: 'Canadian Segment start-up costs totaled $74 million in fiscal 2011, primarily compensation, benefits and consulting expenses.',
+      observedAt: '2012-01-28',
+      origin: 'reported',
+      metric: { value: 74, unit: 'USD millions start-up costs' },
+      evidence: [{ sourceId: 'target-10k-fy2011', locator: 'Canadian Segment discussion' }],
+    },
+    {
+      id: 'canada-capital-committed-by-2012',
+      statement: 'Capital placed against the Canadian commitment by the 2012 opening announcement was approximately $2.69 billion: $1,892 million spent in fiscal 2011 plus roughly $800 million planned for fiscal 2012.',
+      observedAt: '2012-03-15',
+      origin: 'derived',
+      metric: { value: 2692, unit: 'USD millions committed and planned capital' },
+      calculation: 'Fiscal 2011 Canadian Segment capital expenditures of $1,892 million plus approximately $800 million of planned fiscal 2012 Canadian Segment capital expenditures. The $1,636 million net leasehold purchase price is not added separately: the filing reports it within expenditures for property and equipment, and it corresponds to the $1,619 million new-store line already inside the $1,892 million. Start-up costs of $74 million are expensed rather than capitalized and are likewise excluded.',
+      evidence: [
+        { sourceId: 'target-10k-fy2011', locator: 'Capital Expenditures table, Canada column' },
+        { sourceId: 'target-10k-fy2011', locator: 'Liquidity and Capital Resources, capital expenditure outlook' },
+      ],
+    },
     {
       id: 'planned-stores-2013',
       statement: 'Target confirmed the first 125 Canadian stores and planned to open them during 2013.',

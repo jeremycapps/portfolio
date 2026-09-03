@@ -9,17 +9,14 @@
 // in the loop. Voice: plain, specific, no em-dashes.
 
 export const CANONICAL_SUMMARY =
-  'Systems-oriented technical operator and product-minded engineer who works '
-  + 'across product, operations, design, and engineering. The through-line is '
-  + 'building the source-of-truth and context layer for messy workflows: turning '
-  + 'scattered, ambiguous work into structured systems people can actually run, '
-  + 'from internal budgeting and cross-system reconciliation to production '
-  + 'design-system ownership and API integration delivery. Recent independent '
-  + 'work centers on agentic AI infrastructure: multi-provider LLM orchestration, '
-  + 'deterministic agent runtimes with enforced role boundaries, and evaluation '
-  + 'harnesses that make unsupported claims a measured metric rather than an '
-  + 'assumed risk. Strongest fit: AI platform and agent infrastructure, technical '
-  + 'product operations, and product-systems architecture.';
+  'Systems-oriented technical operator and product-minded engineer who moves from '
+  + 'workflow discovery through deployment: learning how a system actually works, '
+  + 'identifying the binding constraint, building the technical or operational '
+  + 'mechanism required to change it, and measuring the result. Experience spans '
+  + 'internal operations, production design systems, customer-facing API integrations, '
+  + 'and independent AI infrastructure that turns domain knowledge into reusable '
+  + 'context. Strongest fit: forward-deployed engineering, AI operations, solutions '
+  + 'architecture, and product/platform engineering.';
 
 /** The identity and through-line, without the fit clause — the part a tailored
  *  summary must keep. Used to anchor the model and to check tailoring preserved

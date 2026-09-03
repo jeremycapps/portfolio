@@ -3,6 +3,7 @@ import {
   DECISION_POINT_SCHEMA,
   DECISION_SEQUENCES,
   EXPOSURE_CATEGORIES,
+  admitInput,
   type DecisionInput,
   type DecisionPacket,
   type DecisionPoint,
@@ -14,33 +15,46 @@ const isIsoDate = (value: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(value)
   && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 const nonEmpty = (value: string): boolean => value.trim().length > 0;
 
-function allInputs(decisionPoint: DecisionPoint): DecisionInput[] {
+function contemporaneousInputs(decisionPoint: DecisionPoint): DecisionInput[] {
   return [
     decisionPoint.currentCommitment,
     decisionPoint.requestedIncrement,
     decisionPoint.cadence,
     ...EXPOSURE_CATEGORIES.map((category) => decisionPoint.exposures[category]),
     ...decisionPoint.materialUnknowns,
-    ...decisionPoint.hindsight,
   ];
 }
 
-function contemporaneousInputs(decisionPoint: DecisionPoint): DecisionInput[] {
-  return allInputs(decisionPoint).filter((input) => input.displayState !== 'HINDSIGHT');
+function allInputs(decisionPoint: DecisionPoint): DecisionInput[] {
+  return [...contemporaneousInputs(decisionPoint), ...decisionPoint.hindsight];
+}
+
+/** The publication date a cutoff is measured against: authored, else the cited source's. */
+function publicationDate(
+  input: DecisionInput,
+  factById: ReadonlyMap<string, CaseFact>,
+  sourceById: ReadonlyMap<string, CaseProfile['sources'][number]>,
+): string | undefined {
+  const fact = input.factRef ? factById.get(input.factRef) : undefined;
+  const evidence = input.evidence ?? fact?.evidence[0];
+  return input.publishedAt ?? (evidence ? sourceById.get(evidence.sourceId)?.publishedAt : undefined);
 }
 
 function resolveInput(
   input: DecisionInput,
+  knowledgeCutoff: string,
   factById: ReadonlyMap<string, CaseFact>,
   sourceById: ReadonlyMap<string, CaseProfile['sources'][number]>,
 ): ResolvedDecisionInput {
   const fact = input.factRef ? factById.get(input.factRef) : undefined;
   const evidence = input.evidence ?? fact?.evidence[0];
   const source = evidence ? sourceById.get(evidence.sourceId) : undefined;
+  const publishedAt = input.publishedAt ?? source?.publishedAt;
   return {
     ...input,
     evidence,
-    publishedAt: input.publishedAt ?? source?.publishedAt,
+    publishedAt,
+    displayState: admitInput(input.epistemicState, publishedAt, knowledgeCutoff),
     origin: input.origin ?? fact?.origin,
     calculation: input.calculation ?? fact?.calculation,
     sourceTitle: source?.title,
@@ -73,6 +87,7 @@ export function validateDecisionPoint(
       issue(path, `Temporal leakage: ${source.id} was published after ${decisionPoint.knowledgeCutoff}.`);
     }
   };
+  const hindsightIds = new Set(decisionPoint.hindsight.map((input) => input.id));
 
   if (decisionPoint.schema !== DECISION_POINT_SCHEMA) issue('schema', `Expected ${DECISION_POINT_SCHEMA}.`);
   for (const [path, value] of [
@@ -112,10 +127,10 @@ export function validateDecisionPoint(
   allInputs(decisionPoint).forEach((input, index) => {
     const path = `inputs.${input.id || index}`;
     if (!nonEmpty(input.id) || !nonEmpty(input.label)) issue(path, 'Inputs require a non-empty id and label.');
-    if (input.displayState === 'FOG' && (input.metric || input.factRef || input.evidence)) {
+    if (input.epistemicState === 'FOG' && (input.metric || input.factRef || input.evidence)) {
       issue(path, 'FOG inputs must remain unplaced and cannot carry a metric or evidence claim.');
     }
-    if (input.displayState === 'ESTIMATED' && !nonEmpty(input.calculation ?? '')) {
+    if (input.epistemicState === 'ESTIMATED' && !nonEmpty(input.calculation ?? '')) {
       issue(`${path}.calculation`, 'ESTIMATED inputs require a visible calculation.');
     }
     input.assumptionRefs.forEach((ref) => {
@@ -124,7 +139,21 @@ export function validateDecisionPoint(
     if (input.factRef && !factById.has(input.factRef)) issue(`${path}.factRef`, `Unknown fact reference: ${input.factRef}.`);
     const fact = input.factRef ? factById.get(input.factRef) : undefined;
     const evidence = input.evidence ?? fact?.evidence[0];
-    if (evidence) validateEvidence(evidence, `${path}.evidence`, input.displayState === 'HINDSIGHT');
+    const authoredAsHindsight = hindsightIds.has(input.id);
+    if (evidence) validateEvidence(evidence, `${path}.evidence`, authoredAsHindsight);
+
+    // The cutoff wall runs both ways. Whether an input is hindsight is decided by
+    // its publication date against this cutoff, so the layer it was authored into
+    // has to agree — otherwise a later source leaks into the contemporaneous
+    // packet, or admissible evidence is quietly demoted out of it.
+    const publishedAt = publicationDate(input, factById, sourceById);
+    const derived = admitInput(input.epistemicState, publishedAt, decisionPoint.knowledgeCutoff);
+    if (derived === 'HINDSIGHT' && !authoredAsHindsight) {
+      issue(path, `Published ${publishedAt}, after the ${decisionPoint.knowledgeCutoff} cutoff: this belongs in the hindsight layer.`);
+    }
+    if (derived !== 'HINDSIGHT' && authoredAsHindsight) {
+      issue(path, `Published ${publishedAt ?? 'with no date'}, which was admissible at ${decisionPoint.knowledgeCutoff}: this does not belong in the hindsight layer.`);
+    }
     if (fact && input.evidence && !fact.evidence.some((ref) => (
       ref.sourceId === input.evidence!.sourceId && ref.locator === input.evidence!.locator
     ))) {
@@ -140,7 +169,7 @@ export function validateDecisionPoint(
   });
 
   decisionPoint.materialUnknowns.forEach((input, index) => {
-    if (input.displayState !== 'FOG' || input.materiality !== 'material') {
+    if (input.epistemicState !== 'FOG' || input.materiality !== 'material') {
       issue(`materialUnknowns.${index}`, 'Material unknowns must remain material FOG inputs.');
     }
   });
@@ -177,7 +206,12 @@ export function resolveDecisionPoint(
   if (issues.length > 0) throw new Error(issues.map(({ path, message }) => `${path}: ${message}`).join('\n'));
   const sourceById = new Map(profile.sources.map((source) => [source.id, source]));
   const factById = new Map(profile.facts.map((fact) => [fact.id, fact]));
-  const resolve = (input: DecisionInput) => resolveInput(input, factById, sourceById);
+  const resolve = (input: DecisionInput) => resolveInput(
+    input,
+    decisionPoint.knowledgeCutoff,
+    factById,
+    sourceById,
+  );
   return {
     decisionPoint,
     profile,
