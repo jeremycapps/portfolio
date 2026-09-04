@@ -126,3 +126,52 @@ The L3 collision has named owners and a dated, on-the-ground signal that precede
 | External agent pool | ~3,000 → ~2,300 | OBSERVED | bigeye |
 | Build lead | Martin Elwin, Sr. Director of Engineering | OBSERVED | — |
 | Cut-vs-launch ordering | cuts + backlog (late 2023) precede AI launch (Feb 2024) | OBSERVED | sifted / klarna-pr-2024 |
+
+## The measurement layer — 60 metrics (12 poles × L1–L5)
+
+Each of the twelve ontology poles carries one metric at every level of the transformation
+lifecycle (L1 strategy → L2 business case → L3 implementation → L4 operations → L5 audit).
+A cell is a **typed, owned outcome node**; a metric is the case where that node is quantitative
+and instrumented. Klarna's failure is legible as specific cells that were owned but never wired
+(FOG), and cells whose gate was skipped.
+
+| Pole (owner) | L1 strategy | L2 business case | L3 implementation | L4 operations | L5 audit |
+|---|---|---|---|---|---|
+| CSO · controlled advantage | Moat coverage % | Make-vs-buy case | Owned-IP in build % | Switching-cost index | IP asset value on B/S |
+| CMO · orchestrated ecosystem | External value share | Participant ROI case | Partner integration % | Active participant rate | Ecosystem revenue (audited) |
+| CPO · workforce capacity | Skill-coverage ratio | **Capacity vs. demand** | Staffing ramp vs. plan | **Buffer% · attrition · ρ** | Capacity cost vs. baseline |
+| CFO · capital & return | ROIC vs. cost of capital | NPV / payback case | Budget burn vs. plan | Cost per resolved contact | **Net savings vs. baseline (GL)** |
+| CEO · decision quality | Strategic-bet thesis | Go/no-go options priced | Scope adherence | Decision-to-outcome variance | Decision outcome audit |
+| CDO · disconfirming evidence | Evidence coverage | Disconfirming-evidence plan | **Instrumented signals %** | Signal latency (time-to-detect) | Evidence audit trail |
+| CRO · risk & traceability | Irreversibility exposure | Risk & rollback plan | Control coverage built | Incident rate vs. tolerance | Traceability / defensibility |
+| CTO · technical release | Architecture fit | Technical feasibility case | Release readiness (DORA) | Uptime / SLO | Capitalized-dev audit |
+| CKO · knowledge | Knowledge-moat thesis | Knowledge-capture plan | Knowledge codified % | Knowledge freshness / decay | Retained-knowledge audit |
+| CGO · growth | Growth thesis / TAM | Growth case (CAC/LTV) | Launch readiness (GTM) | Retention / churn | Realized growth vs. plan |
+| COO · operations | Operating-model fit | **Exception-handling design** | Runbook / failover | **Backlog age by segment** | Ops loss vs. baseline |
+| CIO · flow & information | Information-flow thesis | Data-flow / integration case | Flow integration % | Flow throughput / cycle time | Information-cost audit |
+
+**The three decisive cells (bold above):** `CPO·L2 Capacity vs. demand` is the gate that would
+have caught the cut before it shipped; `COO·L2 Exception-handling design` is the collision node
+(AI always transfers → complex queue → cut population); `COO·L4 Backlog age by segment` and
+`CPO·L4 Buffer%·attrition·ρ` are the operating floors that were red before launch and never
+steered on; `CFO·L5 Net savings vs. baseline (GL)` is where the $40M has to net against the
+un-booked remediation.
+
+### L4 operations reading (Klarna)
+
+The dashboard Klarna *watched* was the green half — deflection share, blended CSAT, average
+handle time, projected savings. The dashboard that would have shown the break was the **floor
+half, and it was dark**: `COO·L4` backlog age by segment (red, quadrupled, pre-launch),
+`CPO·L4` load factor ρ on the starved complex queue (ρ≈0.7→0.94 after −750 agents; Kingman
+says wait goes vertical as ρ→1), `CDO·L4` signal latency (no leading indicator wired at the
+complex-segment grain). A green aggregate sitting on top of a red floor is the signature of an
+aggregation-grain failure.
+
+### L5 audit reading (Klarna)
+
+At the general-ledger line the $40M "projected profit improvement" is a **PASS finding on an
+unmeasured liability**. Booked/disclosed: +$40M projected. Not disclosed, not netted: backlog
+remediation cost, complex-team rebuild (the 2025 rehire), merchant churn, brand cost. Verdict:
+**unauditable — $40M un-netted against the very liabilities the cut created.** The L5 floor
+(net savings vs. baseline, GL-true) cannot be certified because the offsetting costs were never
+instrumented at L4.
