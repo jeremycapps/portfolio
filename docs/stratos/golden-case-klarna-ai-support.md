@@ -175,3 +175,84 @@ remediation cost, complex-team rebuild (the 2025 rehire), merchant churn, brand 
 **unauditable — $40M un-netted against the very liabilities the cut created.** The L5 floor
 (net savings vs. baseline, GL-true) cannot be certified because the offsetting costs were never
 instrumented at L4.
+
+## The verdict layer — what kind of gate is each metric?
+
+A metric doesn't just report; it *authorizes* (or refuses). Each of the 60 outcomes carries a
+discrete **verdict mechanism** — a hard gate, a soft gate, or a floor — and each mechanism emits
+a different shape of outcome that maps back onto the FIT / COLLISION / FOG lattice.
+
+| Type | Discrete outcomes | Lattice mapping |
+|---|---|---|
+| **Hard gate** | `PASS` (release the commitment) · `HOLD` (locked, remediate) · `FAIL` (stop) | binary authorize; a breach is COLLISION |
+| **Soft gate** | `PASS` · `PASS-with-conditions` (proceed in parallel, revisit) · `DEFER` | tolerates ambiguity; unmeasured = FOG, not a stop |
+| **Floor** | `ABOVE` (continue) · `BREACH → auto-rollback` | continuous; crossing the line is COLLISION the instant it happens |
+
+The asymmetry that matters: a **hard gate fails once, at a moment**; a **floor fails continuously,
+and the failure *is* the trigger**, not a report someone reads later.
+
+**Default assignment follows the lifecycle level** (this is the Guarded Sprint profile — see the
+next section for how the market changes it):
+
+- **L1 strategy → soft gates.** Directional, revisited each cycle. (Exception: `CRO·L1
+  Irreversibility exposure` is a **floor** — a risk-appetite limit, not a target.)
+- **L2 business case → hard gates.** The firewall column: the commitment stays locked until the
+  case clears. All twelve L2 cells are hard.
+- **L3 implementation → mostly soft, with five pre-go-live hard gates:** `CDO` instrumented
+  signals, `CRO` control coverage, `CTO` release readiness, `COO` runbook/failover, `CGO` launch
+  readiness — the things that must be *true before you ship*.
+- **L4 operations & L5 audit → floors.** Continuous baselines that trip an automatic rollback
+  when breached (uptime, backlog age, load ρ, net savings vs. baseline).
+
+**Klarna as a verdict-type failure:** the two L2 hard gates (`CPO·L2 Capacity vs. demand`,
+`COO·L2 Exception-handling design`) were run as if soft ("proceed, revisit later"); the L3 hard
+gate `CDO·L3 Instrumented signals %` was skipped (launched blind to the complex-segment grain);
+the L4 floors (`COO·L4 Backlog age`, `CPO·L4 Buffer·attr·ρ`) were already breached before launch
+with no floor defined to fire the rollback; and `CFO·L5 Savings vs. baseline` passed a floor that
+was never actually measured. In one line: **Klarna ran soft-gate logic where the lifecycle
+demanded hard gates and floors.**
+
+## The market re-types the gates
+
+The level→type mapping above is not universal — it's the **Guarded Sprint** profile
+(e-commerce / most SaaS). The market doesn't add a column to the matrix; it **re-types the
+cells**. Two dials set the profile:
+
+1. **Reversibility ↓ hardens gates.** If you can't take it back, you must be right before you
+   commit — soft gates become hard.
+2. **Cost-of-error magnitude, read as a stakes ladder, hardens gates *and pulls them earlier*
+   into L1/L2.** The ladder is a substrate of harm, not a smear:
+
+   | Rung | Domains | Unit of harm | Gate owner |
+   |---|---|---|---|
+   | **Bits** | software-for-software, AI infra, dev tools | a rollback | you |
+   | **Goods & logistics** | e-commerce, shipping, manufacturing, global coordination | a refund, a recall, a missed SLA | self + standards bodies |
+   | **Rights & well-being** | finance, legal, insurance, health records | a lien, a ruling, a denied claim, a leaked record | self + regulator (SEC/FINRA, the bar, HIPAA) |
+   | **Lives at scale** | clinical care, aviation, defense, public health, population-scale change | a life | law + regulator (FDA/FAA, IRB, rules of engagement) |
+
+The two dials are orthogonal (reversibility = how many tries; the ladder = tries at *what*) but
+correlate, so the four archetypes fall on a diagonal from soft (bottom-left: reversible bits) to
+hard (top-right: irreversible lives):
+
+| Market archetype | L1 | L2 | L3 | L4 | L5 |
+|---|---|---|---|---|---|
+| **Experimenter** (consumer AI, bleeding-edge) | S | S | S | f (optional) | S |
+| **Guarded Sprint** (e-commerce, SaaS) | S | H | S | F | F |
+| **Quality Engine** (finance, legal, pharma QA) | S | H | H | F• | H• |
+| **Fortress** (healthcare, aviation, defense) | H• | H | H | F• | H• |
+
+Two things move as stakes rise: gates **harden** (soft → hard; audit stops being a passive floor
+and becomes a hard attestation gate — SOX, model validation), and gates **externalize** (the `•`:
+above the *money line*, some gates aren't yours — an FDA 510(k), an SR 11-7 model-risk sign-off, a
+privilege review sit at the boundary, in the ontology's outside-locus `r` pole, beyond your power
+to soften). In the Fortress row even L1 strategy is externally gated: you need approval before you
+may *commit*.
+
+**Klarna, precisely.** It is not an e-commerce company. Disputes, fraud, hardship, and
+financial-crime prevention are regulated, high-cost-of-error, and irreversible *for the customer*
+— its queue sits above the money line, in **Quality Engine / Fortress** territory. But it operated
+the **Experimenter** gate profile (soft L2, optional floors, ship-and-learn). This is the earlier
+"Experimenter traversal on a Fortress decision" made literal: the failure is not a weak gate, it
+is a **mismatch between the market's required gate profile and the operator's**. StratOS's job is
+to hold the required profile and flag the mismatch while the L2 gate is still closed —
+*"you're gating this like e-commerce; your queue is regulated fintech."*
