@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import { inject } from '@vercel/analytics';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 import App from './App';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -12,6 +13,7 @@ const root = document.getElementById('root')!;
 const app = (
   <ErrorBoundary>
     <App />
+    <SpeedInsights />
   </ErrorBoundary>
 );
 
