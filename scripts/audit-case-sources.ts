@@ -29,6 +29,20 @@ export interface FactReference {
   line: number;
 }
 
+export type EpistemicTag = 'OBSERVED' | 'ESTIMATED' | 'FOG' | 'HINDSIGHT';
+
+export interface FactClaim {
+  line: number;
+  tag: EpistemicTag | null;
+  sourceIds: string[];
+  /**
+   * Whether the claim carries a number. A company release is authoritative for
+   * what the company *did* — an acquisition, a launch date — and unreliable for
+   * how well it *worked*. The cap applies only to the second kind.
+   */
+  quantitative: boolean;
+}
+
 export interface DocAudit {
   file: string;
   sources: SourceEntry[];
@@ -37,9 +51,28 @@ export interface DocAudit {
   unresolved: FactReference[];
   /** Source rows whose URL cell is a placeholder rather than a link. */
   placeholderUrls: SourceEntry[];
+  claims: FactClaim[];
+  /**
+   * Facts tagged OBSERVED with no independent source behind them. A company or
+   * vendor release and an interview are the subject talking about itself; they
+   * can support ESTIMATED, never OBSERVED, for a *quantitative* claim. One
+   * independent corroborating source on the same fact is enough — the rule is
+   * about corroboration, not kind.
+   */
+  overclaimed: FactClaim[];
 }
 
-const TAG = /\*\*(?:OBSERVED|ESTIMATED|FOG|HINDSIGHT)\*\*/;
+const SELF_REPORTED = new Set(['company-release', 'vendor-release', 'interview']);
+
+const TAG = /\*\*(OBSERVED|ESTIMATED|FOG|HINDSIGHT)\*\*/;
+
+/** Digits, or a quantity written in words ("two-thirds", "quadrupled"). */
+const QUANTITY = /\d|\b(?:half|thirds?|two-thirds|one-third|quarters?|doubled?|tripled?|quadrupled?)\b/i;
+
+function readTag(text: string): EpistemicTag | null {
+  const match = /\b(OBSERVED|ESTIMATED|FOG|HINDSIGHT)\b/.exec(text.replace(/[`*]/g, ''));
+  return match ? (match[1] as EpistemicTag) : null;
+}
 const NOT_A_SOURCE = new Set(['', '-', '—', '–', 'n/a', 'source']);
 
 function cells(line: string): string[] {
@@ -79,6 +112,7 @@ export function auditDoc(file: string, contents: string): DocAudit {
   const lines = contents.split('\n');
   const sources: SourceEntry[] = [];
   const references: FactReference[] = [];
+  const claims: FactClaim[] = [];
 
   let mode: 'sources' | 'facts' | null = null;
 
@@ -87,12 +121,21 @@ export function auditDoc(file: string, contents: string): DocAudit {
 
     if (!isTableRow(line)) {
       // Bullet-style facts (the archived docs): `… **OBSERVED** · `source-id``
-      if (TAG.test(line)) {
-        const after = line.split(TAG)[1] ?? '';
+      const tagMatch = TAG.exec(line);
+      if (tagMatch) {
+        const after = line.slice(tagMatch.index + tagMatch[0].length);
+        const ids: string[] = [];
         for (const match of after.matchAll(/`([^`]+)`/g)) {
           const id = bare(match[1]);
-          if (!NOT_A_SOURCE.has(id.toLowerCase())) references.push({ id, line: lineNumber });
+          if (!NOT_A_SOURCE.has(id.toLowerCase())) ids.push(id);
         }
+        for (const id of ids) references.push({ id, line: lineNumber });
+        claims.push({
+          line: lineNumber,
+          tag: tagMatch[1] as EpistemicTag,
+          sourceIds: ids,
+          quantitative: /\{\s*value:/.test(line),
+        });
       }
       mode = null;
       return;
@@ -117,22 +160,43 @@ export function auditDoc(file: string, contents: string): DocAudit {
         line: lineNumber,
       });
     } else if (mode === 'facts') {
-      for (const id of splitReferences(row[row.length - 1])) {
-        references.push({ id, line: lineNumber });
-      }
+      const ids = splitReferences(row[row.length - 1]);
+      for (const id of ids) references.push({ id, line: lineNumber });
+      claims.push({
+        line: lineNumber,
+        tag: row.length >= 3 ? readTag(row[row.length - 2]) : null,
+        sourceIds: ids,
+        quantitative: row.length >= 3 && QUANTITY.test(row[row.length - 3]),
+      });
     }
   });
 
   // With no sources table there is nothing to resolve against, and the file is
   // not a case doc — see auditCaseDocs. Reporting every citation as unresolved
   // there would be noise, not a finding.
-  const known = new Set(sources.map((source) => source.id));
+  const known = new Map(sources.map((source) => [source.id, source] as const));
+  const independent = (id: string) => {
+    const source = known.get(id);
+    return source !== undefined && !SELF_REPORTED.has(source.kind.toLowerCase());
+  };
+
   return {
     file,
     sources,
     references,
+    claims,
     unresolved: sources.length === 0 ? [] : references.filter((reference) => !known.has(reference.id)),
     placeholderUrls: sources.filter((source) => !/^https?:\/\//.test(source.url)),
+    overclaimed:
+      sources.length === 0
+        ? []
+        : claims.filter(
+            (claim) =>
+              claim.tag === 'OBSERVED' &&
+              claim.quantitative &&
+              claim.sourceIds.length > 0 &&
+              !claim.sourceIds.some(independent),
+          ),
   };
 }
 
@@ -162,6 +226,11 @@ export function formatFailures(audits: DocAudit[]): string[] {
   for (const audit of audits) {
     for (const reference of audit.unresolved) {
       failures.push(`${audit.file}:${reference.line} cites source \`${reference.id}\` — not in the sources table`);
+    }
+    for (const claim of audit.overclaimed) {
+      failures.push(
+        `${audit.file}:${claim.line} tagged OBSERVED on self-reported sources only (${claim.sourceIds.join(', ')}) — needs an independent source or the ESTIMATED tag`,
+      );
     }
     for (const source of audit.placeholderUrls) {
       failures.push(`${audit.file}:${source.line} source \`${source.id}\` has no URL — found ${JSON.stringify(source.url)}`);

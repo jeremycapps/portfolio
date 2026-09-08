@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { auditCaseDocs, auditDoc, formatFailures } from './audit-case-sources';
 
+function factsDoc(...rows: string[]): string {
+  return [SOURCES_TABLE, '', '| fact | value | status | source |', '|---|---|---|---|', ...rows].join('\n');
+}
+
 const SOURCES_TABLE = [
   '| id | title | publisher | kind | publishedAt | url |',
   '|---|---|---|---|---|---|',
@@ -83,6 +87,54 @@ describe('auditDoc', () => {
   });
 });
 
+describe('the self-reported cap', () => {
+  it('flags a quantitative OBSERVED claim resting only on a company release', () => {
+    const audit = auditDoc('case.md', factsDoc('| Conversations | 2.3M | OBSERVED | klarna-pr-2024 |'));
+
+    expect(audit.overclaimed).toHaveLength(1);
+    expect(formatFailures([audit])[0]).toContain('tagged OBSERVED on self-reported sources only');
+  });
+
+  it('accepts the same claim once an independent source corroborates it', () => {
+    const audit = auditDoc(
+      'case.md',
+      factsDoc('| Conversations | 2.3M | OBSERVED | klarna-pr-2024 / sifted-backlog |'),
+    );
+
+    expect(audit.overclaimed).toEqual([]);
+  });
+
+  it('accepts a self-reported claim tagged ESTIMATED', () => {
+    const audit = auditDoc(
+      'case.md',
+      factsDoc('| Conversations | 2.3M | ESTIMATED (self-reported) | klarna-pr-2024 |'),
+    );
+
+    expect(audit.overclaimed).toEqual([]);
+  });
+
+  it('does not cap a qualitative claim — a release attests what the company did', () => {
+    const audit = auditDoc(
+      'archived.md',
+      [
+        SOURCES_TABLE,
+        '',
+        '## Facts',
+        '',
+        '- **`acquisition`** — "IBM agreed to acquire McD Tech Labs." · qualitative · **OBSERVED** · `klarna-pr-2024`.',
+      ].join('\n'),
+    );
+
+    expect(audit.overclaimed).toEqual([]);
+  });
+
+  it('counts a quantity written in words', () => {
+    const audit = auditDoc('case.md', factsDoc('| Share | two-thirds | OBSERVED | klarna-pr-2024 |'));
+
+    expect(audit.overclaimed).toHaveLength(1);
+  });
+});
+
 describe('the StratOS case docs', () => {
   const audits = auditCaseDocs('docs/stratos');
 
@@ -92,7 +144,7 @@ describe('the StratOS case docs', () => {
   });
 
   // Regression guard for the fabricated `bigeye` source removed in 78e175c.
-  it('cites only sources that exist, and every source has a real URL', () => {
+  it('cites only real sources, with real URLs, and no self-reported OBSERVED claims', () => {
     expect(formatFailures(audits)).toEqual([]);
   });
 });

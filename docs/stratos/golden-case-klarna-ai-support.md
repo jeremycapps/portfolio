@@ -26,7 +26,7 @@
 
 ## Sources (map to `sources[]`)
 
-> **Source-kind note:** the 2024-02-27 release is a primary company release (self-reported, unsegmented — treat CSAT "on par" as ESTIMATED, not OBSERVED). The Pragmatic Engineer piece is contemporaneous independent analysis available *at* the decision date — it is the challenger's no-hindsight ammunition. The Bloomberg reversal is HINDSIGHT and must never feed the dated verdict.
+> **Source-kind note:** the 2024-02-27 release is a primary company release. A company or vendor release, or an interview, is authoritative for what the company **did** (a launch, an acquisition, a date) and unreliable for how well it **worked** — so every *quantitative* claim resting on it alone is ESTIMATED, never OBSERVED, unless an independent source corroborates it. That covers CSAT "on par", the 2.3M conversations, the two-thirds share, the 11→2 min figure and the reach numbers. Enforced by `npm run audit:case-sources`. The Pragmatic Engineer piece is contemporaneous independent analysis available *at* the decision date — it is the challenger's no-hindsight ammunition. The Bloomberg reversal is HINDSIGHT and must never feed the dated verdict.
 
 | id | title | publisher | kind | publishedAt | url |
 |---|---|---|---|---|---|
@@ -40,12 +40,12 @@
 
 | fact | value | status | source |
 |---|---|---|---|
-| First-month conversations | 2.3M | OBSERVED | klarna-pr-2024 |
-| Share of support chats | two-thirds | OBSERVED | klarna-pr-2024 |
+| First-month conversations | 2.3M | ESTIMATED (self-reported) | klarna-pr-2024 |
+| Share of support chats | two-thirds | ESTIMATED (self-reported) | klarna-pr-2024 |
 | FTE-equivalent | 700 agents (mostly outsourced) | ESTIMATED | klarna-pr-2024 / pragmatic-2024 |
-| Resolution time | 11 min → 2 min | OBSERVED | klarna-pr-2024 |
+| Resolution time | 11 min → 2 min | ESTIMATED (self-reported; **not like-for-like** — the AI's handle time on deflected simple tickets against the prior *human* average across the full mix. It fell partly because the easy work moved out.) | klarna-pr-2024 |
 | Repeat inquiries | −25% | ESTIMATED | klarna-pr-2024 |
-| Reach | 23 markets, 35+ languages, 24/7 | OBSERVED | klarna-pr-2024 |
+| Reach | 23 markets, 35+ languages, 24/7 | ESTIMATED (self-reported) | klarna-pr-2024 |
 | Projected profit | $40M (2024) | ESTIMATED | klarna-pr-2024 |
 | CSAT | "on par with human agents" (aggregate, unsegmented) | ESTIMATED | klarna-pr-2024 |
 | Automation depth | L1 only — complex always transfers | OBSERVED | pragmatic-2024 |
