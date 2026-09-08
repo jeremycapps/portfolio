@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildBlogData, parseBlogSource } from './gen-blog.mjs';
+import { buildBlogData, buildSitemap, parseBlogSource } from './gen-blog.mjs';
 
 const validArticle = `---
 title: A useful system
@@ -70,5 +70,17 @@ Ignored paper body.
 
     expect(result.posts.map((post) => post.slug)).toEqual(['useful-system', 'linked-paper']);
     expect(result.articleBodies).toEqual({ 'useful-system': expect.stringContaining('# The body') });
+  });
+
+  it('generates sitemap entries from the same article metadata', () => {
+    const sitemap = buildSitemap([
+      {
+        title: 'A useful system', slug: 'useful-system', date: '2026-08-26',
+        summary: 'A short description.', kind: 'article',
+      },
+    ]);
+
+    expect(sitemap).toContain('<loc>https://www.jeremycapps.com/blog/useful-system</loc>');
+    expect(sitemap).toContain('<lastmod>2026-08-26</lastmod>');
   });
 });

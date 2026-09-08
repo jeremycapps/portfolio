@@ -14,6 +14,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_CONTENT_DIR = resolve(root, 'content/blog');
 const DEFAULT_PUBLIC_DIR = resolve(root, 'public');
 const DEFAULT_OUTPUT = resolve(root, 'src/lib/blog/posts.generated.ts');
+const DEFAULT_SITEMAP_OUTPUT = resolve(root, 'public/sitemap.xml');
+const SITE_ORIGIN = 'https://www.jeremycapps.com';
 
 const REQUIRED_FIELDS = ['title', 'slug', 'date', 'summary', 'kind'];
 const OPTIONAL_FIELDS = ['status', 'pdf', 'sourceUrl'];
@@ -143,10 +145,30 @@ export function buildBlogData(sources, { publicDir = DEFAULT_PUBLIC_DIR } = {}) 
   };
 }
 
+export function buildSitemap(posts) {
+  const newestDate = posts[0]?.date;
+  const entries = [
+    { path: '/' },
+    { path: '/about' },
+    { path: '/blog', lastModified: newestDate },
+    ...posts
+      .filter((post) => post.kind === 'article')
+      .map((post) => ({ path: `/blog/${post.slug}`, lastModified: post.date })),
+    { path: '/stratos' },
+    { path: '/stratos-v2', lastModified: '2026-08-31' },
+  ];
+  const urls = entries.map(({ path, lastModified }) => {
+    const lastmod = lastModified ? `\n    <lastmod>${lastModified}</lastmod>` : '';
+    return `  <url>\n    <loc>${SITE_ORIGIN}${path}</loc>${lastmod}\n  </url>`;
+  });
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+}
+
 export function generateBlog({
   contentDir = DEFAULT_CONTENT_DIR,
   publicDir = DEFAULT_PUBLIC_DIR,
   output = DEFAULT_OUTPUT,
+  sitemapOutput = DEFAULT_SITEMAP_OUTPUT,
 } = {}) {
   const files = existsSync(contentDir)
     ? readdirSync(contentDir).filter((file) => file.endsWith('.md')).sort()
@@ -167,11 +189,18 @@ export function generateBlog({
 
   mkdirSync(dirname(output), { recursive: true });
   writeFileSync(output, generated, 'utf8');
-  return { output, postCount: posts.length, articleCount: Object.keys(articleBodies).length };
+  mkdirSync(dirname(sitemapOutput), { recursive: true });
+  writeFileSync(sitemapOutput, buildSitemap(posts), 'utf8');
+  return {
+    output,
+    sitemapOutput,
+    postCount: posts.length,
+    articleCount: Object.keys(articleBodies).length,
+  };
 }
 
 const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : '';
 if (import.meta.url === invokedPath) {
   const result = generateBlog();
-  console.log(`gen-blog: wrote ${result.output} (${result.postCount} posts, ${result.articleCount} articles)`);
+  console.log(`gen-blog: wrote ${result.output} and ${result.sitemapOutput} (${result.postCount} posts, ${result.articleCount} articles)`);
 }

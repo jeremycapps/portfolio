@@ -8,6 +8,7 @@ import { HomeSystems } from '@/components/home-systems';
 import { SiteHeader } from '@/components/site-header';
 import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { ResumeSurface } from '@/components/facia/resume-surface';
+import { RouteMetadata } from '@/components/route-metadata';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
@@ -507,11 +508,19 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
-function App() {
+interface AppProps {
+  initialPath?: string;
+}
+
+function App({ initialPath }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+        <WouterRouter
+          base={import.meta.env.BASE_URL.replace(/\/$/, '')}
+          {...(initialPath ? { ssrPath: initialPath } : {})}
+        >
+          <RouteMetadata />
           <Router />
         </WouterRouter>
         <Toaster />

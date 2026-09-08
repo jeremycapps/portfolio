@@ -1,4 +1,5 @@
 import path from 'path';
+import { existsSync } from 'node:fs';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
@@ -77,6 +78,30 @@ function devApis(envDir: string): Plugin {
   };
 }
 
+function previewStaticRoutes(root: string): Plugin {
+  return {
+    name: 'preview-static-routes',
+    configurePreviewServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+        const requestUrl = new URL(req.url ?? '/', 'http://localhost');
+        const pathname = requestUrl.pathname.replace(/\/+$/, '') || '/';
+        const isPublicRoute = pathname === '/about'
+          || pathname === '/blog'
+          || pathname === '/stratos'
+          || pathname === '/stratos-v2'
+          || /^\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname);
+        if (!isPublicRoute || pathname === '/') return next();
+
+        const candidate = path.resolve(root, `dist${pathname}/index.html`);
+        if (!existsSync(candidate)) return next();
+        req.url = `${pathname}/index.html${requestUrl.search}`;
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const root = path.resolve(import.meta.dirname);
   const sharedEnvPath = resolveSharedEnvPath(root);
@@ -86,7 +111,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: process.env.BASE_PATH ?? fileEnv.BASE_PATH ?? '/',
     envDir,
-    plugins: [react(), tailwindcss(), devApis(envDir)],
+    plugins: [react(), tailwindcss(), devApis(envDir), previewStaticRoutes(root)],
     resolve: {
       alias: { '@': path.resolve(import.meta.dirname, 'src') },
       dedupe: ['react', 'react-dom'],

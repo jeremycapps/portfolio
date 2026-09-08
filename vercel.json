@@ -5,35 +5,27 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/stratos",
-      "destination": "/index.html"
+      "source": "/about",
+      "destination": "/about/index.html"
     },
     {
-      "source": "/stratos/:path*",
-      "destination": "/index.html"
+      "source": "/blog",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/blog/:slug([a-z0-9-]+)",
+      "destination": "/blog/:slug/index.html"
+    },
+    {
+      "source": "/stratos",
+      "destination": "/stratos/index.html"
     },
     {
       "source": "/stratos-v2",
       "destination": "/stratos-v2/index.html"
     },
     {
-      "source": "/stratos-v2/:path*",
-      "destination": "/index.html"
-    },
-    {
       "source": "/stratos-flow-preview-2cebd2c17d1887106cb0",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/blog",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/blog/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/about",
       "destination": "/index.html"
     }
   ]

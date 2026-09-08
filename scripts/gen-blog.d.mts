@@ -26,8 +26,11 @@ export function buildBlogData(
   options?: { publicDir?: string },
 ): { posts: BlogPostMeta[]; articleBodies: Record<string, string> };
 
+export function buildSitemap(posts: BlogPostMeta[]): string;
+
 export function generateBlog(options?: {
   contentDir?: string;
   publicDir?: string;
   output?: string;
-}): { output: string; postCount: number; articleCount: number };
+  sitemapOutput?: string;
+}): { output: string; sitemapOutput: string; postCount: number; articleCount: number };
