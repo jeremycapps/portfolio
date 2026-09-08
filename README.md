@@ -116,28 +116,23 @@ The `/stratos` routes are served by the SPA through the rewrites in
 
 ## StratOS v2 (`/stratos-v2`)
 
-`/stratos-v2` combines the six coupled conversion-system prototype with a
-cutoff-safe judgment surface. The default view is Target Canada's August 21,
-2013 scaling boundary: 68 operating stores, a requested 56-store increment, a
-`FOG` verdict, two bounded recommendations, and a category-specific
-actual-versus-StratOS comparison. The decision library also includes Target's
-initial 2012 commitment plus commitment-date packets for Adobe Creative Cloud,
-Domino's 2025 growth goals, and Ford Model e. Every selection resolves an
-authored cutoff-safe packet; later evidence appears only in a separate
-hindsight layer.
+`/stratos-v2` now leads with the 3 × 2 × 2 model underneath twelve enterprise
+perspectives: three enterprise questions, two operating altitudes, and two loci
+of evidence. Its central claim is that internal operating condition and external
+consequence can diverge, and that the disagreement should change what an
+organization is allowed to commit to next.
 
-The judgment layer extends the scoring v0.2 substrate with validated-scale,
-material-unknown, authority, operation, gate, and reassessment semantics. It
-does not predict success, rank unlike people/time/finance deficits as a
-universal score, or claim all exposure was avoidable. Target `T1`/`T2`, proposed
-gates, and counterfactual quantities remain labeled analytical, and the public
-packet leaves decision authority unknown. See the
-[judgment-layer guide](./src/lib/stratos/decisions/README.md) and
-[scoring methodology](./src/lib/stratos/scoring/README.md).
+Klarna's 2024 AI customer-support decision is the flagship demonstration. The
+surface separates strong aggregate efficiency signals from unknown quality in
+high-stakes segments and shrinking human exception capacity, producing a
+`FOG + constraint collision` judgment and a bounded recommendation: hold the
+next increment, not the AI program, until explicit evidence and operating floors
+clear the gate. Later outcomes remain in a separate hindsight layer.
 
-The system view still connects all six tensions; each detail view exposes its
-pole, observed and prospective cycle times, constraint footprint, and
-constraint-aware convergence. The original `/stratos` route is preserved.
+L1–L5, the 60 accountable outcomes, gate logic, and the earlier interactive
+conversion-system prototype remain available as inspection depth rather than
+required reading. The original `/stratos` route and the broader decision library
+remain preserved in the codebase.
 
 ## Deploy (Vercel)
 

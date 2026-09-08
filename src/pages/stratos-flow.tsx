@@ -797,7 +797,7 @@ const CONVERGENCE_PIVOTS: Record<string, string> = {
     'Restart only behind a fixed EHR-integration and patient-use gate.',
 };
 
-export default function StratosFlowPage() {
+function DecisionLibrary() {
   const cases = useMemo(() => timelineCases(createDecisionExperienceViewModel()), []);
   const [caseName, setCaseName] = useState(cases[0]);
   const [decisionId, setDecisionId] = useState<string>();
@@ -895,6 +895,482 @@ export default function StratosFlowPage() {
           <span>Driven by DecisionExperienceViewModel · nothing authored for display</span>
           <span>Commit is inert — the decision layer is read-only</span>
         </footer>
+      </div>
+    </main>
+  );
+}
+
+type KlarnaOperation = 'AUTHORIZE' | 'HOLD' | 'REDUCE SCOPE';
+
+const KLARNA_EVIDENCE = {
+  internal: [
+    {
+      label: 'Assistant share of support chats',
+      value: 'Two-thirds',
+      detail: 'The AI assistant was handling roughly two-thirds of customer-service chats.',
+      status: 'OBSERVED',
+    },
+    {
+      label: 'Average resolution time',
+      value: '11 → 2 min',
+      detail: 'Company-reported average resolution time fell from eleven minutes to two.',
+      status: 'OBSERVED',
+    },
+    {
+      label: '2024 profit improvement',
+      value: '$40M',
+      detail: 'A projected improvement, not a realized audited outcome at the decision boundary.',
+      status: 'ESTIMATED',
+    },
+    {
+      label: 'Receiving human capacity',
+      value: 'Shrinking',
+      detail: 'The next commitment would continue reducing the people available to absorb AI escalations.',
+      status: 'OBSERVED',
+    },
+  ],
+  external: [
+    {
+      label: 'Blended customer satisfaction',
+      value: 'On par',
+      detail: 'Klarna reported satisfaction comparable with human agents at the aggregate level.',
+      status: 'OBSERVED',
+    },
+    {
+      label: 'Repeat inquiries',
+      value: '−25%',
+      detail: 'The company reported fewer repeat inquiries after the assistant entered service.',
+      status: 'OBSERVED',
+    },
+    {
+      label: 'Complex-segment resolution quality',
+      value: 'No segment line',
+      detail: 'The aggregate result did not establish quality for the cases most likely to need escalation.',
+      status: 'UNKNOWN',
+    },
+    {
+      label: 'High-severity customer outcomes',
+      value: 'Not reported',
+      detail: 'Fraud, disputes, hardship, and other high-consequence cases had no separate outcome line.',
+      status: 'UNKNOWN',
+    },
+    {
+      label: 'Escalated backlog age',
+      value: 'Not reported',
+      detail: 'The packet did not show whether difficult cases were accumulating after transfer to people.',
+      status: 'UNKNOWN',
+    },
+  ],
+} as const;
+
+const KLARNA_OPERATIONS: readonly {
+  id: KlarnaOperation;
+  label: string;
+  description: string;
+  exposure: string;
+  protection: string;
+}[] = [
+  {
+    id: 'AUTHORIZE',
+    label: 'Authorize',
+    description: 'Release a bounded next increment at the scale actually demonstrated.',
+    exposure: 'Deepen the mandate for one measured increment.',
+    protection: 'Keep the human-capacity floor and rollback conditions in force.',
+  },
+  {
+    id: 'HOLD',
+    label: 'Hold',
+    description: 'Pause the next increment while leaving the AI program in place.',
+    exposure: 'Do not reduce receiving human capacity further yet.',
+    protection: 'Clear the missing quality and capacity lines before release.',
+  },
+  {
+    id: 'REDUCE SCOPE',
+    label: 'Reduce scope',
+    description: 'Narrow where the mandate applies instead of treating every segment alike.',
+    exposure: 'Continue in simple, demonstrated segments only.',
+    protection: 'Route complex work to retained human capacity.',
+  },
+];
+
+const FLOW_STEPS = [
+  ['1', 'Decision'],
+  ['2', 'Evidence'],
+  ['3', 'Divergence'],
+  ['4', 'StratOS'],
+  ['5', 'Clearing'],
+  ['6', 'Hindsight'],
+] as const;
+
+function FlowButton({ children, onClick, disabled = false }: { children: ReactNode; onClick: () => void; disabled?: boolean }) {
+  return <button className="sf-x-button" type="button" onClick={onClick} disabled={disabled}>{children}</button>;
+}
+
+function EvidenceStatus({ status }: { status: 'OBSERVED' | 'ESTIMATED' | 'UNKNOWN' }) {
+  return <span className={`sf-x-status sf-x-status--${status.toLowerCase()}`}>{status}</span>;
+}
+
+function KlarnaEvidencePanel() {
+  return (
+    <div className="sf-x-evidence-grid">
+      {(['internal', 'external'] as const).map((side) => (
+        <section className={`sf-x-evidence sf-x-evidence--${side}`} key={side} aria-labelledby={`sf-x-${side}`}>
+          <header>
+            <span className="sf-x-overline">{side === 'internal' ? 'Internal condition' : 'External consequence'}</span>
+            <h3 id={`sf-x-${side}`}>{side === 'internal' ? 'What looked strong' : 'What the decision still could not establish'}</h3>
+          </header>
+          <ul>
+            {KLARNA_EVIDENCE[side].map((item) => (
+              <li key={item.label}>
+                <div className="sf-x-evidence-line">
+                  <EvidenceStatus status={item.status} />
+                  <strong>{item.label}</strong>
+                  <b>{item.value}</b>
+                </div>
+                <p>{item.detail}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function KlarnaDecisionFlow() {
+  const [step, setStep] = useState(1);
+  const [furthestStep, setFurthestStep] = useState(1);
+  const [choice, setChoice] = useState<KlarnaOperation>();
+  const [decisionComplete, setDecisionComplete] = useState(false);
+  const chosen = KLARNA_OPERATIONS.find((operation) => operation.id === choice);
+
+  const goTo = (next: number) => {
+    setStep(next);
+    setFurthestStep((current) => Math.max(current, next));
+  };
+
+  const completeDecision = () => {
+    if (!choice) return;
+    setDecisionComplete(true);
+    goTo(2);
+  };
+
+  const chooseOperation = (operation: KlarnaOperation) => {
+    setChoice(operation);
+    if (decisionComplete) {
+      setDecisionComplete(false);
+      setFurthestStep(1);
+    }
+  };
+
+  return (
+    <section className="sf-x-lab" id="decision-lab" aria-labelledby="sf-x-lab-title">
+      <header className="sf-x-lab-head">
+        <div>
+          <span className="sf-x-overline">A contemporaneous decision · early 2024</span>
+          <h2 id="sf-x-lab-title">Klarna: make the call before seeing what happened later.</h2>
+        </div>
+        <p>Only evidence available at the boundary is shown until your judgment is complete.</p>
+      </header>
+
+      <nav className="sf-x-stepper" aria-label="Klarna decision steps">
+        {FLOW_STEPS.map(([number, label], index) => {
+          const value = index + 1;
+          const locked = value > furthestStep;
+          return (
+            <button
+              key={number}
+              type="button"
+              aria-current={step === value ? 'step' : undefined}
+              disabled={locked}
+              onClick={() => setStep(value)}
+            >
+              <span>{number}</span>{label}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="sf-x-stage" aria-live="polite">
+        {step === 1 && (
+          <div>
+            <span className="sf-x-stage-count">01 / 06 · Present the decision</span>
+            <div className="sf-x-cutoff-glance" aria-label="Attractive evidence available at the cutoff">
+              <span><b>⅔</b> chats handled by AI</span>
+              <span><b>11 → 2 min</b> resolution time</span>
+              <span><b>$40M</b> projected profit improvement</span>
+            </div>
+            <div className="sf-x-prose-stage">
+              <p className="sf-x-stage-kicker">The AI pilot is outperforming expectations.</p>
+              <h3>Should Klarna deepen the AI mandate while continuing to reduce human support capacity?</h3>
+              <p>Make the decision as it appeared in early 2024. Later outcomes remain unavailable.</p>
+            </div>
+            <fieldset className="sf-x-choices sf-x-choices--decision">
+              <legend>Choose your contemporaneous decision</legend>
+              {KLARNA_OPERATIONS.map((operation) => (
+                <label className={choice === operation.id ? 'is-selected' : ''} key={operation.id}>
+                  <input
+                    type="radio"
+                    name="klarna-operation"
+                    value={operation.id}
+                    checked={choice === operation.id}
+                    onChange={() => chooseOperation(operation.id)}
+                  />
+                  <span><strong>{operation.label}</strong>{operation.description}</span>
+                </label>
+              ))}
+            </fieldset>
+            <FlowButton onClick={completeDecision} disabled={!choice}>Lock decision and inspect the evidence</FlowButton>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <span className="sf-x-stage-count">02 / 06 · Inspect the evidence</span>
+            <KlarnaEvidencePanel />
+            <div className="sf-x-stage-action">
+              <p>Statuses describe what the decision packet can support—not whether a signal is favorable.</p>
+              <FlowButton onClick={() => goTo(3)}>Read the disagreement</FlowButton>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="sf-x-prose-stage">
+            <span className="sf-x-stage-count">03 / 06 · Find the divergence</span>
+            <h3>The dashboard is telling two different stories.</h3>
+            <div className="sf-x-signals" aria-label="Diverging organizational signals">
+              <p><span>Internal efficiency</span><strong className="is-good">Strong ↑</strong></p>
+              <p><span>Complex-case external consequence</span><strong className="is-unknown">Insufficient evidence ?</strong></p>
+              <p><span>Receiving human capacity</span><strong className="is-bad">Shrinking ↓</strong></p>
+            </div>
+            <div className="sf-x-dependency">
+              <span className="sf-x-overline">The dependency</span>
+              <p>The AI system still transfers high-complexity work to humans while the human capacity receiving that work is being reduced.</p>
+            </div>
+            <blockquote>The question is not “Was the AI good or bad?” It is whether the signals supporting further commitment agree across both loci of evidence.</blockquote>
+            <FlowButton onClick={() => goTo(4)}>See the StratOS decision</FlowButton>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div>
+            <span className="sf-x-stage-count">04 / 06 · StratOS decision</span>
+            {chosen && <div className="sf-x-result-head"><p>Your call <strong>{chosen.id}</strong></p><p>StratOS call <strong>HOLD</strong></p></div>}
+            <div className="sf-x-result">
+              <div className="sf-x-result-primary">
+                <span className="sf-x-overline">Bounded result · FOG + COLLISION</span>
+                <h3>HOLD — next scope increment.</h3>
+                <p>Current evidence demonstrates efficiency at aggregate scale but does not establish the quality or operational resilience of complex-case handling under reduced human capacity.</p>
+              </div>
+              <dl className="sf-x-result-fields">
+                <div><dt>Evidence supporting the call</dt><dd>Aggregate volume, speed, satisfaction, and repeat-inquiry measures are strong.</dd></div>
+                <div><dt>Signals that disagree</dt><dd>Internal efficiency is strong; complex-case external consequence is unresolved.</dd></div>
+                <div><dt>What remains unknown</dt><dd>Segment quality, high-severity outcomes, and escalated backlog age.</dd></div>
+                <div><dt>Binding constraint</dt><dd>Human exception capacity</dd></div>
+                <div><dt>Intervention level</dt><dd>L2 · Business case</dd></div>
+                <div><dt>Bounded operations</dt><dd>HOLD capacity reduction · REDUCE SCOPE to demonstrated segments</dd></div>
+              </dl>
+            </div>
+            <FlowButton onClick={() => goTo(5)}>See what clears the hold</FlowButton>
+          </div>
+        )}
+
+        {step === 5 && decisionComplete && (
+          <div>
+            <span className="sf-x-stage-count">05 / 06 · What clears the hold</span>
+            <div className="sf-x-prose-stage">
+              <h3>Turn uncertainty into an evidence plan.</h3>
+              <p>A HOLD is useful only when it identifies what must become true before the answer can become yes.</p>
+            </div>
+            <div className="sf-x-clear-grid">
+              <article><b>01</b><strong>Measure complex-case quality</strong><p>Separate fraud, disputes, hardship, and other complex segments from blended satisfaction.</p></article>
+              <article><b>02</b><strong>Instrument escalated queues</strong><p>Monitor backlog age and high-severity outcomes after cases transfer to people.</p></article>
+              <article><b>03</b><strong>Protect exception capacity</strong><p>Establish a minimum human-capacity floor and a maximum utilization threshold.</p></article>
+              <article><b>04</b><strong>Define rollback</strong><p>Set explicit quality, backlog, and capacity thresholds that reverse the next increment.</p></article>
+            </div>
+            <div className="sf-x-reassess">
+              <span className="sf-x-overline">Reassessment trigger</span>
+              <p>Reassess after two consecutive 30-day operating cycles in which segment quality, backlog age, and the human-capacity floor are all observed.</p>
+              <div>
+                <span>Commitment operation <b>HOLD</b></span>
+                <span>Path operation <b>REDUCE SCOPE</b></span>
+              </div>
+            </div>
+            <FlowButton onClick={() => goTo(6)}>Unlock what became known later</FlowButton>
+          </div>
+        )}
+
+        {step === 6 && decisionComplete && (
+          <div className="sf-x-prose-stage sf-x-hindsight">
+            <span className="sf-x-stage-count">06 / 06 · Hindsight unlocked</span>
+            <span className="sf-x-status sf-x-status--hindsight">HINDSIGHT · 2025</span>
+            <h3>Later evidence does not get to rewrite the original packet.</h3>
+            <p>In 2025, Klarna’s CEO said cost had become too predominant in the support strategy and that lower quality followed. The company began rebuilding a model in which customers could reach people again.</p>
+            <blockquote>The test is not whether StratOS predicted the headline. It is whether the process identified the missing evidence and binding constraint before exposure increased.</blockquote>
+            <button className="sf-x-text-button" type="button" onClick={() => { setStep(1); setFurthestStep(6); }}>Review the decision again</button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function RecruiterCaseSummary() {
+  return (
+    <section className="sf-x-case-summary" id="case-study" aria-labelledby="sf-x-case-title">
+      <header>
+        <span className="sf-x-overline">Klarna case study · the five-minute read</span>
+        <h2 id="sf-x-case-title">A strong AI pilot hid a capacity decision.</h2>
+        <p>I reframed the question from “Is the AI performing?” to “Is the operating system ready for the next commitment?”</p>
+      </header>
+      <div className="sf-x-case-grid">
+        <article>
+          <span>01 · Problem</span>
+          <h3>Scaling looked rational.</h3>
+          <p>AI handled two-thirds of chats, resolution time fell from 11 minutes to 2, satisfaction was reported on par with human agents, and profit improvement was projected at $40 million.</p>
+        </article>
+        <article>
+          <span>02 · Diagnosis</span>
+          <h3>The proof stopped at aggregate performance.</h3>
+          <p>Complex-case quality and escalated backlog were not separately measured, even as the human capacity receiving those cases was shrinking.</p>
+        </article>
+        <article>
+          <span>03 · Decision</span>
+          <h3>Hold the next increment—not the AI program.</h3>
+          <p>Reduce scope to demonstrated segments, protect exception capacity, and make further expansion conditional on segment-level evidence.</p>
+        </article>
+        <article>
+          <span>04 · Product judgment</span>
+          <h3>Turn uncertainty into a release plan.</h3>
+          <p>Name the binding constraint, set clearing conditions, assign the intervention to the business case, and define when the decision should be reassessed.</p>
+        </article>
+      </div>
+      <div className="sf-x-proof-line">
+        <strong>What this demonstrates</strong>
+        <span>Problem framing</span><span>Systems thinking</span><span>Metric architecture</span><span>AI product judgment</span>
+      </div>
+    </section>
+  );
+}
+
+function FlowModel() {
+  return (
+    <section className="sf-x-model" id="model" aria-labelledby="sf-x-model-title">
+      <div className="sf-x-section-head">
+        <span className="sf-x-overline">The supporting model</span>
+        <h2 id="sf-x-model-title">The structure I used to find the gap.</h2>
+        <p>StratOS separates the enterprise question, the operating altitude, and the location of proof so conflicting signals cannot disappear inside one score.</p>
+      </div>
+      <div className="sf-x-model-grid">
+        <article>
+          <header><b>3</b><div><strong>Enterprise questions</strong><span>The primary conceptual axis</span></div></header>
+          <div className="sf-x-axis-poles">
+            <section><strong>Economics</strong><p>Does this system create sufficient economic value to sustain itself?</p></section>
+            <section><strong>Commitment</strong><p>Can the organization deliver what it has committed to?</p></section>
+            <section><strong>Renewal</strong><p>Can the organization keep adapting as its environment changes?</p></section>
+          </div>
+        </article>
+        <article>
+          <header><b>2</b><div><strong>Operating altitudes</strong><span>Architecture and mechanics stay distinct</span></div></header>
+          <div className="sf-x-axis-poles">
+            <section><strong>StratOps · Architecture</strong><p>What machine are we building?</p></section>
+            <section><strong>BizOps · Mechanics</strong><p>Where is the running machine succeeding or failing?</p></section>
+          </div>
+        </article>
+        <article>
+          <header><b>2</b><div><strong>Loci of evidence</strong><span>Where the proof lives</span></div></header>
+          <div className="sf-x-axis-poles">
+            <section><strong>Internal condition</strong><p>What is happening inside the organization?</p></section>
+            <section><strong>External consequence</strong><p>What is the organization causing outside itself?</p></section>
+          </div>
+        </article>
+      </div>
+      <div className="sf-x-equation" aria-label="Three by two by two equals twelve poles"><span>3</span><i>×</i><span>2</span><i>×</i><span>2</span><i>=</i><strong>12 poles</strong></div>
+      <details className="sf-x-origin-story">
+        <summary>How the model emerged <span aria-hidden="true">＋</span></summary>
+        <div>
+          <h3>StratOS did not begin with 60 metrics.</h3>
+          <p>It began with two existing structures: an L1–L5 enterprise strategy framework, introduced through an experienced product and operating leader, and a set of 12 common C-suite roles.</p>
+          <p>I mapped those roles by the resources and organizational capacities they governed, whether their decisive evidence lived inside the company or in the market, and whether their signals behaved more like leading or lagging indicators.</p>
+          <blockquote>Why twelve?</blockquote>
+          <p>The goal was not to invent a taxonomy. It was to discover whether the roles shared a smaller structure. They resolved into three enterprise questions, two operating altitudes, and two loci of evidence.</p>
+          <p>The final axis evolved beyond <strong>lead versus lag</strong>. Its more useful property was <strong>location of proof</strong>: internal condition and external consequence could diverge.</p>
+        </div>
+      </details>
+    </section>
+  );
+}
+
+const ACTION_LEVELS = [
+  ['L1', 'Strategy', 'What are we trying to accomplish?'],
+  ['L2', 'Business case', 'What must be true before we commit?'],
+  ['L3', 'Implementation', 'What must be true before we launch?'],
+  ['L4', 'Operations', 'What must remain true while we run?'],
+  ['L5', 'Audit', 'Did the claimed outcome actually occur?'],
+] as const;
+
+function FlowDepth() {
+  return (
+    <section className="sf-x-depth" aria-labelledby="sf-x-depth-title">
+      <div className="sf-x-section-head">
+        <span className="sf-x-overline">Action after diagnosis</span>
+        <h2 id="sf-x-depth-title">Divergence says where to look. L1–L5 says where to intervene.</h2>
+        <p>The 3×2×2 model identifies what dimension of enterprise condition is in question. L1–L5 identifies the level at which that condition should be governed or changed.</p>
+      </div>
+      <div className="sf-x-levels">
+        {ACTION_LEVELS.map(([level, name, question]) => <article key={level}><b>{level}</b><div><strong>{name}</strong><p>{question}</p></div></article>)}
+      </div>
+      <div className="sf-x-level-bridge" aria-label="From observed symptom to intervention level">
+        <article><span>Observed symptom</span><strong>BizOps · Internal condition</strong><p>Escalated work may accumulate while receiving human capacity shrinks.</p></article>
+        <b aria-hidden="true">→</b>
+        <article><span>Intervention</span><strong>L2 · Business case</strong><p>The missing capacity gate belongs in the architecture of the commitment.</p></article>
+      </div>
+      <details className="sf-x-disclosure">
+        <summary>Explore the 60-cell accountability model <span aria-hidden="true">＋</span></summary>
+        <div>
+          <p><strong>12 perspectives × 5 levels = 60 accountable outcomes.</strong> The matrix assigns every material question an owner, lifecycle stage, evidence requirement, and consequence.</p>
+          <p>The 60 cells are measurement depth, not the opening hook. They become useful after the 3×2×2 model has located the disagreement and the decision has named the intervention level.</p>
+        </div>
+      </details>
+    </section>
+  );
+}
+
+export default function StratosFlowPage() {
+  return (
+    <main className="app-shell sf-page sf-x-page">
+      <SiteHeader current="stratos" />
+      <div className="sf-x-wrap">
+        <header className="sf-x-hero">
+          <span className="sf-x-overline">Product strategy · enterprise AI · decision intelligence</span>
+          <h1>I turn ambiguous AI rollouts into <b>decisions teams can act on.</b></h1>
+          <p>In this Klarna case study, the headline metrics made expansion look rational. I identified the missing constraint—human exception capacity—and translated it into a bounded decision, an evidence plan, and a reassessment rule.</p>
+          <div className="sf-x-hero-actions"><a href="#case-study">Read the case</a><a href="#decision-lab">Make the decision yourself</a></div>
+        </header>
+
+        <RecruiterCaseSummary />
+        <KlarnaDecisionFlow />
+        <FlowModel />
+        <FlowDepth />
+
+        <section className="sf-x-work" aria-labelledby="sf-x-work-title">
+          <div>
+            <span className="sf-x-overline">Why I built this</span>
+            <h2 id="sf-x-work-title">I’m strongest at the front end of ambiguous product problems.</h2>
+            <p className="sf-x-work-thesis">Finding the underlying structure, defining the right conceptual model, and turning it into something teams can build, measure, and make decisions with.</p>
+          </div>
+          <div>
+            <p>StratOS is my attempt to make complex organizational decisions legible by showing where strategy, operations, and evidence agree—and where they diverge.</p>
+            <div className="sf-x-capabilities" aria-label="Capabilities demonstrated by this case">
+              {['Problem framing', 'Conceptual modeling', 'Systems thinking', 'Metric architecture', 'Product judgment', 'AI product thinking'].map((capability) => <span key={capability}>{capability}</span>)}
+            </div>
+            <p className="sf-x-role-line">Product strategy · 0→1 product management · AI product management · technical product management · decision intelligence · platform product management · enterprise AI product · product operations strategy · applied research / product</p>
+            <div className="sf-x-work-links"><a href="/about">View my background</a><a href="mailto:jeremy@nycwork.space">Contact me</a></div>
+          </div>
+        </section>
+
+        <footer className="sf-x-footer">Cutoff-safe retrospective · company-reported observations, estimates, unknowns, and hindsight remain distinct.</footer>
       </div>
     </main>
   );

@@ -43,7 +43,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     name: 'StratOS',
     category: 'Decision infrastructure',
     description:
-      'StratOS weighs a strategic commitment against the evidence and an organization’s real operating capacity, then turns that judgment into two bounded moves—one on the commitment, one on the path that supports it—each with a clear owner, release gate, and reassessment rule.',
-    pageUrl: '/stratos-v2',
+      'Using Klarna’s AI support rollout, StratOS shows how strong aggregate metrics can hide a shrinking human exception system—and turns that diagnosis into a bounded hold, evidence plan, and reassessment rule.',
+    pageUrl: '/stratos-flow',
   },
 ] as const;

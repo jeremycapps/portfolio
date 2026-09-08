@@ -12,8 +12,19 @@ describe('site metadata', () => {
 
     expect(paths).toContain('/');
     expect(paths).toContain('/about');
+    expect(paths).toContain('/stratos-flow');
     expect(paths).toContain('/blog/query-compiler-induced');
     expect(new Set(paths).size).toBe(paths.length);
+  });
+
+  it('positions the StratOS flow as the bounded decision experience', () => {
+    const metadata = metadataForPath('/stratos-flow');
+
+    expect(metadata?.title).toContain('Klarna AI Rollout Case Study');
+    expect(metadata?.description).toContain('hidden capacity constraint');
+    expect(metadata && canonicalUrl(metadata)).toBe(
+      'https://www.jeremycapps.com/stratos-flow',
+    );
   });
 
   it('normalizes route URLs and gives articles distinct metadata', () => {

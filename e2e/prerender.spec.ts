@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 const publicRoutes = [
-  ['/', 'Nine years, and the tools keep evolving'],
+  ['/', 'I turn ambiguous AI rollouts'],
   ['/about', 'Jeremy Capps builds the systems'],
   ['/blog', 'Long-form thinking about executable meaning'],
   ['/blog/executable-interpretation', 'Domain — Executable Interpretation'],
   ['/stratos', 'Drag each axis to set a position'],
+  ['/stratos-flow', 'I turn ambiguous AI rollouts'],
 ] as const;
 
 test.describe('agent-readable static HTML', () => {

@@ -46,11 +46,19 @@ const STATIC_PAGES: readonly PageMetadata[] = [
   },
   {
     path: '/stratos-v2',
-    title: 'StratOS v2 — Constraint-Aware Strategy Execution',
+    title: 'StratOS — Where Organizational Signals Disagree',
     description:
-      'A constraint-aware organizational model for testing strategic commitments against people, finance, time, and risk capacity.',
+      'StratOS reveals where internal operating signals and external consequences diverge before an organization makes its next commitment.',
     kind: 'application',
-    lastModified: '2026-08-31',
+    lastModified: '2026-09-07',
+  },
+  {
+    path: '/stratos-flow',
+    title: 'Klarna AI Rollout Case Study — Jeremy Capps',
+    description:
+      'A product-strategy case study showing how Jeremy Capps identified the hidden capacity constraint in Klarna’s AI support rollout and converted it into a bounded decision and evidence plan.',
+    kind: 'application',
+    lastModified: '2026-09-08',
   },
 ];
 

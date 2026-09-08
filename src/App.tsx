@@ -267,14 +267,34 @@ function Home() {
         aria-labelledby={chatActive ? undefined : 'hero-title'}
       >
         <div className="intro home-hero">
-          <p className="home-eyebrow" data-testid="text-eyebrow">New York City &middot; Available now</p>
+          <p className="home-eyebrow" data-testid="text-eyebrow">Klarna case study &middot; product judgment for enterprise AI</p>
           <h1 className="home-thesis" id="hero-title">
-            Building <b>accountable systems</b> across engineering, operations, and <span>AI infrastructure</span>.
+            I turn ambiguous AI rollouts into <span>decisions teams can act on.</span>
           </h1>
           <p className="home-sub">
-            Nine years, and the tools keep evolving &mdash; legacy modernization, design systems, customer integrations, now AI infrastructure. The principle stays the same: keep the work legible and accountable as it grows.
+            Klarna’s headline metrics made expansion look rational. I identified the missing constraint&mdash;human exception capacity&mdash;and translated it into a bounded decision, an evidence plan, and a reassessment rule.
           </p>
+          <div className="home-hero-actions">
+            <a href="/stratos-flow#case-study">Explore the Klarna decision <ArrowUpRight aria-hidden="true" /></a>
+            <a href="/stratos-flow#model">See the supporting model</a>
+          </div>
         </div>
+
+        {!chatActive && (
+          <section className="home-case-proof" aria-labelledby="home-case-proof-title">
+            <div className="home-sec-head">
+              <p className="home-sec-tag">The case in one scan</p>
+              <p className="home-sec-note">Problem → diagnosis → bounded action</p>
+            </div>
+            <h2 id="home-case-proof-title" className="sr-only">Klarna case study summary</h2>
+            <div className="home-case-proof-grid">
+              <article><span>Problem</span><strong>AI handled ⅔ of chats and cut resolution time from 11 minutes to 2.</strong><p>Further scaling looked rational while human support capacity continued to shrink.</p></article>
+              <article><span>Diagnosis</span><strong>Aggregate performance did not prove complex-case resilience.</strong><p>Quality, high-severity outcomes, and escalated backlog age were not separately measured.</p></article>
+              <article><span>Decision</span><strong>Hold the next increment—not the AI program.</strong><p>Reduce scope, protect exception capacity, and gate expansion on segment-level evidence.</p></article>
+            </div>
+            <p className="home-model-note"><b>Model used:</b> 3 enterprise questions × 2 operating altitudes × 2 loci of evidence. The model supports the diagnosis; the case demonstrates the judgment.</p>
+          </section>
+        )}
 
         {chatActive && (
           <div className="conversation-pane" role="region" aria-label="Conversation">

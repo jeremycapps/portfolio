@@ -60,7 +60,7 @@ export const HOME_SYSTEMS: readonly HomeSystem[] = [
     description: stratos.description,
     href: stratos.pageUrl ?? '#',
     external: false,
-    poles: ['Commitment', 'Operating capacity'],
+    poles: ['Headline performance', 'Operational resilience'],
     position: 0.46,
     accent: 'stratos',
   },

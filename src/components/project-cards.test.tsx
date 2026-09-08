@@ -9,7 +9,7 @@ describe('ProjectCards', () => {
 
     expect(html).toContain('href="https://github.com/jeremycapps/libera"');
     expect(html).toContain('href="https://github.com/jeremycapps/facia"');
-    expect(html).toContain('href="/stratos-v2"');
+    expect(html).toContain('href="/stratos-flow"');
     expect(html).toContain('aria-label="Explore StratOS"');
     expect(html.match(/target="_blank"/g)).toHaveLength(2);
     expect(html.match(/rel="noreferrer noopener"/g)).toHaveLength(2);

@@ -18,8 +18,10 @@ describe('HOME_SYSTEMS', () => {
   it('links StratOS to its in-app route, not an external repo', () => {
     const stratos = HOME_SYSTEMS.find((s) => s.id === 'stratos');
     expect(stratos?.external).toBe(false);
-    expect(stratos?.href).toBe('/stratos-v2');
+    expect(stratos?.href).toBe('/stratos-flow');
     expect(stratos?.category).toBe('Decision infrastructure');
+    expect(stratos?.description).toContain('Klarna’s AI support rollout');
+    expect(stratos?.description).toContain('evidence plan');
   });
 
   it('places every marker between the two poles', () => {

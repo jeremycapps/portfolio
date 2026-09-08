@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { ArrowDown, ArrowLeft, ArrowRight, CornerDownLeft, RotateCcw } from 'lucide-react';
 import { SiteHeader } from '@/components/site-header';
 import { Card } from '@/components/ui/card';
@@ -142,6 +142,60 @@ const STATUS_ICONS = {
   FOG: '?',
   HINDSIGHT: '◆',
 } as const;
+
+const MODEL_AXES = [
+  {
+    eyebrow: '3 questions',
+    items: [
+      ['Economics', 'Is the enterprise economically sustainable?'],
+      ['Commitment', 'Can it deliver what it has promised?'],
+      ['Renewal', 'Can it adapt quickly enough to keep doing so?'],
+    ],
+  },
+  {
+    eyebrow: '2 altitudes',
+    items: [
+      ['StratOps', 'What machine are we building?'],
+      ['BizOps', 'Where is the running machine succeeding or failing?'],
+    ],
+  },
+  {
+    eyebrow: '2 loci of evidence',
+    items: [
+      ['Internal condition', 'What does the operating system say is happening?'],
+      ['External consequence', 'What evidence appears in the customer, market, or environment?'],
+    ],
+  },
+] as const;
+
+const OUTCOME_ROWS = [
+  ['CSO · controlled advantage', 'Moat coverage %', 'Make-vs-buy case', 'Owned-IP in build %', 'Switching-cost index', 'IP asset value on B/S'],
+  ['CMO · orchestrated ecosystem', 'External value share', 'Participant ROI case', 'Partner integration %', 'Active participant rate', 'Ecosystem revenue (audited)'],
+  ['CPO · workforce capacity', 'Skill-coverage ratio', 'Capacity vs. demand', 'Staffing ramp vs. plan', 'Buffer % · attrition · ρ', 'Capacity cost vs. baseline'],
+  ['CFO · capital & return', 'ROIC vs. cost of capital', 'NPV / payback case', 'Budget burn vs. plan', 'Cost per resolved contact', 'Net savings vs. baseline (GL)'],
+  ['CEO · decision quality', 'Strategic-bet thesis', 'Go/no-go options priced', 'Scope adherence', 'Decision-to-outcome variance', 'Decision outcome audit'],
+  ['CDO · disconfirming evidence', 'Evidence coverage', 'Disconfirming-evidence plan', 'Instrumented signals %', 'Signal latency', 'Evidence audit trail'],
+  ['CRO · risk & traceability', 'Irreversibility exposure', 'Risk & rollback plan', 'Control coverage built', 'Incident rate vs. tolerance', 'Traceability / defensibility'],
+  ['CTO · technical release', 'Architecture fit', 'Technical feasibility case', 'Release readiness', 'Uptime / SLO', 'Capitalized-dev audit'],
+  ['CKO · knowledge', 'Knowledge-moat thesis', 'Knowledge-capture plan', 'Knowledge codified %', 'Knowledge freshness / decay', 'Retained-knowledge audit'],
+  ['CGO · growth', 'Growth thesis / TAM', 'Growth case (CAC/LTV)', 'Launch readiness', 'Retention / churn', 'Realized growth vs. plan'],
+  ['COO · operations', 'Operating-model fit', 'Exception-handling design', 'Runbook / failover', 'Backlog age by segment', 'Ops loss vs. baseline'],
+  ['CIO · flow & information', 'Information-flow thesis', 'Data-flow / integration case', 'Flow integration %', 'Flow throughput / cycle time', 'Information-cost audit'],
+] as const;
+
+const KLARNA_INTERNAL = [
+  ['Automation', 'Two-thirds of support chats handled in the first month.'],
+  ['Speed', 'Reported resolution time fell from 11 minutes to 2.'],
+  ['Labor economics', 'The operating model suggested substantial savings.'],
+  ['Aggregate satisfaction', 'Klarna reported satisfaction on par with human agents.'],
+] as const;
+
+const KLARNA_EXTERNAL = [
+  ['Complex work', 'The assistant handled first-line support; complex cases still transferred to people.'],
+  ['Different stakes', 'Those cases included disputes, fraud, hardship, and account closure.'],
+  ['Receiving capacity', 'The human system receiving those exceptions was simultaneously being reduced.'],
+  ['Missing grain', 'Blended satisfaction could not establish quality within those high-stakes segments.'],
+] as const;
 
 function EvidenceDisclosure({ input }: { input: ResolvedDecisionInput }) {
   return (
@@ -558,9 +612,260 @@ function DetailView({ system, elapsed, onElapsed, onBack }: { system: SystemMode
   );
 }
 
+function NarrativeSection({
+  id,
+  eyebrow,
+  title,
+  children,
+  className = '',
+}: {
+  id?: string;
+  eyebrow: string;
+  title: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section id={id} className={`sv2-story-section ${className}`.trim()}>
+      <div className="sv2-story-heading">
+        <p className="sv2-eyebrow">{eyebrow}</p>
+        <h2>{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function ModelReveal() {
+  return (
+    <NarrativeSection
+      id="model"
+      eyebrow="The underlying structure"
+      title="The twelve roles resolved into three dimensions."
+      className="sv2-model-reveal"
+    >
+      <div className="sv2-origin">
+        <p>I started with two existing ways of looking at an enterprise: an L1–L5 framework for separating strategic and operational work, and twelve common C-suite functions.</p>
+        <p>I mapped those functions by the resources they governed, the signals they watched, and whether those signals described the company or its environment.</p>
+        <blockquote><strong>Why twelve?</strong><span>What smaller structure would naturally produce twelve different perspectives on an enterprise?</span></blockquote>
+      </div>
+      <div className="sv2-axis-grid">
+        {MODEL_AXES.map((axis, axisIndex) => (
+          <article key={axis.eyebrow} className={`sv2-axis sv2-axis--${axisIndex + 1}`}>
+            <p className="sv2-eyebrow">{axis.eyebrow}</p>
+            <div>
+              {axis.items.map(([label, copy]) => (
+                <div key={label}>
+                  <strong>{label}{label === 'Internal condition' ? ' ◀' : label === 'External consequence' ? ' ▶' : ''}</strong>
+                  <span>{copy}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="sv2-equation" aria-label="Three times two times two equals twelve poles">
+        <span>3</span><i>×</i><span>2</span><i>×</i><span>2</span><i>=</i><strong>12 poles</strong>
+      </div>
+      <p className="sv2-equation-note">The 12 poles are not the model. They are the result of the model.</p>
+    </NarrativeSection>
+  );
+}
+
+function DivergenceSection() {
+  return (
+    <NarrativeSection eyebrow="The useful part" title="The two sides do not have to agree." className="sv2-divergence">
+      <p className="sv2-story-lede">Internal measures can improve while external consequences deteriorate.</p>
+      <div className="sv2-divergence-examples" aria-label="Examples of diverging organizational signals">
+        <span>Faster <b>but less trustworthy</b></span>
+        <span>Cheaper <b>but less resilient</b></span>
+        <span>More automated <b>but worse at exceptions</b></span>
+        <span>More productive <b>with a growing downstream queue</b></span>
+      </div>
+      <p>Collapse both signals into a blended KPI and the disagreement disappears. StratOS keeps them separate long enough to ask:</p>
+      <blockquote className="sv2-question-callout">Where is the system telling two different stories?<span>What commitment should change because of that?</span></blockquote>
+    </NarrativeSection>
+  );
+}
+
+function EvidenceColumn({
+  side,
+  heading,
+  items,
+  summary,
+}: {
+  side: 'internal' | 'external';
+  heading: string;
+  items: ReadonlyArray<readonly [string, string]>;
+  summary: string;
+}) {
+  return (
+    <article className={`sv2-klarna-column sv2-klarna-column--${side}`}>
+      <header>
+        <p className="sv2-eyebrow">{side === 'internal' ? 'Internal condition ◀' : 'External consequence ▶'}</p>
+        <h3>{heading}</h3>
+      </header>
+      <dl>
+        {items.map(([label, copy]) => <div key={label}><dt>{label}</dt><dd>{copy}</dd></div>)}
+      </dl>
+      <p className="sv2-klarna-summary">{summary}</p>
+    </article>
+  );
+}
+
+function KlarnaCase() {
+  return (
+    <NarrativeSection id="klarna" eyebrow="A real decision boundary" title="Klarna makes the divergence concrete." className="sv2-klarna">
+      <div className="sv2-klarna-intro">
+        <p>In early 2024, Klarna’s AI customer-support results looked extraordinary. The assistant handled two-thirds of support chats, reported resolution time fell from 11 minutes to 2, and the company projected a $40 million improvement in 2024 profit.</p>
+        <div className="sv2-decision-prompt"><span>The pilot worked.</span><strong>Should Klarna deepen the commitment?</strong></div>
+        <p className="sv2-cutoff-note">This review uses only evidence available at the decision boundary. Company estimates remain labeled, and later outcomes are kept separate as hindsight.</p>
+      </div>
+      <div className="sv2-klarna-evidence">
+        <EvidenceColumn side="internal" heading="What looked strong" items={KLARNA_INTERNAL} summary="From inside the operating system, the transformation looked highly successful." />
+        <EvidenceColumn side="external" heading="What remained harder to establish" items={KLARNA_EXTERNAL} summary="The strongest evidence supporting the commitment existed at a different grain from the risk created by it." />
+      </div>
+      <div className="sv2-disagreement">
+        <div className="sv2-story-heading">
+          <p className="sv2-eyebrow">The decision hidden inside the dashboard</p>
+          <h3>The disagreement is the decision.</h3>
+        </div>
+        <div className="sv2-signal-readout">
+          <p><span>Internal efficiency</span><strong className="is-up">Improving ↑</strong></p>
+          <p><span>Complex-segment quality</span><strong className="is-unknown">Unknown ?</strong></p>
+          <p><span>Receiving human capacity</span><strong className="is-down">Shrinking ↓</strong></p>
+        </div>
+        <p>That is not proof the AI program was failing. It is a more precise statement:</p>
+        <blockquote>The evidence supporting the next commitment was incomplete at the place where the downside was concentrated.</blockquote>
+      </div>
+    </NarrativeSection>
+  );
+}
+
+function DecisionLogic() {
+  return (
+    <NarrativeSection id="decision-logic" eyebrow="Decision logic" title="StratOS distinguishes three conditions." className="sv2-logic">
+      <div className="sv2-verdict-grid">
+        <article className="is-fit"><strong>FIT</strong><p>The available evidence and constraints support the proposed commitment—at the scale actually demonstrated.</p></article>
+        <article className="is-fog"><strong>FOG</strong><p>A material question remains unanswered. The organization does not yet have the evidence required to make the claim.</p></article>
+        <article className="is-collision"><strong>COLLISION</strong><p>The proposed commitment conflicts with an observed constraint.</p></article>
+      </div>
+      <div className="sv2-klarna-verdict">
+        <p className="sv2-eyebrow">Klarna result</p>
+        <strong>FOG + constraint collision</strong>
+        <p>Aggregate operating performance was strong. Complex-segment quality was not established at the grain required by the decision, while the capacity absorbing those exceptions was being reduced.</p>
+      </div>
+      <div className="sv2-hold">
+        <p className="sv2-eyebrow">Suggested decision output</p>
+        <h3>HOLD the next increment—not the AI program.</h3>
+        <p>Before further reducing receiving human capacity:</p>
+        <ol>
+          <li>establish complex-segment quality independently of blended satisfaction;</li>
+          <li>measure backlog age by segment;</li>
+          <li>define the minimum capacity required to absorb escalations;</li>
+          <li>establish explicit rollback conditions;</li>
+          <li>reassess after those signals have been observed.</li>
+        </ol>
+        <blockquote>The purpose of a HOLD is to identify what must become true before the answer can become yes.</blockquote>
+      </div>
+    </NarrativeSection>
+  );
+}
+
+function ActionLayer() {
+  const levels = [
+    ['L1', 'Strategy', 'What are we trying to accomplish?'],
+    ['L2', 'Business case', 'What must be true before we commit?'],
+    ['L3', 'Implementation', 'What must be true before we launch?'],
+    ['L4', 'Operations', 'What must remain true while we run?'],
+    ['L5', 'Audit', 'Did the claimed outcome actually occur?'],
+  ] as const;
+  return (
+    <NarrativeSection eyebrow="The action layer" title="Finding the problem is only half of the job." className="sv2-action-layer">
+      <p className="sv2-story-lede">L1–L5 answers the next question: where should the organization act?</p>
+      <p>A signal may appear in operations but originate in a business-case assumption. A backlog may be visible at L4 while the missing capacity gate belonged at L2.</p>
+      <div className="sv2-levels">
+        {levels.map(([level, label, question]) => <article key={level}><span>{level}</span><div><strong>{label}</strong><p>{question}</p></div></article>)}
+      </div>
+    </NarrativeSection>
+  );
+}
+
+function MeasurementDepth({
+  selectedSystem,
+  elapsed,
+  onElapsed,
+  onSelect,
+  onBack,
+}: {
+  selectedSystem?: SystemModel;
+  elapsed?: number;
+  onElapsed: (value: number) => void;
+  onSelect: (id: SystemId) => void;
+  onBack: () => void;
+}) {
+  return (
+    <NarrativeSection eyebrow="Measurement depth" title="12 perspectives × 5 levels = 60 accountable outcomes." className="sv2-depth">
+      <p className="sv2-story-lede">The important part is not the number. The matrix gives every material question an owner, a lifecycle stage, an evidence requirement, and a consequence.</p>
+      <details className="sv2-disclosure">
+        <summary>Explore the 60-cell model <ArrowRight aria-hidden="true" /></summary>
+        <div className="sv2-matrix-wrap">
+          <table className="sv2-matrix">
+            <caption>Sixty accountable outcomes across twelve enterprise perspectives and five lifecycle levels</caption>
+            <thead><tr><th scope="col">Perspective</th><th scope="col">L1 · Strategy</th><th scope="col">L2 · Business case</th><th scope="col">L3 · Implementation</th><th scope="col">L4 · Operations</th><th scope="col">L5 · Audit</th></tr></thead>
+            <tbody>{OUTCOME_ROWS.map(([owner, ...cells]) => <tr key={owner}><th scope="row">{owner}</th>{cells.map((cell) => <td key={cell} className={['Capacity vs. demand', 'Buffer % · attrition · ρ', 'Instrumented signals %', 'Exception-handling design', 'Backlog age by segment', 'Net savings vs. baseline (GL)'].includes(cell) ? 'is-decisive' : ''}>{cell}</td>)}</tr>)}</tbody>
+          </table>
+        </div>
+      </details>
+      <div className="sv2-gates">
+        <div className="sv2-story-heading"><p className="sv2-eyebrow">Gate logic</p><h3>A metric should do more than report.</h3></div>
+        <div>
+          <article><strong>Soft gate</strong><p>Proceed with conditions and revisit.</p></article>
+          <article><strong>Hard gate</strong><p>Do not release the commitment until the condition clears.</p></article>
+          <article><strong>Operating floor</strong><p>Continue only while the condition remains above an explicit threshold.</p></article>
+        </div>
+        <p>This turns measurement into decision control.</p>
+      </div>
+      <details className="sv2-disclosure sv2-prototype-disclosure">
+        <summary>Inspect the conversion-system prototype <ArrowRight aria-hidden="true" /></summary>
+        <Card className="sv2-shell">
+          {selectedSystem && elapsed !== undefined
+            ? <DetailView system={selectedSystem} elapsed={elapsed} onElapsed={onElapsed} onBack={onBack} />
+            : <SystemView onSelect={onSelect} />}
+        </Card>
+      </details>
+    </NarrativeSection>
+  );
+}
+
+function HindsightAndAbout() {
+  return (
+    <>
+      <NarrativeSection eyebrow="Separate outcome layer" title="Then—and only then—look at what happened later." className="sv2-hindsight-story">
+        <p>In 2025, Klarna’s CEO said cost had become too predominant in the support strategy and that lower quality followed. The company began rebuilding a model in which customers could reach people again.</p>
+        <p>Hindsight is useful for evaluating the quality of the model. It should not be smuggled backward into the original decision.</p>
+        <blockquote>Did the process identify the uncertainty and constraint that mattered before the organization increased its exposure?</blockquote>
+      </NarrativeSection>
+      <NarrativeSection id="about-the-work" eyebrow="Why I built this" title="I’m drawn to the structure underneath difficult domains." className="sv2-about-work">
+        <p>The compelling part of StratOS was not producing dozens of metrics. It was understanding why the underlying structure existed.</p>
+        <p>My strongest work begins where a domain contains many roles, measures, and processes, but the existing taxonomy does not quite explain their relationships. I learn how the work operates, find the dimensions that matter, and turn that model into something a product or team can use.</p>
+        <blockquote>Find where the signals disagree. Make the missing evidence visible. Connect what is learned to what may happen next.</blockquote>
+        <div className="sv2-employment">
+          <div><p className="sv2-eyebrow">Work with me</p><h3>I’m looking for product problems that need this kind of thinking.</h3></div>
+          <p>I’m especially interested in forward-deployed engineering, AI operations, solutions architecture, implementation, and product or platform engineering—particularly where the hard part is deciding what model of the problem a system should encode.</p>
+          <div className="sv2-cta-row">
+            <a className="sv2-button sv2-button--primary" href="/about">View my background <ArrowRight aria-hidden="true" /></a>
+            <a className="sv2-button" href="https://www.linkedin.com/in/jeremycapps" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+            <a className="sv2-button" href="https://github.com/jeremycapps" target="_blank" rel="noreferrer noopener">GitHub</a>
+            <a className="sv2-button" href="mailto:jeremy@nycwork.space">Contact me</a>
+          </div>
+        </div>
+      </NarrativeSection>
+    </>
+  );
+}
+
 export default function StratosV2Page() {
-  const [decisionId, setDecisionId] = useState<string>();
-  const decision = useMemo(() => createDecisionExperienceViewModel(decisionId), [decisionId]);
   const [selected, setSelected] = useState<SystemId | null>(null);
   const [elapsedBySystem, setElapsedBySystem] = useState<Record<SystemId, number>>(() => Object.fromEntries(STRATOS_SYSTEMS.map((system) => [system.id, system.cycle2])) as Record<SystemId, number>);
   const selectedSystem = useMemo(() => STRATOS_SYSTEMS.find((system) => system.id === selected), [selected]);
@@ -568,30 +873,33 @@ export default function StratosV2Page() {
     <main className="app-shell sv2-page">
       <SiteHeader current="stratos" />
       <div className="sv2-workspace">
-        <header className="sv2-page-head">
-          <div>
-            <p className="sv2-kicker">StratOS v2 · scenario prototype</p>
-            <h1>Organization as a constrained conversion system.</h1>
-            <p>See what the organization is, how it moves, and whether that movement can reach a commitment without exhausting the system.</p>
+        <header className="sv2-page-head sv2-story-hero">
+          <p className="sv2-kicker">StratOS · organizational decision systems</p>
+          <h1>When the company looks healthy inside, but the customer is telling you something else.</h1>
+          <p>Organizations rarely lack metrics. The harder problem is knowing which signals describe the same thing—and noticing when they stop agreeing.</p>
+          <p>StratOS structures strategy, operations, and evidence so divergence becomes visible before the next commitment is made.</p>
+          <div className="sv2-cta-row">
+            <a className="sv2-button sv2-button--primary" href="#model">See how the model works <ArrowDown aria-hidden="true" /></a>
+            <a className="sv2-button" href="#klarna">Jump to Klarna <ArrowRight aria-hidden="true" /></a>
           </div>
-          <aside>
-            <span>Cutoff-safe decision</span>
-            <strong>{decision.companyName}</strong>
-            <p>{displayDate(decision.cutoff)} · {decision.sequence}</p>
-          </aside>
         </header>
-        <DecisionExperience view={decision} onTimelineSelect={setDecisionId} />
-        <Card className="sv2-shell">
-          {selectedSystem ? (
-            <DetailView
-              system={selectedSystem}
-              elapsed={elapsedBySystem[selectedSystem.id]}
-              onElapsed={(value) => setElapsedBySystem((current) => ({ ...current, [selectedSystem.id]: value }))}
-              onBack={() => setSelected(null)}
-            />
-          ) : <SystemView onSelect={setSelected} />}
-        </Card>
-        <p className="sv2-disclaimer">Cutoff-safe retrospective — the comparison evaluates decision structure within the evidence available on the selected date.</p>
+        <nav className="sv2-local-nav" aria-label="StratOS sections">
+          <a href="#model">Model</a><a href="#klarna">Klarna</a><a href="#decision-logic">Decision logic</a><a href="#about-the-work">About the work</a>
+        </nav>
+        <ModelReveal />
+        <DivergenceSection />
+        <KlarnaCase />
+        <DecisionLogic />
+        <ActionLayer />
+        <MeasurementDepth
+          selectedSystem={selectedSystem}
+          elapsed={selectedSystem ? elapsedBySystem[selectedSystem.id] : undefined}
+          onElapsed={(value) => selectedSystem && setElapsedBySystem((current) => ({ ...current, [selectedSystem.id]: value }))}
+          onSelect={setSelected}
+          onBack={() => setSelected(null)}
+        />
+        <HindsightAndAbout />
+        <p className="sv2-disclaimer">Cutoff-safe retrospective · company-reported estimates, analytical findings, and hindsight remain distinct.</p>
       </div>
     </main>
   );
