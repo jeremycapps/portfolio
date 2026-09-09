@@ -37,7 +37,8 @@
     "context:upload": "node scripts/context-upload.mjs",
     "verify:chat-context-prod": "node scripts/verify-chat-context-prod.mjs",
     "gen:case-sources": "node --import tsx scripts/gen-case-sources.ts",
-    "audit:case-sources": "node --import tsx scripts/audit-case-sources.ts"
+    "audit:case-sources": "node --import tsx scripts/audit-case-sources.ts",
+    "merge:safe": "bash scripts/safe-merge.sh"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
