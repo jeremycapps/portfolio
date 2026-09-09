@@ -2,11 +2,11 @@
 
 **Status:** Implementation-ready synthesis  
 **Target:** [jeremycapps.com/stratos-v2](https://www.jeremycapps.com/stratos-v2)  
-**Primary question:** Given what is known now, what is the largest commitment the organization can responsibly make next—and what must happen alongside it?
+**Primary question:** Where does AI-enabled growth stop being sustainable—where is the boundary the AI must not cross alone, and what evidence tells the technical product manager when it is safe to move that boundary?
 
 ## 1. Executive decision
 
-StratOS v2 should evolve from an inspectable constraint model into an operational commitment-judgment system.
+I built StratOS v2 to support the judgment that sits underneath an apparently successful AI pilot: not simply whether to scale, but where the boundary between automated work and human ownership must sit for the next increment to remain sustainable.
 
 The existing page explains:
 
@@ -15,7 +15,7 @@ The existing page explains:
 - calendar trajectory versus feasible trajectory; and
 - an Author → Implement → Verify → Adjust cycle.
 
-Those elements should remain. The missing layer is the answer to **“So what do we do?”**
+Those elements should remain as inspectable depth. The public experience should first answer **“What boundary do I hold, what evidence would let me move it, and what do I do next?”**
 
 Every StratOS evaluation should therefore produce:
 
@@ -36,15 +36,15 @@ Commitment: CHANGE(store-release cadence to zero)
 Path:       CHANGE(rollout configuration)
 ```
 
-The case studies then compare StratOS's authorized pair with the action actually taken and estimate how the alternative would have changed the next tranche of exposure. StratOS does not claim to predict success or failure. It tests whether the next irreversible commitment was justified by the evidence available at that decision date.
+The case studies then compare the operation I would authorize with the action actually taken and estimate how the alternative would have changed the next tranche of exposure. StratOS makes that reasoning inspectable; it does not make the decision for the PM or claim to predict success or failure. It tests whether the next irreversible commitment was justified by the evidence available at that decision date.
 
 ## 2. Product thesis
 
 ### 2.1 Problem
 
-Strategy frameworks often stop at diagnosis. They show that a goal is attractive, risky, under-resourced, or uncertain, but do not translate that judgment into a bounded next operation.
+AI pilots create an easy scaling story: deflection rises, cycle time falls, and aggregate satisfaction holds. Those measures answer how much work the AI handled. They do not establish whether the human system receiving every difficult transfer can sustain the next increment.
 
-Organizations consequently make commitments at a scale that exceeds:
+The technical product manager must therefore hold two signals that can move in opposite directions: the aggregate showing that the AI works, and the segment-level load showing whether the combined system remains sustainable. Without that boundary view, organizations can make commitments at a scale that exceeds:
 
 - demonstrated operating capacity;
 - the evidence supporting transferability;
@@ -56,15 +56,17 @@ The failure is not always the strategic goal. It is frequently the size, timing,
 
 ### 2.2 Product claim
 
-> **StratOS matches the size and irreversibility of the next commitment to the strength of the available evidence, organizational capacity, and decision authority.**
+> **I use StratOS to find and hold the sustainable boundary for the next AI increment: matching automation depth to segment-level evidence, receiving human capacity, and an explicit rollback condition.**
 
-The operative question is not simply:
+The presenting question is:
 
-> Should we do this?
+> The pilot works. How far should we scale it?
 
-It is:
+The governing question underneath it is:
 
-> **What is the largest commitment we can responsibly make next, and what path must accompany it?**
+> **Where does this growth stop being sustainable, and what evidence would authorize moving the boundary?**
+
+For customer-support automation, the governing measures are not only deflection, blended CSAT, or average handle time. They include **queue depth and backlog age by segment**, plus the capacity and load of the human queue receiving exceptions. The aggregate demonstrates value; the operating floor governs exposure.
 
 ### 2.3 What the model does not claim
 
@@ -489,20 +491,20 @@ The live page should be reorganized into the following narrative.
 
 ### 10.1 Hero
 
-**Eyebrow:** `StratOS v2 · commitment judgment prototype`
+**Eyebrow:** `A technical product manager case study · Klarna AI support`
 
 **Headline:**
 
-> Make the next commitment fit the evidence.
+> When the AI pilot works, the boundary moves—and the numbers can hide it.
 
 **Subhead:**
 
-> StratOS tests a strategic commitment against the organization's real operating envelope, then identifies what to do with the commitment and what must change alongside it.
+> I use queue depth, backlog age, and receiving human capacity to find the sustainable line that aggregate deflection and CSAT cannot show. StratOS is what I built to make that judgment inspectable before the next increment.
 
-**Primary CTA:** `Review the Target Canada decision`  
+**Primary CTA:** `See the Klarna decision`
 **Secondary CTA:** `See how the model works`
 
-The hero should quickly distinguish StratOS from a planning scorecard: it produces an authorized next operation, not only a status label.
+The hero should establish the PM and decision before the instrument. It should distinguish the flattering aggregate from the boundary metric, then present StratOS as evidence of how the judgment is made—not as an autonomous grader.
 
 ### 10.2 Preserve and compress the current model explanation
 
@@ -745,12 +747,12 @@ These decisions should be resolved during implementation, but they do not block 
 ## 16. Canonical summary
 
 ```text
-StratOS evaluates a bounded next commitment using only the evidence available
-at the decision date.
+I use StratOS to evaluate a bounded next commitment using only the evidence
+available at the decision date.
 
-It judges each critical dimension as FIT, FOG, or COLLISION.
+The model keeps each critical dimension explicit as FIT, FOG, or COLLISION.
 
-It then returns exactly two recommendations:
+I then make exactly two recommendations:
 
 1. an operation on the commitment;
 2. an operation on the corrective path.
@@ -768,7 +770,7 @@ changed exposure before the next decision point.
 
 The shortest product expression is:
 
-> **Judgment → two authorized operations → bounded exposure → reassessment.**
+> **Hold the boundary → make the evidence visible → authorize a bounded increment → reassess.**
 
 ## 17. Initial source set
 

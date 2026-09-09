@@ -258,18 +258,22 @@ turn what was learned into reusable infrastructure.
   confirmation because it isn't — the harness is how that boundary gets
   found by measurement instead of asserted. [Case study: A Query Compiler,
   Induced From My Own Logs](/blog/query-compiler-induced)
-- **StratOS — commitment judgment prototype (2026, independent).** An active
-  0-to-1 decision prototype for determining what an organization can responsibly
-  commit to next. It tests a proposed commitment against available evidence and
-  a shared operating envelope across people, finance, time, and risk. Every
-  evaluation returns a FIT, FOG, or COLLISION verdict and exactly two bounded
-  operations: one on the commitment and one on the corrective or enabling path.
-  Those operations carry an owner, release gate, boundary, and reassessment
-  rule. The current public product expression is the [StratOS commitment
-  judgment prototype](/stratos-v2). It is technically implemented and publicly
-  explorable, but it has no demonstrated adoption, repeated workflow use, or
-  measured customer impact. The earlier [six-tension instrument](/stratos)
-  remains an exploratory predecessor and an input to the newer model.
+- **StratOS — technical product management case study and decision prototype
+  (2026, independent).** The Klarna AI-support case starts with the call every
+  technical PM now faces: the pilot's deflection, speed, and aggregate CSAT look
+  strong, so how far should it scale? Jeremy leads with the harder question:
+  where does that growth stop being sustainable when the human queue receiving
+  every difficult transfer is already losing capacity? He uses queue depth and
+  backlog age by segment—not only the flattering aggregate—to hold that boundary,
+  define a rollback floor, and identify what evidence would authorize the next
+  increment. StratOS is the active 0-to-1 prototype he built to make that judgment
+  inspectable. Underneath, it returns a FIT, FOG, or COLLISION verdict and two
+  bounded operations with an owner, release gate, boundary, and reassessment rule.
+  The current public expression is the [Klarna technical product management case
+  study](/stratos-flow). It is technically implemented and publicly explorable, but
+  has no demonstrated adoption, repeated workflow use, or measured customer
+  impact. The earlier [six-tension instrument](/stratos) remains an exploratory
+  predecessor and an input to the newer model.
 - **Tempo — strategy-framework modeling prototype (2026, independent).** An
   Obsidian-based exploratory model representing consulting/strategy frameworks as
   structured logic sources applied to organizational profiles via explicit
@@ -367,8 +371,8 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
   contributor leadership, not people management. The Aroko revenue figure is
   $135K.
 - **Keep StratOS's status precise.** The current public expression is the
-  commitment-judgment prototype at `/stratos-v2`; the six-tension instrument at
-  `/stratos` is its exploratory predecessor. Describe StratOS as an active,
+  Klarna technical product management case study at `/stratos-flow`; the
+  six-tension instrument at `/stratos` is its exploratory predecessor. Describe StratOS as an active,
   technically implemented 0-to-1 prototype, never as a deployed, adopted, or
   production customer product. It has no demonstrated user adoption, repeated
   workflow use, or measured customer impact.
