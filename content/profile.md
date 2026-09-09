@@ -39,7 +39,7 @@ a practice in creative and cultural-systems research.
 - **What he most wants to do.** Discover how a workflow and domain actually
   operate, turn that knowledge into explicit and auditable structure, and build
   reusable systems against it. Libera, Facia, and StratOS express that pattern
-  through context infrastructure, interface infrastructure, and decision
+  through runtime infrastructure, interface infrastructure, and decision
   infrastructure respectively.
 - **Company size & stage.** Works best in small-to-mid and early-stage teams
   where one person spans product, operations, and engineering. He is a 0-to-1 and
@@ -137,12 +137,20 @@ are validated and resolved by Facia — the `@facia/core` package running this s
 is the same package published in the Facia repository. Libera's
 page/package/deployment layers are still ahead of it.
 
+The method is small: declare three things — what you observe, what it means, and
+what you wanted — and the two engines run it, Libera executing and Facia
+surfacing. The three middle protocols carry the domain; the two brackets do not
+change from one domain to the next.
+
 The throughline Jeremy names for all of it is **accountability** — in his words,
 "we can build faster, but are we approaching what we said we wanted to do or
 moving further away from it." That sentiment is encoded in the system rather
 than just stated about it: Facia's fourth answer role, `convergence`, exists to
 answer "did this move us closer or further?", and Corus exists to evaluate
-whether declared objectives have been satisfied.
+whether declared objectives have been satisfied. Accountability is therefore a
+layer, not a slogan: Corus evaluates it, Facia's `convergence` role surfaces it,
+and **StratOS is that layer made into a product** — it turns "did we get what we
+said we wanted?" into a bounded, evidence-backed commitment decision.
 
 In market-facing language, the same throughline is: understand the workflow,
 identify the constraint, build and deploy the system, measure the result, and

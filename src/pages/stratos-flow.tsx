@@ -1221,24 +1221,24 @@ function RecruiterCaseSummary() {
     <section className="sf-x-case-summary" id="case-study" aria-labelledby="sf-x-case-title">
       <header>
         <span className="sf-x-overline">Klarna case study · the five-minute read</span>
-        <h2 id="sf-x-case-title">A strong AI pilot hid a capacity decision.</h2>
+        <h2 id="sf-x-case-title">A strong AI pilot surfaced a capacity decision.</h2>
         <p>I reframed the question from “Is the AI performing?” to “Is the operating system ready for the next commitment?”</p>
       </header>
       <div className="sf-x-case-grid">
         <article>
-          <span>01 · Problem</span>
+          <span>01 · Situation</span>
           <h3>Scaling looked rational.</h3>
           <p>AI handled two-thirds of chats, resolution time fell from 11 minutes to 2, satisfaction was reported on par with human agents, and profit improvement was projected at $40 million.</p>
         </article>
         <article>
-          <span>02 · Diagnosis</span>
-          <h3>The proof stopped at aggregate performance.</h3>
-          <p>Complex-case quality and escalated backlog were not separately measured, even as the human capacity receiving those cases was shrinking.</p>
+          <span>02 · Read</span>
+          <h3>The proof reached aggregate performance.</h3>
+          <p>Complex-case quality and escalated backlog each deserve their own signal—especially as human capacity for those cases becomes the binding resource.</p>
         </article>
         <article>
           <span>03 · Decision</span>
-          <h3>Hold the next increment—not the AI program.</h3>
-          <p>Reduce scope to demonstrated segments, protect exception capacity, and make further expansion conditional on segment-level evidence.</p>
+          <h3>Size the next increment to the evidence; keep the AI program running.</h3>
+          <p>Focus scope on demonstrated segments, protect exception capacity, and make further expansion conditional on segment-level evidence.</p>
         </article>
         <article>
           <span>04 · Product judgment</span>
@@ -1322,9 +1322,9 @@ function FlowDepth() {
         {ACTION_LEVELS.map(([level, name, question]) => <article key={level}><b>{level}</b><div><strong>{name}</strong><p>{question}</p></div></article>)}
       </div>
       <div className="sf-x-level-bridge" aria-label="From observed symptom to intervention level">
-        <article><span>Observed symptom</span><strong>BizOps · Internal condition</strong><p>Escalated work may accumulate while receiving human capacity shrinks.</p></article>
+        <article><span>Observed signal</span><strong>BizOps · Internal condition</strong><p>Escalated work concentrates where human capacity is the binding resource.</p></article>
         <b aria-hidden="true">→</b>
-        <article><span>Intervention</span><strong>L2 · Business case</strong><p>The missing capacity gate belongs in the architecture of the commitment.</p></article>
+        <article><span>Intervention</span><strong>L2 · Business case</strong><p>The capacity gate belongs in the architecture of the commitment.</p></article>
       </div>
       <details className="sf-x-disclosure">
         <summary>Explore the 60-cell accountability model <span aria-hidden="true">＋</span></summary>
@@ -1345,7 +1345,7 @@ export default function StratosFlowPage() {
         <header className="sf-x-hero">
           <span className="sf-x-overline">Product strategy · enterprise AI · decision intelligence</span>
           <h1>I turn ambiguous AI rollouts into <b>decisions teams can act on.</b></h1>
-          <p>In this Klarna case study, the headline metrics made expansion look rational. I identified the missing constraint—human exception capacity—and translated it into a bounded decision, an evidence plan, and a reassessment rule.</p>
+          <p>In this Klarna case study, the headline metrics made expansion look rational. I named the constraint that decides the next increment—human exception capacity—and turned it into a bounded decision, an evidence plan, and a reassessment rule.</p>
           <div className="sf-x-hero-actions"><a href="#case-study">Read the case</a><a href="#decision-lab">Make the decision yourself</a></div>
         </header>
 
@@ -1361,7 +1361,7 @@ export default function StratosFlowPage() {
             <p className="sf-x-work-thesis">Finding the underlying structure, defining the right conceptual model, and turning it into something teams can build, measure, and make decisions with.</p>
           </div>
           <div>
-            <p>StratOS is my attempt to make complex organizational decisions legible by showing where strategy, operations, and evidence agree—and where they diverge.</p>
+            <p>StratOS is my attempt to make complex organizational decisions legible by showing where strategy, operations, and evidence agree—and where they diverge. It is the accountability layer of a larger system: the part that answers whether an organization is getting what it said it wanted.</p>
             <div className="sf-x-capabilities" aria-label="Capabilities demonstrated by this case">
               {['Problem framing', 'Conceptual modeling', 'Systems thinking', 'Metric architecture', 'Product judgment', 'AI product thinking'].map((capability) => <span key={capability}>{capability}</span>)}
             </div>
