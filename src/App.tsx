@@ -276,7 +276,7 @@ function Home() {
           </p>
           <div className="home-hero-actions">
             <a href="/stratos-flow#case-study">Explore the Klarna decision <ArrowUpRight aria-hidden="true" /></a>
-            <a href="/stratos-flow#model">See the supporting model</a>
+            <a href="/method">Explore the method</a>
           </div>
         </div>
 
@@ -510,6 +510,7 @@ function ArrowUpIcon() {
 const StratosPage = lazy(() => import('@/pages/stratos'));
 const StratosV2Page = lazy(() => import('@/pages/stratos-v2'));
 const StratosFlowPage = lazy(() => import('@/pages/stratos-flow'));
+const MethodPage = lazy(() => import('@/pages/method'));
 const BlogPage = lazy(() => import('@/pages/blog'));
 const BlogPostPage = lazy(() => import('@/pages/blog-post'));
 const AboutPage = lazy(() => import('@/pages/about'));
@@ -530,6 +531,9 @@ function Router() {
         </Route>
         <Route path="/stratos-flow">
           {() => <Suspense fallback={null}><StratosFlowPage /></Suspense>}
+        </Route>
+        <Route path="/method">
+          {() => <Suspense fallback={null}><MethodPage /></Suspense>}
         </Route>
         {/*
          * Unlisted preview of the flow view, reachable only by its random path.

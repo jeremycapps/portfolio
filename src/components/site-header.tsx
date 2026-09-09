@@ -39,7 +39,7 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
         </a>
 
         <nav className="nav-actions" aria-label="Main navigation">
-          <a className="nav-link" href="/stratos-flow" data-testid="link-stratos" {...currentPage('stratos')}>StratOS</a>
+          <a className="nav-link" href="/method" data-testid="link-stratos" {...currentPage('stratos')}>Method</a>
           <a className="nav-link" href="/blog" data-testid="link-blog" {...currentPage('blog')}>Blog</a>
           <a className="nav-link" href="/about" data-testid="link-about" {...currentPage('about')}>About</a>
           <button className="avatar-button" type="button" onClick={() => showNotice(PROFILE_NOTICE)} aria-label="Open profile" data-testid="button-profile">
@@ -67,7 +67,7 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
         hidden={!menuOpen}
         data-testid="menu-mobile"
       >
-        <a href="/stratos-flow" data-testid="link-mobile-stratos" {...currentPage('stratos')}>StratOS</a>
+        <a href="/method" data-testid="link-mobile-stratos" {...currentPage('stratos')}>Method</a>
         <a href="/blog" data-testid="link-mobile-blog" {...currentPage('blog')}>Blog</a>
         <a href="/about" data-testid="link-mobile-about" {...currentPage('about')}>About</a>
         <button type="button" onClick={() => showNotice(PROFILE_NOTICE)} data-testid="button-mobile-profile">Profile</button>

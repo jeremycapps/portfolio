@@ -12,16 +12,27 @@ describe('site metadata', () => {
 
     expect(paths).toContain('/');
     expect(paths).toContain('/about');
+    expect(paths).toContain('/method');
     expect(paths).toContain('/stratos-flow');
     expect(paths).toContain('/blog/query-compiler-induced');
     expect(new Set(paths).size).toBe(paths.length);
+  });
+
+  it('positions the StratOS method as the accountability framework', () => {
+    const metadata = metadataForPath('/method');
+
+    expect(metadata?.title).toContain('StratOS Method');
+    expect(metadata?.description).toContain('twelve poles');
+    expect(metadata && canonicalUrl(metadata)).toBe(
+      'https://www.jeremycapps.com/method',
+    );
   });
 
   it('positions the StratOS flow as the bounded decision experience', () => {
     const metadata = metadataForPath('/stratos-flow');
 
     expect(metadata?.title).toContain('Klarna AI Rollout Case Study');
-    expect(metadata?.description).toContain('hidden capacity constraint');
+    expect(metadata?.description).toContain('human exception capacity');
     expect(metadata && canonicalUrl(metadata)).toBe(
       'https://www.jeremycapps.com/stratos-flow',
     );

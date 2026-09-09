@@ -44,6 +44,6 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     category: 'Decision infrastructure',
     description:
       'StratOS is the accountability layer as a product—the part of the stack that answers whether an organization is getting what it said it wanted. Using Klarna’s AI support rollout, it shows how a capacity constraint sits beneath strong aggregate metrics, and turns that read into a bounded decision, an evidence plan, and a reassessment rule.',
-    pageUrl: '/stratos-flow',
+    pageUrl: '/method',
   },
 ] as const;

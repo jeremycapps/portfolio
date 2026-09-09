@@ -15,10 +15,10 @@ describe('HOME_SYSTEMS', () => {
     expect(facia?.description).toContain('reusable interface recipe');
   });
 
-  it('links StratOS to its in-app route, not an external repo', () => {
+  it('links StratOS to the method route, not an external repo', () => {
     const stratos = HOME_SYSTEMS.find((s) => s.id === 'stratos');
     expect(stratos?.external).toBe(false);
-    expect(stratos?.href).toBe('/stratos-flow');
+    expect(stratos?.href).toBe('/method');
     expect(stratos?.category).toBe('Decision infrastructure');
     expect(stratos?.description).toContain('Klarna’s AI support rollout');
     expect(stratos?.description).toContain('evidence plan');
