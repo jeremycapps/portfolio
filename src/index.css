@@ -2270,7 +2270,6 @@ textarea:focus-visible {
    dark mode comes from redefining those tokens, not these rules.
    ============================================================ */
 .home-hero,
-.home-systems,
 .home-now,
 .home-ask-head {
   width: 100%;
@@ -2430,10 +2429,6 @@ textarea:focus-visible {
 .home-model-note b { color: var(--ink); }
 
 /* section framing */
-.home-systems {
-  margin-top: clamp(46px, 7vw, 84px);
-}
-
 .home-now {
   margin-top: clamp(30px, 4vw, 48px);
 }
@@ -2462,134 +2457,6 @@ textarea:focus-visible {
   font-weight: 500;
 }
 
-/* score cards */
-.home-systems-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  align-items: stretch;
-}
-
-.home-system-card {
-  --card-accent: var(--a-libera);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 22px 22px 20px;
-  border: 1px solid var(--line-soft);
-  border-radius: 20px;
-  background: var(--surface-grad);
-  box-shadow: var(--shadow);
-  color: inherit;
-  text-decoration: none;
-  transition: transform 180ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 180ms ease;
-}
-
-.home-system-card.accent-libera { --card-accent: var(--a-libera); }
-.home-system-card.accent-facia { --card-accent: var(--a-facia); }
-.home-system-card.accent-stratos { --card-accent: var(--a-stratos); }
-
-.home-system-card:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--card-accent) 45%, var(--line));
-}
-
-.home-system-card:focus-visible {
-  outline: 2px solid var(--card-accent);
-  outline-offset: 3px;
-}
-
-.home-system-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.home-system-name {
-  color: var(--ink);
-  font-size: 21px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.home-system-cat {
-  margin-top: 5px;
-  color: var(--card-accent);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.home-system-glyph {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  flex: none;
-  place-items: center;
-  border-radius: 10px;
-  color: var(--card-accent);
-  background: color-mix(in srgb, var(--card-accent) 15%, transparent);
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.home-system-desc {
-  flex: 1;
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 13.5px;
-  line-height: 1.55;
-}
-
-.home-system-axis {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.home-system-poles {
-  display: flex;
-  justify-content: space-between;
-  color: var(--faint);
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.home-system-track {
-  position: relative;
-  height: 5px;
-  border-radius: 3px;
-  border: 1px solid var(--line-soft);
-  background: var(--surface-2);
-}
-
-.home-system-dot {
-  position: absolute;
-  top: 50%;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--card-accent);
-  border: 2px solid var(--surface);
-}
-
-.home-system-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--card-accent);
-  font-size: 12.5px;
-  font-weight: 700;
-}
-
-.home-system-cta svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2;
-}
 
 /* now */
 .home-now-title {
@@ -2862,10 +2729,6 @@ textarea:focus-visible {
   margin: 16px 0 0;
 }
 
-.home-hero + .home-systems,
-.home-case-proof + .home-systems {
-  margin-top: clamp(46px, 7vw, 84px);
-}
 
 /* connect — the sources strip, brought into the instrument look: left-aligned,
    Manrope, sitting quietly under the ask instead of centered on its own. */
@@ -2911,8 +2774,7 @@ textarea:focus-visible {
 }
 
 @media (max-width: 720px) {
-  .home-case-proof-grid,
-  .home-systems-grid {
+  .home-case-proof-grid {
     grid-template-columns: 1fr;
   }
 
