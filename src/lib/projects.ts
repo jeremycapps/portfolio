@@ -25,7 +25,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
   {
     id: 'libera',
     name: 'Libera',
-    category: 'Context infrastructure',
+    category: 'Runtime infrastructure',
     description:
       'Libera turns the meaning inside documents and workflows—rules, evidence, decisions, state—into reusable software context. Its tested runtime executes those models deterministically; the next layer packages them for deployment across APIs, agents, and apps.',
     repositoryUrl: 'https://github.com/jeremycapps/libera',
@@ -43,7 +43,7 @@ export const PORTFOLIO_PROJECTS: readonly PortfolioProject[] = [
     name: 'StratOS',
     category: 'Decision infrastructure',
     description:
-      'Using Klarna’s AI support rollout, StratOS shows how strong aggregate metrics can hide a shrinking human exception system—and turns that diagnosis into a bounded hold, evidence plan, and reassessment rule.',
-    pageUrl: '/stratos-flow',
+      'StratOS is the accountability layer as a product—the part of the stack that answers whether an organization is getting what it said it wanted. Using Klarna’s AI support rollout, it shows how a capacity constraint sits beneath strong aggregate metrics, and turns that read into a bounded decision, an evidence plan, and a reassessment rule.',
+    pageUrl: '/method',
   },
 ] as const;

@@ -267,34 +267,18 @@ function Home() {
         aria-labelledby={chatActive ? undefined : 'hero-title'}
       >
         <div className="intro home-hero">
-          <p className="home-eyebrow" data-testid="text-eyebrow">Klarna case study &middot; product judgment for enterprise AI</p>
+          <p className="home-eyebrow" data-testid="text-eyebrow">Product judgment for enterprise AI</p>
           <h1 className="home-thesis" id="hero-title">
             I turn ambiguous AI rollouts into <span>decisions teams can act on.</span>
           </h1>
           <p className="home-sub">
-            Klarna’s headline metrics made expansion look rational. I identified the missing constraint&mdash;human exception capacity&mdash;and translated it into a bounded decision, an evidence plan, and a reassessment rule.
+            I find where AI can take load off the people and processes already doing the work, prove the boundary with evidence, and carry a prototype through to something an organization can run.
           </p>
           <div className="home-hero-actions">
             <a href="/stratos-flow#case-study">Explore the Klarna decision <ArrowUpRight aria-hidden="true" /></a>
-            <a href="/stratos-flow#model">See the supporting model</a>
+            <a href="/method">Explore the method</a>
           </div>
         </div>
-
-        {!chatActive && (
-          <section className="home-case-proof" aria-labelledby="home-case-proof-title">
-            <div className="home-sec-head">
-              <p className="home-sec-tag">The case in one scan</p>
-              <p className="home-sec-note">Problem → diagnosis → bounded action</p>
-            </div>
-            <h2 id="home-case-proof-title" className="sr-only">Klarna case study summary</h2>
-            <div className="home-case-proof-grid">
-              <article><span>Problem</span><strong>AI handled ⅔ of chats and cut resolution time from 11 minutes to 2.</strong><p>Further scaling looked rational while human support capacity continued to shrink.</p></article>
-              <article><span>Diagnosis</span><strong>Aggregate performance did not prove complex-case resilience.</strong><p>Quality, high-severity outcomes, and escalated backlog age were not separately measured.</p></article>
-              <article><span>Decision</span><strong>Hold the next increment—not the AI program.</strong><p>Reduce scope, protect exception capacity, and gate expansion on segment-level evidence.</p></article>
-            </div>
-            <p className="home-model-note"><b>Model used:</b> 3 enterprise questions × 2 operating altitudes × 2 loci of evidence. The model supports the diagnosis; the case demonstrates the judgment.</p>
-          </section>
-        )}
 
         {chatActive && (
           <div className="conversation-pane" role="region" aria-label="Conversation">
@@ -328,8 +312,8 @@ function Home() {
         {!chatActive && (
           <section className="home-systems" aria-labelledby="home-systems-title">
             <div className="home-sec-head">
-              <p className="home-sec-tag">The work &middot; three systems</p>
-              <p className="home-sec-note">Each sits between two poles it's actually about</p>
+              <p className="home-sec-tag">What I can do</p>
+              <p className="home-sec-note">One stack &middot; runtime, interface, and decision infrastructure</p>
             </div>
             <h2 id="home-systems-title" className="sr-only">Selected systems</h2>
             <HomeSystems />
@@ -338,7 +322,11 @@ function Home() {
 
         {!chatActive && (
           <section className="home-now" aria-labelledby="home-now-title">
-            <h2 id="home-now-title" className="home-now-title">What I'm doing now</h2>
+            <div className="home-sec-head">
+              <p className="home-sec-tag">Where I've done it</p>
+              <p className="home-sec-note">Engineering, operations, and product &mdash; the same move across each</p>
+            </div>
+            <h2 id="home-now-title" className="sr-only">Where I've done it</h2>
             <div className="home-now-grid">
               <a
                 className="home-now-item"
@@ -368,7 +356,47 @@ function Home() {
                   <p className="home-now-meta">2025 &ndash; 2026 &middot; cultural-systems research</p>
                 </div>
               </a>
+              <div className="home-now-item">
+                <span className="home-now-dot accent-libera" aria-hidden="true" />
+                <div>
+                  <p className="home-now-role">Design Systems / Frontend Engineer</p>
+                  <p className="home-now-org">Zocdoc</p>
+                  <p className="home-now-meta">2021 &ndash; 2024 &middot; design-system migration, frontend A/B experiment</p>
+                </div>
+              </div>
+              <div className="home-now-item">
+                <span className="home-now-dot accent-facia" aria-hidden="true" />
+                <div>
+                  <p className="home-now-role">Software / Product Engineer</p>
+                  <p className="home-now-org">Applied Software</p>
+                  <p className="home-now-meta">2019 &ndash; 2021 &middot; construction-data integrations, C#</p>
+                </div>
+              </div>
+              <div className="home-now-item">
+                <span className="home-now-dot accent-stratos" aria-hidden="true" />
+                <div>
+                  <p className="home-now-role">Software Engineer</p>
+                  <p className="home-now-org">Genesco</p>
+                  <p className="home-now-meta">2017 &ndash; 2019 &middot; legacy COBOL &rarr; Java modernization</p>
+                </div>
+              </div>
             </div>
+          </section>
+        )}
+
+        {!chatActive && (
+          <section className="home-case-proof" aria-labelledby="home-case-proof-title">
+            <div className="home-sec-head">
+              <p className="home-sec-tag">Case studies</p>
+              <p className="home-sec-note">Decisions, shaped by evidence</p>
+            </div>
+            <h2 id="home-case-proof-title" className="sr-only">Case studies</h2>
+            <div className="home-case-proof-grid">
+              <article><span>Context</span><strong>Klarna&rsquo;s AI handled two-thirds of chats and brought resolution time from 11 minutes to 2.</strong><p>A clear moment to size the next increment to the health of the human exception path.</p></article>
+              <article><span>Read</span><strong>Aggregate performance and complex-case resilience are two distinct measurements.</strong><p>Quality, high-severity outcomes, and escalated backlog age each earn their own signal.</p></article>
+              <article><span>Decision</span><strong>Advance the AI program, and size the next increment to the evidence.</strong><p>Protect exception capacity and gate expansion on segment-level signals.</p></article>
+            </div>
+            <p className="home-model-note"><b>Model:</b> 3 enterprise questions &times; 2 operating altitudes &times; 2 loci of evidence. The model supports the read; the case shows the judgment. <a href="/stratos-flow#case-study">Explore the Klarna decision &rarr;</a></p>
           </section>
         )}
 
@@ -482,6 +510,7 @@ function ArrowUpIcon() {
 const StratosPage = lazy(() => import('@/pages/stratos'));
 const StratosV2Page = lazy(() => import('@/pages/stratos-v2'));
 const StratosFlowPage = lazy(() => import('@/pages/stratos-flow'));
+const MethodPage = lazy(() => import('@/pages/method'));
 const BlogPage = lazy(() => import('@/pages/blog'));
 const BlogPostPage = lazy(() => import('@/pages/blog-post'));
 const AboutPage = lazy(() => import('@/pages/about'));
@@ -502,6 +531,9 @@ function Router() {
         </Route>
         <Route path="/stratos-flow">
           {() => <Suspense fallback={null}><StratosFlowPage /></Suspense>}
+        </Route>
+        <Route path="/method">
+          {() => <Suspense fallback={null}><MethodPage /></Suspense>}
         </Route>
         {/*
          * Unlisted preview of the flow view, reachable only by its random path.

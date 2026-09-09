@@ -38,6 +38,14 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     lastModified: BLOG_POSTS[0]?.date,
   },
   {
+    path: '/method',
+    title: 'StratOS Method — Jeremy Capps',
+    description:
+      'A clear guide to the StratOS accountability method: twelve poles, divergence, L1–L5 intervention, and evidence-sized commitments.',
+    kind: 'application',
+    lastModified: '2026-09-09',
+  },
+  {
     path: '/stratos',
     title: 'StratOS — Strategy Tension Instrument',
     description:
@@ -56,7 +64,7 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     path: '/stratos-flow',
     title: 'Klarna AI Rollout Case Study — Jeremy Capps',
     description:
-      'A product-strategy case study showing how Jeremy Capps identified the hidden capacity constraint in Klarna’s AI support rollout and converted it into a bounded decision and evidence plan.',
+      'A product-strategy case study showing how Jeremy Capps named human exception capacity as the constraint that sizes Klarna’s next AI-support increment.',
     kind: 'application',
     lastModified: '2026-09-08',
   },

@@ -23,8 +23,8 @@ describe('project explanation picker', () => {
     expect(PORTFOLIO_PROJECTS[1].description).toContain('reusable interface recipe');
     expect(PORTFOLIO_PROJECTS[2]).toMatchObject({
       category: 'Decision infrastructure',
-      pageUrl: '/stratos-flow',
+      pageUrl: '/method',
     });
-    expect(PORTFOLIO_PROJECTS[2].description).toContain('shrinking human exception system');
+    expect(PORTFOLIO_PROJECTS[2].description).toContain('accountability layer as a product');
   });
 });

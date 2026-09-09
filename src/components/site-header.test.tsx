@@ -15,8 +15,8 @@ describe('SiteHeader', () => {
     expect(markup).toContain('link-mobile-blog');
     expect(markup).toContain('link-about');
     expect(markup).toContain('link-mobile-about');
-    expect(markup).toContain('href="/stratos-flow"');
-    expect(markup).toContain('StratOS');
+    expect(markup).toContain('href="/method"');
+    expect(markup).toContain('Method');
   });
 
   it('marks only the current section in both navigation variants', () => {
