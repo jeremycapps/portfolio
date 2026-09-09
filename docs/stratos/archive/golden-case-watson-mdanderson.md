@@ -33,8 +33,8 @@
 
 | id | title | publisher | kind | publishedAt | url |
 |---|---|---|---|---|---|
-| `mda-ibm-announce-2013` | MD Anderson Taps IBM Watson to Power "Moon Shots" Mission | MD Anderson / IBM | company-release | 2013-10-18 | (MD Anderson newsroom / IBM press — confirm exact URL) |
-| `ut-audit-2017` | Special Review of Procurement Practices, Oncology Expert Advisor Project | University of Texas System (Audit Office) | audit-report | 2017-02 (dated Nov 2016, released Feb 2017) | (UT System audit office PDF — confirm exact URL) |
+| `mda-ibm-announce-2013` | MD Anderson Taps IBM Watson to Power "Moon Shots" Mission | MD Anderson / IBM (PR Newswire) | company-release | 2013-10-18 | https://www.prnewswire.com/news-releases/md-anderson-taps-ibm-watson-to-power-moon-shots-mission-aimed-at-ending-cancer-starting-with-leukemia-228348161.html |
+| `ut-audit-2017` | UTMDACC Special Review of Procurement Procedures Related to Oncology Expert Advisor Project | University of Texas System (System Audit Office) | audit-report | 2016-11 (press coverage Feb 2017) | https://www.utsystem.edu/documents/docs/financial/utmdacc-special-review-procurement-procedures-related-oncology-expert |
 | `statnews-2017` | IBM's Watson supercomputer recommended "unsafe and incorrect" cancer treatments… / MD Anderson coverage | STAT News | trade-press | 2017-09-05 | https://www.statnews.com/2017/09/05/watson-ibm-cancer/ |
 | `forbes-herper-2017` | MD Anderson Benches IBM Watson In Setback For Artificial Intelligence In Medicine | Forbes (Matthew Herper) | trade-press | 2017-02-19 | https://www.forbes.com/sites/matthewherper/2017/02/19/md-anderson-benches-ibm-watson-in-setback-for-artificial-intelligence-in-medicine/ |
 | `chron-2017` | Touted IBM supercomputer project at MD Anderson on hold | Houston Chronicle | trade-press | 2017-02 | https://www.houstonchronicle.com/news/houston-texas/houston/article/Touted-IBM-supercomputer-project-at-MD-Anderson-10941783.php |

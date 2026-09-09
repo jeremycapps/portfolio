@@ -26,7 +26,7 @@
 
 ## Sources (map to `sources[]`)
 
-> **Source-kind note:** the 2024-02-27 release is a primary company release (self-reported, unsegmented — treat CSAT "on par" as ESTIMATED, not OBSERVED). The Pragmatic Engineer piece is contemporaneous independent analysis available *at* the decision date — it is the challenger's no-hindsight ammunition. The Bloomberg reversal is HINDSIGHT and must never feed the dated verdict.
+> **Source-kind note:** the 2024-02-27 release is a primary company release. A company or vendor release, or an interview, is authoritative for what the company **did** (a launch, an acquisition, a date) and unreliable for how well it **worked** — so every *quantitative* claim resting on it alone is ESTIMATED, never OBSERVED, unless an independent source corroborates it. That covers CSAT "on par", the 2.3M conversations, the two-thirds share, the 11→2 min figure and the reach numbers. Enforced by `npm run audit:case-sources`. The Pragmatic Engineer piece is contemporaneous independent analysis available *at* the decision date — it is the challenger's no-hindsight ammunition. The Bloomberg reversal is HINDSIGHT and must never feed the dated verdict.
 
 | id | title | publisher | kind | publishedAt | url |
 |---|---|---|---|---|---|
@@ -40,12 +40,12 @@
 
 | fact | value | status | source |
 |---|---|---|---|
-| First-month conversations | 2.3M | OBSERVED | klarna-pr-2024 |
-| Share of support chats | two-thirds | OBSERVED | klarna-pr-2024 |
+| First-month conversations | 2.3M | ESTIMATED (self-reported) | klarna-pr-2024 |
+| Share of support chats | two-thirds | ESTIMATED (self-reported) | klarna-pr-2024 |
 | FTE-equivalent | 700 agents (mostly outsourced) | ESTIMATED | klarna-pr-2024 / pragmatic-2024 |
-| Resolution time | 11 min → 2 min | OBSERVED | klarna-pr-2024 |
+| Resolution time | 11 min → 2 min | ESTIMATED (self-reported; **not like-for-like** — the AI's handle time on deflected simple tickets against the prior *human* average across the full mix. It fell partly because the easy work moved out.) | klarna-pr-2024 |
 | Repeat inquiries | −25% | ESTIMATED | klarna-pr-2024 |
-| Reach | 23 markets, 35+ languages, 24/7 | OBSERVED | klarna-pr-2024 |
+| Reach | 23 markets, 35+ languages, 24/7 | ESTIMATED (self-reported) | klarna-pr-2024 |
 | Projected profit | $40M (2024) | ESTIMATED | klarna-pr-2024 |
 | CSAT | "on par with human agents" (aggregate, unsegmented) | ESTIMATED | klarna-pr-2024 |
 | Automation depth | L1 only — complex always transfers | OBSERVED | pragmatic-2024 |
@@ -98,11 +98,13 @@ The L3 collision has named owners and a dated, on-the-ground signal that precede
 **Who:**
 - **Champion:** Sebastian Siemiatkowski (CEO) — the AI-first thesis and the claims.
 - **Build (clears):** Klarna Engineering — Martin Elwin, Sr. Director of Engineering — with OpenAI (Brad Lightcap, COO) as model partner.
-- **Bore the cost (breaks):** ~250 staff → **Foundever** (Sep 2023); ~500 roles → **Foundever + Accenture** (Oct 2023; Accenture took financial-crime prevention); external agent pool ~3,000 → ~2,300.
+- **Bore the cost (breaks):** ~250 staff → **Foundever** (Sep 2023); ~500 roles → **Foundever + Accenture** (Oct 2023; Accenture took financial-crime prevention); external agent pool ~3,000 → "a little more than 2,000" (CEO, 2024-03-05 — **post-launch**, see `cbs-2024`).
 
 **The backlog signal — the metric they should have watched.** Following the 750 outsourced roles, unresolved customer/merchant queries **quadrupled**; merchants waited **up to a month** (two outsourced employees + internal documents, per Sifted). Concentrated in merchant / smaller-business queries across the UK, Belgium, the Netherlands, and France — the judgment-heavy segment.
 
 **Timeline — the cuts came first.** The outsourcing (Sep–Oct 2023) and the quadrupled backlog **predate the Feb 2024 assistant launch**. The AI was deployed onto a queue that was already backing up. So deflection and blended CSAT (Feb 2024) measured throughput *share* on a system whose real health metric — **backlog / queue depth (arrivals vs completions)** — was already red, and moving *opposite* to deflection: the more the assistant deflected simple tickets, the more the complex queue piled into the human capacity that had just been cut.
+
+> **Scope note (2026-09-08).** This claim rests on the **transfers** (Sep–Oct 2023, Sifted ×2) and the **backlog** (Sifted) — both pre-launch and independently reported. It does **not** rest on the external agent-pool reduction (3,000 → 2,000+), which was stated in March 2024 and attributed by Klarna to the AI. That figure is **post-launch** and cannot evidence a pre-launch condition.
 
 **Implication:** the correct guiding metric is **queue depth / backlog age by segment**, not deflection or blended CSAT. Backlog is the leading indicator of the break; it was observable in late 2023; it was not the steering metric.
 
@@ -114,6 +116,7 @@ The L3 collision has named owners and a dated, on-the-ground signal that precede
 | sifted-cut-500 | "Klarna transfers another 500 jobs globally to Foundever and Accenture" | Sifted | news | 2023-10 | https://sifted.eu/articles/klarna-outsources-another-500-jobs-globally-news |
 | sifted-backlog | "Support backlog grows at Klarna following outsourcing of roles, former employees say" | Sifted | news | ~2024 | https://sifted.eu/articles/support-backlog-grows-at-klarna-following-outsourcing-of-roles-former-employees-say-news |
 | cxdive-uber | "Klarna pursues 'Uber' style customer service model" | CX Dive | news | 2025 | https://www.customerexperiencedive.com/news/klarna-pursues-uber-style-customer-service-model/812763/ |
+| cbs-2024 | "Klarna CEO says AI can do the job of 700 workers" (Siemiatkowski interview) | CBS News | interview (self-reported) | 2024-03-05 | https://www.cbsnews.com/news/klarna-ceo-ai-chatbot-replacing-workers-sebastian-siemiatkowski/ |
 
 ### Additional facts (add to `facts[]`)
 
@@ -123,9 +126,9 @@ The L3 collision has named owners and a dated, on-the-ground signal that precede
 | Outsourcing partners | Foundever (support); Accenture (financial-crime prevention) | OBSERVED | sifted-cut-500 |
 | Unresolved queries after outsourcing | quadrupled | OBSERVED | sifted-backlog |
 | Merchant support wait | up to one month | OBSERVED | sifted-backlog |
-| External agent pool | ~3,000 → ~2,300 | OBSERVED | bigeye |
+| External agent pool | ~3,000 → "a little more than 2,000" (CEO's words). Contractors, not employees; reduced by **contract adjustment**, not layoffs or attrition. **Post-launch:** stated 2024-03-05 and attributed by Klarna to the AI. *(The "~2,300" previously carried here was 3,000 minus the 700-FTE marketing claim — a derived figure, never a reported headcount.)* | ESTIMATED (self-reported) | cbs-2024 |
 | Build lead | Martin Elwin, Sr. Director of Engineering | OBSERVED | — |
-| Cut-vs-launch ordering | cuts + backlog (late 2023) precede AI launch (Feb 2024) | OBSERVED | sifted / klarna-pr-2024 |
+| Cut-vs-launch ordering | cuts + backlog (late 2023) precede AI launch (Feb 2024) | OBSERVED | sifted-cut-250 / sifted-cut-500 / sifted-backlog / klarna-pr-2024 |
 
 ## The measurement layer — 60 metrics (12 poles × L1–L5)
 
@@ -152,9 +155,10 @@ and instrumented. Klarna's failure is legible as specific cells that were owned 
 
 **The three decisive cells (bold above):** `CPO·L2 Capacity vs. demand` is the gate that would
 have caught the cut before it shipped; `COO·L2 Exception-handling design` is the collision node
-(AI always transfers → complex queue → cut population); `COO·L4 Backlog age by segment` and
-`CPO·L4 Buffer%·attrition·ρ` are the operating floors that were red before launch and never
-steered on; `CFO·L5 Net savings vs. baseline (GL)` is where the $40M has to net against the
+(AI always transfers → complex queue → cut population); `COO·L4 Backlog age by segment` is the operating floor
+that was red before launch (quadrupled, Sifted) and never steered on, with
+`CPO·L4 Buffer%·attrition·ρ` the floor that was **never instrumented at all** — no public figure
+establishes its pre-launch value; `CFO·L5 Net savings vs. baseline (GL)` is where the $40M has to net against the
 un-booked remediation.
 
 ### L4 operations reading (Klarna)
@@ -162,10 +166,19 @@ un-booked remediation.
 The dashboard Klarna *watched* was the green half — deflection share, blended CSAT, average
 handle time, projected savings. The dashboard that would have shown the break was the **floor
 half, and it was dark**: `COO·L4` backlog age by segment (red, quadrupled, pre-launch),
-`CPO·L4` load factor ρ on the starved complex queue (ρ≈0.7→0.94 after −750 agents; Kingman
-says wait goes vertical as ρ→1), `CDO·L4` signal latency (no leading indicator wired at the
-complex-segment grain). A green aggregate sitting on top of a red floor is the signature of an
+`CPO·L4` skill coverage on the starved complex queue — how many agents remained **qualified**
+for disputes, fraud and hardship after Accenture took financial-crime prevention (never
+reported), `CDO·L4` signal latency (no leading indicator wired at the complex-segment grain). A green aggregate sitting on top of a red floor is the signature of an
 aggregation-grain failure.
+
+> **On queueing math (2026-09-08).** An earlier revision carried a load factor of ρ≈0.7→0.94
+> here. Removed: it derived from the agent-pool figure above, so it described the world *after*
+> the increment while being used to argue against taking it — circular, and outside the
+> cutoff-safe rule. Queueing theory (Kingman; square-root staffing) remains the correct account
+> of the **mechanism** — waiting is driven by utilization, variability and handle time, and
+> deflection raises the latter two on the residual queue by removing the regular work that
+> averaged them out — but no public figure supports a **magnitude**. Use it to explain the
+> mechanism; never to evidence a number. The case stands on structure and timeline without it.
 
 ### L5 audit reading (Klarna)
 
@@ -207,8 +220,8 @@ next section for how the market changes it):
 **Klarna as a verdict-type failure:** the two L2 hard gates (`CPO·L2 Capacity vs. demand`,
 `COO·L2 Exception-handling design`) were run as if soft ("proceed, revisit later"); the L3 hard
 gate `CDO·L3 Instrumented signals %` was skipped (launched blind to the complex-segment grain);
-the L4 floors (`COO·L4 Backlog age`, `CPO·L4 Buffer·attr·ρ`) were already breached before launch
-with no floor defined to fire the rollback; and `CFO·L5 Savings vs. baseline` passed a floor that
+the L4 floor `COO·L4 Backlog age` was already breached before launch with no floor defined to
+fire the rollback (and `CPO·L4 Buffer·attr·ρ` was never measured, so no breach can be asserted); and `CFO·L5 Savings vs. baseline` passed a floor that
 was never actually measured. In one line: **Klarna ran soft-gate logic where the lifecycle
 demanded hard gates and floors.**
 
