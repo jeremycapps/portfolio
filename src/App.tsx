@@ -511,6 +511,7 @@ const StratosPage = lazy(() => import('@/pages/stratos'));
 const StratosV2Page = lazy(() => import('@/pages/stratos-v2'));
 const StratosFlowPage = lazy(() => import('@/pages/stratos-flow'));
 const MethodPage = lazy(() => import('@/pages/method'));
+const ZocdocPage = lazy(() => import('@/pages/zocdoc'));
 const BlogPage = lazy(() => import('@/pages/blog'));
 const BlogPostPage = lazy(() => import('@/pages/blog-post'));
 const AboutPage = lazy(() => import('@/pages/about'));
@@ -534,6 +535,9 @@ function Router() {
         </Route>
         <Route path="/method">
           {() => <Suspense fallback={null}><MethodPage /></Suspense>}
+        </Route>
+        <Route path="/work/zocdoc">
+          {() => <Suspense fallback={null}><ZocdocPage /></Suspense>}
         </Route>
         {/*
          * Unlisted preview of the flow view, reachable only by its random path.
