@@ -46,6 +46,14 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     lastModified: '2026-09-09',
   },
   {
+    path: '/ask',
+    title: 'Ask the Assistant — Jeremy Capps',
+    description:
+      'Ask an assistant about Jeremy Capps’s work—his projects, experience, and thinking—answered from a curated profile.',
+    kind: 'application',
+    lastModified: '2026-09-09',
+  },
+  {
     path: '/work/zocdoc',
     title: 'Zocdoc Design-System Migration — Jeremy Capps',
     description:

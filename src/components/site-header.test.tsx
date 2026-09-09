@@ -15,6 +15,9 @@ describe('SiteHeader', () => {
     expect(markup).toContain('link-mobile-blog');
     expect(markup).toContain('link-about');
     expect(markup).toContain('link-mobile-about');
+    expect(markup).toContain('link-ask');
+    expect(markup).toContain('link-mobile-ask');
+    expect(markup).toContain('href="/ask"');
     expect(markup).toContain('href="/method"');
     expect(markup).toContain('Method');
   });

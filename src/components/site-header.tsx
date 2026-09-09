@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Menu, Sparkles, X } from 'lucide-react';
 
-export type SiteSection = 'portfolio' | 'stratos' | 'blog' | 'about';
+export type SiteSection = 'portfolio' | 'stratos' | 'blog' | 'about' | 'ask';
 
 interface SiteHeaderProps {
   current?: SiteSection;
@@ -42,6 +42,7 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
           <a className="nav-link" href="/method" data-testid="link-stratos" {...currentPage('stratos')}>Method</a>
           <a className="nav-link" href="/blog" data-testid="link-blog" {...currentPage('blog')}>Blog</a>
           <a className="nav-link" href="/about" data-testid="link-about" {...currentPage('about')}>About</a>
+          <a className="nav-link" href="/ask" data-testid="link-ask" {...currentPage('ask')}>Ask</a>
           <button className="avatar-button" type="button" onClick={() => showNotice(PROFILE_NOTICE)} aria-label="Open profile" data-testid="button-profile">
             JC
           </button>
@@ -70,6 +71,7 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
         <a href="/method" data-testid="link-mobile-stratos" {...currentPage('stratos')}>Method</a>
         <a href="/blog" data-testid="link-mobile-blog" {...currentPage('blog')}>Blog</a>
         <a href="/about" data-testid="link-mobile-about" {...currentPage('about')}>About</a>
+        <a href="/ask" data-testid="link-mobile-ask" {...currentPage('ask')}>Ask</a>
         <button type="button" onClick={() => showNotice(PROFILE_NOTICE)} data-testid="button-mobile-profile">Profile</button>
       </nav>
 
