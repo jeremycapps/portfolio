@@ -23,13 +23,6 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     kind: 'home',
   },
   {
-    path: '/about',
-    title: 'About Jeremy Capps — Systems Engineer and Operator',
-    description:
-      'Jeremy Capps builds systems and shared understanding that keep complex work legible and accountable as it grows.',
-    kind: 'profile',
-  },
-  {
     path: '/blog',
     title: 'Writing — Jeremy Capps',
     description:
@@ -38,7 +31,7 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     lastModified: BLOG_POSTS[0]?.date,
   },
   {
-    path: '/method',
+    path: '/blog/method',
     title: 'StratOS Method — Jeremy Capps',
     description:
       'A clear guide to the StratOS accountability method: twelve poles, divergence, L1–L5 intervention, and evidence-sized commitments.',

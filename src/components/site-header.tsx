@@ -1,29 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Menu, Sparkles, X } from 'lucide-react';
+import { useState } from 'react';
+import { Menu, X } from 'lucide-react';
 
-export type SiteSection = 'portfolio' | 'stratos' | 'blog' | 'about' | 'ask';
+export type SiteSection = 'portfolio' | 'stratos' | 'blog' | 'ask';
 
 interface SiteHeaderProps {
   current?: SiteSection;
   onNotice?: (message: string) => void;
 }
 
-const PROFILE_NOTICE = "This is Jeremy's portfolio — ask the assistant about his work.";
-
-export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
+export function SiteHeader({ current }: SiteHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [internalNotice, setInternalNotice] = useState('');
-
-  useEffect(() => {
-    if (!internalNotice) return;
-    const timeout = window.setTimeout(() => setInternalNotice(''), 3400);
-    return () => window.clearTimeout(timeout);
-  }, [internalNotice]);
-
-  const showNotice = (message: string) => {
-    if (onNotice) onNotice(message);
-    else setInternalNotice(message);
-  };
   const currentPage = (section: SiteSection) => (
     current === section ? { 'aria-current': 'page' as const } : {}
   );
@@ -32,20 +18,12 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
     <>
       <header className="topbar">
         <a className="brand" href="/" data-testid="link-brand">
-          <span className="brand-mark" aria-hidden="true">
-            <Sparkles />
-          </span>
-          <span data-testid="text-brand-name">Jeremy Capps</span>
+          <span data-testid="text-brand-name">JEREMY CAPPS</span>
         </a>
 
         <nav className="nav-actions" aria-label="Main navigation">
-          <a className="nav-link" href="/method" data-testid="link-stratos" {...currentPage('stratos')}>Method</a>
           <a className="nav-link" href="/blog" data-testid="link-blog" {...currentPage('blog')}>Blog</a>
-          <a className="nav-link" href="/about" data-testid="link-about" {...currentPage('about')}>About</a>
           <a className="nav-link" href="/ask" data-testid="link-ask" {...currentPage('ask')}>Ask</a>
-          <button className="avatar-button" type="button" onClick={() => showNotice(PROFILE_NOTICE)} aria-label="Open profile" data-testid="button-profile">
-            JC
-          </button>
         </nav>
 
         <button
@@ -68,16 +46,9 @@ export function SiteHeader({ current, onNotice }: SiteHeaderProps) {
         hidden={!menuOpen}
         data-testid="menu-mobile"
       >
-        <a href="/method" data-testid="link-mobile-stratos" {...currentPage('stratos')}>Method</a>
         <a href="/blog" data-testid="link-mobile-blog" {...currentPage('blog')}>Blog</a>
-        <a href="/about" data-testid="link-mobile-about" {...currentPage('about')}>About</a>
         <a href="/ask" data-testid="link-mobile-ask" {...currentPage('ask')}>Ask</a>
-        <button type="button" onClick={() => showNotice(PROFILE_NOTICE)} data-testid="button-mobile-profile">Profile</button>
       </nav>
-
-      {!onNotice && internalNotice && (
-        <div className="toast-message" role="status">{internalNotice}</div>
-      )}
     </>
   );
 }

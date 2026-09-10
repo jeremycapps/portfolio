@@ -1,7 +1,13 @@
 import { ArrowRight } from 'lucide-react';
 import { SiteHeader } from '@/components/site-header';
 import { LOCUS, PAIR_QUESTION, TENSIONS, type Tension } from '@/lib/stratos/ontology';
+import { SOURCES } from '@/lib/stratos/sources';
 import './method.css';
+
+// The works the pole lenses draw on, in author order.
+const REFERENCES = Object.entries(SOURCES).sort(
+  ([, a], [, b]) => a.author.localeCompare(b.author),
+);
 
 const ENTERPRISE_QUESTIONS: readonly {
   pair: Tension['pair'];
@@ -71,7 +77,7 @@ export default function MethodPage() {
           </p>
           <div className="method-actions">
             <a href="#questions">Build the method <ArrowRight aria-hidden="true" /></a>
-            <a href="/stratos-flow#case-study">See it applied to Klarna</a>
+            <a href="/work/zocdoc">See the judgment in practice</a>
           </div>
         </header>
 
@@ -248,9 +254,29 @@ export default function MethodPage() {
             <article><span>Convergence</span><strong>Are we approaching the declared objective?</strong></article>
           </div>
           <div className="method-final-actions">
-            <a href="/stratos-flow#case-study">Read the Klarna perspective <ArrowRight aria-hidden="true" /></a>
-            <a href="/stratos">Open the full instrument</a>
+            <a href="/stratos">Open the full instrument <ArrowRight aria-hidden="true" /></a>
+            <a href="/work/zocdoc">See the judgment in practice</a>
           </div>
+        </section>
+
+        <section className="method-section method-references" id="references" aria-labelledby="references-title">
+          <div className="method-section-head">
+            <span>Sources</span>
+            <h2 id="references-title">The works the lenses draw on.</h2>
+            <p>Each pole reads the decision through an established frame. These are the sources those frames come from.</p>
+          </div>
+          <ol className="method-refs-list">
+            {REFERENCES.map(([id, source]) => (
+              <li key={id} id={`source-${id}`}>
+                <a href={source.url} target="_blank" rel="noreferrer noopener">
+                  {source.author} ({source.year}). <cite>{source.title}</cite>
+                  {source.publisher ? `. ${source.publisher}` : ''}
+                  <ArrowRight aria-hidden="true" />
+                </a>
+                <span className="method-refs-pillar">{source.pillar}</span>
+              </li>
+            ))}
+          </ol>
         </section>
       </main>
     </div>

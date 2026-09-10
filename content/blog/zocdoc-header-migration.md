@@ -115,22 +115,6 @@ That is the point worth carrying: the gates weren't there to prove the header
 was better. They were there to make each increase in exposure a decision backed
 by a measurement, on a component with nowhere to hide.
 
-## What I owned, and what I didn't
-
-I owned the header's component lifecycle, the API proposal and implementation,
-the migration within a three-engineer effort, the feature-flag mechanics, the
-rollout percentages, rollback and monitoring, the Snowflake analysis, and the
-cross-team communication.
-
-I did not own Zocdoc's accessibility program or its initial audit, the Mezzanine
-roadmap, or the company's experimentation framework — that already existed, and
-my engineering manager proposed using it. I applied it to a design-system
-migration. I didn't invent stacked diffs, didn't manage the other two engineers,
-and can't claim the team's broader delivery improvements were mine alone.
-
-The header work is stronger stated at its real size than inflated, and knowing
-which is which is most of the skill.
-
 ## Legibility is a delivery mechanism
 
 The recurring lesson is that on large migrations, the binding constraint is

@@ -23,7 +23,7 @@ describe('project explanation picker', () => {
     expect(PORTFOLIO_PROJECTS[1].description).toContain('reusable interface recipe');
     expect(PORTFOLIO_PROJECTS[2]).toMatchObject({
       category: 'Decision infrastructure',
-      pageUrl: '/method',
+      pageUrl: '/blog/method',
     });
     expect(PORTFOLIO_PROJECTS[2].description).toContain('accountability layer as a product');
   });

@@ -23,10 +23,20 @@ describe('MethodPage', () => {
     expect(html).toContain('3 questions × 2 altitudes × 2 loci = 12 poles');
   });
 
-  it('connects the framework to both its applied case and full instrument', () => {
+  it('connects the framework to the live practice case and the full instrument', () => {
     const html = renderToStaticMarkup(<MethodPage />);
 
-    expect(html).toContain('href="/stratos-flow#case-study"');
+    // The hidden Klarna page is no longer linked; the applied case is Zocdoc.
+    expect(html).toContain('href="/work/zocdoc"');
     expect(html).toContain('href="/stratos"');
+    expect(html).not.toContain('/stratos-flow');
+  });
+
+  it('brings the instrument sources into the method page', () => {
+    const html = renderToStaticMarkup(<MethodPage />);
+
+    expect(html).toContain('The works the lenses draw on.');
+    expect(html).toContain('Michael E. Porter');
+    expect(html).toContain('id="source-porter_01"');
   });
 });

@@ -6,20 +6,19 @@ describe('SiteHeader', () => {
   it('renders the shared brand and every desktop and mobile destination', () => {
     const markup = renderToStaticMarkup(<SiteHeader current="portfolio" />);
 
-    expect(markup).toContain('Jeremy Capps');
+    expect(markup).toContain('JEREMY CAPPS');
     expect(markup).toContain('link-brand');
     expect(markup).not.toContain('link-portfolio');
-    expect(markup).toContain('link-stratos');
     expect(markup).toContain('link-blog');
-    expect(markup).toContain('link-mobile-stratos');
     expect(markup).toContain('link-mobile-blog');
-    expect(markup).toContain('link-about');
-    expect(markup).toContain('link-mobile-about');
     expect(markup).toContain('link-ask');
     expect(markup).toContain('link-mobile-ask');
+    expect(markup).toContain('href="/blog"');
     expect(markup).toContain('href="/ask"');
-    expect(markup).toContain('href="/method"');
-    expect(markup).toContain('Method');
+    // Method now lives under /blog and About is gone: neither is a nav destination.
+    expect(markup).not.toContain('link-about');
+    expect(markup).not.toContain('href="/method"');
+    expect(markup).not.toContain('href="/about"');
   });
 
   it('marks only the current section in both navigation variants', () => {

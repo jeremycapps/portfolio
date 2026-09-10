@@ -12,7 +12,21 @@ export function formatBlogDate(date: string): string {
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
-export function BlogIndex({ posts = BLOG_POSTS }: { posts?: readonly BlogPostMeta[] }) {
+// The StratOS method now lives under /blog as an interactive piece rather than a
+// standalone nav destination. It is rendered by MethodPage at /blog/method.
+const METHOD_ENTRY: BlogPostMeta = {
+  title: 'StratOS: The Method',
+  slug: 'method',
+  date: '2026-09-09',
+  summary:
+    'A twelve-signal model of how an organization decides—built one question at a time. By the third step you have assembled the whole model, and know what each part is for.',
+  kind: 'article',
+  status: 'Instrument',
+};
+
+export function BlogIndex({
+  posts = [METHOD_ENTRY, ...BLOG_POSTS],
+}: { posts?: readonly BlogPostMeta[] }) {
   const orderedPosts = [...posts].sort(
     (a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug),
   );

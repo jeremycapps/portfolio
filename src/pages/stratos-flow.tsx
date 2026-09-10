@@ -1366,7 +1366,7 @@ export default function StratosFlowPage() {
               {['Problem framing', 'Conceptual modeling', 'Systems thinking', 'Metric architecture', 'Product judgment', 'AI product thinking'].map((capability) => <span key={capability}>{capability}</span>)}
             </div>
             <p className="sf-x-role-line">Product strategy · 0→1 product management · AI product management · technical product management · decision intelligence · platform product management · enterprise AI product · product operations strategy · applied research / product</p>
-            <div className="sf-x-work-links"><a href="/about">View my background</a><a href="mailto:jeremy@nycwork.space">Contact me</a></div>
+            <div className="sf-x-work-links"><a href="/">View my background</a><a href="mailto:jeremy@nycwork.space">Contact me</a></div>
           </div>
         </section>
 

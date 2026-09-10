@@ -1,5 +1,5 @@
 import { type ReactNode, Suspense, lazy } from 'react';
-import { ArrowUpRight, Linkedin, Mail, Sparkles } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { SiteHeader } from '@/components/site-header';
@@ -7,54 +7,37 @@ import { RouteMetadata } from '@/components/route-metadata';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
 
-// The three genres, in reader order: see it (Perspective) → trust it (Practice)
-// → understand it (Method). Each is a door into one engine; the pages already
-// exist, so the home curates them rather than re-authoring their content.
-const HOME_GENRES: readonly {
-  genre: string;
-  question: string;
-  title: string;
-  blurb: string;
+type Genre = {
+  num: string;
+  kind: string;
+  name: string;
+  what: string;
+  why: string;
   href: string;
-  cta: string;
-  accent: 'stratos' | 'facia' | 'libera';
   testid: string;
-}[] = [
+};
+
+const HOME_GENRES: readonly Genre[] = [
   {
-    genre: 'Perspective',
-    question: 'Does this person see what I would miss?',
-    title: 'Klarna — a decision worked in public',
-    blurb:
-      'A strong AI-support pilot made scaling look obvious. I named the human-capacity boundary the headline hid, and sized the next increment to the evidence.',
-    href: '/stratos-flow#case-study',
-    cta: 'Read the perspective',
-    accent: 'stratos',
-    testid: 'link-genre-perspective',
-  },
-  {
-    genre: 'Practice',
-    question: 'Has this person actually done the work?',
-    title: 'Zocdoc — experience, reframed',
-    blurb:
-      'A company-wide design-system migration, run as a measured product decision: reviewable units, coordinated teams, and an A/B-proven rollout.',
+    num: '01',
+    kind: 'Professional Work',
+    name: 'Zocdoc',
+    what: 'A design-system migration across product teams, run as a measured product decision.',
+    why: 'A change that size shipped without a regression.',
     href: '/work/zocdoc',
-    cta: 'See the practice',
-    accent: 'facia',
     testid: 'link-genre-practice',
   },
   {
-    genre: 'Method',
-    question: 'Is there real rigor behind the insight?',
-    title: 'StratOS — the framework itself',
-    blurb:
-      'Build the twelve-pole model yourself, one question at a time, then read where the signals diverge and where to intervene.',
-    href: '/method',
-    cta: 'Learn the method',
-    accent: 'libera',
+    num: '02',
+    kind: 'Method',
+    name: 'StratOS',
+    what: 'A twelve-signal model of how an organization decides.',
+    why: 'It surfaces where signals diverge, and where to intervene, before the top-line metric breaks.',
+    href: '/blog/method',
     testid: 'link-genre-method',
   },
 ];
@@ -66,48 +49,47 @@ function Home() {
 
       <section className="workspace" aria-labelledby="hero-title">
         <div className="intro home-hero">
-          <p className="home-eyebrow" data-testid="text-eyebrow">Technical product management · enterprise AI</p>
           <h1 className="home-thesis" id="hero-title">
-            I&rsquo;m the technical PM who owns the call between what AI recommends and{' '}
-            <span>what an organization can safely commit to.</span>
+            Eight years across engineering, product, and operations.
           </h1>
           <p className="home-sub">
-            I find where the evidence is strong, name the boundary a confident headline hides, and
-            carry a prototype through to a decision an organization can actually run. Three ways
-            in&mdash;see it, trust it, understand it.
+            The discernment is in what to build, before it&rsquo;s built. In engineering, I carried the
+            business logic that still mattered out of legacy COBOL and left the rest. In product, I
+            fought for the dashboard leaders judged our value by, over the flashier work beside it. In
+            operations, I built the costing system that made delivery legible, not more process. An AI
+            product is the same call, and it&rsquo;s mine to make: which piece carries the load, chosen before
+            it&rsquo;s built.
           </p>
           <div className="home-hero-actions">
-            <a href="/stratos-flow#case-study">See the Klarna decision <ArrowUpRight aria-hidden="true" /></a>
+            <a href="/work/zocdoc">See the Zocdoc case study <ArrowUpRight aria-hidden="true" /></a>
             <a href="/ask">Ask the assistant</a>
           </div>
         </div>
 
         <section className="home-genres" aria-labelledby="home-genres-title">
           <div className="home-sec-head">
-            <p className="home-sec-tag">The work</p>
-            <p className="home-sec-note">See it &middot; trust it &middot; understand it</p>
+            <h2 id="home-genres-title" className="home-sec-tag">Work</h2>
           </div>
-          <h2 id="home-genres-title" className="sr-only">Three ways into the work</h2>
-          <div className="home-genre-grid">
-            {HOME_GENRES.map((g) => (
-              <a className="home-genre-card" key={g.genre} href={g.href} data-testid={g.testid}>
-                <span className={`home-genre-dot accent-${g.accent}`} aria-hidden="true" />
-                <p className="home-genre-kind">{g.genre}</p>
-                <p className="home-genre-q">{g.question}</p>
-                <p className="home-genre-title">{g.title}</p>
-                <p className="home-genre-blurb">{g.blurb}</p>
-                <span className="home-genre-more">{g.cta} <ArrowUpRight aria-hidden="true" /></span>
-              </a>
-            ))}
-          </div>
+          {HOME_GENRES.map((genre) => (
+            <a className="home-genre-row" key={genre.num} href={genre.href} data-testid={genre.testid}>
+              <span className="home-genre-num">{genre.num}</span>
+              <div className="home-genre-mid">
+                <p className="home-genre-kind">{genre.kind}</p>
+                <p className="home-genre-title">{genre.name}</p>
+              </div>
+              <div className="home-genre-summary">
+                <p className="home-genre-what">{genre.what}</p>
+                <p className="home-genre-why">{genre.why}</p>
+              </div>
+              <span className="home-genre-more"><ArrowUpRight aria-hidden="true" /></span>
+            </a>
+          ))}
         </section>
 
         <section className="home-now" aria-labelledby="home-now-title">
           <div className="home-sec-head">
-            <p className="home-sec-tag">Where I&rsquo;ve done it</p>
-            <p className="home-sec-note">Engineering, operations, and product &mdash; the same move across each</p>
+            <h2 id="home-now-title" className="home-sec-tag">Experience</h2>
           </div>
-          <h2 id="home-now-title" className="sr-only">Where I&rsquo;ve done it</h2>
           <div className="home-now-grid">
             <a
               className="home-now-item"
@@ -116,12 +98,9 @@ function Home() {
               rel="noreferrer noopener"
               data-testid="link-now-aroko"
             >
-              <span className="home-now-dot accent-stratos" aria-hidden="true" />
-              <div>
-                <p className="home-now-role">Head of Operations <ArrowUpRight aria-hidden="true" /></p>
-                <p className="home-now-org">Aroko &mdash; cooperative agency</p>
-                <p className="home-now-meta">2024 &ndash; present &middot; ops systems, delivery, costing</p>
-              </div>
+              <p className="home-now-role">Head of Operations <ArrowUpRight aria-hidden="true" /></p>
+              <p className="home-now-org">Aroko</p>
+              <p className="home-now-meta">2025 &ndash;</p>
             </a>
             <a
               className="home-now-item"
@@ -130,36 +109,24 @@ function Home() {
               rel="noreferrer noopener"
               data-testid="link-now-newinc"
             >
-              <span className="home-now-dot accent-facia" aria-hidden="true" />
-              <div>
-                <p className="home-now-role">Musician &amp; researcher <ArrowUpRight aria-hidden="true" /></p>
-                <p className="home-now-org">NEW INC / New Museum</p>
-                <p className="home-now-meta">2025 &ndash; 2026 &middot; cultural-systems research</p>
-              </div>
+              <p className="home-now-role">Cultural Researcher and Fellow <ArrowUpRight aria-hidden="true" /></p>
+              <p className="home-now-org">New Museum</p>
+              <p className="home-now-meta">2025 &ndash; 2026</p>
             </a>
             <div className="home-now-item">
-              <span className="home-now-dot accent-libera" aria-hidden="true" />
-              <div>
-                <p className="home-now-role">Design Systems / Frontend Engineer</p>
-                <p className="home-now-org">Zocdoc</p>
-                <p className="home-now-meta">2021 &ndash; 2024 &middot; design-system migration, frontend A/B experiment</p>
-              </div>
+              <p className="home-now-role">Design Systems / Frontend Engineer</p>
+              <p className="home-now-org">Zocdoc</p>
+              <p className="home-now-meta">2021 &ndash; 2024</p>
             </div>
             <div className="home-now-item">
-              <span className="home-now-dot accent-facia" aria-hidden="true" />
-              <div>
-                <p className="home-now-role">Software / Product Engineer</p>
-                <p className="home-now-org">Applied Software</p>
-                <p className="home-now-meta">2019 &ndash; 2021 &middot; construction-data integrations, C#</p>
-              </div>
+              <p className="home-now-role">Software / Product Engineer</p>
+              <p className="home-now-org">Applied Software</p>
+              <p className="home-now-meta">2019 &ndash; 2021</p>
             </div>
             <div className="home-now-item">
-              <span className="home-now-dot accent-stratos" aria-hidden="true" />
-              <div>
-                <p className="home-now-role">Software Engineer</p>
-                <p className="home-now-org">Genesco</p>
-                <p className="home-now-meta">2017 &ndash; 2019 &middot; legacy COBOL &rarr; Java modernization</p>
-              </div>
+              <p className="home-now-role">Software Engineer</p>
+              <p className="home-now-org">Genesco</p>
+              <p className="home-now-meta">2017 &ndash; 2019</p>
             </div>
           </div>
         </section>
@@ -174,16 +141,7 @@ function Home() {
           </a>
         </div>
 
-        <div className="footer-contact" aria-label="Contact Jeremy">
-          <a href="mailto:jeremy@nycwork.space" data-testid="link-email">
-            <Mail aria-hidden="true" /> jeremy@nycwork.space
-          </a>
-          <a href="https://www.linkedin.com/in/jeremycapps" target="_blank" rel="noreferrer noopener" data-testid="link-linkedin">
-            <Linkedin aria-hidden="true" /> LinkedIn
-          </a>
-        </div>
-
-        <p className="footer-note"><Sparkles aria-hidden="true" /> A small surface for big thinking.</p>
+        <p className="footer-note home-footer">Jeremy Capps &middot; 2026</p>
       </section>
     </main>
   );
@@ -199,7 +157,6 @@ const ZocdocPage = lazy(() => import('@/pages/zocdoc'));
 const AskPage = lazy(() => import('@/pages/ask'));
 const BlogPage = lazy(() => import('@/pages/blog'));
 const BlogPostPage = lazy(() => import('@/pages/blog-post'));
-const AboutPage = lazy(() => import('@/pages/about'));
 
 function Router() {
   return (
@@ -209,20 +166,15 @@ function Router() {
         <Route path="/ask">
           {() => <Suspense fallback={null}><AskPage /></Suspense>}
         </Route>
-        <Route path="/about">
-          {() => <Suspense fallback={null}><AboutPage /></Suspense>}
-        </Route>
         <Route path="/stratos">
           {() => <Suspense fallback={null}><StratosPage /></Suspense>}
         </Route>
         <Route path="/stratos-v2">
           {() => <Suspense fallback={null}><StratosV2Page /></Suspense>}
         </Route>
+        {/* The Klarna flow page is retired; its URL now sends readers to the method. */}
         <Route path="/stratos-flow">
-          {() => <Suspense fallback={null}><StratosFlowPage /></Suspense>}
-        </Route>
-        <Route path="/method">
-          {() => <Suspense fallback={null}><MethodPage /></Suspense>}
+          {() => <Redirect to="/blog/method" replace />}
         </Route>
         <Route path="/work/zocdoc">
           {() => <Suspense fallback={null}><ZocdocPage /></Suspense>}
@@ -237,6 +189,9 @@ function Router() {
         </Route>
         <Route path="/blog">
           {() => <Suspense fallback={null}><BlogPage /></Suspense>}
+        </Route>
+        <Route path="/blog/method">
+          {() => <Suspense fallback={null}><MethodPage /></Suspense>}
         </Route>
         <Route path="/blog/:slug">
           {(params) => <Suspense fallback={null}><BlogPostPage slug={params.slug} /></Suspense>}

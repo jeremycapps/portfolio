@@ -140,10 +140,6 @@ export default function ZocdocPage() {
             decision—name the boundary a strong headline hides, and move only as far as the evidence
             supports. Three years earlier, and in code.
           </p>
-          <div className="zc-final-actions">
-            <a href="/method">See the method <ArrowRight aria-hidden="true" /></a>
-            <a href="/stratos-flow#case-study">Read the Klarna perspective</a>
-          </div>
         </section>
       </main>
     </div>

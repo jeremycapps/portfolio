@@ -20,11 +20,13 @@ describe('ZocdocPage', () => {
     expect(html).toContain('Returned to the team');
   });
 
-  it('completes see → trust → understand by graduating into method and the Klarna case', () => {
+  it('links to the full write-up, and no longer surfaces method or the hidden Klarna page', () => {
     const html = renderToStaticMarkup(<ZocdocPage />);
 
-    expect(html).toContain('href="/method"');
-    expect(html).toContain('href="/stratos-flow#case-study"');
     expect(html).toContain('href="/blog/zocdoc-header-migration"');
+    // The closing CTAs were removed: no "See the method", and no link to the
+    // now-hidden Klarna page. (The site nav's /method link is unrelated.)
+    expect(html).not.toContain('See the method');
+    expect(html).not.toContain('/stratos-flow');
   });
 });

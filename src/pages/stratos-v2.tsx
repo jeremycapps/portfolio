@@ -854,7 +854,7 @@ function HindsightAndAbout() {
           <div><p className="sv2-eyebrow">Work with me</p><h3>I’m looking for product problems that need this kind of thinking.</h3></div>
           <p>I’m especially interested in forward-deployed engineering, AI operations, solutions architecture, implementation, and product or platform engineering—particularly where the hard part is deciding what model of the problem a system should encode.</p>
           <div className="sv2-cta-row">
-            <a className="sv2-button sv2-button--primary" href="/about">View my background <ArrowRight aria-hidden="true" /></a>
+            <a className="sv2-button sv2-button--primary" href="/">View my background <ArrowRight aria-hidden="true" /></a>
             <a className="sv2-button" href="https://www.linkedin.com/in/jeremycapps" target="_blank" rel="noreferrer noopener">LinkedIn</a>
             <a className="sv2-button" href="https://github.com/jeremycapps" target="_blank" rel="noreferrer noopener">GitHub</a>
             <a className="sv2-button" href="mailto:jeremy@nycwork.space">Contact me</a>

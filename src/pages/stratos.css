@@ -78,7 +78,7 @@
 
 .stratos .bar .lbl {
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -100,7 +100,7 @@
 .stratos .bar .audit-btn {
   min-height: 36px;
   flex: 0 0 auto;
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -256,7 +256,7 @@
 .stratos .pole-name {
   padding-bottom: 2px;
   border-bottom: 1px dotted currentColor;
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -314,7 +314,7 @@
   display: block;
   margin: 9px 0 2px;
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 8px;
   font-style: normal;
   font-weight: 700;
@@ -339,7 +339,7 @@
   display: block;
   margin-bottom: 3px;
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -448,7 +448,7 @@
   color: var(--st-ink-3);
   background: rgba(252, 254, 255, 0.96);
   box-shadow: 0 4px 12px rgba(59, 77, 95, 0.12);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
@@ -469,7 +469,7 @@
   justify-content: center;
   padding-bottom: 7px;
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -526,7 +526,7 @@
   cursor: default;
   color: var(--st-ink-3);
   background: rgba(247, 250, 252, 0.56);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -546,7 +546,7 @@
 
 .stratos .fld dt {
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -592,7 +592,7 @@
    renders provenance in mono. Shape and ground come from the shared class. */
 .stratos .evidence-disclosure {
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 9px;
   line-height: 1.7;
 }
@@ -685,7 +685,7 @@
   left: 0;
   color: var(--st-accent);
   content: "?";
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 10px;
 }
 
@@ -711,7 +711,7 @@
   left: 0;
   color: var(--st-right);
   content: "—";
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
 }
 
 .stratos .foot {
@@ -719,7 +719,7 @@
   padding-top: 16px;
   border-top: 1px solid var(--st-rule-2);
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 9px;
   line-height: 1.8;
 }
@@ -753,7 +753,7 @@
 
 .stratos .bibliography li > span {
   color: var(--st-ink-3);
-  font-family: var(--app-font-mono);
+  font-family: var(--app-font-alt);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.09em;
