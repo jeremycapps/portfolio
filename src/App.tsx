@@ -11,35 +11,60 @@ import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wo
 
 const queryClient = new QueryClient();
 
-type Genre = {
-  num: string;
-  kind: string;
-  name: string;
-  what: string;
-  why: string;
-  href: string;
+type ProofPoint = { tag: string; head: string; body: string };
+
+const HERO_PROOF: readonly ProofPoint[] = [
+  {
+    tag: 'Approved',
+    head: 'A 90-day operating plan, approved',
+    body: 'Authored the plan spanning finance, costing, and delivery, secured the cooperative’s formal approval, and implemented it without pre-existing positional authority.',
+  },
+  {
+    tag: 'Systems of record',
+    head: 'The source-of-truth behind the numbers',
+    body: 'Built a Notion system connecting time, roles, projects, and budgets — the basis for the first per-project pricing model and a year-to-date financial review.',
+  },
+  {
+    tag: 'Shipped',
+    head: 'An enterprise rebuild, through disruption',
+    body: 'Led a six-phase WordPress-to-Framer migration as Tech Lead, driving delivery through a mid-project disruption to launch on a weekly client cadence.',
+  },
+];
+
+type Role = {
+  role: string;
+  org: string;
+  meta: string;
+  href?: string;
   testid: string;
 };
 
-const HOME_GENRES: readonly Genre[] = [
+const PRIOR_ROLES: readonly Role[] = [
   {
-    num: '01',
-    kind: 'Professional Work',
-    name: 'Zocdoc',
-    what: 'A design-system migration across product teams, run as a measured product decision.',
-    why: 'A change that size shipped without a regression.',
+    role: 'Design Systems Engineer — Product Delivery & Experimentation',
+    org: 'Zocdoc',
+    meta: '2021 – 2024',
     href: '/work/zocdoc',
-    testid: 'link-genre-practice',
+    testid: 'link-role-zocdoc',
   },
   {
-    num: '02',
-    kind: 'Method',
-    name: 'StratOS',
-    what: 'A twelve-signal model of how an organization decides.',
-    why: 'It surfaces where signals diverge, and where to intervene, before the top-line metric breaks.',
-    href: '/blog/method',
-    testid: 'link-genre-method',
+    role: 'Product Engineer — API Integrations',
+    org: 'Applied Software',
+    meta: '2019 – 2021',
+    testid: 'role-applied',
   },
+  {
+    role: 'Software Engineer — Legacy Modernization',
+    org: 'Genesco',
+    meta: '2017 – 2019',
+    testid: 'role-genesco',
+  },
+];
+
+const AROKO_POINTS: readonly string[] = [
+  'Diagnosed a design-to-development bottleneck and introduced a unified Framer-first workflow, cutting web-project delivery time by roughly 50%.',
+  'Reconciled operational and financial data across Notion, YNAB, Bill.com, and spreadsheets to clarify payments, hours, work categories, and source reliability.',
+  'Acted as primary client contact — translating business, SEO, content, and technical requirements into scopes, milestones, QA checkpoints, and technical handoff.',
 ];
 
 function Home() {
@@ -49,92 +74,94 @@ function Home() {
 
       <section className="workspace" aria-labelledby="hero-title">
         <div className="intro home-hero">
+          <p className="home-eyebrow">Strategic Projects Lead</p>
           <h1 className="home-thesis" id="hero-title">
-            Eight years across engineering, product, and operations.
+            I turn ambiguous, high-pressure work into measurable systems and reliable delivery.
           </h1>
           <p className="home-sub">
-            The discernment is in what to build, before it&rsquo;s built. In engineering, I carried the
-            business logic that still mattered out of legacy COBOL and left the rest. In product, I
-            fought for the dashboard leaders judged our value by, over the flashier work beside it. In
-            operations, I built the costing system that made delivery legible, not more process. An AI
-            product is the same call, and it&rsquo;s mine to make: which piece carries the load, chosen before
-            it&rsquo;s built.
+            An operations and strategic-projects lead who owns tactical execution end to end &mdash;
+            diagnosing bottlenecks, restructuring processes, and reporting clearly on cost, capacity,
+            quality, and progress. Nine years across operations, product, design, and engineering.
           </p>
           <div className="home-hero-actions">
             <a href="/work/zocdoc">See the Zocdoc case study <ArrowUpRight aria-hidden="true" /></a>
             <a href="/ask">Ask the assistant</a>
           </div>
+
+          <div className="home-case-proof" aria-label="Selected outcomes at Aroko">
+            <div className="home-case-proof-grid">
+              {HERO_PROOF.map((point) => (
+                <article key={point.tag}>
+                  <span>{point.tag}</span>
+                  <strong>{point.head}</strong>
+                  <p>{point.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <section className="home-genres" aria-labelledby="home-genres-title">
+        <section className="home-now" aria-labelledby="home-exp-title">
           <div className="home-sec-head">
-            <h2 id="home-genres-title" className="home-sec-tag">Work</h2>
+            <h2 id="home-exp-title" className="home-sec-tag">Experience</h2>
           </div>
-          {HOME_GENRES.map((genre) => (
-            <a className="home-genre-row" key={genre.num} href={genre.href} data-testid={genre.testid}>
-              <span className="home-genre-num">{genre.num}</span>
-              <div className="home-genre-mid">
-                <p className="home-genre-kind">{genre.kind}</p>
-                <p className="home-genre-title">{genre.name}</p>
-              </div>
-              <div className="home-genre-summary">
-                <p className="home-genre-what">{genre.what}</p>
-                <p className="home-genre-why">{genre.why}</p>
-              </div>
-              <span className="home-genre-more"><ArrowUpRight aria-hidden="true" /></span>
-            </a>
-          ))}
-        </section>
 
-        <section className="home-now" aria-labelledby="home-now-title">
-          <div className="home-sec-head">
-            <h2 id="home-now-title" className="home-sec-tag">Experience</h2>
-          </div>
+          <article className="home-exp-lead" data-testid="exp-aroko">
+            <div className="home-exp-lead-head">
+              <div>
+                <p className="home-exp-role">Strategic Projects Lead &mdash; Operations &amp; Technical Delivery</p>
+                <a
+                  className="home-exp-org"
+                  href="https://aroko.coop"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  data-testid="link-exp-aroko"
+                >
+                  Aroko <ArrowUpRight aria-hidden="true" />
+                </a>
+              </div>
+              <p className="home-exp-meta">2024 &ndash; Present</p>
+            </div>
+            <ul className="home-exp-points">
+              <li>
+                Authored a 90-day operating plan and secured formal approval, then built a Notion
+                source-of-truth system connecting time, roles, projects, and budgets &mdash; the basis
+                for the cooperative&rsquo;s first per-project pricing model and its year-to-date financial review.
+              </li>
+              {AROKO_POINTS.map((point) => (
+                <li key={point.slice(0, 24)}>{point}</li>
+              ))}
+            </ul>
+          </article>
+
           <div className="home-now-grid">
-            <a
-              className="home-now-item"
-              href="https://aroko.coop"
-              target="_blank"
-              rel="noreferrer noopener"
-              data-testid="link-now-aroko"
-            >
-              <p className="home-now-role">Head of Operations <ArrowUpRight aria-hidden="true" /></p>
-              <p className="home-now-org">Aroko</p>
-              <p className="home-now-meta">2025 &ndash;</p>
-            </a>
-            <a
-              className="home-now-item"
-              href="https://www.newmuseum.org/person/jeremy-capps/"
-              target="_blank"
-              rel="noreferrer noopener"
-              data-testid="link-now-newinc"
-            >
-              <p className="home-now-role">Cultural Researcher and Fellow <ArrowUpRight aria-hidden="true" /></p>
-              <p className="home-now-org">New Museum</p>
-              <p className="home-now-meta">2025 &ndash; 2026</p>
-            </a>
-            <div className="home-now-item">
-              <p className="home-now-role">Design Systems / Frontend Engineer</p>
-              <p className="home-now-org">Zocdoc</p>
-              <p className="home-now-meta">2021 &ndash; 2024</p>
-            </div>
-            <div className="home-now-item">
-              <p className="home-now-role">Software / Product Engineer</p>
-              <p className="home-now-org">Applied Software</p>
-              <p className="home-now-meta">2019 &ndash; 2021</p>
-            </div>
-            <div className="home-now-item">
-              <p className="home-now-role">Software Engineer</p>
-              <p className="home-now-org">Genesco</p>
-              <p className="home-now-meta">2017 &ndash; 2019</p>
-            </div>
+            {PRIOR_ROLES.map((role) =>
+              role.href ? (
+                <a className="home-now-item" key={role.testid} href={role.href} data-testid={role.testid}>
+                  <p className="home-now-role">{role.role} <ArrowUpRight aria-hidden="true" /></p>
+                  <p className="home-now-org">{role.org}</p>
+                  <p className="home-now-meta">{role.meta}</p>
+                </a>
+              ) : (
+                <div className="home-now-item" key={role.testid} data-testid={role.testid}>
+                  <p className="home-now-role">{role.role}</p>
+                  <p className="home-now-org">{role.org}</p>
+                  <p className="home-now-meta">{role.meta}</p>
+                </div>
+              ),
+            )}
           </div>
+
+          <p className="home-recognition">
+            <span className="home-recognition-tag">Recognition</span>
+            NEW INC Fellow, Social Architecture &mdash; New Museum, 2025
+          </p>
         </section>
 
         <div className="home-ask-cta">
-          <p className="home-ask-cta-title">Want to go deeper?</p>
+          <p className="home-ask-cta-title">Want the detail?</p>
           <p className="home-ask-cta-note">
-            Ask the assistant about any project, decision, or the throughline across them.
+            Ask the assistant about any role, system, or decision across the work.
           </p>
           <a className="home-ask-cta-link" href="/ask" data-testid="link-ask-cta">
             Ask the assistant <ArrowUpRight aria-hidden="true" />

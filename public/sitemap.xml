@@ -4,7 +4,7 @@
     <loc>https://www.jeremycapps.com/</loc>
   </url>
   <url>
-    <loc>https://www.jeremycapps.com/about</loc>
+    <loc>https://www.jeremycapps.com/work/zocdoc</loc>
   </url>
   <url>
     <loc>https://www.jeremycapps.com/blog</loc>
@@ -13,16 +13,5 @@
   <url>
     <loc>https://www.jeremycapps.com/blog/zocdoc-header-migration</loc>
     <lastmod>2026-09-08</lastmod>
-  </url>
-  <url>
-    <loc>https://www.jeremycapps.com/blog/query-compiler-induced</loc>
-    <lastmod>2026-09-02</lastmod>
-  </url>
-  <url>
-    <loc>https://www.jeremycapps.com/stratos</loc>
-  </url>
-  <url>
-    <loc>https://www.jeremycapps.com/stratos-v2</loc>
-    <lastmod>2026-08-31</lastmod>
   </url>
 </urlset>

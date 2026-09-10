@@ -21,7 +21,12 @@ describe('StratOS v2 crawl surface', () => {
     expect(projectFile('public/robots.txt')).toContain(
       'Sitemap: https://www.jeremycapps.com/sitemap.xml',
     );
-    expect(projectFile('public/sitemap.xml')).toContain(
+  });
+
+  // The independent-work pages are unlinked from the site's story but left
+  // reachable by direct URL, so they are deliberately kept out of the sitemap.
+  it('keeps the unlisted stratos-v2 page out of the sitemap', () => {
+    expect(projectFile('public/sitemap.xml')).not.toContain(
       '<loc>https://www.jeremycapps.com/stratos-v2</loc>',
     );
   });

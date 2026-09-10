@@ -12,24 +12,18 @@ export function formatBlogDate(date: string): string {
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
-// The StratOS method now lives under /blog as an interactive piece rather than a
-// standalone nav destination. It is rendered by MethodPage at /blog/method.
-const METHOD_ENTRY: BlogPostMeta = {
-  title: 'StratOS: The Method',
-  slug: 'method',
-  date: '2026-09-09',
-  summary:
-    'A twelve-signal model of how an organization decides—built one question at a time. By the third step you have assembled the whole model, and know what each part is for.',
-  kind: 'article',
-  status: 'Instrument',
-};
+// Posts unlisted from the index but still reachable by direct URL. The
+// independent-work pieces (the StratOS method at /blog/method, the query-compiler
+// case study) are kept live but off the listing so the blog reads to the
+// delivery-and-operations story the rest of the site now tells.
+const UNLISTED_SLUGS: ReadonlySet<string> = new Set(['method', 'query-compiler-induced']);
 
 export function BlogIndex({
-  posts = [METHOD_ENTRY, ...BLOG_POSTS],
+  posts = BLOG_POSTS,
 }: { posts?: readonly BlogPostMeta[] }) {
-  const orderedPosts = [...posts].sort(
-    (a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug),
-  );
+  const orderedPosts = [...posts]
+    .filter((post) => !UNLISTED_SLUGS.has(post.slug))
+    .sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
 
   return (
     <main className="workspace blog-workspace">
@@ -37,7 +31,7 @@ export function BlogIndex({
         <p className="eyebrow">Essays, papers, and system notes</p>
         <h1 className="hero-title">Written <em>work.</em></h1>
         <p className="hero-description blog-lede">
-          Long-form thinking about executable meaning, context infrastructure, and the systems built from both.
+          Notes on delivery, process, and shipping under constraint &mdash; how the work actually gets done.
         </p>
       </div>
 

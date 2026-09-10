@@ -12,21 +12,25 @@ export interface PageMetadata {
   readonly lastModified?: string;
   readonly alternateMarkdown?: string;
   readonly markdown?: string;
+  // Reachable by direct URL and still prerendered, but kept out of the sitemap
+  // and the llms.txt index — the independent-work pages the portfolio no longer
+  // leads with.
+  readonly unlisted?: boolean;
 }
 
 const STATIC_PAGES: readonly PageMetadata[] = [
   {
     path: '/',
-    title: 'Jeremy Capps — Engineering, Operations, and AI Infrastructure',
+    title: 'Jeremy Capps — Strategic Projects Lead & Technical Project Manager',
     description:
-      'Jeremy Capps builds accountable systems across engineering, operations, and AI infrastructure.',
+      'Jeremy Capps is an operations and strategic-projects lead who turns ambiguous, cross-functional work into measurable systems and reliable delivery.',
     kind: 'home',
   },
   {
     path: '/blog',
     title: 'Writing — Jeremy Capps',
     description:
-      'Essays, papers, and system notes about executable meaning, context infrastructure, and accountable systems.',
+      'Notes on delivery, process, and shipping under constraint — how the work actually gets done.',
     kind: 'blog',
     lastModified: BLOG_POSTS[0]?.date,
   },
@@ -37,6 +41,7 @@ const STATIC_PAGES: readonly PageMetadata[] = [
       'A clear guide to the StratOS accountability method: twelve poles, divergence, L1–L5 intervention, and evidence-sized commitments.',
     kind: 'application',
     lastModified: '2026-09-09',
+    unlisted: true,
   },
   {
     path: '/ask',
@@ -50,7 +55,7 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     path: '/work/zocdoc',
     title: 'Zocdoc Design-System Migration — Jeremy Capps',
     description:
-      'A practice case study: how Jeremy Capps ran a company-wide Zocdoc header migration as a measured product decision—sizing the reviewable unit, coordinating dependent teams, and proving the rollout with A/B evidence.',
+      'How Jeremy Capps ran a company-wide Zocdoc header migration as product delivery and experimentation—sizing the reviewable unit, coordinating dependent teams, and proving the rollout with A/B evidence.',
     kind: 'application',
     lastModified: '2026-09-09',
   },
@@ -60,6 +65,7 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     description:
       'An interactive strategy instrument for making organizational tensions, recommendations, evidence, and decision traces inspectable.',
     kind: 'application',
+    unlisted: true,
   },
   {
     path: '/stratos-v2',
@@ -68,6 +74,7 @@ const STATIC_PAGES: readonly PageMetadata[] = [
       'StratOS reveals where internal operating signals and external consequences diverge before an organization makes its next commitment.',
     kind: 'application',
     lastModified: '2026-09-07',
+    unlisted: true,
   },
   {
     path: '/stratos-flow',
@@ -76,8 +83,13 @@ const STATIC_PAGES: readonly PageMetadata[] = [
       'A product-strategy case study showing how Jeremy Capps named human exception capacity as the constraint that sizes Klarna’s next AI-support increment.',
     kind: 'application',
     lastModified: '2026-09-08',
+    unlisted: true,
   },
 ];
+
+// Articles unlisted from the blog index are also kept out of the sitemap and
+// llms.txt, but still prerendered and reachable by direct URL.
+const UNLISTED_ARTICLE_SLUGS: ReadonlySet<string> = new Set(['query-compiler-induced']);
 
 function articlePage(post: BlogPostMeta): PageMetadata | null {
   if (post.kind !== 'article') return null;
@@ -89,6 +101,7 @@ function articlePage(post: BlogPostMeta): PageMetadata | null {
     kind: 'article',
     lastModified: post.date,
     alternateMarkdown: `/blog/${post.slug}.md`,
+    unlisted: UNLISTED_ARTICLE_SLUGS.has(post.slug),
   };
 }
 

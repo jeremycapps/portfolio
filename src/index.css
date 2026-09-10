@@ -2551,6 +2551,101 @@ textarea:focus-visible {
 .home-now-item:hover .home-now-role svg,
 .home-now-item:focus-visible .home-now-role svg { opacity: 1; color: var(--invert-ink); }
 
+/* experience lead — the current role, given room to carry its own bullets above
+   the compact ledger of prior roles. */
+.home-exp-lead {
+  padding: clamp(20px, 3vw, 28px);
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: var(--surface-grad);
+  box-shadow: var(--shadow);
+  margin-bottom: 28px;
+}
+
+.home-exp-lead-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.home-exp-role {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--app-font-sans);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.home-exp-org {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.home-exp-org:hover { text-decoration: underline; }
+.home-exp-org svg { width: 13px; height: 13px; }
+
+.home-exp-meta {
+  margin: 0;
+  color: var(--faint);
+  font-family: var(--app-font-alt);
+  font-size: 13.5px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-exp-points {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.home-exp-points li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.home-exp-points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 70%, var(--line));
+}
+
+.home-recognition {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 22px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--ink-2);
+  font-size: 13.5px;
+}
+.home-recognition-tag {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 /* work — numbered editorial rows; hover inverts the whole row to the dark band
    and crossfades the what line to the why line. */
 .home-genres { margin-top: clamp(40px, 6vw, 72px); }

@@ -145,17 +145,19 @@ export function buildBlogData(sources, { publicDir = DEFAULT_PUBLIC_DIR } = {}) 
   };
 }
 
+// Articles and pages that are still reachable by direct URL but kept out of the
+// sitemap — the independent-work content the portfolio no longer leads with.
+const SITEMAP_EXCLUDED_SLUGS = new Set(['query-compiler-induced']);
+
 export function buildSitemap(posts) {
   const newestDate = posts[0]?.date;
   const entries = [
     { path: '/' },
-    { path: '/about' },
+    { path: '/work/zocdoc' },
     { path: '/blog', lastModified: newestDate },
     ...posts
-      .filter((post) => post.kind === 'article')
+      .filter((post) => post.kind === 'article' && !SITEMAP_EXCLUDED_SLUGS.has(post.slug))
       .map((post) => ({ path: `/blog/${post.slug}`, lastModified: post.date })),
-    { path: '/stratos' },
-    { path: '/stratos-v2', lastModified: '2026-08-31' },
   ];
   const urls = entries.map(({ path, lastModified }) => {
     const lastmod = lastModified ? `\n    <lastmod>${lastModified}</lastmod>` : '';

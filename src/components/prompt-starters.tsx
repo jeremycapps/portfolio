@@ -1,4 +1,4 @@
-import { Briefcase, Compass, Layers, Mail, Sparkles, Target } from 'lucide-react';
+import { Briefcase, Compass, Mail, Sparkles, Target } from 'lucide-react';
 
 const SUMMARY_PROMPT =
   "Give me a concise summary of Jeremy's experience and background — the highlights someone should know.";
@@ -11,25 +11,18 @@ const ROLES_PROMPT =
 
 interface PromptStartersProps {
   onSendPrompt: (text: string) => void;
-  onExplainProject: () => void;
   onArmResume: () => void;
   disabled?: boolean;
 }
 
 export function PromptStarters({
   onSendPrompt,
-  onExplainProject,
   onArmResume,
   disabled = false,
 }: PromptStartersProps) {
   const fire = (text: string) => {
     if (disabled) return;
     onSendPrompt(text);
-  };
-
-  const handleExplain = () => {
-    if (disabled) return;
-    onExplainProject();
   };
 
   return (
@@ -50,14 +43,6 @@ export function PromptStarters({
           onClick={() => fire(SUMMARY_PROMPT)}
           icon={<Sparkles aria-hidden="true" />}
           label="Summarize my experience"
-        />
-        <StarterChip
-          id="project"
-          active={false}
-          disabled={disabled}
-          onClick={handleExplain}
-          icon={<Layers aria-hidden="true" />}
-          label="Explain a project"
         />
         <StarterChip
           id="throughline"

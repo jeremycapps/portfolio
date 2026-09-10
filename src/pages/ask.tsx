@@ -19,29 +19,28 @@ import {
 } from '@/lib/chat';
 import { DEFAULT_RESUME } from '@/lib/default-resume.generated';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
-import { EXPLAIN_PROJECT_CHOICES } from '@/lib/projects';
 
 // Seeded questions so the "ask" is never a blank prompt — each hands the visitor
 // a real question the assistant can answer, matching the surface-first idea.
 const ASK_QUESTIONS: readonly { label: string; prompt: string }[] = [
   {
-    label: 'What is StratOS?',
+    label: 'What does he do at Aroko?',
     prompt:
-      'Explain the StratOS project in depth — what it is, how it works, and why it matters.',
+      'What does Jeremy do at Aroko as Strategic Projects Lead — the operating plan, the systems he built, and the delivery work?',
   },
   {
     label: "What's he looking for?",
     prompt: 'What kind of roles is Jeremy looking for, and what does he most want to do?',
   },
   {
-    label: 'Explain Libera',
+    label: 'Tell me about Zocdoc',
     prompt:
-      'Explain the Libera project in depth — what it is, how it works, and why it matters.',
+      "Tell me about Jeremy's work at Zocdoc — the delivery and experimentation work, and what he shipped.",
   },
   {
     label: 'How does the work connect?',
     prompt:
-      "What is the throughline of Jeremy's work across operations, engineering, and his independent projects?",
+      "What is the throughline of Jeremy's work across operations, product, design, and engineering?",
   },
 ];
 
@@ -220,25 +219,6 @@ export default function AskPage() {
     }
   };
 
-  // "Explain a project" synthesizes an assistant turn whose response carries the
-  // interactive picker (the Facia pattern, rendered client-side for now).
-  const handleExplainProject = () => {
-    if (streaming) return;
-    setStatusMessage('');
-    setChatError(null);
-    setResumeMode(false);
-    setResumeResult(null);
-    setMessages((cur) => [
-      ...cur.map(consumeChoices),
-      { role: 'user', content: 'Can you tell me about one of your projects?' },
-      {
-        role: 'assistant',
-        content: markdownContent('Sure — which one would you like to hear about?'),
-        choices: EXPLAIN_PROJECT_CHOICES,
-      },
-    ]);
-  };
-
   const handleClearChat = () => {
     abortRef.current?.abort();
     setMessages([]);
@@ -352,7 +332,6 @@ export default function AskPage() {
           </form>
           <PromptStarters
             onSendPrompt={(text) => void submitPrompt(text)}
-            onExplainProject={handleExplainProject}
             onArmResume={armResume}
             disabled={streaming}
           />

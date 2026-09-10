@@ -62,7 +62,7 @@ export function pageDocument(template, appHtml, metadata, canonical, structuredD
 }
 
 export function sitemapXml(pages, canonicalForPage) {
-  const urls = pages.map((page) => {
+  const urls = pages.filter((page) => !page.unlisted).map((page) => {
     const lastModified = page.lastModified
       ? `\n    <lastmod>${escapeXml(page.lastModified)}</lastmod>`
       : '';
@@ -72,13 +72,14 @@ export function sitemapXml(pages, canonicalForPage) {
 }
 
 export function llmsText(pages, canonicalForPage) {
-  const core = pages.filter((page) => page.kind !== 'article');
-  const articles = pages.filter((page) => page.kind === 'article');
+  const listed = pages.filter((page) => !page.unlisted);
+  const core = listed.filter((page) => page.kind !== 'article');
+  const articles = listed.filter((page) => page.kind === 'article');
   const links = (items) => items
     .map((page) => `- [${page.title}](${canonicalForPage(page)}): ${page.description}`)
     .join('\n');
 
-  return `# Jeremy Capps\n\n> Jeremy Capps builds accountable systems across engineering, operations, and AI infrastructure.\n\nThis is the canonical index of public, human-authored content on Jeremy Capps's portfolio.\n\n## Core pages\n\n${links(core)}\n\n## Writing\n\n${links(articles)}\n`;
+  return `# Jeremy Capps\n\n> Jeremy Capps is an operations and strategic-projects lead who turns ambiguous, cross-functional work into measurable systems and reliable delivery.\n\nThis is the canonical index of public, human-authored content on Jeremy Capps's portfolio.\n\n## Core pages\n\n${links(core)}\n\n## Writing\n\n${links(articles)}\n`;
 }
 
 async function writeText(path, content) {

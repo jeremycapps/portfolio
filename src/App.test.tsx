@@ -5,22 +5,23 @@ import App from './App';
 describe('Home', () => {
   const homeMarkup = () => renderToStaticMarkup(<App initialPath="/" />);
 
-  it('leads with a summary of experience, showing rather than asserting the role', () => {
+  it('leads as Strategic Projects Lead, with Aroko as the spine', () => {
     const html = homeMarkup();
-    expect(html).toContain('Eight years across engineering, product, and operations');
-    // Show, don't tell: the discernment thesis, not an asserted title.
-    expect(html).toContain('which piece carries the load');
-    expect(html).not.toContain('the technical PM who owns the call');
+    expect(html).toContain('Strategic Projects Lead');
+    expect(html).toContain('Aroko');
+    // The operations-delivery proof, not the old discernment thesis.
+    expect(html).toContain('90-day operating plan');
+    expect(html).not.toContain('Eight years across engineering, product, and operations');
+    expect(html).not.toContain('which piece carries the load');
   });
 
-  it('presents the work as Professional Work and Method, with Klarna hidden for now', () => {
+  it('shows the experience ledger and keeps the Zocdoc case study reachable', () => {
     const html = homeMarkup();
-    expect(html).toContain('Professional Work');
-    expect(html).toContain('Method');
     expect(html).toContain('href="/work/zocdoc"');
-    expect(html).toContain('href="/blog/method"');
-    // Klarna is hidden for now: no Case Study row and no link to its page.
-    expect(html).not.toContain('Case Study');
+    // The independent-work story is off the home now.
+    expect(html).not.toContain('Professional Work');
+    expect(html).not.toContain('href="/blog/method"');
+    expect(html).not.toContain('href="/stratos"');
     expect(html).not.toContain('/stratos-flow');
   });
 
