@@ -10,9 +10,29 @@ The decision is a pure function (route_decision) so it can be unit-tested with
 no git and no subprocess; main() is a thin stdin->JSON wrapper.
 """
 import json
+import os
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+# Append-only decision log for live measurement. Overridable via env so the
+# test suite writes to a throwaway file and never pollutes real measurements.
+LOG = Path(os.environ.get("ROUTE_GREP_LOG",
+                          str(Path(__file__).with_name("route-grep.log"))))
+
+
+def _log(decision, command):
+    try:
+        with LOG.open("a") as f:
+            f.write(json.dumps({
+                "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "decision": decision,
+                "command": (command or "")[:300],
+            }) + "\n")
+    except Exception:
+        pass
 
 REC = re.compile(r"(^|[;&|]\s*|\s)grep\s+-[a-zA-Z]*[rR][a-zA-Z]*\b")
 
@@ -71,6 +91,7 @@ def main():
         sys.exit(0)
     cmd = (data.get("tool_input") or {}).get("command", "")
     reason = route_decision(cmd, cwd=data.get("cwd"))
+    _log("routed" if reason else "passed", cmd)
     if reason:
         print(json.dumps({
             "hookSpecificOutput": {

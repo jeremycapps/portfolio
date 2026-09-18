@@ -72,8 +72,10 @@ def run_integration():
         subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
         (Path(repo) / "f.txt").write_text("x")
 
+        env = {**__import__("os").environ, "ROUTE_GREP_LOG": str(Path(repo) / "test.log")}
+
         def call(payload):
-            p = subprocess.run([sys.executable, str(HOOK)],
+            p = subprocess.run([sys.executable, str(HOOK)], env=env,
                                input=json.dumps(payload), capture_output=True, text=True)
             out = p.stdout.strip()
             if not out:
