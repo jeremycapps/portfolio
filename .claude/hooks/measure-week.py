@@ -49,9 +49,12 @@ def parse_ts(s):
 
 
 def read_hook_log(since):
-    routed, passed_rec, passed_other = [], [], []
+    # rewrote = auto-fixed to git grep; routed = denied (advisory floor).
+    # Both prevented a slow grep -r; they differ only in whether the model
+    # had to retry (routed) or the command was rewritten in place (rewrote).
+    rewrote, routed, passed_rec, passed_other = [], [], [], []
     if not LOG.exists():
-        return routed, passed_rec, passed_other
+        return rewrote, routed, passed_rec, passed_other
     for line in LOG.open(errors="replace"):
         try:
             e = json.loads(line)
@@ -61,13 +64,16 @@ def read_hook_log(since):
         if ts and ts.date() < since:
             continue
         cmd = e.get("command", "")
-        if e.get("decision") == "routed":
+        dec = e.get("decision")
+        if dec == "rewrote":
+            rewrote.append((ts, cmd))
+        elif dec == "routed":
             routed.append((ts, cmd))
         elif rg.REC.search(cmd):                 # a recursive grep that escaped
             passed_rec.append((ts, cmd))
         else:
             passed_other.append((ts, cmd))       # non-recursive grep (fine)
-    return routed, passed_rec, passed_other
+    return rewrote, routed, passed_rec, passed_other
 
 
 def scan_transcripts(since):
@@ -118,23 +124,26 @@ def main():
     today = datetime.now(timezone.utc).date()
     day = (today - since).days + 1
 
-    routed, passed_rec, passed_other = read_hook_log(since)
+    rewrote, routed, passed_rec, passed_other = read_hook_log(since)
     grep_r, git_grep, grep_tool = scan_transcripts(since)
 
     print(f"grep→git grep routing — live measurement")
     print(f"window: {since} → {today}  (day {day} of 7)")
     print("=" * 52)
 
-    n = len(routed)
-    print(f"\nPREVENTED slow searches (hook fired):   {n}")
-    print(f"recursive greps that used the escape:   {len(passed_rec)}")
-    print(f"non-recursive greps (left alone):       {len(passed_other)}")
+    prevented = rewrote + routed
+    n = len(prevented)
+    print(f"\nPREVENTED slow searches (hook acted):    {n}")
+    print(f"  auto-rewritten to git grep:            {len(rewrote)}")
+    print(f"  denied (couldn't rewrite — advisory):  {len(routed)}")
+    print(f"recursive greps that used the escape:    {len(passed_rec)}")
+    print(f"non-recursive greps (left alone):        {len(passed_other)}")
 
     print(f"\nEstimated savings (upper bound):")
     print(f"  time not spent walking node_modules:  ~{fmt_dur(n*SAVE_MS)}")
     print(f"  context tokens kept clean:            ~{n*SAVE_TOK:,}")
 
-    by_day = Counter(ts.date().isoformat() for ts, _ in routed if ts)
+    by_day = Counter(ts.date().isoformat() for ts, _ in prevented if ts)
     if by_day:
         print(f"\nfires by day:")
         for d in sorted(by_day):
