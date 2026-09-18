@@ -13,3 +13,4 @@ worktrees/
 playwright-report/
 test-results/
 .env.local
+__pycache__/
