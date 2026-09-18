@@ -1,6 +1,6 @@
 .sv2-page {
   --sv2-ink: #23334a;
-  --sv2-muted: #738094;
+  --sv2-muted: #55606e;
   --sv2-line: rgba(177, 195, 208, 0.68);
   --sv2-surface: rgba(250, 252, 254, 0.82);
   --sv2-surface-strong: #fbfdff;
@@ -8,7 +8,7 @@
   --sv2-teal: #367e84;
   --sv2-teal-soft: #dcecee;
   --sv2-blue: #4f75b8;
-  --sv2-amber: #b77822;
+  --sv2-amber: #9a6414;
   --sv2-red: #ae554f;
   color: var(--sv2-ink);
 }
@@ -657,7 +657,7 @@
 
 .sv2-disclaimer {
   margin: 14px 4px 0;
-  color: #8290a2;
+  color: #5d6875;
   font-size: 8px;
   text-align: right;
 }
