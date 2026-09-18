@@ -192,6 +192,8 @@ def rewrite_grep_clause(seg):
     core = seg.strip()
     if "$(" in core or "`" in core or re.search(r"[<>]\(", core):
         return None                                   # substitution: shlex can't
+    if re.search(r"\\[\"']", core):
+        return None                                   # escaped quote: shlex unreliable
     try:
         toks = shlex.split(core, posix=False)
     except ValueError:
@@ -240,25 +242,64 @@ def rewrite_grep_clause(seg):
         return None
 
     real_paths = [p for p in paths if p not in (".", "./")]
-    # grep's `path --include=glob` means AND (glob within path); git grep
-    # pathspecs OR — so that combination isn't safely equivalent. Deny it.
-    if real_paths and (includes or excludes):
-        return None
+    specs = _build_pathspecs(real_paths, includes, excludes)
+    if specs is None:
+        return None                                   # unmodeled path/glob combo
 
     out = ["git", "grep"]
     if flags:
         out.append("-" + "".join(flags))
     out.append(pattern)
-    specs = list(real_paths)
-    specs += ["'%s'" % g for g in includes]
-    specs += ["':!%s'" % g for g in excludes]
     if specs:
         out.append("--")
         out.extend(specs)
     result = " ".join(out)
     if redirects:
         result += " " + " ".join(redirects)
-    return lead + result + trail
+    candidate = lead + result + trail
+    if split_top_level(candidate) is None:
+        return None                                   # never emit unbalanced output
+    return candidate
+
+
+def _dir_like(p):
+    """A path grep's --include filters *within* — a directory, not a file.
+    Conservative: ends with / or its basename has no extension."""
+    base = p.strip("'\"").rstrip("/").rsplit("/", 1)[-1]
+    return p.endswith("/") or "." not in base or base in (".", "..")
+
+
+def _build_pathspecs(real_paths, includes, excludes):
+    """Turn grep paths + --include/--exclude globs into git grep pathspecs, or
+    None if the combination isn't safely equivalent (caller then denies).
+
+      paths only            -> literal paths
+      globs only (path was .) -> quoted globs (OR)
+      paths AND includes    -> ':(glob)<dir>/**/<glob>' cross product == grep's
+                               (path AND glob) semantics
+      paths AND excludes    -> unmodeled (deny)
+    """
+    if real_paths and includes:
+        if excludes:
+            return None                               # path + exclude: unmodeled
+        if any(("/" in g or "'" in g or '"' in g) for g in includes):
+            return None                               # dir-qualified/quoted glob
+        if not all(_dir_like(p) for p in real_paths):
+            return None                               # include filters a file path
+        specs = []
+        for p in real_paths:
+            d = p.strip("'\"").rstrip("/")
+            if "'" in d:
+                return None                            # can't single-quote safely
+            for g in includes:
+                specs.append("':(glob)%s/**/%s'" % (d, g))
+        return specs
+    if real_paths and excludes:
+        return None                                   # path + exclude: unmodeled
+    specs = list(real_paths)
+    specs += ["'%s'" % g for g in includes]
+    specs += ["':!%s'" % g for g in excludes]
+    return specs
 
 
 def plan_command(command, cwd=None, in_work_tree=None):

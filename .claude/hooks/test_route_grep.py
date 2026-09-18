@@ -49,9 +49,15 @@ PLAN = [
     ("redirect kept",     "grep -rn X src 2>/dev/null",    True, "rewrite", "git grep -n X -- src 2>/dev/null"),
     ("alternation kept",  r'grep -rn "a\|b" src',          True, "rewrite", r'git grep -n "a\|b" -- src'),
     ("two paths",         "grep -rn X src lib",            True, "rewrite", "git grep -n X -- src lib"),
+    ("path + include glob","grep -rn X src --include=*.ts", True, "rewrite",
+     "git grep -n X -- ':(glob)src/**/*.ts'"),
+    ("paths x includes",  "grep -rn X src lib --include=*.ts --include=*.tsx", True, "rewrite",
+     "git grep -n X -- ':(glob)src/**/*.ts' ':(glob)src/**/*.tsx' "
+     "':(glob)lib/**/*.ts' ':(glob)lib/**/*.tsx'"),
     # deny: the safe floor — can't translate confidently
     ("unknown flag -P",   "grep -rnP X src",               True, "deny", None),
-    ("path + include AND","grep -rn X src --include=*.ts", True, "deny", None),
+    ("path + exclude",    "grep -rn X src --exclude=*.spec.ts", True, "deny", None),
+    ("include on a file", "grep -rn X src/App.tsx --include=*.ts", True, "deny", None),
     ("command subst",     "grep -rn X $(cat p)",           True, "deny", None),
     ("env prefix",        'V=x grep -rn X .',              True, "deny", None),
     ("unbalanced quote",  'grep -rn "X src',               True, "deny", None),
