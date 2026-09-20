@@ -161,6 +161,31 @@ Deliberately absent from the file, because it is the same for every domain:
 The file gets *shorter* as the system gets *more general* — the mark of the
 abstraction being right.
 
+## What to build vs what to rent — where existing tools plug in
+
+Most of the lifecycle is **commodity**. Observation stores, execution engines,
+evaluation runners, and dashboards already exist and are better rented than
+built — handrolling them is a language no one else speaks. What is *not*
+commodity is the **binding across stages**: the durable thread from authored
+intent → the check that tested it → the outcome that followed → the next
+decision. Every tool lives *inside* one stage; nothing on the market owns the
+thread. That thread is the contribution.
+
+| Stage | Rent (commodity) | Own (thin, irreducible) |
+|---|---|---|
+| **00 Observation** | a store — DuckDB, PostHog, OpenTelemetry | the source adapters (thin glue) |
+| **01 Meaning** | editors, forms, authoring UIs | the **contract schema** (`.domain`; meaning as arbiter) |
+| **02 Execution** | humans, Claude, Codex, services, MCP | nothing — orchestration only |
+| **03 Domain** | pytest, Langfuse judges, PostHog evals, schema checks | the **acceptance policy + conformance law + promotion decision** |
+| **04 Accountability** | PostHog experiments / outcome analytics | the **objective-binding + recoverable snapshot** (`Sₙ₊₁ = Sₙ + Δₙ`) |
+| **05 Facia** | PostHog, Metabase, Grafana | the **inquiry grammar** `[value, verdict, operation, convergence]` |
+
+The right column is deliberately small — the same mark of the abstraction being
+right. The system's job is not to replace PostHog or DuckDB; it is to make them
+**accountable to authored intent** across the lifecycle. Rent the organs; own
+the nervous system. Stated for a reader with no context: *these tools, bound
+into one accountable operating model.*
+
 ## Two brackets, three content layers
 
 ```
