@@ -13,17 +13,97 @@ single identity: **`meaning.how` *is* the contract.** The domain's rules
 
 v2 makes that literal: **one canonical document each engine projects from.**
 
+## How to read this system — the lifecycle (00–05)
+
+If you have no other context, read this first. The system is one loop — the
+operating loop of a forward-deployed intelligence. Drop into a situation, see
+what is there, say what "good" means, do it, check it against what you said,
+judge whether it moved the objective, and represent the whole thing so the next
+worker can act. That is the agentic development lifecycle, and it is the same
+loop whether the domain is utility clearance, code retrieval, or strategy. The
+loop is how a recommendation becomes an execution you can trust.
+
+One run produces six artifacts, in dependency order. Each is made by one kind of
+work, and each is the only input the next stage may use.
+
+| Stage | Work (verb) | Artifact (noun) | Engine | What it establishes |
+|---|---|---|---|---|
+| **00_Observation** | capture | evidence — what, when, where | Timpos + Locus | what actually happened |
+| **01_Meaning** | author | the contract — rule, tolerance, objective | the `.domain` file | what "good" is declared to be |
+| **02_Execution** | implement | a candidate result | Libera (Runtime) | what the rule computes on the evidence |
+| **03_Domain** | validate | a verdict — does it conform? | Domain | that the *accomplished* meets the *authored* |
+| **04_Accountability** | evaluate | a snapshot + a trajectory | Corus | whether results move toward the objective |
+| **05_Facia** | represent | an inquiry surface | Facia | how anyone interrogates and reads the loop |
+
+The nouns name what is left on the table; the verbs name the work that produced
+it. The numbers are dependencies, not decoration: a verdict (03) needs a result
+(02) and a contract (01); accountability (04) needs an objective (01) and a
+history of results. This is the `Contract → Result → Verdict → State → Snapshot`
+backbone above, with observation at the front and representation at the back.
+
+**Why observation is 00.** Everything rests on it — including the authoring.
+You cannot write a contract for what you have not observed, and observation is
+not only sensors: it is knowledge held in people's heads, what is seen before it
+is written. Authoring the contract is itself the first act of recording an
+observation. Capture, not contract, is the floor.
+
+**Why validation is Domain, and why nothing is named twice.** A domain is not
+only what is *written*; it is what is *accomplished*. Validation is the one
+stage that holds the contract and the execution together and asks whether they
+agree — written meeting accomplished — which is the actual sense of the word,
+and where meaning is *exhibited* rather than *asserted*. So the two acts get two
+names: the authored contract is **Meaning** (01, asserted — the `.domain` file's
+`meaning:` block); the validation engine is **Domain** (03, exhibited).
+Author and validate are different work, not one engine appearing twice.
+*Consequence:* the repo currently named `meaning` is this validation engine; its
+name is converging back to `domain`, with "meaning" as what it exhibits — its
+job description, not its title.
+
+**Two convergences, not one.** 03 asks "does this result meet its contract?" —
+trust, within a single run. 04 asks "are we trending toward the objective?" —
+worth, across runs. A result can conform perfectly while the trajectory fails;
+that is why Domain owns 03 and Corus owns 04. This is also the **promotion
+test**: 03 says a fast path is *safe*, the measured cost says it is *worth it*,
+and only both together justify moving work to the hot path. Speed alone is the
+rg-beats-grep trap — the asset is knowing what earns the hot path, and being
+able to prove it means the same thing once it gets there.
+
+**Facia is not a UI; it is the inquiry surface.** It is how you both pose
+questions to the loop and read its answers, and its four roles are the registers
+of inquiry — a system constant `[value, verdict, operation, convergence]`:
+
+| Inquiry | Facia role | Asks | Reads |
+|---|---|---|---|
+| value query | value | what is this? | any artifact |
+| expression assessment | operation | what does this evaluate to? | 02 Execution |
+| validation check | verdict | does it conform? | 03 Domain |
+| convergence question | convergence | are we trending toward the objective? | 04 Accountability |
+
+An inquiry is an expression; Facia is the front end to the kernel law
+`Value_out = Evaluate(Expression, Props)` — the question is the Expression, the
+current lifecycle state is the Props. That is why Facia carries no domain: it
+only poses expressions against state. The numbered legend you are reading is
+Facia at rest — a static representation of the loop; a live Facia lets a worker
+ask "is 03 passing? is 04 converging?" at any rung.
+
+**Dynamic vs static numbering.** This lifecycle (`00–05`) is *dynamic* — *when*
+in a run an artifact is produced. It is orthogonal to the **L0–L7 responsibility
+scope** below, which is *static* — *where* a responsibility sits, under "the
+pattern may repeat, responsibility must not." Keep the prefixes apart: bare
+two-digit `00–05` is a run's flow; `L`-prefixed `L0–L7` is the responsibility
+map. Both cut across the engines.
+
 ## The five canonical terms
 
 | Layer | Term | The one question it owns | Kind |
 |---|---|---|---|
 | **Timpos** | **Observation** | When & where was it observed? | domain-carrying |
 | **Libera** | **Runtime** | Where did state move? (executes the model) | invariant bracket |
-| **Domain** | **Meaning** | What does the motion mean? Does it conform? | domain-carrying |
+| **Domain** | **Meaning** | Does the accomplished conform to the authored meaning? | domain-carrying |
 | **Corus** | **Accountability** | Did we get what we said we wanted? | domain-carrying |
-| **Facia** | **Surface** | How does it become usable? | invariant bracket |
+| **Facia** | **Surface** | How is the loop interrogated and represented? | invariant bracket |
 
-Two ratified calls:
+Three ratified calls:
 
 1. **"Context" belongs to Corus.** Corus reconstructs *why* (context /
    time-to-because) in order to judge the trajectory against the declared
@@ -33,6 +113,12 @@ Two ratified calls:
    result meet its contract?", snapshot-level). Corus = *teleology* ("are we
    trending toward the objective?", trajectory-level). Facia's `verdict` role
    reads Domain; its `convergence` role reads Corus.
+3. **Author and validate are distinct; no engine is named twice.** Along the
+   lifecycle the authored contract is **Meaning** (asserted — the `.domain`
+   file's `meaning:` block, stage 01) and validation is **Domain** (exhibited —
+   accomplished meeting authored, stage 03). The repo currently named `meaning`
+   is that validation engine; the name is converging back to `domain`, with
+   "meaning" as what it exhibits, not its title.
 
 `Domain` is one protocol with two implementations: `libera/domain` (embedded,
 in production) and `domain-v1` (standalone reference topology —
