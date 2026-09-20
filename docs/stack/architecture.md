@@ -55,9 +55,8 @@ and where meaning is *exhibited* rather than *asserted*. So the two acts get two
 names: the authored contract is **Meaning** (01, asserted — the `.domain` file's
 `meaning:` block); the validation engine is **Domain** (03, exhibited).
 Author and validate are different work, not one engine appearing twice.
-*Consequence:* the repo currently named `meaning` is this validation engine; its
-name is converging back to `domain`, with "meaning" as what it exhibits — its
-job description, not its title.
+*Consequence, done:* the validation engine is the `domain` repo (renamed from
+`meaning`); "meaning" is what it exhibits — its job description, not its title.
 
 **Two convergences, not one.** 03 asks "does this result meet its contract?" —
 trust, within a single run. 04 asks "are we trending toward the objective?" —
@@ -116,9 +115,9 @@ Three ratified calls:
 3. **Author and validate are distinct; no engine is named twice.** Along the
    lifecycle the authored contract is **Meaning** (asserted — the `.domain`
    file's `meaning:` block, stage 01) and validation is **Domain** (exhibited —
-   accomplished meeting authored, stage 03). The repo currently named `meaning`
-   is that validation engine; the name is converging back to `domain`, with
-   "meaning" as what it exhibits, not its title.
+   accomplished meeting authored, stage 03). That validation engine is the
+   `domain` repo (renamed from `meaning`, 2026-09-20); "meaning" is what it
+   exhibits, not its title.
 
 `Domain` is one protocol with two implementations: `libera/domain` (embedded,
 in production) and `domain-v1` (standalone reference topology —
