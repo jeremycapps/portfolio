@@ -1,0 +1,35 @@
+# This repo, declared as its own domain — dogfooding the canonical schema
+# (see docs/stack/architecture.md). The domain here is the architecture itself:
+# keep the operating model expressed as one canonical spine, coherent across
+# engines, and detect drift before a stale draft governs.
+#
+# DRAFT (v0.1): authored values — objective, meaning, and the convergence test —
+# are a first pass for Jeremy to shape. Runtime (Libera) and surface roles
+# (Facia) are absent by design; they are machinery, never authored here. Naming
+# and reasoning conventions live in AGENTS.md — how it is built — not in the
+# domain (what is being built).
+
+name:      architecture-spine
+version:   0.1.0
+objective: >
+  keep the operating model expressed as one canonical spine that stays coherent
+  across Timpos, Locus, Libera, Domain, Corus, and Facia — so no engine drifts
+  from it and no superseded draft governs
+
+observation:            # Timpos + Locus — when & where a statement of the architecture appears
+  when:  [commit_timestamp, doc_updated_at]
+  where: [docs/stack/architecture.md, libera/README.md, drive/domain-architectural-layers]
+
+meaning:                # Domain — who / what / how, where "how" IS the contract
+  who:   [architect]     # Jeremy authors the spine; agents execute within it
+  what:  [layer_name, layer_owner, layer_question, engine_role]
+  how:
+    responsibility:
+      rule: "the pattern may repeat, responsibility must not"
+
+accountability:         # Corus — why, and the test for "did we keep it coherent"
+  why:         [source_of_truth, cross_engine_coherence, drift_prevention]
+  convergence:
+    question:    "Does every engine's naming and layer story match the spine, with no stale draft cited as canonical?"
+    closer_when: "the three cuts (engine / role / L0–L7) agree AND no superseded draft governs"
+  preserve:    [five_canonical_terms, l0_l7_layers, lineage, domain_version]
