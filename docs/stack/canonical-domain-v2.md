@@ -119,3 +119,76 @@ accountability:
     closer_when: "encroachment_count decreasing AND severe_band empty"
   preserve:    [clearance_policy, risk_policy, domain_version, context_hash]
 ```
+
+## The L0–L7 responsibility layers (reconciled from `Domain Architectural Layers`, Drive, 2026-07-15)
+
+The five canonical terms above are the **engine axis** — which engine owns a
+slice. The `.domain` roles (Author / Implementer / Verifier / Orchestrator) are
+the **cycle axis** — what moves state to convergence. This is the third,
+orthogonal axis: **responsibility scope**, under the rule:
+
+> The pattern may repeat. Responsibility must not.
+
+| Layer | Verb | The one question it owns |
+|---|---|---|
+| L0 — address & storage substrate | persist / locate | Where is it, and how does it stay the same thing over time? |
+| L1 — blueprint & graph topology | arrange | What exists, and what connects to what? |
+| L2 — relations & edge contracts | relate | What happens across this connection? |
+| L3 — ontologies | mean | What does it mean, vs adjacent concepts? |
+| L4 — interfaces | expose | What must this object provide? |
+| L5 — schemas & data contracts | encode | How is it represented so a machine reads it? |
+| L6 — runtime | execute | What happens now, given current state? |
+| L7 — evidence | prove | How do we know it worked or remains true? |
+
+**Welds to the five canonical terms** (the axes cross-cut; this is not a
+bijection):
+
+- **L0 persist/locate = Timpos + Locus** — Timpos owns *when* (persist), Locus
+  owns *where* (locate).
+- **L1–L2 arrange/relate = Domain topology** — the `Program → … → Product`
+  graph and its edge contracts (`domain-v1`).
+- **L3 mean = Domain** (Meaning); **L4–L5 expose/encode** are the interface and
+  schema of the `.domain` file itself.
+- **L6 execute = Libera (Runtime).**
+- **L7 prove = Corus (Accountability) + evidence** — evidence returning to the
+  Program is `Sₙ₊₁ = Sₙ + Δₙ`, second-order convergence.
+
+**Facia's uses are the cycle roles:** `coordinate` = Orchestrator, `implement`
+= Implementer, `verify` = Verifier.
+
+**Resolved drift.** The Drive draft placed **Libera at L0 ("locates")**;
+canonical is now **Libera at L6 ("Runtime")**, with L0's locate role owned by
+**Locus**. This document supersedes the draft on that point.
+
+## Lineage — the parts have precedent; the assembly is the contribution
+
+Two bodies of prior work the architecture stands on. Neither packaged a
+runnable, authored, verifiable version — that assembly is what `.domain` v2
+adds.
+
+**Second-order cybernetics — Heinz von Foerster** (*Cybernetics of Cybernetics*,
+1974; *Objects: Tokens for Eigenbehaviors*, 1976). The observer sits inside the
+system; purpose is supplied by the participant, not intrinsic to the mechanism.
+Stable states are **eigenforms** — fixed points of a recursive operation.
+
+- `meaning` is authored, not intrinsic — the participant supplying purpose.
+- Domain/Corus `convergence` reaching its `closer_when` predicate is recursion
+  to a fixed point; the emitted **`Snapshot` is the eigenform**.
+- The name *second-order* is this lineage: verification acts on *how*
+  implementation changes state, not on judging a finished output.
+
+**Distributed & joint cognition — Hutchins; Woods & Hollnagel** (*Cognition in
+the Wild*, 1995; *Joint Cognitive Systems*, 2005). Cognition lives across people,
+tools, and representations and persists through external artifacts, not one
+head. The unit of analysis is the human+machine **joint system**, which must
+stay observable and directable and is brittle at its boundaries.
+
+- The `.domain` file plus `Snapshot`/`preserve` is coherence externalized into a
+  durable representation that survives the handoff (Hutchins' change-of-watch).
+- `runtime` generated from `meaning.how`, `who`/authority declared in the file,
+  and Facia surfaces keep the joint system observable and directable under human
+  authority (Woods & Hollnagel's *substitution myth*; the governed boundary).
+
+Adjacent: Maturana & Varela (structural coupling), Pask (conversation theory),
+Wegner/Argote (transactive memory — the group-scale form of externalized
+coherence).
