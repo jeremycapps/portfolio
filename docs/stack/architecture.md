@@ -33,7 +33,7 @@ work, and each is the only input the next stage may use.
 | **02_Execution** | implement | a candidate result | Libera (Runtime) | what the rule computes on the evidence |
 | **03_Domain** | validate | a verdict — does it conform? | Domain | that the *accomplished* meets the *authored* |
 | **04_Accountability** | evaluate | a snapshot + a trajectory | Corus | whether results move toward the objective |
-| **05_Facia** | represent | an inquiry surface | Facia | how anyone interrogates and reads the loop |
+| **05_Facia** | represent | a renderer-neutral UI recipe | Facia | how the loop's answers are presented |
 
 The nouns name what is left on the table; the verbs name the work that produced
 it. The numbers are dependencies, not decoration: a verdict (03) needs a result
@@ -67,23 +67,34 @@ and only both together justify moving work to the hot path. Speed alone is the
 rg-beats-grep trap — the asset is knowing what earns the hot path, and being
 able to prove it means the same thing once it gets there.
 
-**Facia is not a UI; it is the inquiry surface.** It is how you both pose
-questions to the loop and read its answers, and its four roles are the registers
-of inquiry — a system constant `[value, verdict, operation, convergence]`:
+**Facia turns an answer into a UI recipe.** It is Concern A — an already-answered,
+classified `AnswerSet` goes through `validate → shape → pattern → affordances →
+recipe`, deterministically. It does not interpret questions, evaluate domain
+truth, execute operations, or paint pixels. Its four answer roles form a ladder
+of composition — a system constant `[value, verdict, operation, convergence]`:
 
-| Inquiry | Facia role | Asks | Reads |
-|---|---|---|---|
-| value query | value | what is this? | any artifact |
-| expression assessment | operation | what does this evaluate to? | 02 Execution |
-| validation check | verdict | does it conform? | 03 Domain |
-| convergence question | convergence | are we trending toward the objective? | 04 Accountability |
+| Facia role | Composition | Answers |
+|---|---|---|
+| value | atomic — one fact | what is known |
+| verdict | composite — many facts → one judgment | what has been judged |
+| operation | directional — a judgment → a change | what change is enacted or offered |
+| convergence | converging — a sequence of changes → a trajectory | whether motion approaches the goal |
 
-An inquiry is an expression; Facia is the front end to the kernel law
+A Producer assigns the role to an *answer* by its composition, not to a question
+or a stage. The correspondence is tight for verdict with 03 Domain and
+convergence with 04 Accountability: that work has exactly that composition.
+Value is an arity, not a stage; operation is a post-judgment change, not stage
+02's pre-verdict execution. There is no clean four-way mapping. The
+`facia.answer-set/2` validation requires a `trace` for convergence, directly or
+carried by a trace sequence — a convergence answer cannot omit its trajectory.
+
+An inquiry is an expression; the kernel law
 `Value_out = Evaluate(Expression, Props)` — the question is the Expression, the
-current lifecycle state is the Props. That is why Facia carries no domain: it
-only poses expressions against state. The numbered legend you are reading is
-Facia at rest — a static representation of the loop; a live Facia lets a worker
-ask "is 03 passing? is 04 converging?" at any rung.
+current lifecycle state is the Props — belongs upstream, to Libera's Concern B
+(question → query → answer). The Producer/Domain bridge emits the AnswerSet;
+Facia carries no domain because it trusts that contract and resolves only its
+presentation. The numbered legend you are reading is a static representation
+of the loop, just as an AnswerSet-derived surface represents the loop's answers.
 
 **Dynamic vs static numbering.** This lifecycle (`00–05`) is *dynamic* — *when*
 in a run an artifact is produced. It is orthogonal to the **L0–L7 responsibility
@@ -100,7 +111,7 @@ map. Both cut across the engines.
 | **Libera** | **Runtime** | Where did state move? (executes the model) | invariant bracket |
 | **Domain** | **Meaning** | Does the accomplished conform to the authored meaning? | domain-carrying |
 | **Corus** | **Accountability** | Did we get what we said we wanted? | domain-carrying |
-| **Facia** | **Surface** | How is the loop interrogated and represented? | invariant bracket |
+| **Facia** | **Surface** | How are the loop's answers represented as UI recipes? | invariant bracket |
 
 Three ratified calls:
 
@@ -178,7 +189,7 @@ thread. That thread is the contribution.
 | **02 Execution** | humans, Claude, Codex, services, MCP | nothing — orchestration only |
 | **03 Domain** | pytest, Langfuse judges, PostHog evals, schema checks | the **acceptance policy + conformance law + promotion decision** |
 | **04 Accountability** | PostHog experiments / outcome analytics | the **objective-binding + recoverable snapshot** (`Sₙ₊₁ = Sₙ + Δₙ`) |
-| **05 Facia** | PostHog, Metabase, Grafana | the **inquiry grammar** `[value, verdict, operation, convergence]` |
+| **05 Facia** | PostHog, Metabase, Grafana | the **answer-role grammar** `[value, verdict, operation, convergence]` |
 
 The right column is deliberately small — the same mark of the abstraction being
 right. The system's job is not to replace PostHog or DuckDB; it is to make them
@@ -189,9 +200,9 @@ into one accountable operating model.*
 ## Two brackets, three content layers
 
 ```
-question → [ Libera ] → answer → [ Facia ] → interface
-             runtime               surface
-             (invariant)           (invariant)
+question → [ Libera: Concern B ] → answer → [ Facia: Concern A ] → recipe → renderer
+             runtime                        surface
+             (invariant)                    (invariant)
 
    the domain content between them = Timpos · Domain · Corus
                                      (observation · meaning · accountability)
