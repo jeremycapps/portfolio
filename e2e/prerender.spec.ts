@@ -1,10 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 const publicRoutes = [
-  ['/', 'I turn ambiguous AI rollouts'],
-  ['/about', 'Jeremy Capps builds the systems'],
-  ['/blog', 'Long-form thinking about executable meaning'],
-  ['/blog/executable-interpretation', 'Domain — Executable Interpretation'],
+  ['/', 'I turn ambiguous, high-pressure work into measurable systems and reliable delivery.'],
+  ['/blog', 'Notes on delivery, process, and shipping under constraint'],
+  ['/blog/domain-graph-harness', 'A Domain Graph, Measured Against What It Forgot'],
   ['/stratos', 'Drag each axis to set a position'],
   ['/stratos-flow', 'I turn ambiguous AI rollouts'],
 ] as const;
@@ -29,14 +28,14 @@ test.describe('agent-readable static HTML', () => {
     const [llms, sitemap, article] = await Promise.all([
       request.get('/llms.txt'),
       request.get('/sitemap.xml'),
-      request.get('/blog/executable-interpretation.md'),
+      request.get('/blog/domain-graph-harness.md'),
     ]);
 
     await expect(llms).toBeOK();
     await expect(sitemap).toBeOK();
     await expect(article).toBeOK();
     expect(await llms.text()).toContain('# Jeremy Capps');
-    expect(await sitemap.text()).toContain('/blog/query-compiler-induced');
-    expect(await article.text()).toContain('# Domain — Executable Interpretation');
+    expect(await sitemap.text()).toContain('/blog/ai-ops-allocation');
+    expect(await article.text()).toContain('The harness is the point');
   });
 });
