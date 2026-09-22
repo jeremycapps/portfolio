@@ -54,7 +54,7 @@
   --ink: #1A1A1A;
   --ink-2: #2D2828;
   --ink-soft: #6B6660;
-  --faint: #9A938A;
+  --faint: #726C62;
   /* Hairlines. */
   --line: #D9D3C6;
   --line-soft: #E4DED2;
@@ -63,8 +63,8 @@
   --accent-ink: #2D2828;
   --focus: #1A1A1A;
   /* signals */
-  --good: #2a7f50;
-  --warn: #9a6a2f;
+  --good: #2a7748;
+  --warn: #916129;
   --danger: #b4232a;
   --audit: #63506a;
   /* Domain accents collapse to ink on this monochrome surface. */
