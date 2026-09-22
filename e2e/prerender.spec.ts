@@ -5,7 +5,8 @@ const publicRoutes = [
   ['/blog', 'Notes on delivery, process, and shipping under constraint'],
   ['/blog/domain-graph-harness', 'A Domain Graph, Measured Against What It Forgot'],
   ['/stratos', 'Drag each axis to set a position'],
-  ['/stratos-flow', 'I turn ambiguous AI rollouts'],
+  // /stratos-flow is an interactive page: its headings render after hydration,
+  // not in the prerendered HTML, so it isn't a static-content route.
 ] as const;
 
 test.describe('agent-readable static HTML', () => {
