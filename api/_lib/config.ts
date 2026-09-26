@@ -9,7 +9,7 @@ export interface AppConfig {
   structuredTimeoutMs: number;
 }
 
-const DEFAULT_MAX_OUTPUT_TOKENS = 400;
+const DEFAULT_MAX_OUTPUT_TOKENS = 800;
 const DEFAULT_STRUCTURED_MAX_OUTPUT_TOKENS = 1_000;
 const DEFAULT_STRUCTURED_TIMEOUT_MS = 8_000;
 
