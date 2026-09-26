@@ -1,5 +1,4 @@
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { readFile } from 'node:fs/promises';
 import { resolveR2Config } from './context-index';
 import { lexicalTerms, overlapCount } from './lexical-kernel';
 
@@ -74,9 +73,17 @@ export async function loadEvidence(
   now: number = Date.now(),
 ): Promise<EvidenceDocument | null> {
   if (cache && now - cache.at < CACHE_MS) return cache.doc;
-  const doc = env.EVIDENCE_FILE
-    ? (JSON.parse(await readFile(env.EVIDENCE_FILE, 'utf8')) as EvidenceDocument)
-    : await fetchFromR2(env);
+  let doc: EvidenceDocument | null;
+  if (env.EVIDENCE_FILE) {
+    // Local-only path (dev/tests). Loaded via an indirected dynamic import so the
+    // Edge bundler never sees a static node: builtin — this module is pulled into
+    // the Edge api/answer function, which forbids node:fs. Never runs in prod (R2).
+    const fsModule = 'node:fs/promises';
+    const { readFile } = await import(fsModule);
+    doc = JSON.parse(await readFile(env.EVIDENCE_FILE, 'utf8')) as EvidenceDocument;
+  } else {
+    doc = await fetchFromR2(env);
+  }
   if (doc) cache = { doc, at: now };
   return doc;
 }
