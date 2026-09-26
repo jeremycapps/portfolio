@@ -52,7 +52,7 @@ describe('buildMessages', () => {
     const { messages: built } = await buildMessages(
       [{ role: 'user', content: 'hi' }],
       'http://x',
-      { plan: notNeeded },
+      { plan: notNeeded, source: 'transcripts' },
     );
     expect(built[0].role).toBe('system');
     expect(built.filter((m) => m.role === 'system')).toHaveLength(1);
@@ -63,7 +63,7 @@ describe('buildMessages', () => {
     const { messages } = await buildMessages(
       [{ role: 'user', content: 'hi' }],
       'http://x',
-      { plan: notNeeded },
+      { plan: notNeeded, source: 'transcripts' },
     );
     const [system] = messages;
     expect(system.content).toContain('<response_output_contract version="1.0">');
@@ -78,7 +78,7 @@ describe('buildMessages', () => {
     const { messages, outcome } = await buildMessages(
       [{ role: 'user', content: 'What technologies has Jeremy used?' }],
       'http://x',
-      { plan: notNeeded },
+      { plan: notNeeded, source: 'transcripts' },
     );
     expect(outcome.status).toBe('none');
     expect(messages[0].content).not.toContain('dated working context');
@@ -89,6 +89,7 @@ describe('buildMessages', () => {
       [{ role: 'user', content: 'How did the Libera kernel design settle?' }],
       'http://x',
       {
+        source: 'transcripts',
         plan: async () => ({ needed: true, query: { term: 'kernel design', kind: 'prose', expansion: 'none', limit: 5 } }),
         retrieve: async () => [exampleRow],
       },
@@ -104,6 +105,7 @@ describe('buildMessages', () => {
       [{ role: 'user', content: 'anything' }],
       'http://x',
       {
+        source: 'transcripts',
         plan: async () => ({ needed: true, query: { term: 'x', kind: 'prose', expansion: 'none', limit: 5 } }),
         retrieve: async () => [],
       },
@@ -117,12 +119,63 @@ describe('buildMessages', () => {
       [{ role: 'user', content: 'anything' }],
       'http://x',
       {
+        source: 'transcripts',
         plan: async () => ({ needed: true, query: { term: 'x', kind: 'prose', expansion: 'none', limit: 5 } }),
         retrieve: async () => { throw new Error('boom'); },
       },
     );
     expect(outcome.status).toBe('error');
     expect(messages[0].content).not.toContain('dated working context');
+  });
+});
+
+describe('buildMessages with evidence (default source)', () => {
+  const evidenceItem = {
+    id: 'ev-1', type: 'decision', subject: 'Review by exception', date: '2026-09-25',
+    claim: 'I switched to an automatic gate with audits.', quote: null, reviewed: false,
+    current: true, supersedes: [], superseded_by: [],
+  };
+
+  it('adds an evidence block and never calls the transcript retriever', async () => {
+    let transcriptCalls = 0;
+    const { messages, outcome } = await buildMessages(
+      [{ role: 'user', content: 'How does review work?' }],
+      'http://x',
+      {
+        source: 'evidence',
+        retrieve: async () => { transcriptCalls += 1; return [exampleRow]; },
+        retrieveEvidence: async () => [evidenceItem],
+      },
+    );
+    expect(transcriptCalls).toBe(0);
+    expect(outcome).toMatchObject({ source: 'evidence', status: 'hit', count: 1 });
+    expect(messages[0].content).toContain('[ev-1, 2026-09-25, decision, current, auto] Review by exception');
+    expect(messages[0].content).not.toContain('dated working context');
+  });
+
+  it('searches with the previous user turn so follow-ups keep their topic', async () => {
+    let asked = '';
+    await buildMessages(
+      [
+        { role: 'user', content: 'How does the review gate work?' },
+        { role: 'assistant', content: 'It audits.' },
+        { role: 'user', content: 'Why did he change it?' },
+      ],
+      'http://x',
+      { source: 'evidence', retrieveEvidence: async (q) => { asked = q; return []; } },
+    );
+    expect(asked).toContain('review gate');
+    expect(asked).toContain('change it');
+  });
+
+  it('reports an error and still builds the prompt when evidence fails to load', async () => {
+    const { messages, outcome } = await buildMessages(
+      [{ role: 'user', content: 'anything' }],
+      'http://x',
+      { source: 'evidence', retrieveEvidence: async () => { throw new Error('r2 down'); } },
+    );
+    expect(outcome).toMatchObject({ source: 'evidence', status: 'error' });
+    expect(messages[0].role).toBe('system');
   });
 });
 
@@ -144,7 +197,7 @@ describe('handleChatRequest', () => {
       method: 'POST',
       body: JSON.stringify({ messages: [{ role: 'user', content: 'hi' }] }),
     });
-    const res = await handleChatRequest(req, { stream: fakeStream as never, plan: notNeeded });
+    const res = await handleChatRequest(req, { stream: fakeStream as never, plan: notNeeded, source: 'transcripts' });
     expect(res.status).toBe(200);
     expect(res.headers.get('x-context-retrieval')).toBe('none');
     expect(res.headers.get('x-context-retrieval-count')).toBeNull();
@@ -161,6 +214,7 @@ describe('handleChatRequest', () => {
     });
     const res = await handleChatRequest(req, {
       stream: fakeStream as never,
+      source: 'transcripts',
       plan: async () => ({ needed: true, query: { term: 'kernel', kind: 'prose', expansion: 'none', limit: 5 } }),
       retrieve: async () => [exampleRow],
     });
@@ -178,6 +232,7 @@ describe('handleChatRequest', () => {
     });
     const res = await handleChatRequest(req, {
       stream: fakeStream as never,
+      source: 'transcripts',
       plan: async () => ({ needed: true, query: { term: 'x', kind: 'prose', expansion: 'none', limit: 5 } }),
       retrieve: async () => { throw new Error('boom'); },
     });
@@ -196,7 +251,7 @@ describe('handleChatRequest', () => {
       method: 'POST',
       body: JSON.stringify({ messages: [{ role: 'user', content: 'hi' }] }),
     });
-    const res = await handleChatRequest(req, { stream: boom as never, plan: notNeeded });
+    const res = await handleChatRequest(req, { stream: boom as never, plan: notNeeded, source: 'transcripts' });
     expect(res.status).toBe(502);
     expect(res.headers.get('content-type')).toContain('application/json');
     await expect(res.json()).resolves.toMatchObject({ code: 'PROVIDER_UNAVAILABLE' });

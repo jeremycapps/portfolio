@@ -4,6 +4,7 @@ import { streamChat } from './provider';
 import { checkRateLimit } from './rate-limit';
 import { planContextQuery } from './context-query-planner';
 import { retrieveContext } from './context-retrieval-client';
+import { buildEvidenceBlock, retrieveEvidence } from './evidence';
 import type { CatalogRow, ContextQueryKind, ContextRow } from './context-index';
 import type { ChatMessage, ChatRole } from './types';
 
@@ -56,7 +57,18 @@ function buildContextBlock(rows: Array<ContextRow | CatalogRow>): string {
   return [CONTEXT_BLOCK_INSTRUCTIONS, '', ...rows.map(formatContextRow)].join('\n');
 }
 
+export type ContextSource = 'evidence' | 'transcripts';
+
+/**
+ * Evidence (claims extracted and gated by the observation pipeline) is the default.
+ * Raw transcript retrieval stays available only when CONTEXT_SOURCE=transcripts.
+ */
+export function resolveContextSource(env: Record<string, string | undefined> = process.env): ContextSource {
+  return env.CONTEXT_SOURCE === 'transcripts' ? 'transcripts' : 'evidence';
+}
+
 export interface ContextRetrievalOutcome {
+  source?: ContextSource;
   status: 'hit' | 'none' | 'error';
   count?: number;
   term?: string;
@@ -68,6 +80,37 @@ export interface ContextRetrievalOutcome {
 export interface BuildMessagesDeps {
   plan?: typeof planContextQuery;
   retrieve?: typeof retrieveContext;
+  retrieveEvidence?: typeof retrieveEvidence;
+  source?: ContextSource;
+}
+
+function systemMessage(contextBlock: string | null): ChatMessage {
+  const systemParts = [portfolioGrounding()];
+  if (contextBlock) systemParts.push(contextBlock);
+  systemParts.push(markdownAssistantInstructions());
+  return { role: 'system', content: systemParts.join('\n\n') };
+}
+
+async function buildEvidenceMessages(
+  userMessages: ChatMessage[],
+  retrieve: typeof retrieveEvidence,
+): Promise<BuildMessagesResult> {
+  // the previous user turn carries the topic of follow-ups like "why did he change that?"
+  const userTurns = userMessages.filter((m) => m.role === 'user').slice(-2);
+  const question = userTurns.map((m) => m.content).join('\n');
+  const started = Date.now();
+  let contextBlock: string | null = null;
+  let outcome: ContextRetrievalOutcome;
+  try {
+    const items = await retrieve(question);
+    const retrievalMs = Date.now() - started;
+    if (items.length > 0) contextBlock = buildEvidenceBlock(items);
+    outcome = { source: 'evidence', status: items.length > 0 ? 'hit' : 'none', count: items.length, planMs: 0, retrievalMs };
+  } catch (error) {
+    console.error('evidence retrieval failed:', error);
+    outcome = { source: 'evidence', status: 'error', planMs: 0, retrievalMs: Date.now() - started };
+  }
+  return { messages: [systemMessage(contextBlock), ...userMessages], outcome };
 }
 
 export interface BuildMessagesResult {
@@ -80,6 +123,9 @@ export async function buildMessages(
   origin: string,
   deps: BuildMessagesDeps = {},
 ): Promise<BuildMessagesResult> {
+  if ((deps.source ?? resolveContextSource()) === 'evidence') {
+    return buildEvidenceMessages(userMessages, deps.retrieveEvidence ?? retrieveEvidence);
+  }
   const plan = deps.plan ?? planContextQuery;
   const retrieve = deps.retrieve ?? retrieveContext;
   const question = userMessages[userMessages.length - 1]?.content ?? '';
@@ -128,19 +174,13 @@ export async function buildMessages(
     }
   }
 
-  const systemParts = [portfolioGrounding()];
-  if (contextBlock) systemParts.push(contextBlock);
-  systemParts.push(markdownAssistantInstructions());
-
-  return {
-    messages: [{ role: 'system', content: systemParts.join('\n\n') }, ...userMessages],
-    outcome,
-  };
+  return { messages: [systemMessage(contextBlock), ...userMessages], outcome: { source: 'transcripts', ...outcome } };
 }
 
 function logContextRetrievalOutcome(outcome: ContextRetrievalOutcome): void {
   const line = {
     route: 'chat',
+    ...(outcome.source !== undefined ? { contextSource: outcome.source } : {}),
     contextRetrieval: outcome.status,
     ...(outcome.kind !== undefined ? { kind: outcome.kind } : {}),
     ...(outcome.term !== undefined ? { term: outcome.term } : {}),
@@ -159,6 +199,8 @@ export async function handleChatRequest(
     checkLimit?: typeof checkRateLimit;
     plan?: typeof planContextQuery;
     retrieve?: typeof retrieveContext;
+    retrieveEvidence?: typeof retrieveEvidence;
+    source?: ContextSource;
   } = {},
 ): Promise<Response> {
   if (request.method !== 'POST') {
@@ -195,6 +237,8 @@ export async function handleChatRequest(
   const { messages, outcome } = await buildMessages(valid.messages, origin, {
     plan: deps.plan,
     retrieve: deps.retrieve,
+    retrieveEvidence: deps.retrieveEvidence,
+    source: deps.source,
   });
   logContextRetrievalOutcome(outcome);
 
@@ -233,6 +277,7 @@ export async function handleChatRequest(
     'cache-control': 'no-store',
     'x-context-retrieval': outcome.status,
   };
+  if (outcome.source) headers['x-context-source'] = outcome.source;
   if (outcome.status === 'hit' && outcome.count !== undefined) {
     headers['x-context-retrieval-count'] = String(outcome.count);
   }
