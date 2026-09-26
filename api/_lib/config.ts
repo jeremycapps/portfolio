@@ -21,7 +21,7 @@ function positiveInteger(value: string | undefined, fallback: number): number {
 export function getConfig(env: Record<string, string | undefined> = process.env): AppConfig {
   return {
     provider: env.CHAT_PROVIDER ?? 'openrouter',
-    model: env.CHAT_MODEL ?? 'qwen/qwen3.8-27b:free',
+    model: env.CHAT_MODEL ?? 'qwen/qwen3.8-27b',
     openRouterKey: env.OPENROUTER_API_KEY,
     maxOutputTokens: positiveInteger(env.CHAT_MAX_OUTPUT_TOKENS, DEFAULT_MAX_OUTPUT_TOKENS),
     structuredMaxOutputTokens: positiveInteger(
