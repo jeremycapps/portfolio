@@ -302,6 +302,9 @@ export function supportsCareerQuestion(question: string): boolean {
   // keyword ("experience", "roles", "worked"), so the role gate comes first:
   // the spine may only claim a value question.
   if (roleOf(question) !== 'value') return false;
+  // A "what roles fit / looking for" question shares the word "roles" but asks
+  // about the work he wants, not the work he has done — it has its own model.
+  if (supportsLookingForQuestion(question)) return false;
   // A Zocdoc-specific "what did you do" belongs to the richer Zocdoc model, not
   // the whole-career spine.
   if (supportsPortfolioQuestion(question)) return false;
@@ -366,10 +369,10 @@ export function careerHistoryAnswerSet(): AnswerSetV2 {
     sequenceKind: 'temporal',
     items: [
       careerItem({
-        role: 'Head of Operations',
+        role: 'Strategic Projects Lead',
         organization: 'Aroko',
         period: '2024–present',
-        focus: 'Leads operations and client web delivery at a cooperative agency.',
+        focus: 'Leads operations and technical delivery at a cooperative agency.',
         highlight: 'Authored an approved 90-day operating plan and built a Notion budgeting and estimating system.',
         sourceRef: 'content/profile.md#what-hes-doing-now',
       }),
@@ -411,6 +414,104 @@ export function careerHistoryAnswerSet(): AnswerSetV2 {
   };
 }
 
+// "What roles fit Jeremy / what's he looking for" is a forward-looking question
+// about the work he wants next, not a lookup on the work he has done. Left to the
+// grammar it misroutes two ways: "what roles fit Jeremy" reads as relational
+// (fit → operation) and "what kinds of roles fit Jeremy" reads as enumerating
+// (→ value), which the career keyword matcher then claims on the word "roles" and
+// answers with the career timeline. This deterministic model owns the intent.
+const ASPIRATION_TERMS = [
+  'looking', 'seeking', 'targeting', 'target', 'want', 'wants', 'wanting',
+  'fit', 'fits', 'suit', 'suits', 'suited', 'ideal', 'aspiration', 'aspirations',
+];
+const ROLE_SUBJECT_TERMS = [
+  'role', 'roles', 'job', 'jobs', 'position', 'positions', 'work', 'title', 'titles',
+];
+
+export function supportsLookingForQuestion(question: string): boolean {
+  const normalized = normalizedQuestion(question);
+  const words = new Set(normalized.split(' '));
+  // "How does X fit Y" is a relational mapping, not a question about what he wants.
+  if (normalized.startsWith('how ')) return false;
+  if (normalized.includes('looking for')) return true;
+  const aspires = ASPIRATION_TERMS.some((term) => words.has(term));
+  const aboutRoles = ROLE_SUBJECT_TERMS.some((term) => words.has(term));
+  return aspires && aboutRoles;
+}
+
+const LOOKING_FOR_REF = 'content/profile.md#what-jeremy-is-looking-for';
+
+function targetRoleFields(): FieldInfoV2 {
+  return {
+    priority: {
+      primary: ['role'],
+      secondary: ['fit'],
+      supporting: ['context'],
+      audit: ['evidenceTier', 'source'],
+    },
+  };
+}
+
+function targetRoleItem(entry: { role: string; fit: string; context: string }) {
+  return {
+    type: 'Value' as const,
+    payload: {
+      role: entry.role,
+      fit: entry.fit,
+      context: entry.context,
+      evidenceTier: 'profile-grounded',
+      source: LOOKING_FOR_REF,
+    },
+    value: entry.role,
+    evidence: {
+      status: 'profile-grounded' as const,
+      sourceRefs: [LOOKING_FOR_REF],
+    },
+    fields: targetRoleFields(),
+  };
+}
+
+// The roles Jeremy is targeting, drawn from the profile's "what he's looking for"
+// section — the answer a recruiter scans first. Authored deterministically so it
+// never depends on model behavior for the portfolio's most load-bearing question.
+export function lookingForAnswerSet(): AnswerSetV2 {
+  return {
+    schema: 'facia.answer-set/2',
+    question: 'What roles is Jeremy looking for?',
+    answerType: 'value',
+    path: 'meaning',
+    inspection: 'available',
+    actionable: false,
+    items: [
+      targetRoleItem({
+        role: 'Strategic / Special Projects Lead',
+        fit: 'Turns ambiguous, cross-functional problems into executable plans, measurable operating systems, and shipped delivery.',
+        context: 'His through-line across operations, product, design, and engineering.',
+      }),
+      targetRoleItem({
+        role: 'Technical Project Manager',
+        fit: 'Owns tactical execution end to end and reports clearly on cost, capacity, quality, and progress.',
+        context: 'Strength in technical programs, process optimization, and stakeholder coordination.',
+      }),
+      targetRoleItem({
+        role: 'Technical Product Manager',
+        fit: 'Combines analytical problem-solving, operational execution, and technical fluency.',
+        context: 'Especially at AI companies building the next generation of productivity tools.',
+      }),
+    ],
+    operations: [],
+    trace: {
+      kind: 'direct',
+      id: 'portfolio.looking-for.v1',
+      entries: [
+        { step: 'question.selected', value: 'portfolio.looking-for' },
+        { step: 'source.loaded', value: LOOKING_FOR_REF },
+        { step: 'answer.emitted', value: 3 },
+      ],
+    },
+  };
+}
+
 interface QuestionMatcher {
   supports: (question: string) => boolean;
   build: (question: string) => AnswerSetV2;
@@ -423,6 +524,9 @@ const MATCHERS: QuestionMatcher[] = [
   { supports: supportsTensionQuestion, build: (q) => tensionAnswerSet(q)! },
   { supports: supportsPortfolioQuestion, build: zocdocAnswerSet },
   { supports: supportsTechnologiesQuestion, build: technologiesAnswerSet },
+  // Before the career matcher: a "what roles fit / what's he looking for" question
+  // mentions "roles" and would otherwise be answered with the career timeline.
+  { supports: supportsLookingForQuestion, build: lookingForAnswerSet },
   { supports: supportsCareerQuestion, build: careerHistoryAnswerSet },
 ];
 
@@ -443,6 +547,11 @@ export async function generatePortfolioAnswer(
   // picks one — a bounded verdict, answered from the tension index. Without
   // this the career matcher claims it and returns the career timeline.
   if (supportsTensionQuestion(question)) return tensionAnswerSet(question)!;
+  // Forward-looking "what roles fit / what's he looking for". Runs ahead of the
+  // operation and career branches: without it, "what roles fit Jeremy" is read as
+  // a relational operation and "what kinds of roles fit Jeremy" is claimed by the
+  // career timeline — both answering the wrong question.
+  if (supportsLookingForQuestion(question)) return lookingForAnswerSet();
   // A relational question names two terms whose mapping is in no single source.
   // It is composed: the model supplies the mapping, the host grounds the input
   // and draws the seam. This runs ahead of the value model so a "how does X

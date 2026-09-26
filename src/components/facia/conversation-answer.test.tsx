@@ -55,7 +55,7 @@ describe('ConversationAnswer', () => {
   it('renders the career answer as a structured timeline, its one genuinely structured case', () => {
     const html = render(careerHistoryAnswerSet());
     expect(html).toContain('conversation-timeline');
-    expect(html).toContain('Head of Operations');
+    expect(html).toContain('Strategic Projects Lead');
     expect(html).toContain('Aroko');
   });
 });

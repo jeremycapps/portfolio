@@ -50,10 +50,10 @@ describe('SemanticSurface', () => {
     expect(html).not.toContain('does not support');
     expect(html).toContain('data-testid="timeline-entry-0"');
     // Identity plus focus and highlight — the whole content of a timeline entry.
-    expect(html).toContain('Head of Operations');
+    expect(html).toContain('Strategic Projects Lead');
     expect(html).toContain('Aroko');
     expect(html).toContain('2024–present');
-    expect(html).toContain('Leads operations and client web delivery');
+    expect(html).toContain('Leads operations and technical delivery');
     expect(html).toContain('90-day operating plan');
     // No Facia tags: no control buttons, no field labels, no audit/provenance.
     expect(html).not.toContain('button-item-0-inspect');

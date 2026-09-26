@@ -7,7 +7,9 @@ import {
   careerHistoryAnswerSet,
   generatePortfolioAnswer,
   liberaStartPrecision,
+  lookingForAnswerSet,
   supportsCareerQuestion,
+  supportsLookingForQuestion,
   supportsPortfolioQuestion,
   supportsTechnologiesQuestion,
 } from './portfolio-answer-source';
@@ -180,6 +182,54 @@ describe('career history answer source', () => {
     const answer = await generatePortfolioAnswer("What's your career history?", provider);
     expect(answer.structure).toBe('sequence');
     expect(answer.sequenceKind).toBe('temporal');
+  });
+});
+
+describe('looking-for answer source', () => {
+  it('claims forward-looking "what roles fit / looking for" questions', () => {
+    expect(supportsLookingForQuestion('What roles fit Jeremy?')).toBe(true);
+    expect(supportsLookingForQuestion('What kinds of roles fit Jeremy, and why?')).toBe(true);
+    expect(supportsLookingForQuestion("What's he looking for?")).toBe(true);
+    expect(supportsLookingForQuestion('What roles is Jeremy targeting?')).toBe(true);
+    expect(supportsLookingForQuestion('What kind of work does he want?')).toBe(true);
+  });
+
+  it('does not claim career-history or relational-fit questions', () => {
+    expect(supportsLookingForQuestion("What is Jeremy's career history?")).toBe(false);
+    expect(supportsLookingForQuestion('Walk me through his experience')).toBe(false);
+    expect(supportsLookingForQuestion('What roles has he held?')).toBe(false);
+    expect(supportsLookingForQuestion("How does Jeremy's experience fit a fintech role?")).toBe(false);
+  });
+
+  it('keeps the career matcher off the "roles fit" question that used to trigger it', () => {
+    expect(supportsCareerQuestion('What roles fit Jeremy?')).toBe(false);
+    expect(supportsCareerQuestion('What kinds of roles fit Jeremy, and why?')).toBe(false);
+  });
+
+  it('routes both phrasings to the looking-for model, not the career timeline', async () => {
+    const unreachable = async () => {
+      throw new Error('the provider must not be reached for a looking-for question');
+    };
+    for (const q of ['What roles fit Jeremy?', 'What kinds of roles fit Jeremy, and why?']) {
+      const answer = await generatePortfolioAnswer(q, unreachable, unreachable);
+      expect(answer.trace?.kind).toBe('direct');
+      if (answer.trace?.kind !== 'direct') return;
+      expect(answer.trace.id).toBe('portfolio.looking-for.v1');
+    }
+  });
+
+  it('emits a valid v2 value collection of the three target roles at every depth', () => {
+    const answer = lookingForAnswerSet();
+    expect(answer.answerType).toBe('value');
+    expect(answer.items.map((item) => ('value' in item ? item.value : null))).toEqual([
+      'Strategic / Special Projects Lead',
+      'Technical Project Manager',
+      'Technical Product Manager',
+    ]);
+    for (const depth of ['glance', 'inspect', 'focus', 'audit'] as const) {
+      const result = resolveAnswerSet(answer, { depth, audience: 'human' });
+      expect(result.ok).toBe(true);
+    }
   });
 });
 
