@@ -9,7 +9,7 @@
     {
       "repo_id": 1339803688,
       "repo_name": "jeremycapps/portfolio",
-      "significance": "AI portfolio chatbot + self-building evidence pipeline (this site)"
+      "significance": "a production-grade RAG agent — grounded retrieval, abstention, and a review-gated evidence pipeline — the same system enterprises deploy on their data, built on the one corpus I can reach: my own work logs"
     }
   ]
 }
