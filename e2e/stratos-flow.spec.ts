@@ -1,13 +1,18 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
+// The Klarna flow is retired from public routes: /stratos-flow now redirects to
+// the method write-up, and the interactive flow survives only at this unlisted
+// preview path (kept out of the sitemap). The flow tests exercise it there.
+const FLOW = '/stratos-flow-preview-2cebd2c17d1887106cb0';
+
 test.describe('StratOS Klarna decision flow', () => {
   test('requires a contemporaneous choice before revealing the structured result and hindsight', async ({ page }) => {
-    await page.goto('/stratos-flow');
+    await page.goto(FLOW);
 
     await expect(page.getByRole('heading', { name: /I turn ambiguous AI rollouts/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'A strong AI pilot hid a capacity decision.' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Hold the next increment—not the AI program.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'A strong AI pilot surfaced a capacity decision.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Size the next increment to the evidence; keep the AI program running.' })).toBeVisible();
     await expect(page.getByText('Economics', { exact: true })).toBeVisible();
     await expect(page.getByText('StratOps · Architecture', { exact: true })).toBeVisible();
     await expect(page.getByText('External consequence', { exact: true })).toBeVisible();
@@ -45,7 +50,7 @@ test.describe('StratOS Klarna decision flow', () => {
   });
 
   test('keeps the decision experience accessible after evidence is revealed', async ({ page }) => {
-    await page.goto('/stratos-flow');
+    await page.goto(FLOW);
     await page.getByRole('radio', { name: /Hold/ }).check();
     await page.getByRole('button', { name: 'Lock decision and inspect the evidence' }).click();
 
@@ -55,7 +60,7 @@ test.describe('StratOS Klarna decision flow', () => {
 
   test('supports the six-step flow at a mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/stratos-flow');
+    await page.goto(FLOW);
 
     await page.getByRole('radio', { name: /Hold/ }).check();
     await page.getByRole('button', { name: 'Lock decision and inspect the evidence' }).click();
@@ -65,14 +70,9 @@ test.describe('StratOS Klarna decision flow', () => {
     await expect(page.getByText('Binding constraint', { exact: true })).toBeVisible();
   });
 
-  test('makes the recruiter case legible on the homepage without opening the project', async ({ page }) => {
-    await page.goto('/');
-
-    await expect(page.getByRole('heading', { name: /I turn ambiguous AI rollouts/ })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Explore the Klarna decision/ })).toBeVisible();
-    await expect(page.getByText('Problem', { exact: true })).toBeVisible();
-    await expect(page.getByText('Diagnosis', { exact: true })).toBeVisible();
-    await expect(page.getByText('Decision', { exact: true })).toBeVisible();
-    await expect(page.getByText(/The model supports the diagnosis; the case demonstrates the judgment/)).toBeVisible();
+  test('retires the public flow URL by redirecting it to the method write-up', async ({ page }) => {
+    await page.goto('/stratos-flow');
+    await expect(page).toHaveURL(/\/blog\/method$/);
+    await expect(page.getByRole('heading', { name: /A way to locate the next responsible commitment/ })).toBeVisible();
   });
 });

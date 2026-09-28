@@ -12,7 +12,26 @@
 import { directTrace, fields, verdictAnswerSet } from '@facia/core/authoring';
 import type { JsonObject, VerdictAnswerSetV2 } from '@facia/core';
 import { CANDIDATE_TENSIONS, type CandidateTension } from './candidate-tensions';
-import { isTwoPole } from './question-grammar';
+
+// Inlined from the former question-grammar module — the only piece tension needs.
+// A two-pole question names two alternatives with "or" and those alternatives are
+// what its answer resolves: not an enumeration ("which/what kinds of"), not a
+// relational mapping ("how does X fit Y"), and not a synthesis over evidence.
+// This is the exact `operator === 'judge' && features.alternatives` the grammar
+// computed, minus the classifier that produced misroutes elsewhere.
+const NAMED_OR = /,?\s*\bor\b(?!\s+not\b)/;
+const ENUMERATING = /^(which|what kinds?)\b/;
+const RELATIONAL = /\b(compare[ds]?|appl(?:y|ies)|transfers?|fits?|builds?\s+on|relates?|connects?|translates?|impact)\b/;
+const EVIDENTIAL = /^(based on|given|weighing|considering)\b|\bacross (his|her|their)\s+(roles|career|history|work)\b|^why should\b|\bstill\b|\b(strongest|strengths?|suit(?:ed)?|ready|seniority|heading)\b/;
+
+export function isTwoPole(question: string): boolean {
+  const s = question.trim().toLowerCase().replace(/\?+$/, '');
+  const alternatives = !ENUMERATING.test(s) && NAMED_OR.test(s);
+  if (!alternatives) return false;
+  if (EVIDENTIAL.test(s)) return false;
+  if (RELATIONAL.test(s)) return false;
+  return true;
+}
 
 const STOPWORDS = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'been', 'but', 'by', 'did', 'do', 'does',

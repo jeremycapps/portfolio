@@ -1,10 +1,11 @@
 import { ANSWER_SET_SCHEMA_PIN, resolveAnswerSet } from '@facia/core';
 import { afterEach, describe, it, expect, vi } from 'vitest';
-import { answerPortfolioQuestion } from '../../api/_lib/portfolio-answer-source';
+import { resolvePortfolioAnswer } from '../../api/_lib/portfolio-answer-source';
 import { compactMessageText, readTextStream, sendChat } from './chat';
 
 function resolvedRecipes(question: string) {
-  const answer = answerPortfolioQuestion(question);
+  const answer = resolvePortfolioAnswer(question);
+  if (!answer) throw new Error('Expected the question to resolve to a portfolio card.');
   const glance = resolveAnswerSet(answer, { depth: 'glance' });
   const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
   const focus = resolveAnswerSet(answer, { depth: 'focus' });
