@@ -2479,99 +2479,36 @@ textarea:focus-visible {
 }
 
 
-/* experience — a left-aligned ledger: role · company · dates. Hover inverts the
-   row to the dark band, matching the work rows above. */
-.home-now-grid {
+/* experience — one uniform, expandable card per role. The header is the disclosure
+   button (role · org · years + chevron); the current role opens by default. */
+.home-role-list {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 0;
-  margin-inline: -24px;
+  margin-bottom: 8px;
 }
 
-.home-now-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 120px;
-  gap: 56px;
-  align-items: baseline;
-  padding: 20px 24px;
+.home-role {
   border-top: 1px solid var(--line-soft);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--ink);
-  text-align: left;
-  text-decoration: none;
-  transition: padding-left .32s cubic-bezier(.2, .75, .25, 1), background-color .32s ease, color .32s ease;
 }
-.home-now-item:last-child { border-bottom: 1px solid var(--line-soft); }
-.home-now-item:hover { padding-left: 38px; background: var(--invert); color: var(--invert-ink); }
-.home-now-item:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.home-role:last-child { border-bottom: 1px solid var(--line-soft); }
 
-.home-now-role {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--app-font-sans);
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: color .32s ease;
-}
-.home-now-org {
-  margin: 0;
-  color: var(--ink-2);
-  font-size: 15px;
-  text-align: left;
-  transition: color .32s ease;
-}
-.home-now-meta {
-  margin: 0;
-  color: var(--faint);
-  font-family: var(--app-font-alt);
-  font-size: 13.5px;
-  text-align: left;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  transition: color .32s ease;
-}
-
-.home-now-item:hover .home-now-role,
-.home-now-item:hover .home-now-org { color: var(--invert-ink); }
-.home-now-item:hover .home-now-meta { color: var(--invert-faint); }
-
-.home-now-role svg {
-  width: 14px;
-  height: 14px;
-  color: var(--faint);
-  opacity: 0;
-  transition: opacity 150ms ease, color .32s ease;
-}
-.home-now-item:hover .home-now-role svg,
-.home-now-item:focus-visible .home-now-role svg { opacity: 1; color: var(--invert-ink); }
-
-/* experience lead — the current role, given room to carry its own bullets above
-   the compact ledger of prior roles. */
-.home-exp-lead {
-  padding: clamp(20px, 3vw, 28px);
-  border: 1px solid var(--line-soft);
-  border-radius: 18px;
-  background: var(--surface-grad);
-  box-shadow: var(--shadow);
-  margin-bottom: 28px;
-}
-
-.home-exp-lead-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+.home-role-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 20px;
   gap: 24px;
-  flex-wrap: wrap;
+  align-items: baseline;
+  width: 100%;
+  padding: 20px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
 }
+.home-role-head:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-.home-exp-role {
-  margin: 0;
+.home-role-headings { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.home-role-title {
   color: var(--ink);
   font-family: var(--app-font-sans);
   font-size: 17px;
@@ -2579,44 +2516,39 @@ textarea:focus-visible {
   letter-spacing: -0.02em;
   line-height: 1.3;
 }
-
-.home-exp-org {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  color: var(--accent);
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-}
-.home-exp-org:hover { text-decoration: underline; }
-.home-exp-org svg { width: 13px; height: 13px; }
-
-.home-exp-meta {
-  margin: 0;
+.home-role-org { color: var(--ink-2); font-size: 15px; }
+.home-role-meta {
   color: var(--faint);
   font-family: var(--app-font-alt);
   font-size: 13.5px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+.home-role-chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--faint);
+  justify-self: end;
+  transition: transform .25s ease;
+}
+.home-role[data-open='true'] .home-role-chevron { transform: rotate(180deg); }
 
-.home-exp-points {
-  margin: 20px 0 0;
+.home-role-panel { padding: 0 4px 22px; }
+.home-role-points {
+  margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
   gap: 12px;
 }
-.home-exp-points li {
+.home-role-points li {
   position: relative;
   padding-left: 18px;
   color: var(--ink-soft);
   font-size: 13.5px;
   line-height: 1.6;
 }
-.home-exp-points li::before {
+.home-role-points li::before {
   content: '';
   position: absolute;
   left: 0;
@@ -2626,6 +2558,18 @@ textarea:focus-visible {
   border-radius: 50%;
   background: color-mix(in srgb, var(--accent) 70%, var(--line));
 }
+.home-role-org-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.home-role-org-link:hover { text-decoration: underline; }
+.home-role-org-link svg { width: 13px; height: 13px; }
 
 .home-recognition {
   display: flex;
@@ -2890,17 +2834,12 @@ textarea:focus-visible {
   .home-genre-more { grid-row: 3; grid-column: 2; justify-self: start; }
   .home-genre-title { font-size: 24px; }
 
-  /* ledger rows stack role over company over dates. The full-width hover band
-     is carried by the item itself here, so the grid's desktop bleed is reset to
-     avoid a double negative margin that pushes content off the left edge. */
-  .home-now-grid { margin-inline: 0; }
-  .home-now-item {
-    grid-template-columns: 1fr;
-    gap: 2px;
-    padding: 16px;
-    margin-inline: -16px;
+  /* role cards stack role/org over the dates and chevron on narrow screens. */
+  .home-role-head {
+    grid-template-columns: minmax(0, 1fr) 20px;
+    gap: 12px;
   }
-  .home-now-item:hover { padding-left: 24px; }
+  .home-role-meta { grid-column: 1; }
 
   .home-sec-head {
     flex-direction: column;
@@ -2922,11 +2861,10 @@ textarea:focus-visible {
 
 /* Reduced motion: keep the invert, drop the slide and crossfade. */
 @media (prefers-reduced-motion: reduce) {
-  .home-genre-row,
-  .home-now-item { transition: background-color .01ms, color .01ms; }
-  .home-genre-row:hover,
-  .home-now-item:hover { padding-left: 24px; }
+  .home-genre-row { transition: background-color .01ms, color .01ms; }
+  .home-genre-row:hover { padding-left: 24px; }
   .home-genre-summary > p { transition: none; }
+  .home-role-chevron { transition: none; }
 }
 
 /* The homepage and its chat workspace consume the same palette in both modes.

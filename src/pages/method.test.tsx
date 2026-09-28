@@ -23,12 +23,12 @@ describe('MethodPage', () => {
     expect(html).toContain('3 questions × 2 altitudes × 2 loci = 12 poles');
   });
 
-  it('connects the framework to the live practice case and the full instrument', () => {
+  it('connects the framework to the full instrument', () => {
     const html = renderToStaticMarkup(<MethodPage />);
 
-    // The hidden Klarna page is no longer linked; the applied case is Zocdoc.
-    expect(html).toContain('href="/work/zocdoc"');
+    // The retired Zocdoc case page is no longer linked; the method points to the instrument.
     expect(html).toContain('href="/stratos"');
+    expect(html).not.toContain('/work/zocdoc');
     expect(html).not.toContain('/stratos-flow');
   });
 

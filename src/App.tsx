@@ -1,5 +1,5 @@
-import { type ReactNode, Suspense, lazy } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { type ReactNode, Suspense, lazy, useState } from 'react';
+import { ArrowUpRight, ChevronDown } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { SiteHeader } from '@/components/site-header';
@@ -31,41 +31,106 @@ const HERO_PROOF: readonly ProofPoint[] = [
   },
 ];
 
-type Role = {
+type Experience = {
   role: string;
   org: string;
+  orgHref?: string;
   meta: string;
-  href?: string;
+  bullets: readonly string[];
   testid: string;
+  defaultOpen?: boolean;
 };
 
-const PRIOR_ROLES: readonly Role[] = [
+// One uniform, source-grounded record per role. Each is an expandable card; the
+// current role opens by default. Content is drawn from content/profile.md.
+const EXPERIENCE: readonly Experience[] = [
+  {
+    role: 'Strategic Projects Lead — Operations & Technical Delivery',
+    org: 'Aroko',
+    orgHref: 'https://aroko.coop',
+    meta: '2024 – Present',
+    testid: 'exp-aroko',
+    defaultOpen: true,
+    bullets: [
+      'Authored a 90-day operating plan and secured formal approval, then built a Notion source-of-truth system connecting time, roles, projects, and budgets — the basis for the cooperative’s first per-project pricing model and its year-to-date financial review.',
+      'Diagnosed a design-to-development bottleneck and introduced a unified Framer-first workflow, cutting web-project delivery time by roughly 50%.',
+      'Reconciled operational and financial data across Notion, YNAB, Bill.com, and spreadsheets to clarify payments, hours, work categories, and source reliability.',
+      'Acted as primary client contact — translating business, SEO, content, and technical requirements into scopes, milestones, QA checkpoints, and technical handoff.',
+    ],
+  },
   {
     role: 'Design Systems Engineer — Product Delivery & Experimentation',
     org: 'Zocdoc',
     meta: '2021 – 2024',
-    href: '/work/zocdoc',
-    testid: 'link-role-zocdoc',
+    testid: 'exp-zocdoc',
+    bullets: [
+      'Rebuilt and migrated an outdated TypeScript/React design system under a company-wide accessibility mandate.',
+      'Ran the design-system team’s first frontend-component A/B experiment on Zocdoc’s engineering-wide testing framework, tracking behavior and click-through by device and browser.',
+      'Introduced a PR merge template and Jira dashboards and sequenced smaller changes — raising velocity 2–3 points per sprint and cutting average merge time by about a workday.',
+    ],
   },
   {
     role: 'Product Engineer — API Integrations',
     org: 'Applied Software',
     meta: '2019 – 2021',
-    testid: 'role-applied',
+    testid: 'exp-applied',
+    bullets: [
+      'Built the Procore, Bluebeam, Asite, and Viewpoint construction-data integrations end to end on the 360Sync product, extending the inherited BIM 360 reference implementation.',
+      'Authored 5+ REST API wrapper libraries and an Azure-hosted authentication service for 100+ users.',
+      'Introduced trace logging that cut customer troubleshooting by 3–4 business days; roadmap work with sales and product raised release frequency ~15%.',
+    ],
   },
   {
     role: 'Software Engineer — Legacy Modernization',
     org: 'Genesco',
     meta: '2017 – 2019',
-    testid: 'role-genesco',
+    testid: 'exp-genesco',
+    bullets: [
+      'Modernized legacy COBOL systems into Java-based replacement workflows.',
+      'Translated embedded business logic and legacy data flows into maintainable implementations without disrupting operational continuity.',
+    ],
   },
 ];
 
-const AROKO_POINTS: readonly string[] = [
-  'Diagnosed a design-to-development bottleneck and introduced a unified Framer-first workflow, cutting web-project delivery time by roughly 50%.',
-  'Reconciled operational and financial data across Notion, YNAB, Bill.com, and spreadsheets to clarify payments, hours, work categories, and source reliability.',
-  'Acted as primary client contact — translating business, SEO, content, and technical requirements into scopes, milestones, QA checkpoints, and technical handoff.',
-];
+function ExperienceItem({ item }: { item: Experience }) {
+  const [open, setOpen] = useState(Boolean(item.defaultOpen));
+  const panelId = `${item.testid}-panel`;
+  return (
+    <article className="home-role" data-testid={item.testid} data-open={open}>
+      <button
+        type="button"
+        className="home-role-head"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className="home-role-headings">
+          <span className="home-role-title">{item.role}</span>
+          <span className="home-role-org">{item.org}</span>
+        </span>
+        <span className="home-role-meta">{item.meta}</span>
+        <ChevronDown className="home-role-chevron" aria-hidden="true" />
+      </button>
+      <div id={panelId} className="home-role-panel" hidden={!open}>
+        <ul className="home-role-points">
+          {item.bullets.map((bullet) => (
+            <li key={bullet.slice(0, 32)}>{bullet}</li>
+          ))}
+        </ul>
+        {item.orgHref ? (
+          <a
+            className="home-role-org-link"
+            href={item.orgHref}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            {item.org} <ArrowUpRight aria-hidden="true" />
+          </a>
+        ) : null}
+      </div>
+    </article>
+  );
+}
 
 function Home() {
   return (
@@ -84,8 +149,8 @@ function Home() {
             quality, and progress. Nine years across operations, product, design, and engineering.
           </p>
           <div className="home-hero-actions">
-            <a href="/work/zocdoc">See the Zocdoc case study <ArrowUpRight aria-hidden="true" /></a>
-            <a href="/ask">Ask the assistant</a>
+            <a href="/ask">Chat with my assistant <ArrowUpRight aria-hidden="true" /></a>
+            <a href="/blog/production-rag-personal-corpus">See how it works <ArrowUpRight aria-hidden="true" /></a>
           </div>
 
           <div className="home-case-proof" aria-label="Selected outcomes at Aroko">
@@ -106,50 +171,10 @@ function Home() {
             <h2 id="home-exp-title" className="home-sec-tag">Experience</h2>
           </div>
 
-          <article className="home-exp-lead" data-testid="exp-aroko">
-            <div className="home-exp-lead-head">
-              <div>
-                <p className="home-exp-role">Strategic Projects Lead &mdash; Operations &amp; Technical Delivery</p>
-                <a
-                  className="home-exp-org"
-                  href="https://aroko.coop"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  data-testid="link-exp-aroko"
-                >
-                  Aroko <ArrowUpRight aria-hidden="true" />
-                </a>
-              </div>
-              <p className="home-exp-meta">2024 &ndash; Present</p>
-            </div>
-            <ul className="home-exp-points">
-              <li>
-                Authored a 90-day operating plan and secured formal approval, then built a Notion
-                source-of-truth system connecting time, roles, projects, and budgets &mdash; the basis
-                for the cooperative&rsquo;s first per-project pricing model and its year-to-date financial review.
-              </li>
-              {AROKO_POINTS.map((point) => (
-                <li key={point.slice(0, 24)}>{point}</li>
-              ))}
-            </ul>
-          </article>
-
-          <div className="home-now-grid">
-            {PRIOR_ROLES.map((role) =>
-              role.href ? (
-                <a className="home-now-item" key={role.testid} href={role.href} data-testid={role.testid}>
-                  <p className="home-now-role">{role.role} <ArrowUpRight aria-hidden="true" /></p>
-                  <p className="home-now-org">{role.org}</p>
-                  <p className="home-now-meta">{role.meta}</p>
-                </a>
-              ) : (
-                <div className="home-now-item" key={role.testid} data-testid={role.testid}>
-                  <p className="home-now-role">{role.role}</p>
-                  <p className="home-now-org">{role.org}</p>
-                  <p className="home-now-meta">{role.meta}</p>
-                </div>
-              ),
-            )}
+          <div className="home-role-list">
+            {EXPERIENCE.map((item) => (
+              <ExperienceItem key={item.testid} item={item} />
+            ))}
           </div>
 
           <p className="home-recognition">
@@ -169,14 +194,14 @@ function Home() {
           </p>
           <div className="home-ask-cta-actions">
             <a className="home-ask-cta-link" href="/ask" data-testid="link-ask-cta">
-              Ask the assistant <ArrowUpRight aria-hidden="true" />
+              Chat with my assistant <ArrowUpRight aria-hidden="true" />
             </a>
             <a
               className="home-ask-cta-secondary"
               href="/blog/production-rag-personal-corpus"
               data-testid="link-about-system"
             >
-              How it&rsquo;s built <ArrowUpRight aria-hidden="true" />
+              See how it works <ArrowUpRight aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -193,7 +218,6 @@ const StratosPage = lazy(() => import('@/pages/stratos'));
 const StratosV2Page = lazy(() => import('@/pages/stratos-v2'));
 const StratosFlowPage = lazy(() => import('@/pages/stratos-flow'));
 const MethodPage = lazy(() => import('@/pages/method'));
-const ZocdocPage = lazy(() => import('@/pages/zocdoc'));
 const AskPage = lazy(() => import('@/pages/ask'));
 const BlogPage = lazy(() => import('@/pages/blog'));
 const BlogPostPage = lazy(() => import('@/pages/blog-post'));
@@ -215,9 +239,6 @@ function Router() {
         {/* The Klarna flow page is retired; its URL now sends readers to the method. */}
         <Route path="/stratos-flow">
           {() => <Redirect to="/blog/method" replace />}
-        </Route>
-        <Route path="/work/zocdoc">
-          {() => <Suspense fallback={null}><ZocdocPage /></Suspense>}
         </Route>
         {/*
          * Unlisted preview of the flow view, reachable only by its random path.
