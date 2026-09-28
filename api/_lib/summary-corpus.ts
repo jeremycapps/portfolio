@@ -53,7 +53,7 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'answer-to-interface package. The through-line is turning ambiguous model behavior into '
       + 'explicit contracts, testable decisions, and software other systems can safely use.',
     roles: {
-      "Aroko": "Head of Operations / Technical Director",
+      "Aroko": "Strategic Projects Lead / Technical Director",
       "Zocdoc": "Design Systems Engineer",
       "Applied Software": "Software / Product Engineer (360Sync)",
       "Genesco": "Software Engineer / Legacy Modernization"
@@ -72,7 +72,7 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'build the smallest mechanism that can change the outcome, and make the result measurable. '
       + 'Engineering background across product, operations, and integration.',
     roles: {
-      "Aroko": "Head of Operations",
+      "Aroko": "Strategic Projects Lead",
       "Zocdoc": "Design Systems Engineer",
       "Applied Software": "Software Engineer (360Sync)"
     },
@@ -109,7 +109,7 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'reusable UI recipes, and this portfolio runs it. That combination supports both the '
       + 'product surface and the contracts, evaluation, and context beneath it.',
     roles: {
-      "Aroko": "Head of Operations / Lead Web Designer / Technical Director",
+      "Aroko": "Strategic Projects Lead / Lead Web Designer / Technical Director",
       "Zocdoc": "Design Systems Engineer",
       "Applied Software": "Software / Product Engineer (360Sync)"
     },
@@ -129,7 +129,7 @@ export const SUMMARY_CORPUS: readonly TailoredSummary[] = [
       + 'Strongest fit: forward-deployed and solutions engineering across integrations, AI workflows, '
       + 'technical discovery, and product feedback.',
     roles: {
-      "Aroko": "Head of Operations / Lead Web Designer / Technical Director",
+      "Aroko": "Strategic Projects Lead / Lead Web Designer / Technical Director",
       "Zocdoc": "Design Systems Engineer",
       "Applied Software": "Software / Product Engineer (360Sync)",
       "Genesco": "Software Engineer / Legacy Modernization"
