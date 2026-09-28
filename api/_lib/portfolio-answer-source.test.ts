@@ -2,9 +2,11 @@ import { resolveAnswerSet } from '@facia/core';
 import { verdictTensions } from './tension-answer-source';
 import { describe, expect, it } from 'vitest';
 import {
+  arokoAnswerSet,
   careerHistoryAnswerSet,
   lookingForAnswerSet,
   resolvePortfolioAnswer,
+  supportsArokoQuestion,
   supportsCareerQuestion,
   supportsLookingForQuestion,
   supportsPortfolioQuestion,
@@ -164,6 +166,27 @@ describe('technologies answer source', () => {
   });
 });
 
+describe('Aroko answer source', () => {
+  it('claims Aroko questions but declines verdict/relational shapes', () => {
+    expect(supportsArokoQuestion('What does Jeremy do at Aroko?')).toBe(true);
+    expect(supportsArokoQuestion('Tell me about Aroko')).toBe(true);
+    expect(supportsArokoQuestion('Did Jeremy enjoy Aroko?')).toBe(false);
+    expect(supportsArokoQuestion('How is Aroko structured, or is it flat?')).toBe(false);
+    expect(supportsArokoQuestion('What did Jeremy do at Zocdoc?')).toBe(false);
+  });
+
+  it('emits a valid v2 collection framing revenue as a company outcome at every depth', () => {
+    const answer = arokoAnswerSet();
+    expect(answer.answerType).toBe('value');
+    expect(answer.items).toHaveLength(4);
+    for (const depth of ['glance', 'inspect', 'focus', 'audit'] as const) {
+      expect(resolveAnswerSet(answer, { depth, audience: 'human' }).ok).toBe(true);
+    }
+    const revenue = answer.items[3];
+    expect(revenue.payload.scope).toContain('not solely his');
+  });
+});
+
 describe('resolvePortfolioAnswer routes questions to the right card', () => {
   it('sends each modelled question to its deterministic card', () => {
     expect(cardFor('What did Jeremy build at Zocdoc?').trace?.kind).toBe('direct');
@@ -171,6 +194,7 @@ describe('resolvePortfolioAnswer routes questions to the right card', () => {
       ['What did Jeremy build at Zocdoc?', 'portfolio.zocdoc-work.v1'],
       ['What technologies has Jeremy worked with?', 'portfolio.technologies.v1'],
       ['What kinds of roles fit Jeremy, and why?', 'portfolio.looking-for.v1'],
+      ['What does Jeremy do at Aroko as Strategic Projects Lead?', 'portfolio.aroko-work.v1'],
       ["What is Jeremy's career history?", 'portfolio.career-history.v1'],
     ];
     for (const [question, traceId] of cases) {

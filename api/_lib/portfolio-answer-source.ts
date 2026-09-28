@@ -437,6 +437,102 @@ export function lookingForAnswerSet(): AnswerSetV2 {
   };
 }
 
+// ── Aroko (current role) ──────────────────────────────────────────────────────
+
+const AROKO_REF = 'content/profile.md#what-hes-doing-now';
+
+export function supportsArokoQuestion(question: string): boolean {
+  const normalized = normalizedQuestion(question);
+  const words = new Set(normalized.split(' '));
+  // Same grammar-free shape guards as the career spine: the card answers "what
+  // he does at Aroko", a value — not a verdict, relational, or synthesis question.
+  if (/^(how|why)\b/.test(normalized)) return false;
+  if (/^(did|does|do|is|are|was|were|can|could|will|would|should|has|have)\b/.test(normalized)) return false;
+  if (/\bor\b/.test(normalized)) return false;
+  return words.has('aroko');
+}
+
+function arokoFields(): FieldInfoV2 {
+  return {
+    priority: {
+      primary: ['title', 'contribution'],
+      secondary: ['outcome'],
+      supporting: ['scope'],
+      audit: ['evidenceTier', 'source'],
+    },
+  };
+}
+
+function arokoItem(entry: { title: string; contribution: string; outcome: string; scope: string }) {
+  return {
+    type: 'Value' as const,
+    payload: {
+      title: entry.title,
+      contribution: entry.contribution,
+      outcome: entry.outcome,
+      scope: entry.scope,
+      evidenceTier: 'profile-grounded',
+      source: AROKO_REF,
+    },
+    value: entry.title,
+    evidence: {
+      status: 'profile-grounded' as const,
+      sourceRefs: [AROKO_REF],
+    },
+    fields: arokoFields(),
+  };
+}
+
+// Jeremy's current role — the "what's he doing now" answer, authored from the
+// profile so the headline role never depends on model behavior. Revenue is framed
+// honestly as a company outcome, matching the grounding elsewhere in the corpus.
+export function arokoAnswerSet(): AnswerSetV2 {
+  return {
+    schema: 'facia.answer-set/2',
+    question: 'What does Jeremy do at Aroko?',
+    answerType: 'value',
+    path: 'meaning',
+    inspection: 'available',
+    actionable: false,
+    items: [
+      arokoItem({
+        title: 'Operating plan and financial visibility',
+        contribution: 'Authored and secured approval for a 90-day operating plan spanning finance, costing, and delivery — without pre-existing positional authority.',
+        outcome: "Established the cooperative's first per-project pricing model and delivered its year-to-date financial review.",
+        scope: 'Joined as lead web designer for a Shutterstock engagement, then took on operations and technical delivery.',
+      }),
+      arokoItem({
+        title: 'Notion source-of-truth system',
+        contribution: 'Built a Notion system connecting timesheets, roles, projects, and budgets, with queries and rollups for budget consumption and remaining capacity.',
+        outcome: 'Reconciled data across YNAB, Bill.com, Notion, and spreadsheets to clarify payments, hours, work categories, and source reliability.',
+        scope: 'Uses historical delivery data to inform estimates.',
+      }),
+      arokoItem({
+        title: 'Unified delivery workflow',
+        contribution: 'Diagnosed a design-to-development bottleneck and introduced a unified Framer-first workflow.',
+        outcome: 'Cut web-project delivery time by roughly 50%; led an enterprise WordPress-to-Framer rebuild to launch on a weekly cadence and 48-hour review SLA.',
+        scope: 'Served as Tech Lead and implementation owner through a mid-project disruption.',
+      }),
+      arokoItem({
+        title: 'Revenue result',
+        contribution: 'Aroko matched its full-year 2025 revenue of $135,000 during the first half of 2026.',
+        outcome: 'Informed by the pricing and delivery systems he built.',
+        scope: 'A company outcome, not solely his contribution.',
+      }),
+    ],
+    operations: [],
+    trace: {
+      kind: 'direct',
+      id: 'portfolio.aroko-work.v1',
+      entries: [
+        { step: 'question.selected', value: 'portfolio.aroko-work' },
+        { step: 'source.loaded', value: AROKO_REF },
+        { step: 'answer.emitted', value: 4 },
+      ],
+    },
+  };
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 
 // The whole router: ordered deterministic card matchers. Tension runs first (a
@@ -447,6 +543,7 @@ export function resolvePortfolioAnswer(question: string): AnswerSetV2 | null {
   if (supportsLookingForQuestion(question)) return lookingForAnswerSet();
   if (supportsTechnologiesQuestion(question)) return technologiesAnswerSet();
   if (supportsPortfolioQuestion(question)) return zocdocAnswerSet();
+  if (supportsArokoQuestion(question)) return arokoAnswerSet();
   if (supportsCareerQuestion(question)) return careerHistoryAnswerSet();
   return null;
 }

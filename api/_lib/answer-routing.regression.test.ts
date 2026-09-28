@@ -72,6 +72,12 @@ const DETERMINISTIC_ROUTES: RoutingCase[] = [
     traceId: 'portfolio.zocdoc-work.v1',
     role: 'value',
   },
+  {
+    name: 'the Aroko preset (current role) → the Aroko card',
+    question: 'What does Jeremy do at Aroko as Strategic Projects Lead — the operating plan, the systems he built, and the delivery work?',
+    traceId: 'portfolio.aroko-work.v1',
+    role: 'value',
+  },
 ];
 
 describe('answer-routing regression set', () => {
