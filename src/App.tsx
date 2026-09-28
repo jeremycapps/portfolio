@@ -159,13 +159,26 @@ function Home() {
         </section>
 
         <div className="home-ask-cta">
-          <p className="home-ask-cta-title">Want the detail?</p>
+          <p className="home-ask-cta-title">The assistant is the proof</p>
           <p className="home-ask-cta-note">
-            Ask the assistant about any role, system, or decision across the work.
+            This site&rsquo;s assistant is a production-grade RAG agent &mdash; grounded answers,
+            abstention, a review-gated evidence pipeline &mdash; the same system an enterprise
+            deploys on its data. I built it on the one corpus I can reach: my own work logs. So
+            interrogating the one running on mine is the fastest way to see whether I can build
+            one for yours.
           </p>
-          <a className="home-ask-cta-link" href="/ask" data-testid="link-ask-cta">
-            Ask the assistant <ArrowUpRight aria-hidden="true" />
-          </a>
+          <div className="home-ask-cta-actions">
+            <a className="home-ask-cta-link" href="/ask" data-testid="link-ask-cta">
+              Ask the assistant <ArrowUpRight aria-hidden="true" />
+            </a>
+            <a
+              className="home-ask-cta-secondary"
+              href="/blog/production-rag-personal-corpus"
+              data-testid="link-about-system"
+            >
+              How it&rsquo;s built <ArrowUpRight aria-hidden="true" />
+            </a>
+          </div>
         </div>
 
         <p className="footer-note home-footer">Jeremy Capps &middot; 2026</p>
