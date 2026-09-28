@@ -36,6 +36,7 @@
     "context:reindex-if-requested": "node scripts/context-reindex-r2.mjs",
     "context:upload": "node scripts/context-upload.mjs",
     "verify:chat-context-prod": "node scripts/verify-chat-context-prod.mjs",
+    "sync:github": "node --import tsx scripts/github-activity-sync.ts",
     "gen:case-sources": "node --import tsx scripts/gen-case-sources.ts",
     "audit:case-sources": "node --import tsx scripts/audit-case-sources.ts",
     "merge:safe": "bash scripts/safe-merge.sh"

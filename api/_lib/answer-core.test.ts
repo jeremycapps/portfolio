@@ -49,6 +49,37 @@ describe('validateAnswerBody', () => {
   });
 });
 
+const activityDoc = {
+  generated_at: '2026-09-28T06:00:00Z',
+  handle: 'jeremycapps',
+  items: [{
+    repo: 'deeplethe/utopia', repoId: 1327088798, framing: 'production-deployed LLM, ontology project',
+    lastActive: '2026-09-27T10:00:00Z',
+    activity: [{ kind: 'pull_request' as const, at: '2026-09-27T10:00:00Z', number: 1002, title: 'Refactor retrieval', state: 'open' }],
+  }],
+};
+
+describe('handleAnswerRequest — current work card', () => {
+  it('builds the current-work card from the live feed', async () => {
+    const response = await handleAnswerRequest(
+      request({ question: 'What are you working on now?', depth: 'glance' }),
+      { checkLimit: allow, loadActivity: async () => activityDoc },
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(JSON.stringify(body)).toContain('deeplethe/utopia');
+  });
+
+  it('falls through to QUESTION_NOT_MODELED when no feed exists yet', async () => {
+    const response = await handleAnswerRequest(
+      request({ question: 'What are you working on now?', depth: 'glance' }),
+      { checkLimit: allow, loadActivity: async () => null },
+    );
+    expect(response.status).toBe(404);
+    expect((await response.json()).code).toBe('QUESTION_NOT_MODELED');
+  });
+});
+
 describe('handleAnswerRequest', () => {
   it('resolves the modeled Zocdoc question through Facia', async () => {
     const response = await handleAnswerRequest(
