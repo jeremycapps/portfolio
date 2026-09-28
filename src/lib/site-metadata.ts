@@ -52,14 +52,6 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     lastModified: '2026-09-09',
   },
   {
-    path: '/work/zocdoc',
-    title: 'Zocdoc Design-System Migration — Jeremy Capps',
-    description:
-      'How Jeremy Capps ran a company-wide Zocdoc header migration as product delivery and experimentation—sizing the reviewable unit, coordinating dependent teams, and proving the rollout with A/B evidence.',
-    kind: 'application',
-    lastModified: '2026-09-09',
-  },
-  {
     path: '/stratos',
     title: 'StratOS — Strategy Tension Instrument',
     description:
