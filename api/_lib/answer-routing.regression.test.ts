@@ -10,11 +10,8 @@
 // timeline and nothing failed. This set turns each such bug into a guardrail.
 // Add a row whenever a question routes to the wrong answer.
 import { describe, expect, it } from 'vitest';
-import {
-  generatePortfolioAnswer,
-} from './portfolio-answer-source';
+import { resolvePortfolioAnswer } from './portfolio-answer-source';
 import { verdictTensions } from './tension-answer-source';
-import { ModelAnswerContractError } from './model-answer';
 import type { AnswerRole } from '@facia/core';
 import {
   buildEvidenceBlock,
@@ -24,12 +21,6 @@ import {
   type EvidenceItem,
 } from './evidence';
 
-// A provider that must never be reached: a deterministic route reaching the model
-// is itself the failure. Both providers throw so either kind of leak is caught.
-const providerMustNotRun = async (): Promise<never> => {
-  throw new Error('a deterministic route must not reach the model provider');
-};
-
 interface RoutingCase {
   name: string;
   question: string;
@@ -37,7 +28,7 @@ interface RoutingCase {
   role: AnswerRole;
 }
 
-// Deterministic routes: authored answer sets that intercept ahead of the model.
+// Deterministic card routes: a question that maps to a hand-authored answer set.
 const DETERMINISTIC_ROUTES: RoutingCase[] = [
   {
     name: 'roles-fit → looking-for, not the career timeline (the regression)',
@@ -53,7 +44,7 @@ const DETERMINISTIC_ROUTES: RoutingCase[] = [
   },
   {
     name: '"what is he looking for" → looking-for',
-    question: "What is Jeremy looking for in his next role?",
+    question: 'What is Jeremy looking for in his next role?',
     traceId: 'portfolio.looking-for.v1',
     role: 'value',
   },
@@ -75,17 +66,21 @@ const DETERMINISTIC_ROUTES: RoutingCase[] = [
     traceId: 'portfolio.technologies.v1',
     role: 'value',
   },
+  {
+    name: 'Zocdoc-scoped work → the deterministic Zocdoc card',
+    question: 'What did Jeremy do at Zocdoc?',
+    traceId: 'portfolio.zocdoc-work.v1',
+    role: 'value',
+  },
 ];
 
 describe('answer-routing regression set', () => {
-  describe('deterministic routes intercept ahead of the model', () => {
+  describe('modelled questions resolve to their deterministic card', () => {
     for (const c of DETERMINISTIC_ROUTES) {
-      it(c.name, async () => {
-        const answer = await generatePortfolioAnswer(
-          c.question,
-          providerMustNotRun,
-          providerMustNotRun,
-        );
+      it(c.name, () => {
+        const answer = resolvePortfolioAnswer(c.question);
+        expect(answer).not.toBeNull();
+        if (answer === null) return;
         expect(answer.answerType).toBe(c.role);
         expect(answer.trace?.kind).toBe('direct');
         if (answer.trace?.kind !== 'direct') return;
@@ -94,54 +89,24 @@ describe('answer-routing regression set', () => {
     }
   });
 
-  it('a two-pole question resolves as a verdict, never the career timeline', async () => {
+  it('a two-pole question resolves as a verdict, never the career timeline', () => {
     const tension = verdictTensions()[0];
-    const answer = await generatePortfolioAnswer(
-      tension.question,
-      providerMustNotRun,
-      providerMustNotRun,
-    );
+    const answer = resolvePortfolioAnswer(tension.question);
+    expect(answer).not.toBeNull();
+    if (answer === null) return;
     expect(answer.answerType).toBe('verdict');
     expect(answer.question).toBe(tension.question);
   });
 
-  it('a Zocdoc question is model-first and falls back to the reviewed fixture', async () => {
-    // Zocdoc is intentionally answered by the model (the richer scoped model),
-    // with the source-reviewed fixture as the unavailability fallback. This locks
-    // that design: on provider unavailability the answer is the fixture, not a throw.
-    const unavailable = async () => {
-      throw new ModelAnswerContractError('MODEL_PROVIDER_UNAVAILABLE', 'down');
-    };
-    const answer = await generatePortfolioAnswer(
-      'What did Jeremy do at Zocdoc?',
-      unavailable,
-      providerMustNotRun,
-    );
-    expect(answer.trace?.kind).toBe('direct');
-    if (answer.trace?.kind !== 'direct') return;
-    expect(answer.trace.id).toBe('portfolio.zocdoc-work.v1');
+  it('a relational "how does X fit Y" is not modelled → answered as prose', () => {
+    // "fit" here is the relational verb, not the looking-for sense. It has no card,
+    // so the resolver returns null and the caller answers it as grounded prose.
+    expect(resolvePortfolioAnswer("How does Jeremy's design-system experience fit a fintech role?"))
+      .toBeNull();
   });
 
-  it('a relational "how does X fit Y" composes an operation, not a value list', async () => {
-    // "fit" appears here as a relational verb, not the looking-for sense — this is
-    // the boundary the looking-for matcher must not cross.
-    const fakeOperation = async () => ({
-      schema: 'portfolio.model-operation/1' as const,
-      refusal: null,
-      input: {
-        claim: 'Owned and migrated shared TypeScript/React design-system components at Zocdoc.',
-        evidenceRefs: ['profile.zocdoc' as const],
-      },
-      relation: 'The ownership-and-migration discipline transfers to a fintech component library.',
-      output: 'Building a component library at a fintech',
-      caution: 'Jeremy has not worked in fintech; the transfer is by shape of problem.',
-    });
-    const answer = await generatePortfolioAnswer(
-      "How does Jeremy's design-system experience fit a fintech role?",
-      providerMustNotRun,
-      fakeOperation,
-    );
-    expect(answer.answerType).toBe('operation');
+  it('a synthesis question is not modelled → answered as prose', () => {
+    expect(resolvePortfolioAnswer("What is the throughline of Jeremy's work?")).toBeNull();
   });
 });
 

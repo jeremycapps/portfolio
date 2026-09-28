@@ -1,16 +1,14 @@
+// Deterministic portfolio answer sets and the router that selects one.
+//
+// Every answer here is hand-authored from the profile and rendered as a Facia
+// card (timeline, structured cells). There is no model in this path and no
+// grammar classifier: a small set of tight keyword predicates map a question to
+// one deterministic set, and anything they do not claim returns null — the
+// caller then answers it as grounded prose. This is the surviving half of the
+// former facia stack; the verb×arity classifier and the model-JSON providers
+// that fed it were removed, along with the misroutes they produced.
 import type { AnswerSetV2, FieldInfoV2 } from '@facia/core';
-import { adaptModelAnswer, ModelAnswerContractError } from './model-answer';
 import { supportsTensionQuestion, tensionAnswerSet } from './tension-answer-source';
-import { roleOf } from './question-grammar';
-import { adaptModelOperation, ModelOperationContractError } from './model-operation';
-import {
-  generateStructuredPortfolioOperation, type OperationProvider,
-} from './structured-operation-provider';
-import {
-  generateStructuredPortfolioAnswer,
-  type StructuredProvider,
-} from './structured-provider';
-import type { ChatMessage } from './types';
 
 const CANONICAL_QUESTION = 'What did Jeremy work on at Zocdoc?';
 
@@ -20,83 +18,7 @@ function normalizedQuestion(question: string): string {
   return question.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-type LiberaStartPrecision = 'year' | 'month';
-
-function latestUserQuestion(history: ChatMessage[]): string {
-  return [...history].reverse().find((message) => message.role === 'user')?.content ?? '';
-}
-
-/** Resolve a precise Libera start-date question, including a short contextual follow-up. */
-export function liberaStartPrecision(
-  question: string,
-  history: ChatMessage[] = [],
-): LiberaStartPrecision | null {
-  const current = normalizedQuestion(question);
-  const prior = normalizedQuestion(latestUserQuestion(history));
-  const asksForMonth = /\bmonth\b/.test(current);
-  const namesLibera = /\blibera\b/.test(current)
-    || (asksForMonth && /\blibera\b/.test(prior));
-  const asksAboutStarting = /\b(start|started|begin|began|first)\b/.test(current)
-    || (asksForMonth && /\b(start|started|begin|began|first)\b/.test(prior));
-
-  if (!namesLibera || !asksAboutStarting) return null;
-  if (asksForMonth) return 'month';
-  return /^(when|what year)\b/.test(current) ? 'year' : null;
-}
-
-export function liberaStartDateAnswerSet(
-  question: string,
-  precision: LiberaStartPrecision,
-): AnswerSetV2 {
-  const sourceRef = 'content/profile.md#selected-projects';
-  const monthRequested = precision === 'month';
-  const title = monthRequested ? 'Month not specified' : '2026';
-  const contribution = monthRequested
-    ? 'The portfolio establishes that Jeremy began working on Libera in 2026, but it does not specify a month.'
-    : 'Jeremy’s documented work on Libera begins in 2026.';
-  return {
-    schema: 'facia.answer-set/2',
-    question,
-    answerType: 'value',
-    path: 'meaning',
-    inspection: 'available',
-    actionable: false,
-    items: [{
-      type: 'Value',
-      payload: {
-        title,
-        contribution,
-        precision: monthRequested ? 'year only' : 'year',
-        scope: 'No more precise start date is present in the portfolio grounding.',
-        evidenceTier: 'profile-grounded',
-        source: sourceRef,
-      },
-      value: title,
-      evidence: {
-        status: 'profile-grounded',
-        sourceRefs: [sourceRef],
-      },
-      fields: {
-        priority: {
-          primary: ['title', 'contribution'],
-          secondary: ['precision'],
-          supporting: ['scope'],
-          audit: ['evidenceTier', 'source'],
-        },
-      },
-    }],
-    operations: [],
-    trace: {
-      kind: 'direct',
-      id: 'portfolio.libera-start-date.v1',
-      entries: [
-        { step: 'question.selected', value: 'portfolio.libera-start-date' },
-        { step: 'source.loaded', value: sourceRef },
-        { step: 'precision.resolved', value: precision },
-      ],
-    },
-  };
-}
+// ── Zocdoc ──────────────────────────────────────────────────────────────────
 
 export function supportsPortfolioQuestion(question: string): boolean {
   const normalized = normalizedQuestion(question);
@@ -189,6 +111,8 @@ export function zocdocAnswerSet(): AnswerSetV2 {
   };
 }
 
+// ── Technologies ──────────────────────────────────────────────────────────────
+
 const TECHNOLOGY_TERMS = [
   'technology',
   'technologies',
@@ -245,7 +169,7 @@ function technologyItem(entry: {
   };
 }
 
-function technologiesAnswerSet(): AnswerSetV2 {
+export function technologiesAnswerSet(): AnswerSetV2 {
   const skillsRef = 'content/profile.md#skills-tools';
   return {
     schema: 'facia.answer-set/2',
@@ -279,6 +203,8 @@ function technologiesAnswerSet(): AnswerSetV2 {
   };
 }
 
+// ── Career history ────────────────────────────────────────────────────────────
+
 const CAREER_TERMS = [
   'career',
   'history',
@@ -297,18 +223,17 @@ const CAREER_TERMS = [
 export function supportsCareerQuestion(question: string): boolean {
   const normalized = normalizedQuestion(question);
   const words = new Set(normalized.split(' '));
-  // The career spine answers "what is his history" — a value shown as a
-  // timeline. A verdict, operation, or convergence question often shares a
-  // keyword ("experience", "roles", "worked"), so the role gate comes first:
-  // the spine may only claim a value question.
-  if (roleOf(question) !== 'value') return false;
-  // A "what roles fit / looking for" question shares the word "roles" but asks
-  // about the work he wants, not the work he has done — it has its own model.
+  // The career spine answers "what is his history" — a value shown as a timeline.
+  // Grammar-free shape guards keep it off questions whose real shape is something
+  // else, even when they share a keyword ("experience", "roles", "worked"):
+  //   - a relational/synthesis question ("how/why …") → grounded prose
+  //   - a polar or either/or verdict ("does he …", "… or …") → tension or prose
+  if (/^(how|why)\b/.test(normalized)) return false;
+  if (/^(did|does|do|is|are|was|were|can|could|will|would|should|has|have)\b/.test(normalized)) return false;
+  if (/\bor\b/.test(normalized)) return false;
+  // Sibling sets own their intent even though they share career keywords.
   if (supportsLookingForQuestion(question)) return false;
-  // A technologies question shares the keyword "worked" — it has its own model.
   if (supportsTechnologiesQuestion(question)) return false;
-  // A Zocdoc-specific "what did you do" belongs to the richer Zocdoc model, not
-  // the whole-career spine.
   if (supportsPortfolioQuestion(question)) return false;
   if (CAREER_TERMS.some((term) => words.has(term))) return true;
   return normalized.includes('current')
@@ -416,12 +341,10 @@ export function careerHistoryAnswerSet(): AnswerSetV2 {
   };
 }
 
+// ── What he's looking for ─────────────────────────────────────────────────────
+
 // "What roles fit Jeremy / what's he looking for" is a forward-looking question
-// about the work he wants next, not a lookup on the work he has done. Left to the
-// grammar it misroutes two ways: "what roles fit Jeremy" reads as relational
-// (fit → operation) and "what kinds of roles fit Jeremy" reads as enumerating
-// (→ value), which the career keyword matcher then claims on the word "roles" and
-// answers with the career timeline. This deterministic model owns the intent.
+// about the work he wants next, not a lookup on the work he has done.
 const ASPIRATION_TERMS = [
   'looking', 'seeking', 'targeting', 'target', 'want', 'wants', 'wanting',
   'fit', 'fits', 'suit', 'suits', 'suited', 'ideal', 'aspiration', 'aspirations',
@@ -514,79 +437,16 @@ export function lookingForAnswerSet(): AnswerSetV2 {
   };
 }
 
-interface QuestionMatcher {
-  supports: (question: string) => boolean;
-  build: (question: string) => AnswerSetV2;
-}
+// ── Router ────────────────────────────────────────────────────────────────────
 
-const MATCHERS: QuestionMatcher[] = [
-  // A two-pole question is a bounded verdict and must be recognised before the
-  // career keyword matcher, which would otherwise claim it on "experience",
-  // "roles", or "worked" and answer it with a timeline.
-  { supports: supportsTensionQuestion, build: (q) => tensionAnswerSet(q)! },
-  { supports: supportsPortfolioQuestion, build: zocdocAnswerSet },
-  { supports: supportsTechnologiesQuestion, build: technologiesAnswerSet },
-  // Before the career matcher: a "what roles fit / what's he looking for" question
-  // mentions "roles" and would otherwise be answered with the career timeline.
-  { supports: supportsLookingForQuestion, build: lookingForAnswerSet },
-  { supports: supportsCareerQuestion, build: careerHistoryAnswerSet },
-];
-
-export function answerPortfolioQuestion(question: string): AnswerSetV2 | null {
-  const match = MATCHERS.find((matcher) => matcher.supports(question));
-  return match ? match.build(question) : null;
-}
-
-export async function generatePortfolioAnswer(
-  question: string,
-  provider: StructuredProvider = generateStructuredPortfolioAnswer,
-  operationProvider: OperationProvider = generateStructuredPortfolioOperation,
-  history: ChatMessage[] = [],
-): Promise<AnswerSetV2> {
-  const startPrecision = liberaStartPrecision(question, history);
-  if (startPrecision !== null) return liberaStartDateAnswerSet(question, startPrecision);
-  // Role before keyword. A two-pole question opens a two-place answer space and
-  // picks one — a bounded verdict, answered from the tension index. Without
-  // this the career matcher claims it and returns the career timeline.
-  if (supportsTensionQuestion(question)) return tensionAnswerSet(question)!;
-  // Forward-looking "what roles fit / what's he looking for". Runs ahead of the
-  // operation and career branches: without it, "what roles fit Jeremy" is read as
-  // a relational operation and "what kinds of roles fit Jeremy" is claimed by the
-  // career timeline — both answering the wrong question.
+// The whole router: ordered deterministic card matchers. Tension runs first (a
+// two-pole verdict must not be claimed by a keyword), then the intent-specific
+// sets, then the career spine. A miss returns null — the caller answers as prose.
+export function resolvePortfolioAnswer(question: string): AnswerSetV2 | null {
+  if (supportsTensionQuestion(question)) return tensionAnswerSet(question);
   if (supportsLookingForQuestion(question)) return lookingForAnswerSet();
-  // A technologies question ("what has he worked with") shares the keyword
-  // "worked" with the career matcher, which would otherwise answer it with the
-  // career timeline. Its deterministic set owns it, ahead of the career spine.
   if (supportsTechnologiesQuestion(question)) return technologiesAnswerSet();
-  // A relational question names two terms whose mapping is in no single source.
-  // It is composed: the model supplies the mapping, the host grounds the input
-  // and draws the seam. This runs ahead of the value model so a "how does X
-  // relate to Y" question is never flattened into a list of value items.
-  if (roleOf(question) === 'operation') {
-    const mapping = await operationProvider(question, undefined, history);
-    if (mapping.refusal === null) return adaptModelOperation(question, mapping);
-    throw new ModelOperationContractError('MODEL_REFUSED', mapping.refusal);
-  }
-  // The career spine is a temporal sequence; the model adapter only emits
-  // singular values, so this answer is authored deterministically and never
-  // routed through the provider.
+  if (supportsPortfolioQuestion(question)) return zocdocAnswerSet();
   if (supportsCareerQuestion(question)) return careerHistoryAnswerSet();
-  try {
-    const answer = await provider(question, undefined, history);
-    return adaptModelAnswer(question, answer);
-  } catch (error) {
-    // Keep the existing source-reviewed fixture as a deliberately narrow rollout fallback.
-    if (
-      supportsPortfolioQuestion(question)
-      && error instanceof ModelAnswerContractError
-      && ['MODEL_PROVIDER_UNAVAILABLE', 'MODEL_PROVIDER_TIMEOUT'].includes(error.code)
-    ) {
-      return zocdocAnswerSet();
-    }
-    if (error instanceof ModelAnswerContractError) throw error;
-    throw new ModelAnswerContractError(
-      'MODEL_PROVIDER_UNAVAILABLE',
-      'Structured generation is unavailable.',
-    );
-  }
+  return null;
 }

@@ -3,7 +3,6 @@ import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { tensionAnswerSet } from '../../../api/_lib/tension-answer-source';
-import { adaptModelOperation, type ModelOperation } from '../../../api/_lib/model-operation';
 import { careerHistoryAnswerSet } from '../../../api/_lib/portfolio-answer-source';
 import { ConversationAnswer } from './conversation-answer';
 
@@ -29,21 +28,6 @@ describe('ConversationAnswer', () => {
     expect(html).toContain('REST wrapper libraries'); // the basis, flowing on
     expect(html).not.toContain('semantic-single'); // no structured card
     expect(html).not.toContain('Inspect'); // no depth-control vocabulary
-  });
-
-  it('leads an operation with the relation and cites its grounding', () => {
-    const op: ModelOperation = {
-      schema: 'portfolio.model-operation/1', refusal: null,
-      input: { claim: 'Owned and migrated shared design-system components at Zocdoc.', evidenceRefs: ['profile.zocdoc'] },
-      relation: 'The ownership-and-migration discipline transfers to a fintech component library.',
-      output: 'Building a component library at a fintech',
-      caution: 'Jeremy has not worked in fintech; the transfer is by shape of problem.',
-    };
-    const html = render(adaptModelOperation('q', op));
-    expect(html).toContain('discipline transfers to a fintech');
-    expect(html).toContain('Owned and migrated shared design-system components'); // grounding shown
-    expect(html).not.toContain('has not worked in fintech'); // caution is a directive, not displayed
-    expect(html).not.toContain('Inspect');
   });
 
   it('renders a both-placement as prose that holds the duality', () => {

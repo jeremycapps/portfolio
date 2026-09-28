@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { handleAnswerRequest, validateAnswerBody } from './answer-core';
-import { ModelAnswerContractError } from './model-answer';
 
 const allow = async () => ({ ok: true as const });
 
@@ -51,23 +50,6 @@ describe('validateAnswerBody', () => {
 });
 
 describe('handleAnswerRequest', () => {
-  it('answers a contextual Libera month follow-up without model inference', async () => {
-    const response = await handleAnswerRequest(request({
-      question: 'What month?',
-      history: [
-        { role: 'user', content: 'When did he first start working on Libera?' },
-        { role: 'assistant', content: '2026.' },
-      ],
-    }), { checkLimit: allow });
-    const body = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(body.recipe.answer.items[0].payload).toMatchObject({
-      title: 'Month not specified',
-      contribution: expect.stringContaining('does not specify a month'),
-    });
-  });
-
   it('resolves the modeled Zocdoc question through Facia', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'What did Jeremy build at Zocdoc?', depth: 'glance' }),
@@ -105,30 +87,22 @@ describe('handleAnswerRequest', () => {
     expect(firstBody.recipe.inspectionControls).toContain('view-trace');
   });
 
-  it('documents structured-provider unavailability for Markdown fallback', async () => {
+  it('returns QUESTION_NOT_MODELED for a question with no card, for prose fallback', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'What music does Jeremy like?' }),
       { checkLimit: allow },
     );
-    expect(response.status).toBe(503);
-    expect(await response.json()).toMatchObject({ code: 'MODEL_PROVIDER_UNAVAILABLE' });
+    expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({ code: 'QUESTION_NOT_MODELED' });
   });
 
-  it.each([
-    ['MODEL_REFUSED', 404],
-    ['MODEL_PROVIDER_TIMEOUT', 504],
-    ['MODEL_MALFORMED_JSON', 502],
-    ['MODEL_SCHEMA_INVALID', 502],
-  ] as const)('returns a bounded %s error', async (code, status) => {
+  it('returns QUESTION_NOT_MODELED when the injected resolver declines', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'Portfolio question?' }),
-      {
-        checkLimit: allow,
-        answer: async () => { throw new ModelAnswerContractError(code, 'bounded'); },
-      },
+      { checkLimit: allow, answer: () => null },
     );
-    expect(response.status).toBe(status);
-    await expect(response.json()).resolves.toMatchObject({ code });
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toMatchObject({ code: 'QUESTION_NOT_MODELED' });
   });
 
   it('uses the shared rate-limit boundary', async () => {

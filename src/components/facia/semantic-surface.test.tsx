@@ -3,17 +3,23 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
 import {
-  answerPortfolioQuestion,
   careerHistoryAnswerSet,
+  resolvePortfolioAnswer,
 } from '../../../api/_lib/portfolio-answer-source';
 import { tensionAnswerSet } from '../../../api/_lib/tension-answer-source';
-import { adaptModelOperation, type ModelOperation } from '../../../api/_lib/model-operation';
 import { ChatView } from '../chat-view';
 import { nextElementDepth, SemanticSurface, updateElementDepth } from './semantic-surface';
 
+// Resolve a question to its deterministic card, asserting a card exists.
+function answerFor(question: string) {
+  const answer = resolvePortfolioAnswer(question);
+  if (!answer) throw new Error(`Expected a portfolio card for: ${question}`);
+  return answer;
+}
+
 describe('SemanticSurface', () => {
   it('renders a Facia list recipe without re-resolving its presentation pattern', () => {
-    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const answer = answerFor('What did Jeremy work on at Zocdoc?');
     const result = resolveAnswerSet(answer, { depth: 'glance' });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -77,7 +83,7 @@ describe('SemanticSurface', () => {
   });
 
   it('renders focus collection controls from inspectionControls', () => {
-    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const answer = answerFor('What did Jeremy work on at Zocdoc?');
     const glance = resolveAnswerSet(answer, { depth: 'glance' });
     const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
     const focus = resolveAnswerSet(answer, { depth: 'focus' });
@@ -102,7 +108,7 @@ describe('SemanticSurface', () => {
   });
 
   it('keeps audit and trace at page level while evidence remains item-owned', () => {
-    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const answer = answerFor('What did Jeremy work on at Zocdoc?');
     const glance = resolveAnswerSet(answer, { depth: 'glance' });
     const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
     const focus = resolveAnswerSet(answer, { depth: 'focus' });
@@ -128,7 +134,7 @@ describe('SemanticSurface', () => {
   });
 
   it('renders mixed Markdown and Facia turns inside normal assistant bubbles', () => {
-    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const answer = answerFor('What did Jeremy work on at Zocdoc?');
     const glance = resolveAnswerSet(answer, { depth: 'glance' });
     const inspect = resolveAnswerSet(answer, { depth: 'inspect' });
     const focus = resolveAnswerSet(answer, { depth: 'focus' });
@@ -181,7 +187,7 @@ describe('SemanticSurface', () => {
   });
 
   it('renders a grounded repo field as a safe external chip link', () => {
-    const answer = answerPortfolioQuestion('What technologies has Jeremy worked with?');
+    const answer = answerFor('What technologies has Jeremy worked with?');
     const result = resolveAnswerSet(answer, { depth: 'glance' });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -198,7 +204,7 @@ describe('SemanticSurface', () => {
   });
 
   it('renders a plain list item with no chip when the item has no repo', () => {
-    const answer = answerPortfolioQuestion('What did Jeremy work on at Zocdoc?');
+    const answer = answerFor('What did Jeremy work on at Zocdoc?');
     const result = resolveAnswerSet(answer, { depth: 'glance' });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -242,35 +248,5 @@ describe('singular answers', () => {
       expect(renderToStaticMarkup(<SemanticSurface recipe={r.recipe} />))
         .not.toContain('never as built or running');
     }
-  });
-});
-
-describe('a composed operation answer', () => {
-  const mapping: ModelOperation = {
-    schema: 'portfolio.model-operation/1',
-    refusal: null,
-    input: {
-      claim: 'Owned and migrated shared TypeScript/React design-system components across production healthcare surfaces.',
-      evidenceRefs: ['profile.zocdoc'],
-    },
-    relation: 'The same ownership-plus-migration discipline transfers to a fintech component library, a shared surface under compliance pressure.',
-    output: 'Building a component library at a fintech',
-    caution: null,
-  };
-  const answer = adaptModelOperation(
-    "How would Jeremy's design-system experience apply to building a component library at a fintech?",
-    mapping,
-  );
-
-  it('renders the mapping instead of refusing the operation-detail recipe', () => {
-    const r = resolveAnswerSet(answer, { depth: 'focus' });
-    if (!r.ok) throw new Error('unresolved');
-    const html = renderToStaticMarkup(<SemanticSurface recipe={r.recipe} />);
-    expect(html).not.toContain('does not support');
-    // The relation is the headline; its grounding deepens it. The two endpoints
-    // are the contract record, not restated as fields.
-    expect(html).toContain('ownership-plus-migration discipline transfers');
-    expect(html).toContain('production healthcare surfaces');
-    expect(html).not.toContain('<dt>to</dt>');
   });
 });
