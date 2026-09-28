@@ -8,6 +8,8 @@ import {
 import { jsonError, jsonResponse } from './http';
 import { checkRateLimit } from './rate-limit';
 import { resolvePortfolioAnswer } from './portfolio-answer-source';
+import { currentWorkAnswerSet, supportsCurrentWorkQuestion } from './github-answer-source';
+import { loadGithubActivity } from './github-activity';
 import type { ChatMessage } from './types';
 
 const MAX_QUESTION_CHARS = 1_000;
@@ -22,8 +24,27 @@ interface AnswerRequest {
   history: ChatMessage[];
 }
 
-type AnswerSource = (question: string) => AnswerSetV2 | null;
+type AnswerSource = (question: string) => AnswerSetV2 | null | Promise<AnswerSetV2 | null>;
+type ActivityLoader = () => Promise<Parameters<typeof currentWorkAnswerSet>[0]>;
 type RateLimitCheck = (request: Request) => ReturnType<typeof checkRateLimit>;
+
+/**
+ * Deterministic card selection. The current-work card is built from the live GitHub feed,
+ * so it is tried first when the question is about current work and a feed exists; every
+ * other card is hand-authored and synchronous. A miss returns null and the caller falls
+ * through to the grounded prose path.
+ */
+async function selectAnswerSet(
+  question: string,
+  deps: { answer?: AnswerSource; loadActivity?: ActivityLoader },
+): Promise<AnswerSetV2 | null> {
+  if (deps.answer) return deps.answer(question);
+  if (supportsCurrentWorkQuestion(question)) {
+    const card = currentWorkAnswerSet(await (deps.loadActivity ?? loadGithubActivity)());
+    if (card) return card;
+  }
+  return resolvePortfolioAnswer(question);
+}
 
 type ValidResult =
   | { ok: true; value: AnswerRequest }
@@ -76,6 +97,7 @@ export async function handleAnswerRequest(
   request: Request,
   deps: {
     answer?: AnswerSource;
+    loadActivity?: ActivityLoader;
     checkLimit?: RateLimitCheck;
   } = {},
 ): Promise<Response> {
@@ -112,8 +134,7 @@ export async function handleAnswerRequest(
 
   // Deterministic card selection only. A question that maps to no card returns
   // QUESTION_NOT_MODELED, and the client falls through to the grounded prose path.
-  const resolve = deps.answer ?? resolvePortfolioAnswer;
-  const answerSet = resolve(validation.value.question);
+  const answerSet = await selectAnswerSet(validation.value.question, deps);
   if (answerSet === null) {
     return jsonError(
       'That question does not have a portfolio card; answer it as prose.',

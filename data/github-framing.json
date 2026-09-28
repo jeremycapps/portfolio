@@ -1,0 +1,10 @@
+{
+  "_comment": "Curated one-line significance per repo, joined onto GitHub activity by the IMMUTABLE numeric repo_id so a rename never drops the framing. repo_name is for humans only. To add a repo: get its id from https://api.github.com/repos/<owner>/<name> (the top-level \"id\").",
+  "framing": [
+    {
+      "repo_id": 1327088798,
+      "repo_name": "deeplethe/utopia",
+      "significance": "production-deployed LLM, ontology project"
+    }
+  ]
+}
