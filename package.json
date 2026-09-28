@@ -116,6 +116,7 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",
     "@vercel/analytics": "^2.0.1",
+    "aws4fetch": "^1.0.20",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1"
   }
