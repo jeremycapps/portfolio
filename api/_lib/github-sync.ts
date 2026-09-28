@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { AwsClient } from 'aws4fetch';
 import { resolveR2Config } from './context-index';
 import { transformEvents, type GithubActivityDocument, type GithubEvent } from './github-activity';
 import framingData from '../../data/github-framing.json';
@@ -75,7 +75,12 @@ export function feedBody(doc: GithubActivityDocument): string {
   return `${JSON.stringify(doc, null, 2)}\n`;
 }
 
-/** Upload the feed to R2, fully overwriting the previous one. Returns the object key. */
+/**
+ * Upload the feed to R2, fully overwriting the previous one. Returns the object key.
+ * Uses aws4fetch (SigV4 over fetch) rather than @aws-sdk: the SDK's S3 PutObject
+ * deserializes the XML response with DOMParser, which the Vercel Edge runtime lacks
+ * ("DOMParser is not defined"). aws4fetch signs a plain fetch and works on Edge and Node.
+ */
 export async function uploadFeed(
   doc: GithubActivityDocument,
   env: Record<string, string | undefined> = process.env,
@@ -84,16 +89,19 @@ export async function uploadFeed(
   if (!config) throw new Error('R2 is not configured (need R2_ACCOUNT_ID/ACCESS_KEY_ID/SECRET_ACCESS_KEY/BUCKET)');
   const prefix = (env.GITHUB_ACTIVITY_PREFIX ?? 'github').replace(/\/+$/, '');
   const key = `${prefix}/github-activity.json`;
-  const client = new S3Client({
+  const client = new AwsClient({
+    accessKeyId: config.accessKeyId,
+    secretAccessKey: config.secretAccessKey,
     region: 'auto',
-    endpoint: `https://${config.endpoint}`,
-    credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
+    service: 's3',
   });
-  await client.send(new PutObjectCommand({
-    Bucket: config.bucket,
-    Key: key,
-    Body: feedBody(doc),
-    ContentType: 'application/json',
-  }));
+  const response = await client.fetch(`https://${config.endpoint}/${config.bucket}/${key}`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: feedBody(doc),
+  });
+  if (!response.ok) {
+    throw new Error(`R2 PUT ${response.status}: ${(await response.text()).slice(0, 200)}`);
+  }
   return key;
 }
