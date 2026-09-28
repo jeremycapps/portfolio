@@ -2748,6 +2748,18 @@ textarea:focus-visible {
 }
 .home-ask-cta-link svg { width: 15px; height: 15px; }
 .home-ask-cta-link:hover { transform: translateY(-1px); }
+.home-ask-cta-actions { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: center; }
+.home-ask-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.home-ask-cta-secondary svg { width: 14px; height: 14px; }
+.home-ask-cta-secondary:hover { color: var(--ink); }
 
 /* ask — present but demoted */
 .home-ask-head {
