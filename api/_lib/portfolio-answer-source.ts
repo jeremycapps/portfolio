@@ -305,6 +305,8 @@ export function supportsCareerQuestion(question: string): boolean {
   // A "what roles fit / looking for" question shares the word "roles" but asks
   // about the work he wants, not the work he has done — it has its own model.
   if (supportsLookingForQuestion(question)) return false;
+  // A technologies question shares the keyword "worked" — it has its own model.
+  if (supportsTechnologiesQuestion(question)) return false;
   // A Zocdoc-specific "what did you do" belongs to the richer Zocdoc model, not
   // the whole-career spine.
   if (supportsPortfolioQuestion(question)) return false;
@@ -552,6 +554,10 @@ export async function generatePortfolioAnswer(
   // a relational operation and "what kinds of roles fit Jeremy" is claimed by the
   // career timeline — both answering the wrong question.
   if (supportsLookingForQuestion(question)) return lookingForAnswerSet();
+  // A technologies question ("what has he worked with") shares the keyword
+  // "worked" with the career matcher, which would otherwise answer it with the
+  // career timeline. Its deterministic set owns it, ahead of the career spine.
+  if (supportsTechnologiesQuestion(question)) return technologiesAnswerSet();
   // A relational question names two terms whose mapping is in no single source.
   // It is composed: the model supplies the mapping, the host grounds the input
   // and draws the seam. This runs ahead of the value model so a "how does X
