@@ -27,9 +27,8 @@ async function handleGithubSync(request: Request): Promise<Response> {
     const key = await uploadFeed(doc);
     return jsonResponse({ uploaded: key, repos: doc.items.length, generated_at: doc.generated_at });
   } catch (error) {
-    console.error('github-sync failed:', error);
-    const detail = error instanceof Error ? error.message : String(error);
-    return jsonError(`GitHub activity sync failed: ${detail}`, 'GITHUB_SYNC_FAILED', 500);
+    console.error('github-sync failed:', error); // full detail stays in server logs
+    return jsonError('GitHub activity sync failed.', 'GITHUB_SYNC_FAILED', 500);
   }
 }
 
