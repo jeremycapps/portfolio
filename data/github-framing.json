@@ -5,6 +5,11 @@
       "repo_id": 1327088798,
       "repo_name": "deeplethe/utopia",
       "significance": "production-deployed LLM, ontology project"
+    },
+    {
+      "repo_id": 1339803688,
+      "repo_name": "jeremycapps/portfolio",
+      "significance": "AI portfolio chatbot + self-building evidence pipeline (this site)"
     }
   ]
 }
