@@ -2791,41 +2791,48 @@ textarea:focus-visible {
 
 /* The homepage and its chat workspace consume the same palette in both modes.
    The composer guard keeps page-specific surfaces outside this migration. */
+/* Dark mode — site-wide, the light palette inverted rather than a second style:
+   warm near-black paper, warm off-white ink, monochrome accent, flat surfaces.
+   Values reuse the --invert band tokens so both modes read as one system. */
 @media (prefers-color-scheme: dark) {
-  body:has(.composer) {
-    --ground: #0b0f15;
-    --body-grad: linear-gradient(135deg, #0b0f15 0%, #0a0e14 48%, #0d1119 100%);
-    --surface: #131922;
-    --surface-2: #0e131b;
-    --surface-grad: linear-gradient(158deg, #182029, #10151e);
-    --a-libera: #7796d2;
-    --a-facia: #54b98d;
-    --a-stratos: #b197d6;
-    --shadow: 0 22px 48px -24px rgba(0, 0, 0, 0.7);
-    --ink: #e9eef4;
-    --ink-2: #c3cad5;
-    --ink-soft: #8a94a2;
-    --faint: #778391;
-    --line: #2b3542;
-    --line-soft: #1f2833;
-    --accent: #e8a13a;
-    --accent-ink: #f0b860;
-    --focus: #78c4ee;
-    --good: #6fcf9e;
-    --warn: #e0ae68;
-    --danger: #e08a90;
-    --audit: #b197d6;
-    --control-primary-bg: #e8a13a;
-    --control-primary-hover: #f0b860;
-    --control-primary-ink: #160f02;
-    --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 18px 50px rgba(0, 0, 0, 0.38);
-    --shadow-brand: 0 3px 8px rgba(0, 0, 0, 0.35);
-    --shadow-control-rest: 0 3px 7px rgba(0, 0, 0, 0.3);
-    --shadow-control: 0 5px 12px rgba(0, 0, 0, 0.35);
+  :root {
+    --ground: #171614;
+    --body-grad: #171614;
+    --surface: #211F1C;
+    --surface-2: #1C1B19;
+    --surface-grad: #211F1C;
+    --ink: #F1EDE3;
+    --ink-2: #DCD6CA;
+    --ink-soft: #A39D92;
+    --faint: #8E887E;
+    --line: #34312C;
+    --line-soft: #2A2825;
+    --accent: #F1EDE3;
+    --accent-ink: #DCD6CA;
+    --focus: #F1EDE3;
+    --good: #7FBF93;
+    --warn: #D3A56A;
+    --danger: #E28C88;
+    --audit: #B7A3BE;
+    --a-libera: #F1EDE3;
+    --a-facia: #F1EDE3;
+    --a-stratos: #F1EDE3;
+    /* The dark editorial band flips to a light band. */
+    --invert: #F1EDE3;
+    --invert-ink: #1A1A1A;
+    --invert-faint: #726C62;
+    --invert-soft: #4A4540;
+    --shadow: none;
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.3), 0 50px 90px -34px rgba(0, 0, 0, 0.6);
+    --control-primary-bg: #F1EDE3;
+    --control-primary-hover: #DCD6CA;
+    --control-primary-ink: #1A1A1A;
+    --shadow-brand: none;
+    --shadow-control-rest: none;
+    --shadow-control: none;
     --shadow-toast: 0 12px 28px rgba(0, 0, 0, 0.42);
-    --shadow-composer: 0 13px 28px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.04);
-    --shadow-composer-docked: 0 18px 45px rgba(0, 0, 0, 0.42), 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.04);
+    --shadow-composer: inset 0 1px rgba(255, 255, 255, 0.03);
+    --shadow-composer-docked: 0 -12px 28px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.03);
     --document-border: rgba(126, 145, 158, 0.7);
     --document-shadow: 0 13px 24px rgba(0, 0, 0, 0.3);
     --document-shadow-hover: 0 18px 30px rgba(0, 0, 0, 0.42);
@@ -2849,8 +2856,8 @@ textarea:focus-visible {
     --document-review-rule: #465159;
     --document-review-copy: #9da8af;
     --document-review-mark: #526068;
-    /* Tokens derived from the palette resolve where they are declared, so :root's
-       copies stay frozen on the light values; redeclare them against the dark ones. */
+    /* Tokens derived from the palette resolve where they are declared, so the light
+       block's copies stay frozen on the light values; redeclare them against the dark ones. */
     --surface-veil: color-mix(in srgb, var(--surface) 80%, transparent);
     --surface-veil-strong: color-mix(in srgb, var(--surface) 94%, transparent);
     --surface-subtle: color-mix(in srgb, var(--ink) 6%, transparent);
@@ -2865,6 +2872,6 @@ textarea:focus-visible {
     --danger-line: color-mix(in srgb, var(--danger) 28%, var(--line));
     --scroll-thumb: color-mix(in srgb, var(--ink-soft) 35%, transparent);
     --composer-fade: linear-gradient(180deg, transparent, var(--ground) 16px);
-    background: var(--body-grad);
+    color-scheme: dark;
   }
 }
