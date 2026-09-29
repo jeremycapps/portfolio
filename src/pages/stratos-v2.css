@@ -45,7 +45,7 @@
   max-width: 780px;
   margin: 10px 0 0;
   color: var(--sv2-ink);
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   font-size: clamp(38px, 5.2vw, 66px);
   font-weight: 400;
   letter-spacing: -.035em;
@@ -81,7 +81,7 @@
 .sv2-page-head aside strong {
   display: block;
   margin-top: 3px;
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   font-size: 24px;
   font-weight: 400;
 }
@@ -121,7 +121,7 @@
 
 .sv2-decision-head h2 {
   margin: 7px 0 5px;
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   font-size: clamp(27px, 3vw, 38px);
   font-weight: 400;
   letter-spacing: -.025em;
@@ -183,7 +183,7 @@
 .sv2-decision-facts span,
 .sv2-decision-facts strong { display: block; }
 .sv2-decision-facts span { color: var(--sv2-muted); font-size: 8px; text-transform: uppercase; }
-.sv2-decision-facts strong { margin-top: 7px; font-family: var(--app-font-serif); font-size: 21px; font-weight: 400; }
+.sv2-decision-facts strong { margin-top: 7px; font-family: var(--app-font-sans); font-size: 21px; font-weight: 400; }
 .sv2-decision-facts p { margin: 5px 0 0; }
 
 .sv2-unknowns,
@@ -202,7 +202,7 @@
   gap: 22px;
 }
 
-.sv2-unknowns h3 { margin: 6px 0 0; font-family: var(--app-font-serif); font-size: 22px; font-weight: 400; }
+.sv2-unknowns h3 { margin: 6px 0 0; font-family: var(--app-font-sans); font-size: 22px; font-weight: 400; }
 .sv2-unknowns ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .sv2-unknowns li { padding: 6px 9px; border-radius: var(--pill-radius); color: #785a2d; background: rgba(250, 241, 222, .75); font-size: 8px; }
 
@@ -356,7 +356,7 @@
 .sv2-detail-head h2 {
   margin: 6px 0 0;
   color: var(--sv2-ink);
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   font-size: clamp(23px, 2.7vw, 34px);
   font-weight: 400;
   letter-spacing: -.025em;
@@ -763,7 +763,7 @@
 .sv2-story-heading h2,
 .sv2-story-heading h3 {
   margin: 9px 0 0;
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   font-size: clamp(34px, 5vw, 57px);
   font-weight: 400;
   letter-spacing: -.035em;
@@ -783,7 +783,7 @@
   line-height: 1.72;
 }
 
-.sv2-story-lede { margin-top: 24px; color: var(--sv2-ink) !important; font-family: var(--app-font-serif); font-size: clamp(23px, 3vw, 33px) !important; line-height: 1.15 !important; }
+.sv2-story-lede { margin-top: 24px; color: var(--sv2-ink) !important; font-family: var(--app-font-sans); font-size: clamp(23px, 3vw, 33px) !important; line-height: 1.15 !important; }
 
 .sv2-origin {
   display: grid;
@@ -804,7 +804,7 @@
   padding: 24px 0 0;
   border: 0;
   border-top: 1px solid var(--sv2-line);
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   font-size: clamp(28px, 4vw, 46px);
   line-height: 1.06;
 }
@@ -834,7 +834,7 @@
 .sv2-axis > div > div:first-child { padding-top: 0; border-top: 0; }
 .sv2-axis strong,
 .sv2-axis span { display: block; }
-.sv2-axis strong { font-family: var(--app-font-serif); font-size: 23px; font-weight: 400; line-height: 1.05; }
+.sv2-axis strong { font-family: var(--app-font-sans); font-size: 23px; font-weight: 400; line-height: 1.05; }
 .sv2-axis span { margin-top: 7px; color: var(--sv2-muted); font-size: 9px; line-height: 1.55; }
 .sv2-axis--3 { border-color: rgba(54, 126, 132, .45); background: rgba(236, 247, 247, .7); }
 
@@ -844,7 +844,7 @@
   justify-content: center;
   gap: clamp(10px, 2vw, 25px);
   margin-top: 48px;
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
 }
 .sv2-equation span { font-size: clamp(52px, 7vw, 82px); }
 .sv2-equation i { color: var(--sv2-muted); font-size: clamp(20px, 3vw, 32px); font-style: normal; }
@@ -858,7 +858,7 @@
 .sv2-divergence .sv2-story-lede,
 .sv2-divergence blockquote { color: #f6f8fb !important; }
 .sv2-divergence-examples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin: 30px 0; overflow: hidden; border: 1px solid rgba(255,255,255,.16); border-radius: 13px; background: rgba(255,255,255,.16); }
-.sv2-divergence-examples span { padding: 18px; color: #fff; background: #2c3d56; font-family: var(--app-font-serif); font-size: 22px; }
+.sv2-divergence-examples span { padding: 18px; color: #fff; background: #2c3d56; font-family: var(--app-font-sans); font-size: 22px; }
 .sv2-divergence-examples b { color: #9dc9cb; font-weight: 400; }
 .sv2-question-callout { border-top-color: rgba(255,255,255,.18); }
 .sv2-question-callout span { margin-top: 8px; color: #9dc9cb; font-size: .72em; }
@@ -868,18 +868,18 @@
 .sv2-decision-prompt span,
 .sv2-decision-prompt strong { display: block; }
 .sv2-decision-prompt span { color: var(--sv2-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
-.sv2-decision-prompt strong { margin-top: 6px; font-family: var(--app-font-serif); font-size: clamp(30px, 4vw, 45px); font-weight: 400; line-height: 1; }
+.sv2-decision-prompt strong { margin-top: 6px; font-family: var(--app-font-sans); font-size: clamp(30px, 4vw, 45px); font-weight: 400; line-height: 1; }
 .sv2-cutoff-note { padding-left: 23px; color: var(--sv2-muted) !important; font-size: 9px !important; }
 .sv2-klarna-evidence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 38px; }
 .sv2-klarna-column { display: flex; min-width: 0; flex-direction: column; padding: clamp(18px, 3vw, 30px); border: 1px solid var(--sv2-line); border-radius: 15px; }
 .sv2-klarna-column--internal { background: rgba(232, 243, 245, .6); }
 .sv2-klarna-column--external { background: rgba(250, 241, 222, .45); }
-.sv2-klarna-column h3 { margin: 7px 0 0; font-family: var(--app-font-serif); font-size: 30px; font-weight: 400; }
+.sv2-klarna-column h3 { margin: 7px 0 0; font-family: var(--app-font-sans); font-size: 30px; font-weight: 400; }
 .sv2-klarna-column dl { margin: 25px 0 0; }
 .sv2-klarna-column dl > div { padding: 13px 0; border-top: 1px solid rgba(177, 195, 208, .55); }
 .sv2-klarna-column dt { font-size: 10px; font-weight: 700; }
 .sv2-klarna-column dd { margin: 5px 0 0; color: var(--sv2-muted); font-size: 9px; line-height: 1.6; }
-.sv2-klarna-summary { margin: auto 0 0; padding-top: 25px; color: var(--sv2-ink); font-family: var(--app-font-serif); font-size: 22px; line-height: 1.2; }
+.sv2-klarna-summary { margin: auto 0 0; padding-top: 25px; color: var(--sv2-ink); font-family: var(--app-font-sans); font-size: 22px; line-height: 1.2; }
 
 .sv2-disagreement { margin-top: 45px; padding-top: 38px; border-top: 1px solid var(--sv2-line); }
 .sv2-signal-readout { display: grid; gap: 7px; margin: 26px 0; }
@@ -901,10 +901,10 @@
 .sv2-verdict-grid .is-collision { border-top-color: var(--sv2-red); }
 .sv2-verdict-grid .is-collision > strong { color: var(--sv2-red); }
 .sv2-klarna-verdict { margin-top: 24px; padding: 24px; border: 1px solid rgba(183, 120, 34, .4); border-radius: 13px; background: rgba(250, 241, 222, .55); }
-.sv2-klarna-verdict > strong { display: block; margin-top: 7px; color: var(--sv2-amber); font-family: var(--app-font-serif); font-size: 34px; font-weight: 400; }
+.sv2-klarna-verdict > strong { display: block; margin-top: 7px; color: var(--sv2-amber); font-family: var(--app-font-sans); font-size: 34px; font-weight: 400; }
 .sv2-klarna-verdict > p:last-child { max-width: 690px; margin: 10px 0 0; color: #6b604d; font-size: 10px; line-height: 1.6; }
 .sv2-hold { margin-top: 44px; }
-.sv2-hold h3 { margin: 8px 0 0; font-family: var(--app-font-serif); font-size: clamp(30px, 4vw, 46px); font-weight: 400; }
+.sv2-hold h3 { margin: 8px 0 0; font-family: var(--app-font-sans); font-size: clamp(30px, 4vw, 46px); font-weight: 400; }
 .sv2-hold > p { color: var(--sv2-muted); font-size: 11px; }
 .sv2-hold ol { max-width: 750px; margin: 20px 0 0; padding-left: 25px; }
 .sv2-hold li { padding: 6px 0 6px 6px; font-size: 11px; line-height: 1.5; }
@@ -913,7 +913,7 @@
 .sv2-levels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; margin-top: 32px; }
 .sv2-levels article { min-width: 0; padding: 16px 13px; border: 1px solid var(--sv2-line); border-radius: 11px; background: rgba(251, 253, 255, .7); }
 .sv2-levels article > span { display: block; color: var(--sv2-teal); font-family: var(--app-font-mono); font-size: 9px; font-weight: 700; }
-.sv2-levels strong { display: block; margin-top: 18px; font-family: var(--app-font-serif); font-size: 19px; font-weight: 400; }
+.sv2-levels strong { display: block; margin-top: 18px; font-family: var(--app-font-sans); font-size: 19px; font-weight: 400; }
 .sv2-levels p { margin: 7px 0 0; color: var(--sv2-muted); font-size: 8px; line-height: 1.5; }
 
 .sv2-disclosure { margin-top: 25px; border: 1px solid var(--sv2-line); border-radius: 13px; background: rgba(251, 253, 255, .66); }
@@ -933,7 +933,7 @@
 .sv2-gates { margin-top: 44px; padding-top: 36px; border-top: 1px solid var(--sv2-line); }
 .sv2-gates > div:nth-child(2) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 22px; }
 .sv2-gates article { padding: 17px; border: 1px solid var(--sv2-line); border-radius: 11px; }
-.sv2-gates article strong { font-family: var(--app-font-serif); font-size: 22px; font-weight: 400; }
+.sv2-gates article strong { font-family: var(--app-font-sans); font-size: 22px; font-weight: 400; }
 .sv2-gates article p,
 .sv2-gates > p { color: var(--sv2-muted); font-size: 9px; line-height: 1.55; }
 .sv2-gates > p { margin-top: 15px; }
@@ -947,7 +947,7 @@
 .sv2-about-work > p { margin-top: 22px; }
 .sv2-employment { margin-top: 45px; padding: clamp(22px, 4vw, 38px); border-radius: 15px; color: #f4f7fb; background: #23334a; }
 .sv2-employment .sv2-eyebrow { color: #aebdcc; }
-.sv2-employment h3 { max-width: 720px; margin: 7px 0 0; font-family: var(--app-font-serif); font-size: clamp(30px, 4vw, 47px); font-weight: 400; line-height: 1; }
+.sv2-employment h3 { max-width: 720px; margin: 7px 0 0; font-family: var(--app-font-sans); font-size: clamp(30px, 4vw, 47px); font-weight: 400; line-height: 1; }
 .sv2-employment > p { max-width: 720px; color: #bdc7d4; font-size: 10px; line-height: 1.65; }
 .sv2-employment .sv2-button { border-color: rgba(255,255,255,.22); color: #f4f7fb; background: rgba(255,255,255,.06); }
 .sv2-employment .sv2-button:hover { background: rgba(255,255,255,.12); }

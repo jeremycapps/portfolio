@@ -181,7 +181,7 @@
   max-width: 720px;
   margin: 18px 0 15px;
   color: #213149;
-  font-family: var(--app-font-serif);
+  font-family: var(--app-font-sans);
   font-size: clamp(38px, 7vw, 62px);
   font-weight: 400;
   letter-spacing: -0.04em;
