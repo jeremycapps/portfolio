@@ -11,26 +11,6 @@ import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wo
 
 const queryClient = new QueryClient();
 
-type ProofPoint = { tag: string; head: string; body: string };
-
-const HERO_PROOF: readonly ProofPoint[] = [
-  {
-    tag: 'Approved',
-    head: 'A 90-day operating plan, approved',
-    body: 'Authored the plan spanning finance, costing, and delivery, secured the cooperative’s formal approval, and implemented it without pre-existing positional authority.',
-  },
-  {
-    tag: 'Systems of record',
-    head: 'The source-of-truth behind the numbers',
-    body: 'Built a Notion system connecting time, roles, projects, and budgets — the basis for the first per-project pricing model and a year-to-date financial review.',
-  },
-  {
-    tag: 'Shipped',
-    head: 'An enterprise rebuild, through disruption',
-    body: 'Led a six-phase WordPress-to-Framer migration as Tech Lead, driving delivery through a mid-project disruption to launch on a weekly client cadence.',
-  },
-];
-
 type Role = {
   role: string;
   org: string;
@@ -86,18 +66,6 @@ function Home() {
           <div className="home-hero-actions">
             <a href="/work/zocdoc">See the Zocdoc case study <ArrowUpRight aria-hidden="true" /></a>
             <a href="/ask">Ask the assistant</a>
-          </div>
-
-          <div className="home-case-proof" aria-label="Selected outcomes at Aroko">
-            <div className="home-case-proof-grid">
-              {HERO_PROOF.map((point) => (
-                <article key={point.tag}>
-                  <span>{point.tag}</span>
-                  <strong>{point.head}</strong>
-                  <p>{point.body}</p>
-                </article>
-              ))}
-            </div>
           </div>
         </div>
 
