@@ -70,6 +70,22 @@ const EXPERIENCE: readonly Experience[] = [
   },
 ];
 
+// Awards use the Experience record and card so the two sections look and behave
+// identically. NEW INC is a fellowship, not a job — it belongs here, not in Experience.
+const AWARDS: readonly Experience[] = [
+  {
+    role: 'NEW INC Fellow — Social Architecture',
+    org: 'NEW INC · New Museum',
+    orgHref: 'https://www.newinc.org',
+    meta: '2025',
+    bullets: [
+      'Interview-based cultural-systems research connecting David Byrne’s How Music Works with Christopher Alexander’s The Timeless Way of Building and A Pattern Language — how spaces, contexts, tools, and systems shape creative work. Published as a NEW INC / Metalabel record.',
+      'Curated guest-specific Spotify playlists for Big Shot, a talk series linking the New Museum’s Karen Wong with Water Street Armory programming, with research for guests including Gabe Whaley (MSCHF), author Radha Lin Chaddah, and Craig Kallman (Warner Music Group).',
+    ],
+    testid: 'award-newinc',
+  },
+];
+
 function ExperienceItem({ item }: { item: Experience }) {
   const [open, setOpen] = useState(false);
   const panelId = `${item.testid}-panel`;
@@ -117,7 +133,6 @@ function Home() {
 
       <section className="workspace home-workspace" aria-labelledby="hero-title">
         <div className="intro home-hero">
-          <p className="home-eyebrow">Strategic Projects Lead</p>
           <h1 className="home-thesis" id="hero-title">
             I build production AI systems inside real operations, and ship them end to end.
           </h1>
@@ -144,10 +159,18 @@ function Home() {
             ))}
           </div>
 
-          <p className="home-recognition">
-            <span className="home-recognition-tag">Recognition</span>
-            NEW INC Fellow, Social Architecture &mdash; New Museum, 2025
-          </p>
+        </section>
+
+        <section className="home-now home-awards" aria-labelledby="home-awards-title">
+          <div className="home-sec-head">
+            <h2 id="home-awards-title" className="home-sec-tag">Awards</h2>
+          </div>
+
+          <div className="home-role-list">
+            {AWARDS.map((item) => (
+              <ExperienceItem key={item.testid} item={item} />
+            ))}
+          </div>
         </section>
 
         <p className="footer-note home-footer">Jeremy Capps &middot; 2026</p>

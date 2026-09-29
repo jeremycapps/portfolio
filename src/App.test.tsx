@@ -17,6 +17,16 @@ describe('Home', () => {
     expect(html).not.toContain('which piece carries the load');
   });
 
+  it('lists NEW INC under Awards as the same expandable card, not under Experience', () => {
+    const html = homeMarkup();
+    const awards = html.slice(html.indexOf('id="home-awards-title"'));
+    const experience = html.slice(html.indexOf('id="home-exp-title"'), html.indexOf('id="home-awards-title"'));
+    expect(awards).toContain('data-testid="award-newinc"');
+    expect(awards).toContain('class="home-role"');
+    expect(awards).toContain('aria-expanded="false"');
+    expect(experience).not.toContain('NEW INC');
+  });
+
   it('shows every role as a uniform expandable card and drops the retired Zocdoc page', () => {
     const html = homeMarkup();
     // All four roles render, each with its bullets in the DOM (collapsed panels included).
