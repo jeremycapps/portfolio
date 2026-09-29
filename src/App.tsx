@@ -18,11 +18,10 @@ type Experience = {
   meta: string;
   bullets: readonly string[];
   testid: string;
-  defaultOpen?: boolean;
 };
 
-// One uniform, source-grounded record per role. Each is an expandable card; the
-// current role opens by default. Content is drawn from content/profile.md.
+// One uniform, source-grounded record per role. Each is an expandable card, all
+// closed on load. Content is drawn from content/profile.md.
 const EXPERIENCE: readonly Experience[] = [
   {
     role: 'Strategic Projects Lead — Operations & Technical Delivery',
@@ -30,7 +29,6 @@ const EXPERIENCE: readonly Experience[] = [
     orgHref: 'https://aroko.coop',
     meta: '2024 – Present',
     testid: 'exp-aroko',
-    defaultOpen: true,
     bullets: [
       'Authored a 90-day operating plan and secured formal approval, then built a Notion source-of-truth system connecting time, roles, projects, and budgets — the basis for the cooperative’s first per-project pricing model and its year-to-date financial review.',
       'Diagnosed a design-to-development bottleneck and introduced a unified Framer-first workflow, cutting web-project delivery time by roughly 50%.',
@@ -73,7 +71,7 @@ const EXPERIENCE: readonly Experience[] = [
 ];
 
 function ExperienceItem({ item }: { item: Experience }) {
-  const [open, setOpen] = useState(Boolean(item.defaultOpen));
+  const [open, setOpen] = useState(false);
   const panelId = `${item.testid}-panel`;
   return (
     <article className="home-role" data-testid={item.testid} data-open={open}>

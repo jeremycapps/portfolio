@@ -2421,7 +2421,7 @@ textarea:focus-visible {
 
 
 /* experience — one uniform, expandable card per role. The header is the disclosure
-   button (role · org · years + chevron); the current role opens by default. */
+   button (role · org · years + chevron); all start closed and highlight on hover. */
 .home-role-list {
   display: grid;
   gap: 0;
@@ -2446,6 +2446,9 @@ textarea:focus-visible {
   text-align: left;
   cursor: pointer;
 }
+.home-role-head { transition: background-color .15s ease; }
+.home-role-head:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.home-role-head:hover .home-role-chevron { color: var(--ink); }
 .home-role-head:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 .home-role-headings { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
