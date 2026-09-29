@@ -121,13 +121,12 @@ describe('looking-for answer source', () => {
     expect(supportsCareerQuestion('What kinds of roles fit Jeremy, and why?')).toBe(false);
   });
 
-  it('emits a valid v2 value collection of the three target roles at every depth', () => {
+  it('emits a valid v2 value collection of the two target roles at every depth', () => {
     const answer = lookingForAnswerSet();
     expect(answer.answerType).toBe('value');
     expect(answer.items.map((item) => ('value' in item ? item.value : null))).toEqual([
-      'Strategic / Special Projects Lead',
-      'Technical Project Manager',
-      'Technical Product Manager',
+      'Forward Deployed Engineer',
+      'Member of Technical Staff',
     ]);
     for (const depth of ['glance', 'inspect', 'focus', 'audit'] as const) {
       expect(resolveAnswerSet(answer, { depth, audience: 'human' }).ok).toBe(true);

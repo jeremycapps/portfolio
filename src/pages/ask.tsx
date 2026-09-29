@@ -20,8 +20,10 @@ import {
 import { DEFAULT_RESUME } from '@/lib/default-resume.generated';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
 
-// Seeded questions so the "ask" is never a blank prompt — each hands the visitor
-// a real question the assistant can answer, matching the surface-first idea.
+// Seeded questions so the "ask" is never a blank prompt. Kept to one per distinct
+// intent: the current role, a past role, and fit. Near-duplicates (what he's
+// looking for, the throughline, how the work connects) are the same fit question
+// and stay reachable by typing; they don't need their own buttons.
 const ASK_QUESTIONS: readonly { label: string; prompt: string }[] = [
   {
     label: 'What does he do at Aroko?',
@@ -29,18 +31,13 @@ const ASK_QUESTIONS: readonly { label: string; prompt: string }[] = [
       'What does Jeremy do at Aroko as Strategic Projects Lead — the operating plan, the systems he built, and the delivery work?',
   },
   {
-    label: "What's he looking for?",
-    prompt: 'What kind of roles is Jeremy looking for, and what does he most want to do?',
-  },
-  {
     label: 'Tell me about Zocdoc',
     prompt:
       "Tell me about Jeremy's work at Zocdoc — the delivery and experimentation work, and what he shipped.",
   },
   {
-    label: 'How does the work connect?',
-    prompt:
-      "What is the throughline of Jeremy's work across operations, product, design, and engineering?",
+    label: 'What roles fit him?',
+    prompt: 'What roles is Jeremy looking for, and why do they fit?',
   },
 ];
 
@@ -331,7 +328,6 @@ export default function AskPage() {
             </div>
           </form>
           <PromptStarters
-            onSendPrompt={(text) => void submitPrompt(text)}
             onArmResume={armResume}
             disabled={streaming}
           />

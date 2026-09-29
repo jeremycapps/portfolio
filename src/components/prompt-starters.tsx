@@ -1,30 +1,16 @@
-import { Briefcase, Compass, Mail, Sparkles, Target } from 'lucide-react';
+import { Briefcase, Mail } from 'lucide-react';
 
-const SUMMARY_PROMPT =
-  "Give me a concise summary of Jeremy's experience and background — the highlights someone should know.";
-
-const THROUGHLINE_PROMPT =
-  "What's the throughline across Jeremy's work — the principle that stays constant as the tools change?";
-
-const ROLES_PROMPT =
-  'What kinds of roles fit Jeremy, and why?';
-
+// Actions only. Questions live in the Ask page's starter list; a summary of his
+// experience is what the resume already is, so it isn't a separate chip.
 interface PromptStartersProps {
-  onSendPrompt: (text: string) => void;
   onArmResume: () => void;
   disabled?: boolean;
 }
 
 export function PromptStarters({
-  onSendPrompt,
   onArmResume,
   disabled = false,
 }: PromptStartersProps) {
-  const fire = (text: string) => {
-    if (disabled) return;
-    onSendPrompt(text);
-  };
-
   return (
     <div className="prompt-starters" data-testid="prompt-starters">
       <div className="starter-chips" role="group" aria-label="Prompt starters">
@@ -35,30 +21,6 @@ export function PromptStarters({
           onClick={onArmResume}
           icon={<Briefcase aria-hidden="true" />}
           label="Generate a resume"
-        />
-        <StarterChip
-          id="summary"
-          active={false}
-          disabled={disabled}
-          onClick={() => fire(SUMMARY_PROMPT)}
-          icon={<Sparkles aria-hidden="true" />}
-          label="Summarize my experience"
-        />
-        <StarterChip
-          id="throughline"
-          active={false}
-          disabled={disabled}
-          onClick={() => fire(THROUGHLINE_PROMPT)}
-          icon={<Compass aria-hidden="true" />}
-          label="What's the throughline?"
-        />
-        <StarterChip
-          id="roles"
-          active={false}
-          disabled={disabled}
-          onClick={() => fire(ROLES_PROMPT)}
-          icon={<Target aria-hidden="true" />}
-          label="What roles fit Jeremy?"
         />
         <a
           className="starter-chip"

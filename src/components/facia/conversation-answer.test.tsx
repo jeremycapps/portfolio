@@ -3,7 +3,12 @@ import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { tensionAnswerSet } from '../../../api/_lib/tension-answer-source';
-import { careerHistoryAnswerSet } from '../../../api/_lib/portfolio-answer-source';
+import {
+  arokoAnswerSet,
+  careerHistoryAnswerSet,
+  lookingForAnswerSet,
+  technologiesAnswerSet,
+} from '../../../api/_lib/portfolio-answer-source';
 import { ConversationAnswer } from './conversation-answer';
 
 const DEPTHS: DisclosureDepth[] = ['glance', 'inspect', 'focus', 'audit'];
@@ -41,5 +46,21 @@ describe('ConversationAnswer', () => {
     expect(html).toContain('conversation-timeline');
     expect(html).toContain('Strategic Projects Lead');
     expect(html).toContain('Aroko');
+  });
+
+  // Regression: the list renderer read only title/contribution/outcome, so the
+  // target-roles and technologies answers rendered as empty rows.
+  it('renders every list answer from its own fields, not only the work-item shape', () => {
+    const roles = render(lookingForAnswerSet());
+    expect(roles).toContain('<strong>Forward Deployed Engineer.</strong>');
+    expect(roles).toContain('<strong>Member of Technical Staff.</strong>');
+    expect(roles).toContain('Works directly with the people who own the problem');
+
+    const tech = render(technologiesAnswerSet());
+    expect(tech).not.toMatch(/<p class="conversation-list-item"><\/p>/);
+
+    const aroko = render(arokoAnswerSet());
+    expect(aroko).toContain('conversation-aside');
+    expect(aroko).not.toMatch(/<p class="conversation-list-item"><\/p>/);
   });
 });
