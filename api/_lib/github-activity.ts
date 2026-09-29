@@ -25,6 +25,8 @@ export interface GithubActivityItem {
   url?: string;
   ref?: string;
   commits?: number;
+  /** Lead paragraph of a PR's description, added by the sync when a token allows the lookup. */
+  summary?: string;
 }
 
 export interface GithubRepoActivity {
@@ -145,6 +147,63 @@ export function transformEvents(
   return { generated_at: now.toISOString(), handle, items };
 }
 
+export interface RepoRef {
+  id: number;
+  name: string;
+}
+
+/**
+ * Fold a fork's activity into its upstream repo: pushes to a personal fork are work on the
+ * upstream project, and PRs from the fork already land there. The merged group takes the
+ * upstream name, id and framing. Pure; `parentById` maps a fork's repo id to its upstream.
+ */
+export function foldForks(
+  doc: GithubActivityDocument,
+  parentById: ReadonlyMap<number, RepoRef>,
+  framingById: ReadonlyMap<number, string>,
+): GithubActivityDocument {
+  const byId = new Map<number, GithubRepoActivity>();
+  for (const item of doc.items) {
+    const parent = parentById.get(item.repoId);
+    const id = parent?.id ?? item.repoId;
+    const existing = byId.get(id);
+    const base: GithubRepoActivity = existing ?? {
+      repo: parent?.name ?? item.repo,
+      repoId: id,
+      framing: framingById.get(id) ?? item.framing,
+      lastActive: item.lastActive,
+      activity: [],
+    };
+    base.activity = [...base.activity, ...item.activity];
+    if (item.lastActive > base.lastActive) base.lastActive = item.lastActive;
+    byId.set(id, base);
+  }
+  const items = [...byId.values()]
+    .map((group) => ({
+      ...group,
+      activity: group.activity.sort((a, b) => b.at.localeCompare(a.at)).slice(0, MAX_ACTIVITY_PER_REPO),
+    }))
+    .sort((a, b) => b.lastActive.localeCompare(a.lastActive));
+  return { ...doc, items };
+}
+
+/** One-line description of an activity item; omits fields the events API no longer sends. */
+export function describeActivity(item: GithubActivityItem): string {
+  const title = item.title ? ` "${item.title}"` : '';
+  switch (item.kind) {
+    case 'pull_request':
+      return `PR #${item.number ?? '?'}${title} (${item.state ?? 'open'})`;
+    case 'push': {
+      const count = item.commits !== undefined ? ` ${item.commits} commit(s)` : '';
+      return `pushed${count}${item.ref ? ` to ${item.ref}` : ''}`;
+    }
+    case 'branch':
+      return `created branch ${item.ref ?? ''}`;
+    case 'comment':
+      return `commented on #${item.number ?? '?'}${title}`;
+  }
+}
+
 export const GITHUB_BLOCK_INSTRUCTIONS = [
   "The items below are Jeremy's recent PUBLIC GitHub activity, collected automatically",
   'from the GitHub events API (never edited by hand, never private repos). Use them to',
@@ -154,17 +213,8 @@ export const GITHUB_BLOCK_INSTRUCTIONS = [
 ].join('\n');
 
 function formatActivityItem(item: GithubActivityItem): string {
-  const date = item.at.slice(0, 10);
-  switch (item.kind) {
-    case 'pull_request':
-      return `  - PR #${item.number ?? '?'} "${item.title ?? ''}" (${item.state ?? 'open'}) ${date}`;
-    case 'push':
-      return `  - pushed ${item.commits ?? '?'} commit(s)${item.ref ? ` to ${item.ref}` : ''} ${date}`;
-    case 'branch':
-      return `  - created branch ${item.ref ?? ''} ${date}`;
-    case 'comment':
-      return `  - commented on #${item.number ?? '?'} "${item.title ?? ''}" ${date}`;
-  }
+  const line = `  - ${describeActivity(item)} ${item.at.slice(0, 10)}`;
+  return item.summary ? `${line}\n    ${item.summary}` : line;
 }
 
 function formatRepo(repo: GithubRepoActivity): string {

@@ -4,7 +4,7 @@
 // first, each with his curated significance. When there is no feed yet it returns null,
 // and the caller falls through to the grounded prose path.
 import type { AnswerSetV2, FieldInfoV2, ValueAnswerV2 } from '@facia/core';
-import type { GithubActivityDocument, GithubActivityItem, GithubRepoActivity } from './github-activity';
+import { describeActivity, type GithubActivityDocument, type GithubRepoActivity } from './github-activity';
 
 const CURRENT_WORK_PHRASES = [
   'working on',
@@ -38,19 +38,6 @@ export function supportsCurrentWorkQuestion(question: string): boolean {
   return CURRENT_WORK_WORDS.some((word) => words.has(word));
 }
 
-function describeLatest(item: GithubActivityItem): string {
-  switch (item.kind) {
-    case 'pull_request':
-      return `PR #${item.number ?? '?'} "${item.title ?? ''}" (${item.state ?? 'open'})`;
-    case 'push':
-      return `pushed ${item.commits ?? '?'} commit(s)${item.ref ? ` to ${item.ref}` : ''}`;
-    case 'branch':
-      return `created branch ${item.ref ?? ''}`;
-    case 'comment':
-      return `commented on #${item.number ?? '?'}`;
-  }
-}
-
 function repoFields(withSignificance: boolean): FieldInfoV2 {
   return {
     priority: {
@@ -65,13 +52,15 @@ function repoFields(withSignificance: boolean): FieldInfoV2 {
 function repoItem(repo: GithubRepoActivity): ValueAnswerV2 {
   const url = `https://github.com/${repo.repo}`;
   const withSignificance = typeof repo.framing === 'string';
+  // A titled PR says more about the work than a later push, so it leads when present.
+  const headline = repo.activity.find((item) => item.kind === 'pull_request' && item.title) ?? repo.activity[0];
   return {
     type: 'Value' as const,
     payload: {
       repo: repo.repo,
       ...(withSignificance ? { significance: repo.framing as string } : {}),
       lastActive: repo.lastActive.slice(0, 10),
-      latest: repo.activity[0] ? describeLatest(repo.activity[0]) : 'recent activity',
+      latest: headline ? describeActivity(headline) : 'recent activity',
       url,
     },
     value: repo.repo,
