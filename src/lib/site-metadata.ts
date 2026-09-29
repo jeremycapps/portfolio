@@ -21,9 +21,9 @@ export interface PageMetadata {
 const STATIC_PAGES: readonly PageMetadata[] = [
   {
     path: '/',
-    title: 'Jeremy Capps — Strategic Projects Lead & Technical Project Manager',
+    title: 'Jeremy Capps — Engineer, AI Systems',
     description:
-      'Jeremy Capps is an operations and strategic-projects lead who turns ambiguous, cross-functional work into measurable systems and reliable delivery.',
+      'Jeremy Capps is an engineer who builds production AI systems with the people who own the problem — from scoping to code to adoption.',
     kind: 'home',
   },
   {

@@ -134,12 +134,13 @@ function Home() {
       <section className="workspace home-workspace" aria-labelledby="hero-title">
         <div className="intro home-hero">
           <h1 className="home-thesis" id="hero-title">
-            I turn ambiguous, high-pressure work into measurable systems and reliable delivery.
+            I build production AI systems inside real operations, and ship them end to end.
           </h1>
           <p className="home-sub">
-            An operations and strategic-projects lead who owns tactical execution end to end &mdash;
-            diagnosing bottlenecks, restructuring processes, and reporting clearly on cost, capacity,
-            quality, and progress. Nine years across operations, product, design, and engineering.
+            An engineer who works directly with the people who own the problem. Nine years across
+            engineering, product, design, and operations &mdash; I scope with the customer, write the
+            code, and stay through adoption. The assistant on this site is a production RAG agent I
+            built on my own work logs.
           </p>
           <div className="home-hero-actions">
             <a href="/ask">Chat with my assistant <ArrowUpRight aria-hidden="true" /></a>
