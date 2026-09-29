@@ -133,7 +133,6 @@ function Home() {
 
       <section className="workspace home-workspace" aria-labelledby="hero-title">
         <div className="intro home-hero">
-          <p className="home-eyebrow">Strategic Projects Lead</p>
           <h1 className="home-thesis" id="hero-title">
             I turn ambiguous, high-pressure work into measurable systems and reliable delivery.
           </h1>
