@@ -105,7 +105,6 @@
   --shadow-control: 0 5px 12px rgba(31, 43, 63, 0.19);
   --shadow-toast: 0 12px 28px rgba(31, 43, 63, 0.2);
   --shadow-composer: 0 13px 28px rgba(83, 112, 137, 0.08), 0 2px 4px rgba(83, 112, 137, 0.05), inset 0 1px rgba(255, 255, 255, 0.84);
-  --shadow-composer-focus: 0 17px 35px rgba(83, 112, 137, 0.12), 0 2px 4px rgba(83, 112, 137, 0.05), 0 0 0 4px var(--focus-halo);
   --shadow-composer-docked: 0 18px 45px rgba(52, 73, 96, 0.14), 0 2px 5px rgba(52, 73, 96, 0.06), inset 0 1px rgba(255, 255, 255, 0.92);
   --scroll-thumb: color-mix(in srgb, var(--ink-soft) 35%, transparent);
   --composer-fade: linear-gradient(180deg, transparent, var(--ground) 16px);
@@ -405,8 +404,7 @@ textarea:focus-visible {
 
 .composer:focus-within {
   background: var(--surface-veil-strong);
-  border-color: var(--line-focus);
-  box-shadow: var(--shadow-composer-focus);
+  border-color: color-mix(in srgb, var(--focus) 30%, var(--line));
 }
 
 .composer-input {
@@ -420,6 +418,11 @@ textarea:focus-visible {
   background: transparent;
   font-size: 15px;
   line-height: 1.5;
+}
+
+/* The composer's own focus border already marks focus; skip the global textarea ring. */
+.composer-input:focus-visible {
+  outline: none;
 }
 
 .composer-input::placeholder {
@@ -2903,7 +2906,6 @@ textarea:focus-visible {
     --shadow-control: 0 5px 12px rgba(0, 0, 0, 0.35);
     --shadow-toast: 0 12px 28px rgba(0, 0, 0, 0.42);
     --shadow-composer: 0 13px 28px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.04);
-    --shadow-composer-focus: 0 17px 35px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 0 4px var(--focus-halo);
     --shadow-composer-docked: 0 18px 45px rgba(0, 0, 0, 0.42), 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.04);
     --document-border: rgba(126, 145, 158, 0.7);
     --document-shadow: 0 13px 24px rgba(0, 0, 0, 0.3);
@@ -2928,6 +2930,22 @@ textarea:focus-visible {
     --document-review-rule: #465159;
     --document-review-copy: #9da8af;
     --document-review-mark: #526068;
+    /* Tokens derived from the palette resolve where they are declared, so :root's
+       copies stay frozen on the light values; redeclare them against the dark ones. */
+    --surface-veil: color-mix(in srgb, var(--surface) 80%, transparent);
+    --surface-veil-strong: color-mix(in srgb, var(--surface) 94%, transparent);
+    --surface-subtle: color-mix(in srgb, var(--ink) 6%, transparent);
+    --surface-selected: color-mix(in srgb, var(--accent) 14%, var(--surface));
+    --surface-hover: color-mix(in srgb, var(--focus) 10%, var(--surface));
+    --line-strong: color-mix(in srgb, var(--line) 55%, var(--ink-soft));
+    --line-focus: color-mix(in srgb, var(--focus) 68%, var(--line));
+    --focus-halo: color-mix(in srgb, var(--focus) 20%, transparent);
+    --control-bg: var(--surface-veil);
+    --control-bg-hover: var(--surface);
+    --danger-soft: color-mix(in srgb, var(--danger) 10%, var(--surface));
+    --danger-line: color-mix(in srgb, var(--danger) 28%, var(--line));
+    --scroll-thumb: color-mix(in srgb, var(--ink-soft) 35%, transparent);
+    --composer-fade: linear-gradient(180deg, transparent, var(--ground) 16px);
     background: var(--body-grad);
   }
 }
