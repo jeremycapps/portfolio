@@ -409,19 +409,14 @@ export function lookingForAnswerSet(): AnswerSetV2 {
     actionable: false,
     items: [
       targetRoleItem({
-        role: 'Strategic / Special Projects Lead',
-        fit: 'Turns ambiguous, cross-functional problems into executable plans, measurable operating systems, and shipped delivery.',
-        context: 'His through-line across operations, product, design, and engineering.',
+        role: 'Forward Deployed Engineer',
+        fit: 'Works directly with the people who own the problem — scoping it with them, building the system, and staying through adoption.',
+        context: 'Primary client contact at Aroko, translating business and technical requirements into scopes and technical handoff; built customer API integrations end to end at Applied Software.',
       }),
       targetRoleItem({
-        role: 'Technical Project Manager',
-        fit: 'Owns tactical execution end to end and reports clearly on cost, capacity, quality, and progress.',
-        context: 'Strength in technical programs, process optimization, and stakeholder coordination.',
-      }),
-      targetRoleItem({
-        role: 'Technical Product Manager',
-        fit: 'Combines analytical problem-solving, operational execution, and technical fluency.',
-        context: 'Especially at AI companies building the next generation of productivity tools.',
+        role: 'Member of Technical Staff',
+        fit: 'Builds and ships production systems end to end — frontend architecture, API integrations, data, and AI.',
+        context: "Production design-system and experimentation work at Zocdoc; this site's assistant, a production RAG agent built on his own work logs.",
       }),
     ],
     operations: [],
@@ -431,7 +426,7 @@ export function lookingForAnswerSet(): AnswerSetV2 {
       entries: [
         { step: 'question.selected', value: 'portfolio.looking-for' },
         { step: 'source.loaded', value: LOOKING_FOR_REF },
-        { step: 'answer.emitted', value: 3 },
+        { step: 'answer.emitted', value: 2 },
       ],
     },
   };

@@ -7,39 +7,33 @@ detail rather than guessing.
 
 ## Who Jeremy is (one paragraph)
 
-Jeremy Capps is an operations and strategic-projects lead who turns ambiguous,
-high-pressure work into measurable systems and reliable delivery. He owns
-tactical execution end to end — diagnosing bottlenecks, restructuring processes,
-and reporting clearly on cost, capacity, quality, and progress — while building
-the client trust that keeps a program moving. That pattern has held across every
-role: modernizing business logic out of legacy COBOL, shipping and experimenting
-on production design-system work at Zocdoc, delivering customer API integrations
-at Applied Software, and now running operations and technical delivery at Aroko.
-His work sits at the intersection of operations, product, design, and
-engineering, with particular strength in technical programs, process
-optimization, financial visibility, and stakeholder coordination. He has worked
-professionally in software and systems for nine years across operations,
-product, design, and engineering — alongside a practice in creative and
-cultural-systems research.
+Jeremy Capps is an engineer who builds production systems with the people who own
+the problem — scoping it with them, writing the code, and staying through
+adoption. That pattern has held across every role: modernizing business logic
+out of legacy COBOL, building customer API integrations end to end at Applied
+Software, shipping and experimenting on production design-system work at Zocdoc,
+and now running technical delivery and operations at Aroko as the primary client
+contact. He also built this portfolio's assistant — a production RAG agent
+grounded on his own work logs. He has worked professionally in software and
+systems for nine years across engineering, product, design, and operations —
+alongside a practice in creative and cultural-systems research.
 
 ## What Jeremy is looking for
 
-- **Primary identity (how to answer "what is he").** Lead with the title:
-  Strategic Projects Lead and Technical Project Manager. The constant across his
-  work is turning ambiguous, cross-functional problems into executable plans,
-  measurable operating systems, and shipped delivery. His range spans operations,
-  product, design, and engineering, and his particular strength is technical
-  programs, process optimization, financial visibility, and stakeholder
-  coordination. His leadership is project and contributor leadership — scoping
-  work, setting review cadences, driving delivery — not formal people management.
-- **Roles he's targeting.** Strategic or Special Projects Lead, Technical Project
-  Manager, and Technical Product Manager, especially at AI companies building the
-  next generation of productivity tools — roles that combine analytical
-  problem-solving, operational execution, and technical fluency.
-- **What he most wants to do.** Take an ambiguous, high-pressure program, find
-  what actually governs it, and turn it into measurable workflows, systems of
-  record, and reliable delivery — owning the tactical execution and reporting
-  clearly on cost, capacity, quality, and progress.
+- **Primary identity (how to answer "what is he").** An engineer who builds
+  production AI systems inside real operations and ships them end to end. The
+  constant across his work is sitting close to the problem owner, turning an
+  ambiguous problem into a working system, and staying through adoption. His range
+  spans engineering, product, design, and operations. His leadership is project
+  and contributor leadership — scoping work, setting review cadences, driving
+  delivery — not formal people management. His current title at Aroko is
+  Strategic Projects Lead; use it when describing that role, not as his identity.
+- **Roles he's targeting.** Forward Deployed Engineer and Member of Technical
+  Staff, especially at AI companies — roles that pair hands-on engineering with
+  working directly alongside customers and the people who own the problem.
+- **What he most wants to do.** Take an ambiguous problem inside a real
+  operation, work it out with the people who own it, and ship the system that
+  solves it — code, data, and delivery — then stay through adoption.
 - **Company size & stage.** Works best in small-to-mid and early-stage teams
   where one person spans operations, product, and delivery. He is a 0-to-1 and
   "across the seams" person — though his Zocdoc tenure shows he can operate inside
@@ -141,6 +135,10 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
 
 ## Skills & tools
 
+- **Engineering:** TypeScript, React, design systems, frontend architecture; C#
+  and .NET; Python; Java; REST API integration and wrapper design; SQL/Snowflake;
+  A/B testing and experimentation; accessibility (WCAG); legacy modernization
+  (COBOL, Java).
 - **Operational excellence:** process optimization, bottleneck diagnosis,
   workflow restructuring, throughput and cost-efficiency, pricing-model design,
   project budgeting, estimation and capacity forecasting.
@@ -150,10 +148,6 @@ Examples of Jeremy shaping work outside the scope he was directly assigned:
 - **Systems & reporting:** Notion source-of-truth systems, data reconciliation
   (YNAB, Bill.com, spreadsheets), KPI and financial reporting, specification
   authorship.
-- **Engineering:** TypeScript, React, design systems, frontend architecture; C#
-  and .NET; Python; Java; REST API integration and wrapper design; SQL/Snowflake;
-  A/B testing and experimentation; accessibility (WCAG); legacy modernization
-  (COBOL, Java).
 - **Tools:** Notion, Jira, Confluence, Azure, Obsidian, Google Sheets automation,
   Slack, Figma.
 

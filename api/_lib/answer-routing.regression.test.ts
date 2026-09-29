@@ -43,6 +43,12 @@ const DETERMINISTIC_ROUTES: RoutingCase[] = [
     role: 'value',
   },
   {
+    name: 'the Ask page "What roles fit him?" button prompt → looking-for',
+    question: 'What roles is Jeremy looking for, and why do they fit?',
+    traceId: 'portfolio.looking-for.v1',
+    role: 'value',
+  },
+  {
     name: '"what is he looking for" → looking-for',
     question: 'What is Jeremy looking for in his next role?',
     traceId: 'portfolio.looking-for.v1',

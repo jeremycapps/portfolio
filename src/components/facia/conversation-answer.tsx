@@ -49,13 +49,20 @@ function Operation({ fields }: { fields: ResolvedFieldV2[] }) {
   );
 }
 
+// Each answer set declares its own field names (title/contribution/outcome for
+// work, role/fit/context for target roles, name/category for technologies), and
+// visibleFields arrive in that set's priority order. Read by position so every
+// list renders, not just the one whose names were hardcoded here.
 function ValueList({ recipe }: { recipe: ComponentRecipe }) {
+  const text = (field: ResolvedFieldV2 | undefined) =>
+    field === undefined ? null : fieldValue([field], field.key);
   return (
     <div className="conversation-answer conversation-list">
       {recipe.visibleFields.map((item) => {
-        const title = fieldValue(item.fields, 'title');
-        const contribution = fieldValue(item.fields, 'contribution');
-        const outcome = fieldValue(item.fields, 'outcome');
+        const [headField, bodyField, asideField] = item.fields;
+        const title = text(headField);
+        const contribution = text(bodyField);
+        const outcome = text(asideField);
         return (
           <p key={item.itemIndex} className="conversation-list-item">
             {title ? <strong>{title}.</strong> : null}
