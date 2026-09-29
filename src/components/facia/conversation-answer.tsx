@@ -85,10 +85,23 @@ function SingleValue({ fields }: { fields: ResolvedFieldV2[] }) {
   );
 }
 
+// The career set names its fields (role/organization/period/focus). Other temporal
+// sets — the GitHub current-work card (repo/significance/lastActive/latest) — do not,
+// so an item without a role is read by position, in its declared priority order.
 function Timeline({ recipe }: { recipe: ComponentRecipe }) {
   return (
     <ol className="conversation-answer conversation-timeline">
       {recipe.visibleFields.map((item) => {
+        if (fieldValue(item.fields, 'role') === null) {
+          const [head, body, ...rest] = item.fields.map((field) => fieldValue([field], field.key));
+          return (
+            <li key={item.itemIndex} className="conversation-timeline-item">
+              {rest.length > 0 ? <span className="conversation-period">{rest.join(' · ')}</span> : null}
+              <span className="conversation-role">{head}</span>
+              {body ? <span className="conversation-focus">{body}</span> : null}
+            </li>
+          );
+        }
         const role = fieldValue(item.fields, 'role');
         const org = fieldValue(item.fields, 'organization');
         const period = fieldValue(item.fields, 'period');

@@ -17,6 +17,7 @@ import {
   sendChat,
   type ClientMessage,
 } from '@/lib/chat';
+import { shouldSubmitOnKey } from '@/lib/composer-keys';
 import { DEFAULT_RESUME } from '@/lib/default-resume.generated';
 import { ResumeApiError, sendResumeRequest, type ResumeResponse } from '@/lib/resume';
 
@@ -303,8 +304,7 @@ export default function AskPage() {
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value)}
                 onKeyDown={(event) => {
-                  // Cmd+Enter (macOS) / Ctrl+Enter (Windows/Linux) sends the prompt.
-                  if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+                  if (shouldSubmitOnKey({ ...event, isComposing: event.nativeEvent.isComposing }, resumeMode)) {
                     event.preventDefault();
                     event.currentTarget.form?.requestSubmit();
                   }
