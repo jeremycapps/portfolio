@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildGithubBlock,
+  describeActivity,
+  foldForks,
   transformEvents,
   type GithubEvent,
 } from './github-activity';
@@ -129,5 +131,51 @@ describe('buildGithubBlock', () => {
     expect(block).toContain('PR #1002 "Refactor retrieval" (open) 2026-09-27');
     expect(block).toContain('pushed 4 commit(s) to main 2026-09-26');
     expect(block).toContain('as of 2026-09-28');
+  });
+});
+
+describe('describeActivity', () => {
+  it('omits the commit count and empty titles the events API no longer sends', () => {
+    expect(describeActivity({ kind: 'push', at: '2026-09-28T00:00:00Z', ref: 'main' })).toBe('pushed to main');
+    expect(describeActivity({ kind: 'pull_request', at: '2026-09-28T00:00:00Z', number: 1005, state: 'open' })).toBe('PR #1005 (open)');
+  });
+});
+
+describe('foldForks', () => {
+  it('merges a fork into its upstream, taking the upstream name and framing', () => {
+    const doc = transformEvents(
+      [
+        push(1327088798, 'deeplethe/utopia', '2026-09-27T10:00:00Z'),
+        push(55, 'jeremycapps/utopia', '2026-09-28T10:00:00Z'),
+        push(99, 'jeremycapps/other', '2026-09-26T10:00:00Z'),
+      ],
+      framing,
+      'jeremycapps',
+      NOW,
+    );
+    const folded = foldForks(doc, new Map([[55, { id: 1327088798, name: 'deeplethe/utopia' }]]), framing);
+    expect(folded.items.map((i) => i.repo)).toEqual(['deeplethe/utopia', 'jeremycapps/other']);
+    expect(folded.items[0].framing).toBe('production-deployed LLM, ontology project');
+    expect(folded.items[0].lastActive).toBe('2026-09-28T10:00:00Z');
+    expect(folded.items[0].activity).toHaveLength(2);
+  });
+});
+
+describe('buildGithubBlock summaries', () => {
+  it('adds a PR summary under its line when present', () => {
+    const doc = {
+      generated_at: NOW.toISOString(),
+      handle: 'jeremycapps',
+      items: [
+        {
+          repo: 'a/b',
+          repoId: 1,
+          framing: null,
+          lastActive: '2026-09-27T10:00:00Z',
+          activity: [{ kind: 'pull_request' as const, at: '2026-09-27T10:00:00Z', number: 3, title: 'T', state: 'merged', summary: 'Why it matters.' }],
+        },
+      ],
+    };
+    expect(buildGithubBlock(doc)).toContain('PR #3 "T" (merged) 2026-09-27\n    Why it matters.');
   });
 });

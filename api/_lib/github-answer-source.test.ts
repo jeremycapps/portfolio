@@ -63,3 +63,21 @@ describe('currentWorkAnswerSet', () => {
     expect(scratch.payload.latest).toBe('pushed 3 commit(s) to main');
   });
 });
+
+describe('currentWorkAnswerSet headline', () => {
+  it('leads with the latest titled PR over a newer bare push', () => {
+    const set = currentWorkAnswerSet({
+      ...doc,
+      items: [
+        {
+          ...doc.items[0],
+          activity: [
+            { kind: 'push', at: '2026-09-28T10:00:00Z', ref: 'bench' },
+            { kind: 'pull_request', at: '2026-09-27T10:00:00Z', number: 1002, title: 'Add the A/B bench', state: 'merged' },
+          ],
+        },
+      ],
+    })!;
+    expect((set.items[0] as { payload: Record<string, unknown> }).payload.latest).toBe('PR #1002 "Add the A/B bench" (merged)');
+  });
+});
