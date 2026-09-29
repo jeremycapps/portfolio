@@ -1,16 +1,14 @@
+// Deterministic portfolio answer sets and the router that selects one.
+//
+// Every answer here is hand-authored from the profile and rendered as a Facia
+// card (timeline, structured cells). There is no model in this path and no
+// grammar classifier: a small set of tight keyword predicates map a question to
+// one deterministic set, and anything they do not claim returns null — the
+// caller then answers it as grounded prose. This is the surviving half of the
+// former facia stack; the verb×arity classifier and the model-JSON providers
+// that fed it were removed, along with the misroutes they produced.
 import type { AnswerSetV2, FieldInfoV2 } from '@facia/core';
-import { adaptModelAnswer, ModelAnswerContractError } from './model-answer';
 import { supportsTensionQuestion, tensionAnswerSet } from './tension-answer-source';
-import { roleOf } from './question-grammar';
-import { adaptModelOperation, ModelOperationContractError } from './model-operation';
-import {
-  generateStructuredPortfolioOperation, type OperationProvider,
-} from './structured-operation-provider';
-import {
-  generateStructuredPortfolioAnswer,
-  type StructuredProvider,
-} from './structured-provider';
-import type { ChatMessage } from './types';
 
 const CANONICAL_QUESTION = 'What did Jeremy work on at Zocdoc?';
 
@@ -20,83 +18,7 @@ function normalizedQuestion(question: string): string {
   return question.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-type LiberaStartPrecision = 'year' | 'month';
-
-function latestUserQuestion(history: ChatMessage[]): string {
-  return [...history].reverse().find((message) => message.role === 'user')?.content ?? '';
-}
-
-/** Resolve a precise Libera start-date question, including a short contextual follow-up. */
-export function liberaStartPrecision(
-  question: string,
-  history: ChatMessage[] = [],
-): LiberaStartPrecision | null {
-  const current = normalizedQuestion(question);
-  const prior = normalizedQuestion(latestUserQuestion(history));
-  const asksForMonth = /\bmonth\b/.test(current);
-  const namesLibera = /\blibera\b/.test(current)
-    || (asksForMonth && /\blibera\b/.test(prior));
-  const asksAboutStarting = /\b(start|started|begin|began|first)\b/.test(current)
-    || (asksForMonth && /\b(start|started|begin|began|first)\b/.test(prior));
-
-  if (!namesLibera || !asksAboutStarting) return null;
-  if (asksForMonth) return 'month';
-  return /^(when|what year)\b/.test(current) ? 'year' : null;
-}
-
-export function liberaStartDateAnswerSet(
-  question: string,
-  precision: LiberaStartPrecision,
-): AnswerSetV2 {
-  const sourceRef = 'content/profile.md#selected-projects';
-  const monthRequested = precision === 'month';
-  const title = monthRequested ? 'Month not specified' : '2026';
-  const contribution = monthRequested
-    ? 'The portfolio establishes that Jeremy began working on Libera in 2026, but it does not specify a month.'
-    : 'Jeremy’s documented work on Libera begins in 2026.';
-  return {
-    schema: 'facia.answer-set/2',
-    question,
-    answerType: 'value',
-    path: 'meaning',
-    inspection: 'available',
-    actionable: false,
-    items: [{
-      type: 'Value',
-      payload: {
-        title,
-        contribution,
-        precision: monthRequested ? 'year only' : 'year',
-        scope: 'No more precise start date is present in the portfolio grounding.',
-        evidenceTier: 'profile-grounded',
-        source: sourceRef,
-      },
-      value: title,
-      evidence: {
-        status: 'profile-grounded',
-        sourceRefs: [sourceRef],
-      },
-      fields: {
-        priority: {
-          primary: ['title', 'contribution'],
-          secondary: ['precision'],
-          supporting: ['scope'],
-          audit: ['evidenceTier', 'source'],
-        },
-      },
-    }],
-    operations: [],
-    trace: {
-      kind: 'direct',
-      id: 'portfolio.libera-start-date.v1',
-      entries: [
-        { step: 'question.selected', value: 'portfolio.libera-start-date' },
-        { step: 'source.loaded', value: sourceRef },
-        { step: 'precision.resolved', value: precision },
-      ],
-    },
-  };
-}
+// ── Zocdoc ──────────────────────────────────────────────────────────────────
 
 export function supportsPortfolioQuestion(question: string): boolean {
   const normalized = normalizedQuestion(question);
@@ -189,6 +111,8 @@ export function zocdocAnswerSet(): AnswerSetV2 {
   };
 }
 
+// ── Technologies ──────────────────────────────────────────────────────────────
+
 const TECHNOLOGY_TERMS = [
   'technology',
   'technologies',
@@ -245,7 +169,7 @@ function technologyItem(entry: {
   };
 }
 
-function technologiesAnswerSet(): AnswerSetV2 {
+export function technologiesAnswerSet(): AnswerSetV2 {
   const skillsRef = 'content/profile.md#skills-tools';
   return {
     schema: 'facia.answer-set/2',
@@ -279,6 +203,8 @@ function technologiesAnswerSet(): AnswerSetV2 {
   };
 }
 
+// ── Career history ────────────────────────────────────────────────────────────
+
 const CAREER_TERMS = [
   'career',
   'history',
@@ -297,13 +223,17 @@ const CAREER_TERMS = [
 export function supportsCareerQuestion(question: string): boolean {
   const normalized = normalizedQuestion(question);
   const words = new Set(normalized.split(' '));
-  // The career spine answers "what is his history" — a value shown as a
-  // timeline. A verdict, operation, or convergence question often shares a
-  // keyword ("experience", "roles", "worked"), so the role gate comes first:
-  // the spine may only claim a value question.
-  if (roleOf(question) !== 'value') return false;
-  // A Zocdoc-specific "what did you do" belongs to the richer Zocdoc model, not
-  // the whole-career spine.
+  // The career spine answers "what is his history" — a value shown as a timeline.
+  // Grammar-free shape guards keep it off questions whose real shape is something
+  // else, even when they share a keyword ("experience", "roles", "worked"):
+  //   - a relational/synthesis question ("how/why …") → grounded prose
+  //   - a polar or either/or verdict ("does he …", "… or …") → tension or prose
+  if (/^(how|why)\b/.test(normalized)) return false;
+  if (/^(did|does|do|is|are|was|were|can|could|will|would|should|has|have)\b/.test(normalized)) return false;
+  if (/\bor\b/.test(normalized)) return false;
+  // Sibling sets own their intent even though they share career keywords.
+  if (supportsLookingForQuestion(question)) return false;
+  if (supportsTechnologiesQuestion(question)) return false;
   if (supportsPortfolioQuestion(question)) return false;
   if (CAREER_TERMS.some((term) => words.has(term))) return true;
   return normalized.includes('current')
@@ -366,10 +296,10 @@ export function careerHistoryAnswerSet(): AnswerSetV2 {
     sequenceKind: 'temporal',
     items: [
       careerItem({
-        role: 'Head of Operations',
+        role: 'Strategic Projects Lead',
         organization: 'Aroko',
         period: '2024–present',
-        focus: 'Leads operations and client web delivery at a cooperative agency.',
+        focus: 'Leads operations and technical delivery at a cooperative agency.',
         highlight: 'Authored an approved 90-day operating plan and built a Notion budgeting and estimating system.',
         sourceRef: 'content/profile.md#what-hes-doing-now',
       }),
@@ -411,67 +341,209 @@ export function careerHistoryAnswerSet(): AnswerSetV2 {
   };
 }
 
-interface QuestionMatcher {
-  supports: (question: string) => boolean;
-  build: (question: string) => AnswerSetV2;
-}
+// ── What he's looking for ─────────────────────────────────────────────────────
 
-const MATCHERS: QuestionMatcher[] = [
-  // A two-pole question is a bounded verdict and must be recognised before the
-  // career keyword matcher, which would otherwise claim it on "experience",
-  // "roles", or "worked" and answer it with a timeline.
-  { supports: supportsTensionQuestion, build: (q) => tensionAnswerSet(q)! },
-  { supports: supportsPortfolioQuestion, build: zocdocAnswerSet },
-  { supports: supportsTechnologiesQuestion, build: technologiesAnswerSet },
-  { supports: supportsCareerQuestion, build: careerHistoryAnswerSet },
+// "What roles fit Jeremy / what's he looking for" is a forward-looking question
+// about the work he wants next, not a lookup on the work he has done.
+const ASPIRATION_TERMS = [
+  'looking', 'seeking', 'targeting', 'target', 'want', 'wants', 'wanting',
+  'fit', 'fits', 'suit', 'suits', 'suited', 'ideal', 'aspiration', 'aspirations',
+];
+const ROLE_SUBJECT_TERMS = [
+  'role', 'roles', 'job', 'jobs', 'position', 'positions', 'work', 'title', 'titles',
 ];
 
-export function answerPortfolioQuestion(question: string): AnswerSetV2 | null {
-  const match = MATCHERS.find((matcher) => matcher.supports(question));
-  return match ? match.build(question) : null;
+export function supportsLookingForQuestion(question: string): boolean {
+  const normalized = normalizedQuestion(question);
+  const words = new Set(normalized.split(' '));
+  // "How does X fit Y" is a relational mapping, not a question about what he wants.
+  if (normalized.startsWith('how ')) return false;
+  if (normalized.includes('looking for')) return true;
+  const aspires = ASPIRATION_TERMS.some((term) => words.has(term));
+  const aboutRoles = ROLE_SUBJECT_TERMS.some((term) => words.has(term));
+  return aspires && aboutRoles;
 }
 
-export async function generatePortfolioAnswer(
-  question: string,
-  provider: StructuredProvider = generateStructuredPortfolioAnswer,
-  operationProvider: OperationProvider = generateStructuredPortfolioOperation,
-  history: ChatMessage[] = [],
-): Promise<AnswerSetV2> {
-  const startPrecision = liberaStartPrecision(question, history);
-  if (startPrecision !== null) return liberaStartDateAnswerSet(question, startPrecision);
-  // Role before keyword. A two-pole question opens a two-place answer space and
-  // picks one — a bounded verdict, answered from the tension index. Without
-  // this the career matcher claims it and returns the career timeline.
-  if (supportsTensionQuestion(question)) return tensionAnswerSet(question)!;
-  // A relational question names two terms whose mapping is in no single source.
-  // It is composed: the model supplies the mapping, the host grounds the input
-  // and draws the seam. This runs ahead of the value model so a "how does X
-  // relate to Y" question is never flattened into a list of value items.
-  if (roleOf(question) === 'operation') {
-    const mapping = await operationProvider(question, undefined, history);
-    if (mapping.refusal === null) return adaptModelOperation(question, mapping);
-    throw new ModelOperationContractError('MODEL_REFUSED', mapping.refusal);
-  }
-  // The career spine is a temporal sequence; the model adapter only emits
-  // singular values, so this answer is authored deterministically and never
-  // routed through the provider.
+const LOOKING_FOR_REF = 'content/profile.md#what-jeremy-is-looking-for';
+
+function targetRoleFields(): FieldInfoV2 {
+  return {
+    priority: {
+      primary: ['role'],
+      secondary: ['fit'],
+      supporting: ['context'],
+      audit: ['evidenceTier', 'source'],
+    },
+  };
+}
+
+function targetRoleItem(entry: { role: string; fit: string; context: string }) {
+  return {
+    type: 'Value' as const,
+    payload: {
+      role: entry.role,
+      fit: entry.fit,
+      context: entry.context,
+      evidenceTier: 'profile-grounded',
+      source: LOOKING_FOR_REF,
+    },
+    value: entry.role,
+    evidence: {
+      status: 'profile-grounded' as const,
+      sourceRefs: [LOOKING_FOR_REF],
+    },
+    fields: targetRoleFields(),
+  };
+}
+
+// The roles Jeremy is targeting, drawn from the profile's "what he's looking for"
+// section — the answer a recruiter scans first. Authored deterministically so it
+// never depends on model behavior for the portfolio's most load-bearing question.
+export function lookingForAnswerSet(): AnswerSetV2 {
+  return {
+    schema: 'facia.answer-set/2',
+    question: 'What roles is Jeremy looking for?',
+    answerType: 'value',
+    path: 'meaning',
+    inspection: 'available',
+    actionable: false,
+    items: [
+      targetRoleItem({
+        role: 'Strategic / Special Projects Lead',
+        fit: 'Turns ambiguous, cross-functional problems into executable plans, measurable operating systems, and shipped delivery.',
+        context: 'His through-line across operations, product, design, and engineering.',
+      }),
+      targetRoleItem({
+        role: 'Technical Project Manager',
+        fit: 'Owns tactical execution end to end and reports clearly on cost, capacity, quality, and progress.',
+        context: 'Strength in technical programs, process optimization, and stakeholder coordination.',
+      }),
+      targetRoleItem({
+        role: 'Technical Product Manager',
+        fit: 'Combines analytical problem-solving, operational execution, and technical fluency.',
+        context: 'Especially at AI companies building the next generation of productivity tools.',
+      }),
+    ],
+    operations: [],
+    trace: {
+      kind: 'direct',
+      id: 'portfolio.looking-for.v1',
+      entries: [
+        { step: 'question.selected', value: 'portfolio.looking-for' },
+        { step: 'source.loaded', value: LOOKING_FOR_REF },
+        { step: 'answer.emitted', value: 3 },
+      ],
+    },
+  };
+}
+
+// ── Aroko (current role) ──────────────────────────────────────────────────────
+
+const AROKO_REF = 'content/profile.md#what-hes-doing-now';
+
+export function supportsArokoQuestion(question: string): boolean {
+  const normalized = normalizedQuestion(question);
+  const words = new Set(normalized.split(' '));
+  // Same grammar-free shape guards as the career spine: the card answers "what
+  // he does at Aroko", a value — not a verdict, relational, or synthesis question.
+  if (/^(how|why)\b/.test(normalized)) return false;
+  if (/^(did|does|do|is|are|was|were|can|could|will|would|should|has|have)\b/.test(normalized)) return false;
+  if (/\bor\b/.test(normalized)) return false;
+  return words.has('aroko');
+}
+
+function arokoFields(): FieldInfoV2 {
+  return {
+    priority: {
+      primary: ['title', 'contribution'],
+      secondary: ['outcome'],
+      supporting: ['scope'],
+      audit: ['evidenceTier', 'source'],
+    },
+  };
+}
+
+function arokoItem(entry: { title: string; contribution: string; outcome: string; scope: string }) {
+  return {
+    type: 'Value' as const,
+    payload: {
+      title: entry.title,
+      contribution: entry.contribution,
+      outcome: entry.outcome,
+      scope: entry.scope,
+      evidenceTier: 'profile-grounded',
+      source: AROKO_REF,
+    },
+    value: entry.title,
+    evidence: {
+      status: 'profile-grounded' as const,
+      sourceRefs: [AROKO_REF],
+    },
+    fields: arokoFields(),
+  };
+}
+
+// Jeremy's current role — the "what's he doing now" answer, authored from the
+// profile so the headline role never depends on model behavior. Revenue is framed
+// honestly as a company outcome, matching the grounding elsewhere in the corpus.
+export function arokoAnswerSet(): AnswerSetV2 {
+  return {
+    schema: 'facia.answer-set/2',
+    question: 'What does Jeremy do at Aroko?',
+    answerType: 'value',
+    path: 'meaning',
+    inspection: 'available',
+    actionable: false,
+    items: [
+      arokoItem({
+        title: 'Operating plan and financial visibility',
+        contribution: 'Authored and secured approval for a 90-day operating plan spanning finance, costing, and delivery — without pre-existing positional authority.',
+        outcome: "Established the cooperative's first per-project pricing model and delivered its year-to-date financial review.",
+        scope: 'Joined as lead web designer for a Shutterstock engagement, then took on operations and technical delivery.',
+      }),
+      arokoItem({
+        title: 'Notion source-of-truth system',
+        contribution: 'Built a Notion system connecting timesheets, roles, projects, and budgets, with queries and rollups for budget consumption and remaining capacity.',
+        outcome: 'Reconciled data across YNAB, Bill.com, Notion, and spreadsheets to clarify payments, hours, work categories, and source reliability.',
+        scope: 'Uses historical delivery data to inform estimates.',
+      }),
+      arokoItem({
+        title: 'Unified delivery workflow',
+        contribution: 'Diagnosed a design-to-development bottleneck and introduced a unified Framer-first workflow.',
+        outcome: 'Cut web-project delivery time by roughly 50%; led an enterprise WordPress-to-Framer rebuild to launch on a weekly cadence and 48-hour review SLA.',
+        scope: 'Served as Tech Lead and implementation owner through a mid-project disruption.',
+      }),
+      arokoItem({
+        title: 'Revenue result',
+        contribution: 'Aroko matched its full-year 2025 revenue of $135,000 during the first half of 2026.',
+        outcome: 'Informed by the pricing and delivery systems he built.',
+        scope: 'A company outcome, not solely his contribution.',
+      }),
+    ],
+    operations: [],
+    trace: {
+      kind: 'direct',
+      id: 'portfolio.aroko-work.v1',
+      entries: [
+        { step: 'question.selected', value: 'portfolio.aroko-work' },
+        { step: 'source.loaded', value: AROKO_REF },
+        { step: 'answer.emitted', value: 4 },
+      ],
+    },
+  };
+}
+
+// ── Router ────────────────────────────────────────────────────────────────────
+
+// The whole router: ordered deterministic card matchers. Tension runs first (a
+// two-pole verdict must not be claimed by a keyword), then the intent-specific
+// sets, then the career spine. A miss returns null — the caller answers as prose.
+export function resolvePortfolioAnswer(question: string): AnswerSetV2 | null {
+  if (supportsTensionQuestion(question)) return tensionAnswerSet(question);
+  if (supportsLookingForQuestion(question)) return lookingForAnswerSet();
+  if (supportsTechnologiesQuestion(question)) return technologiesAnswerSet();
+  if (supportsPortfolioQuestion(question)) return zocdocAnswerSet();
+  if (supportsArokoQuestion(question)) return arokoAnswerSet();
   if (supportsCareerQuestion(question)) return careerHistoryAnswerSet();
-  try {
-    const answer = await provider(question, undefined, history);
-    return adaptModelAnswer(question, answer);
-  } catch (error) {
-    // Keep the existing source-reviewed fixture as a deliberately narrow rollout fallback.
-    if (
-      supportsPortfolioQuestion(question)
-      && error instanceof ModelAnswerContractError
-      && ['MODEL_PROVIDER_UNAVAILABLE', 'MODEL_PROVIDER_TIMEOUT'].includes(error.code)
-    ) {
-      return zocdocAnswerSet();
-    }
-    if (error instanceof ModelAnswerContractError) throw error;
-    throw new ModelAnswerContractError(
-      'MODEL_PROVIDER_UNAVAILABLE',
-      'Structured generation is unavailable.',
-    );
-  }
+  return null;
 }

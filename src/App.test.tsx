@@ -15,14 +15,29 @@ describe('Home', () => {
     expect(html).not.toContain('which piece carries the load');
   });
 
-  it('shows the experience ledger and keeps the Zocdoc case study reachable', () => {
+  it('shows every role as a uniform expandable card and drops the retired Zocdoc page', () => {
     const html = homeMarkup();
-    expect(html).toContain('href="/work/zocdoc"');
-    // The independent-work story is off the home now.
+    // All four roles render, each with its bullets in the DOM (collapsed panels included).
+    expect(html).toContain('Aroko');
+    expect(html).toContain('Zocdoc');
+    expect(html).toContain('Applied Software');
+    expect(html).toContain('Genesco');
+    expect(html).toContain('aria-expanded');
+    expect(html).toContain('360Sync'); // an Applied Software bullet is present, not just a bare row
+    // The retired Zocdoc case page is gone; the independent-work story stays off the home.
+    expect(html).not.toContain('/work/zocdoc');
     expect(html).not.toContain('Professional Work');
     expect(html).not.toContain('href="/blog/method"');
     expect(html).not.toContain('href="/stratos"');
     expect(html).not.toContain('/stratos-flow');
+  });
+
+  it('unifies both CTA spots on chat + see how it works', () => {
+    const html = homeMarkup();
+    expect(html).toContain('Chat with my assistant');
+    expect(html).toContain('See how it works');
+    expect(html).toContain('href="/blog/production-rag-personal-corpus"');
+    expect(html).not.toContain('See the Zocdoc case study');
   });
 
   it('moves the assistant off the home and links to it instead', () => {

@@ -40,6 +40,7 @@ describe('streamOpenRouter', () => {
     for await (const _ of streamOpenRouter(msgs, { fetchImpl })) { /* drain */ }
 
     expect(sentBody?.max_tokens).toBe(getConfig().maxOutputTokens);
+    expect(sentBody?.reasoning).toEqual({ enabled: false });
   });
 
   it('passes the caller abort signal to fetch unchanged', async () => {

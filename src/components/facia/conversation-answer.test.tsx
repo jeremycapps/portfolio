@@ -3,7 +3,6 @@ import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { tensionAnswerSet } from '../../../api/_lib/tension-answer-source';
-import { adaptModelOperation, type ModelOperation } from '../../../api/_lib/model-operation';
 import { careerHistoryAnswerSet } from '../../../api/_lib/portfolio-answer-source';
 import { ConversationAnswer } from './conversation-answer';
 
@@ -31,31 +30,16 @@ describe('ConversationAnswer', () => {
     expect(html).not.toContain('Inspect'); // no depth-control vocabulary
   });
 
-  it('leads an operation with the relation and cites its grounding', () => {
-    const op: ModelOperation = {
-      schema: 'portfolio.model-operation/1', refusal: null,
-      input: { claim: 'Owned and migrated shared design-system components at Zocdoc.', evidenceRefs: ['profile.zocdoc'] },
-      relation: 'The ownership-and-migration discipline transfers to a fintech component library.',
-      output: 'Building a component library at a fintech',
-      caution: 'Jeremy has not worked in fintech; the transfer is by shape of problem.',
-    };
-    const html = render(adaptModelOperation('q', op));
-    expect(html).toContain('discipline transfers to a fintech');
-    expect(html).toContain('Owned and migrated shared design-system components'); // grounding shown
-    expect(html).not.toContain('has not worked in fintech'); // caution is a directive, not displayed
-    expect(html).not.toContain('Inspect');
-  });
-
   it('renders a both-placement as prose that holds the duality', () => {
     const html = render(tensionAnswerSet('Is Jeremy currently in a hands-on engineering role or an operations role?')!);
     expect(html).toContain('Both');
-    expect(html).toContain('Head of Operations'); // the basis carries the how
+    expect(html).toContain('Strategic Projects Lead'); // the basis carries the how
   });
 
   it('renders the career answer as a structured timeline, its one genuinely structured case', () => {
     const html = render(careerHistoryAnswerSet());
     expect(html).toContain('conversation-timeline');
-    expect(html).toContain('Head of Operations');
+    expect(html).toContain('Strategic Projects Lead');
     expect(html).toContain('Aroko');
   });
 });

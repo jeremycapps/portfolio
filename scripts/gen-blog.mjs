@@ -153,7 +153,6 @@ export function buildSitemap(posts) {
   const newestDate = posts[0]?.date;
   const entries = [
     { path: '/' },
-    { path: '/work/zocdoc' },
     { path: '/blog', lastModified: newestDate },
     ...posts
       .filter((post) => post.kind === 'article' && !SITEMAP_EXCLUDED_SLUGS.has(post.slug))

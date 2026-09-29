@@ -5,6 +5,7 @@ import { checkRateLimit } from './rate-limit';
 import { planContextQuery } from './context-query-planner';
 import { retrieveContext } from './context-retrieval-client';
 import { buildEvidenceBlock, retrieveEvidence } from './evidence';
+import { retrieveGithubBlock } from './github-activity';
 import type { CatalogRow, ContextQueryKind, ContextRow } from './context-index';
 import type { ChatMessage, ChatRole } from './types';
 
@@ -81,7 +82,22 @@ export interface BuildMessagesDeps {
   plan?: typeof planContextQuery;
   retrieve?: typeof retrieveContext;
   retrieveEvidence?: typeof retrieveEvidence;
+  githubBlock?: typeof retrieveGithubBlock;
   source?: ContextSource;
+}
+
+/**
+ * Append the current GitHub activity block to the system message, additively — it augments
+ * whichever context source produced `base`, never replaces it. A failed load is non-fatal.
+ */
+async function withGithubBlock(
+  base: BuildMessagesResult,
+  getBlock: typeof retrieveGithubBlock,
+): Promise<BuildMessagesResult> {
+  const block = await getBlock();
+  if (!block) return base;
+  const [system, ...rest] = base.messages;
+  return { ...base, messages: [{ ...system, content: `${system.content}\n\n${block}` }, ...rest] };
 }
 
 function systemMessage(contextBlock: string | null): ChatMessage {
@@ -123,8 +139,12 @@ export async function buildMessages(
   origin: string,
   deps: BuildMessagesDeps = {},
 ): Promise<BuildMessagesResult> {
+  const getGithubBlock = deps.githubBlock ?? retrieveGithubBlock;
   if ((deps.source ?? resolveContextSource()) === 'evidence') {
-    return buildEvidenceMessages(userMessages, deps.retrieveEvidence ?? retrieveEvidence);
+    return withGithubBlock(
+      await buildEvidenceMessages(userMessages, deps.retrieveEvidence ?? retrieveEvidence),
+      getGithubBlock,
+    );
   }
   const plan = deps.plan ?? planContextQuery;
   const retrieve = deps.retrieve ?? retrieveContext;
@@ -174,7 +194,10 @@ export async function buildMessages(
     }
   }
 
-  return { messages: [systemMessage(contextBlock), ...userMessages], outcome: { source: 'transcripts', ...outcome } };
+  return withGithubBlock(
+    { messages: [systemMessage(contextBlock), ...userMessages], outcome: { source: 'transcripts', ...outcome } },
+    getGithubBlock,
+  );
 }
 
 function logContextRetrievalOutcome(outcome: ContextRetrievalOutcome): void {
@@ -200,6 +223,7 @@ export async function handleChatRequest(
     plan?: typeof planContextQuery;
     retrieve?: typeof retrieveContext;
     retrieveEvidence?: typeof retrieveEvidence;
+    githubBlock?: typeof retrieveGithubBlock;
     source?: ContextSource;
   } = {},
 ): Promise<Response> {
@@ -238,6 +262,7 @@ export async function handleChatRequest(
     plan: deps.plan,
     retrieve: deps.retrieve,
     retrieveEvidence: deps.retrieveEvidence,
+    githubBlock: deps.githubBlock,
     source: deps.source,
   });
   logContextRetrievalOutcome(outcome);

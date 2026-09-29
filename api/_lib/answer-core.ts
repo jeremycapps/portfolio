@@ -7,8 +7,9 @@ import {
 } from '@facia/core';
 import { jsonError, jsonResponse } from './http';
 import { checkRateLimit } from './rate-limit';
-import { ModelAnswerContractError } from './model-answer';
-import { generatePortfolioAnswer } from './portfolio-answer-source';
+import { resolvePortfolioAnswer } from './portfolio-answer-source';
+import { currentWorkAnswerSet, supportsCurrentWorkQuestion } from './github-answer-source';
+import { loadGithubActivity } from './github-activity';
 import type { ChatMessage } from './types';
 
 const MAX_QUESTION_CHARS = 1_000;
@@ -23,11 +24,27 @@ interface AnswerRequest {
   history: ChatMessage[];
 }
 
-type AnswerSource = (
-  question: string,
-  history: ChatMessage[],
-) => AnswerSetV2 | null | Promise<AnswerSetV2 | null>;
+type AnswerSource = (question: string) => AnswerSetV2 | null | Promise<AnswerSetV2 | null>;
+type ActivityLoader = () => Promise<Parameters<typeof currentWorkAnswerSet>[0]>;
 type RateLimitCheck = (request: Request) => ReturnType<typeof checkRateLimit>;
+
+/**
+ * Deterministic card selection. The current-work card is built from the live GitHub feed,
+ * so it is tried first when the question is about current work and a feed exists; every
+ * other card is hand-authored and synchronous. A miss returns null and the caller falls
+ * through to the grounded prose path.
+ */
+async function selectAnswerSet(
+  question: string,
+  deps: { answer?: AnswerSource; loadActivity?: ActivityLoader },
+): Promise<AnswerSetV2 | null> {
+  if (deps.answer) return deps.answer(question);
+  if (supportsCurrentWorkQuestion(question)) {
+    const card = currentWorkAnswerSet(await (deps.loadActivity ?? loadGithubActivity)());
+    if (card) return card;
+  }
+  return resolvePortfolioAnswer(question);
+}
 
 type ValidResult =
   | { ok: true; value: AnswerRequest }
@@ -80,6 +97,7 @@ export async function handleAnswerRequest(
   request: Request,
   deps: {
     answer?: AnswerSource;
+    loadActivity?: ActivityLoader;
     checkLimit?: RateLimitCheck;
   } = {},
 ): Promise<Response> {
@@ -114,31 +132,12 @@ export async function handleAnswerRequest(
     return jsonError(validation.error, 'INVALID_REQUEST', 400);
   }
 
-  let answerSet: AnswerSetV2 | null;
-  try {
-    const answer = deps.answer
-      ?? ((question: string, history: ChatMessage[]) => (
-        generatePortfolioAnswer(question, undefined, undefined, history)
-      ));
-    answerSet = await answer(validation.value.question, validation.value.history);
-  } catch (error) {
-    if (error instanceof ModelAnswerContractError) {
-      const responses = {
-        MODEL_REFUSED: ['The question is outside the grounded portfolio context.', 404],
-        MODEL_PROVIDER_TIMEOUT: ['Structured generation timed out.', 504],
-        MODEL_MALFORMED_JSON: ['The structured model returned malformed JSON.', 502],
-        MODEL_SCHEMA_INVALID: ['The structured model response failed validation.', 502],
-        MODEL_PROVIDER_UNAVAILABLE: ['Structured generation is unavailable.', 503],
-      } as const;
-      const [message, status] = responses[error.code];
-      return jsonError(message, error.code, status);
-    }
-    console.error('Structured answer generation failed:', error);
-    return jsonError('Structured generation is unavailable.', 'MODEL_PROVIDER_UNAVAILABLE', 503);
-  }
+  // Deterministic card selection only. A question that maps to no card returns
+  // QUESTION_NOT_MODELED, and the client falls through to the grounded prose path.
+  const answerSet = await selectAnswerSet(validation.value.question, deps);
   if (answerSet === null) {
     return jsonError(
-      'That question does not have a deterministic portfolio model yet.',
+      'That question does not have a portfolio card; answer it as prose.',
       'QUESTION_NOT_MODELED',
       404,
     );

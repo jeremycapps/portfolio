@@ -23,6 +23,9 @@ export async function* streamOpenRouter(
       messages,
       stream: true,
       max_tokens: cfg.maxOutputTokens,
+      // reasoning models (e.g. qwen3) otherwise spend the whole token budget on
+      // hidden reasoning and return empty content on larger prompts
+      reasoning: { enabled: false },
     }),
     signal: deps.signal,
   });

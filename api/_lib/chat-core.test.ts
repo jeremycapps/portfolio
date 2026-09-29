@@ -177,6 +177,31 @@ describe('buildMessages with evidence (default source)', () => {
     expect(outcome).toMatchObject({ source: 'evidence', status: 'error' });
     expect(messages[0].role).toBe('system');
   });
+
+  it('appends the GitHub activity block to the system message, additively', async () => {
+    const { messages } = await buildMessages(
+      [{ role: 'user', content: 'what are you working on?' }],
+      'http://x',
+      {
+        source: 'evidence',
+        retrieveEvidence: async () => [evidenceItem],
+        githubBlock: async () => 'GITHUB: [deeplethe/utopia — production-deployed LLM]',
+      },
+    );
+    // both the evidence block and the github block live on the one system message
+    expect(messages[0].role).toBe('system');
+    expect(messages[0].content).toContain('Review by exception'); // evidence preserved
+    expect(messages[0].content).toContain('deeplethe/utopia — production-deployed LLM'); // github added
+  });
+
+  it('leaves the prompt untouched when there is no GitHub feed', async () => {
+    const { messages } = await buildMessages(
+      [{ role: 'user', content: 'anything' }],
+      'http://x',
+      { source: 'evidence', retrieveEvidence: async () => [], githubBlock: async () => null },
+    );
+    expect(messages[0].content).not.toContain('GITHUB');
+  });
 });
 
 describe('handleChatRequest', () => {

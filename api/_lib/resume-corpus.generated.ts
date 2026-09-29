@@ -15,7 +15,7 @@ export const RESUME_CORPUS: ResumeCorpus = {
       "id": "aroko_operations_source_of_truth",
       "organization": "Aroko",
       "roleContext": [
-        "Head of Operations"
+        "Strategic Projects Lead"
       ],
       "timePeriod": "2024–Present",
       "themes": [
@@ -80,7 +80,7 @@ export const RESUME_CORPUS: ResumeCorpus = {
       "id": "aroko_web_migration_technical_direction",
       "organization": "Aroko",
       "roleContext": [
-        "Head of Operations",
+        "Strategic Projects Lead",
         "Lead Web Designer",
         "Technical Director for client web work"
       ],
@@ -143,7 +143,7 @@ export const RESUME_CORPUS: ResumeCorpus = {
       "id": "aroko_junior_contributor_leadership",
       "organization": "Aroko",
       "roleContext": [
-        "Head of Operations",
+        "Strategic Projects Lead",
         "Lead Web Designer / Technical Director"
       ],
       "timePeriod": "2024–Present",
@@ -539,7 +539,7 @@ export const RESUME_CORPUS: ResumeCorpus = {
       "organization": "Aroko",
       "roleContext": [
         "Lead Web Designer",
-        "Head of Operations"
+        "Strategic Projects Lead"
       ],
       "timePeriod": "2024–Present",
       "themes": [

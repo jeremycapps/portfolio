@@ -4,11 +4,12 @@
     <loc>https://www.jeremycapps.com/</loc>
   </url>
   <url>
-    <loc>https://www.jeremycapps.com/work/zocdoc</loc>
+    <loc>https://www.jeremycapps.com/blog</loc>
+    <lastmod>2026-09-28</lastmod>
   </url>
   <url>
-    <loc>https://www.jeremycapps.com/blog</loc>
-    <lastmod>2026-09-22</lastmod>
+    <loc>https://www.jeremycapps.com/blog/production-rag-personal-corpus</loc>
+    <lastmod>2026-09-28</lastmod>
   </url>
   <url>
     <loc>https://www.jeremycapps.com/blog/ai-ops-allocation</loc>

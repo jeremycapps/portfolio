@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { handleAnswerRequest, validateAnswerBody } from './answer-core';
-import { ModelAnswerContractError } from './model-answer';
 
 const allow = async () => ({ ok: true as const });
 
@@ -50,24 +49,38 @@ describe('validateAnswerBody', () => {
   });
 });
 
-describe('handleAnswerRequest', () => {
-  it('answers a contextual Libera month follow-up without model inference', async () => {
-    const response = await handleAnswerRequest(request({
-      question: 'What month?',
-      history: [
-        { role: 'user', content: 'When did he first start working on Libera?' },
-        { role: 'assistant', content: '2026.' },
-      ],
-    }), { checkLimit: allow });
-    const body = await response.json();
+const activityDoc = {
+  generated_at: '2026-09-28T06:00:00Z',
+  handle: 'jeremycapps',
+  items: [{
+    repo: 'deeplethe/utopia', repoId: 1327088798, framing: 'production-deployed LLM, ontology project',
+    lastActive: '2026-09-27T10:00:00Z',
+    activity: [{ kind: 'pull_request' as const, at: '2026-09-27T10:00:00Z', number: 1002, title: 'Refactor retrieval', state: 'open' }],
+  }],
+};
 
+describe('handleAnswerRequest — current work card', () => {
+  it('builds the current-work card from the live feed', async () => {
+    const response = await handleAnswerRequest(
+      request({ question: 'What are you working on now?', depth: 'glance' }),
+      { checkLimit: allow, loadActivity: async () => activityDoc },
+    );
     expect(response.status).toBe(200);
-    expect(body.recipe.answer.items[0].payload).toMatchObject({
-      title: 'Month not specified',
-      contribution: expect.stringContaining('does not specify a month'),
-    });
+    const body = await response.json();
+    expect(JSON.stringify(body)).toContain('deeplethe/utopia');
   });
 
+  it('falls through to QUESTION_NOT_MODELED when no feed exists yet', async () => {
+    const response = await handleAnswerRequest(
+      request({ question: 'What are you working on now?', depth: 'glance' }),
+      { checkLimit: allow, loadActivity: async () => null },
+    );
+    expect(response.status).toBe(404);
+    expect((await response.json()).code).toBe('QUESTION_NOT_MODELED');
+  });
+});
+
+describe('handleAnswerRequest', () => {
   it('resolves the modeled Zocdoc question through Facia', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'What did Jeremy build at Zocdoc?', depth: 'glance' }),
@@ -105,30 +118,22 @@ describe('handleAnswerRequest', () => {
     expect(firstBody.recipe.inspectionControls).toContain('view-trace');
   });
 
-  it('documents structured-provider unavailability for Markdown fallback', async () => {
+  it('returns QUESTION_NOT_MODELED for a question with no card, for prose fallback', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'What music does Jeremy like?' }),
       { checkLimit: allow },
     );
-    expect(response.status).toBe(503);
-    expect(await response.json()).toMatchObject({ code: 'MODEL_PROVIDER_UNAVAILABLE' });
+    expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({ code: 'QUESTION_NOT_MODELED' });
   });
 
-  it.each([
-    ['MODEL_REFUSED', 404],
-    ['MODEL_PROVIDER_TIMEOUT', 504],
-    ['MODEL_MALFORMED_JSON', 502],
-    ['MODEL_SCHEMA_INVALID', 502],
-  ] as const)('returns a bounded %s error', async (code, status) => {
+  it('returns QUESTION_NOT_MODELED when the injected resolver declines', async () => {
     const response = await handleAnswerRequest(
       request({ question: 'Portfolio question?' }),
-      {
-        checkLimit: allow,
-        answer: async () => { throw new ModelAnswerContractError(code, 'bounded'); },
-      },
+      { checkLimit: allow, answer: () => null },
     );
-    expect(response.status).toBe(status);
-    await expect(response.json()).resolves.toMatchObject({ code });
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toMatchObject({ code: 'QUESTION_NOT_MODELED' });
   });
 
   it('uses the shared rate-limit boundary', async () => {

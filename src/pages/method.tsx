@@ -77,7 +77,6 @@ export default function MethodPage() {
           </p>
           <div className="method-actions">
             <a href="#questions">Build the method <ArrowRight aria-hidden="true" /></a>
-            <a href="/work/zocdoc">See the judgment in practice</a>
           </div>
         </header>
 
@@ -255,7 +254,6 @@ export default function MethodPage() {
           </div>
           <div className="method-final-actions">
             <a href="/stratos">Open the full instrument <ArrowRight aria-hidden="true" /></a>
-            <a href="/work/zocdoc">See the judgment in practice</a>
           </div>
         </section>
 
