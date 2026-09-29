@@ -7,8 +7,8 @@ export const CANONICAL_OPERATIONS = [
   'ESCALATE',
 ] as const;
 
-export const EVIDENCE_STATUSES = ['OBSERVED', 'ESTIMATED', 'FOG', 'HINDSIGHT'] as const;
-export const VERDICTS = ['FIT', 'FOG', 'COLLISION'] as const;
+const EVIDENCE_STATUSES = ['OBSERVED', 'ESTIMATED', 'FOG', 'HINDSIGHT'] as const;
+const VERDICTS = ['FIT', 'FOG', 'COLLISION'] as const;
 
 export type CanonicalOperation = typeof CANONICAL_OPERATIONS[number];
 export type EvidenceStatus = typeof EVIDENCE_STATUSES[number];

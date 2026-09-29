@@ -40,7 +40,7 @@ export interface Tension {
   readonly lensRight: string;
 }
 
-export const ROLES: Record<RoleKey, Role> = {
+const ROLES: Record<RoleKey, Role> = {
   CSO: { title: 'Chief Strategy Officer', fn: 'Strategy',
     mandate: 'Protect the activities, assets, and economics the company must own to remain defensible.',
     lens: 'Define the minimum viable control position: own the differentiators; open the rest.',
@@ -165,14 +165,10 @@ export const CSUITE_SOURCE = 'StratOS_v5_CSuite_Micro_Reports.docx';
 
 export const ownerOf = (t: Tension, side: PlacedSide): Role =>
   ROLES[side === 'l' ? t.leftOwner : t.rightOwner];
-export const counterweightOf = (t: Tension, side: PlacedSide): Role =>
-  ROLES[side === 'l' ? t.rightOwner : t.leftOwner];
 export const poleName = (t: Tension, side: PlacedSide): string =>
   side === 'l' ? t.left : t.right;
 export const blurbOf = (t: Tension, side: PlacedSide): string =>
   side === 'l' ? t.blurbLeft : t.blurbRight;
-export const proofOf = (t: Tension, side: PlacedSide): string =>
-  side === 'l' ? t.proofLeft : t.proofRight;
 export const lensOf = (t: Tension, side: PlacedSide): string =>
   side === 'l' ? t.lensLeft : t.lensRight;
 export const poleSideFor = (position: number): PoleSide =>

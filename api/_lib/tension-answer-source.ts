@@ -24,7 +24,7 @@ const ENUMERATING = /^(which|what kinds?)\b/;
 const RELATIONAL = /\b(compare[ds]?|appl(?:y|ies)|transfers?|fits?|builds?\s+on|relates?|connects?|translates?|impact)\b/;
 const EVIDENTIAL = /^(based on|given|weighing|considering)\b|\bacross (his|her|their)\s+(roles|career|history|work)\b|^why should\b|\bstill\b|\b(strongest|strengths?|suit(?:ed)?|ready|seniority|heading)\b/;
 
-export function isTwoPole(question: string): boolean {
+function isTwoPole(question: string): boolean {
   const s = question.trim().toLowerCase().replace(/\?+$/, '');
   const alternatives = !ENUMERATING.test(s) && NAMED_OR.test(s);
   if (!alternatives) return false;

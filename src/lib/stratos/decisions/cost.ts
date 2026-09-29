@@ -15,7 +15,7 @@ import type { CaseFact, CaseProfile } from '../cases/profile';
  * which is not what happened, so nothing here ever sums them.
  */
 
-export const COST_KINDS = ['committed', 'realized', 'hindsight'] as const;
+const COST_KINDS = ['committed', 'realized', 'hindsight'] as const;
 export type CostKind = typeof COST_KINDS[number];
 
 export interface CostFigureRef {

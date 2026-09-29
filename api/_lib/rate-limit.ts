@@ -70,8 +70,3 @@ export async function checkRateLimit(
   const retryAfter = Math.max(1, Math.ceil((reset - now()) / 1000));
   return { ok: false, retryAfter };
 }
-
-// Test seam: reset the memoized limiter between tests.
-export function _resetLimiterCache(): void {
-  cachedLimiter = undefined;
-}

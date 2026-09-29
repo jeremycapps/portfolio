@@ -29,11 +29,11 @@ export const STRATOS_SCORING_RUBRIC = {
   ],
 } as const;
 
-export const POSITION_SIGMA_MAX = 1 / Math.sqrt(3);
-export const POSITION_INTERVAL_Z = 1.96;
-export const EVIDENCE_HALF_SATURATION = 3;
-export const LOW_COMMITMENT_THRESHOLD = 0.2;
-export const LAYER_BALANCE_REPORT_BAND = 0.25;
+const POSITION_SIGMA_MAX = 1 / Math.sqrt(3);
+const POSITION_INTERVAL_Z = 1.96;
+const EVIDENCE_HALF_SATURATION = 3;
+const LOW_COMMITMENT_THRESHOLD = 0.2;
+const LAYER_BALANCE_REPORT_BAND = 0.25;
 
 export type StrategicPosture = 'insurgent' | 'challenger' | 'incumbent';
 export type Layer = 'strategy' | 'business';
@@ -137,7 +137,7 @@ function assertPosition(value: number, label: string): void {
   if (value < -1 || value > 1) throw new Error(`${label} must be between -1 and 1.`);
 }
 
-export function clamp(value: number, low: number, high: number): number {
+function clamp(value: number, low: number, high: number): number {
   return Math.min(high, Math.max(low, value));
 }
 
@@ -242,7 +242,7 @@ export function assessOrganizationPosition(input: OrganizationPositionInput): Or
   };
 }
 
-export const TENSION_CAPACITY_ROUTING: Readonly<Record<SystemId, readonly CapacityModel[]>> = {
+const TENSION_CAPACITY_ROUTING: Readonly<Record<SystemId, readonly CapacityModel[]>> = {
   advantage: ['finance', 'people'],
   resource: ['people', 'finance'],
   discernment: ['time'],
