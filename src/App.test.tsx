@@ -5,9 +5,11 @@ import App from './App';
 describe('Home', () => {
   const homeMarkup = () => renderToStaticMarkup(<App initialPath="/" />);
 
-  it('leads as Strategic Projects Lead, with Aroko as the spine', () => {
+  it('leads with engineering on AI systems, with Aroko as the spine', () => {
     const html = homeMarkup();
-    expect(html).toContain('Strategic Projects Lead');
+    expect(html).toContain('I build production AI systems');
+    expect(html).not.toContain('Technical Project Manager');
+    expect(html).toContain('Strategic Projects Lead'); // the real Aroko title, in Experience
     expect(html).toContain('Aroko');
     // The operations-delivery proof, not the old discernment thesis.
     expect(html).toContain('90-day operating plan');
