@@ -121,7 +121,7 @@ export function searchEvidence(
   return [...picked.values()].sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export const EVIDENCE_BLOCK_INSTRUCTIONS = [
+const EVIDENCE_BLOCK_INSTRUCTIONS = [
   "The items below are dated claims about Jeremy's decisions, principles and working",
   'process, extracted by a pipeline over his own work logs. Items marked "reviewed" were',
   'confirmed by Jeremy; the rest passed an automatic check and may be imperfect.',

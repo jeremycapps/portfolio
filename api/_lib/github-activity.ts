@@ -204,7 +204,7 @@ export function describeActivity(item: GithubActivityItem): string {
   }
 }
 
-export const GITHUB_BLOCK_INSTRUCTIONS = [
+const GITHUB_BLOCK_INSTRUCTIONS = [
   "The items below are Jeremy's recent PUBLIC GitHub activity, collected automatically",
   'from the GitHub events API (never edited by hand, never private repos). Use them to',
   'answer what he is working on now. The "significance" note on a repo is Jeremy\'s own',
@@ -237,10 +237,6 @@ export function buildGithubBlock(doc: GithubActivityDocument | null): string | n
 const ACTIVITY_KEY = 'github-activity.json';
 const CACHE_MS = 5 * 60 * 1000;
 let cache: { doc: GithubActivityDocument; at: number } | null = null;
-
-export function resetGithubActivityCache(): void {
-  cache = null;
-}
 
 async function fetchFromR2(env: Record<string, string | undefined>): Promise<GithubActivityDocument | null> {
   const config = resolveR2Config(env);

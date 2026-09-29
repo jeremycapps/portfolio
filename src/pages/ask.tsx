@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Check, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
+import { Check, Linkedin, Mail, Search, Send, Sparkles, Trash2 } from 'lucide-react';
 import { ChatView } from '@/components/chat-view';
 import { PromptStarters } from '@/components/prompt-starters';
 import { SiteHeader } from '@/components/site-header';

@@ -13,7 +13,7 @@ export interface ContextRuntime {
 
 type RuntimeFactory = (config: R2Config) => Promise<ContextRuntime>;
 
-export async function createContextRuntime(config: R2Config): Promise<ContextRuntime> {
+async function createContextRuntime(config: R2Config): Promise<ContextRuntime> {
   const instance = await DuckDBInstance.create(':memory:');
   const bootstrap = await instance.connect();
   try {
