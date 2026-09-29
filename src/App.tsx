@@ -18,11 +18,10 @@ type Experience = {
   meta: string;
   bullets: readonly string[];
   testid: string;
-  defaultOpen?: boolean;
 };
 
-// One uniform, source-grounded record per role. Each is an expandable card; the
-// current role opens by default. Content is drawn from content/profile.md.
+// One uniform, source-grounded record per role. Each is an expandable card, all
+// closed on load. Content is drawn from content/profile.md.
 const EXPERIENCE: readonly Experience[] = [
   {
     role: 'Strategic Projects Lead — Operations & Technical Delivery',
@@ -30,7 +29,6 @@ const EXPERIENCE: readonly Experience[] = [
     orgHref: 'https://aroko.coop',
     meta: '2024 – Present',
     testid: 'exp-aroko',
-    defaultOpen: true,
     bullets: [
       'Authored a 90-day operating plan and secured formal approval, then built a Notion source-of-truth system connecting time, roles, projects, and budgets — the basis for the cooperative’s first per-project pricing model and its year-to-date financial review.',
       'Diagnosed a design-to-development bottleneck and introduced a unified Framer-first workflow, cutting web-project delivery time by roughly 50%.',
@@ -73,7 +71,7 @@ const EXPERIENCE: readonly Experience[] = [
 ];
 
 function ExperienceItem({ item }: { item: Experience }) {
-  const [open, setOpen] = useState(Boolean(item.defaultOpen));
+  const [open, setOpen] = useState(false);
   const panelId = `${item.testid}-panel`;
   return (
     <article className="home-role" data-testid={item.testid} data-open={open}>
@@ -117,7 +115,7 @@ function Home() {
     <main className="app-shell">
       <SiteHeader current="portfolio" />
 
-      <section className="workspace" aria-labelledby="hero-title">
+      <section className="workspace home-workspace" aria-labelledby="hero-title">
         <div className="intro home-hero">
           <p className="home-eyebrow">Strategic Projects Lead</p>
           <h1 className="home-thesis" id="hero-title">
@@ -150,29 +148,6 @@ function Home() {
             NEW INC Fellow, Social Architecture &mdash; New Museum, 2025
           </p>
         </section>
-
-        <div className="home-ask-cta">
-          <p className="home-ask-cta-title">The assistant is the proof</p>
-          <p className="home-ask-cta-note">
-            This site&rsquo;s assistant is a production-grade RAG agent &mdash; grounded answers,
-            abstention, a review-gated evidence pipeline &mdash; the same system an enterprise
-            deploys on its data. I built it on the one corpus I can reach: my own work logs. So
-            interrogating the one running on mine is the fastest way to see whether I can build
-            one for yours.
-          </p>
-          <div className="home-ask-cta-actions">
-            <a className="home-ask-cta-link" href="/ask" data-testid="link-ask-cta">
-              Chat with my assistant <ArrowUpRight aria-hidden="true" />
-            </a>
-            <a
-              className="home-ask-cta-secondary"
-              href="/blog/production-rag-personal-corpus"
-              data-testid="link-about-system"
-            >
-              See how it works <ArrowUpRight aria-hidden="true" />
-            </a>
-          </div>
-        </div>
 
         <p className="footer-note home-footer">Jeremy Capps &middot; 2026</p>
       </section>
