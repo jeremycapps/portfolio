@@ -2421,7 +2421,7 @@ textarea:focus-visible {
 
 
 /* experience — one uniform, expandable card per role. The header is the disclosure
-   button (role · org · years + chevron); the current role opens by default. */
+   button (role · org · years + chevron); all start closed and highlight on hover. */
 .home-role-list {
   display: grid;
   gap: 0;
@@ -2446,6 +2446,9 @@ textarea:focus-visible {
   text-align: left;
   cursor: pointer;
 }
+.home-role-head { transition: background-color .15s ease; }
+.home-role-head:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+.home-role-head:hover .home-role-chevron { color: var(--ink); }
 .home-role-head:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 .home-role-headings { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -2531,6 +2534,26 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
+/* desktop (≥1024px) — the home spans the header's width so both share one left
+   edge, and Experience becomes label | content. Bullets are capped at a reading
+   measure instead of running the full row. */
+@media (min-width: 1024px) {
+  .home-workspace { width: min(100% - 48px, 1220px); }
+
+  .home-now {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+  .home-now > .home-sec-head { grid-column: 1; grid-row: 1 / span 2; margin: 21px 0 0; }
+  .home-now > .home-role-list,
+  .home-now > .home-recognition { grid-column: 2; }
+
+  .home-role-points li { max-width: 74ch; font-size: 14.5px; }
+  .home-role-points li::before { top: 10px; }
+}
+
 /* work — numbered editorial rows; hover inverts the whole row to the dark band
    and crossfades the what line to the why line. */
 .home-genres { margin-top: clamp(40px, 6vw, 72px); }
@@ -2607,44 +2630,6 @@ textarea:focus-visible {
 .home-genre-row:hover .home-genre-more { color: var(--invert-ink); }
 .home-genre-row:hover .home-genre-what { opacity: 0; }
 .home-genre-row:hover .home-genre-why { opacity: 1; }
-
-/* ask CTA — a single door to the assistant */
-.home-ask-cta {
-  margin-top: clamp(40px, 6vw, 72px);
-  padding: 30px 28px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--surface-veil);
-  text-align: center;
-}
-.home-ask-cta-title { margin: 0; color: var(--ink); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
-.home-ask-cta-note { margin: 8px auto 18px; max-width: 460px; color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
-.home-ask-cta-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 20px;
-  border-radius: var(--control-radius);
-  background: var(--control-primary-bg);
-  color: var(--control-primary-ink);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-.home-ask-cta-link svg { width: 15px; height: 15px; }
-.home-ask-cta-link:hover { transform: translateY(-1px); }
-.home-ask-cta-actions { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: center; }
-.home-ask-cta-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--ink-2);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-.home-ask-cta-secondary svg { width: 14px; height: 14px; }
-.home-ask-cta-secondary:hover { color: var(--ink); }
 
 /* ask — present but demoted */
 .home-ask-head {

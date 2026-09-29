@@ -346,8 +346,8 @@ export default function AskPage() {
               <span className="source-status is-live" data-testid="source-profile"><Check aria-hidden="true" /> Live</span>
             </div>
             <div className="connection-item home-connect-item">
-              <span className="connection-name"><span className="source-dot" aria-hidden="true" /> GitHub</span>
-              <span className="source-status" data-testid="source-github">Planned</span>
+              <span className="connection-name"><span className="source-dot is-live" aria-hidden="true" /> GitHub</span>
+              <span className="source-status is-live" data-testid="source-github"><Check aria-hidden="true" /> Live</span>
             </div>
             <div className="connection-item home-connect-item">
               <span className="connection-name"><span className="source-dot" aria-hidden="true" /> Drive</span>
@@ -355,7 +355,7 @@ export default function AskPage() {
             </div>
           </div>
           <p className="connection-note home-connect-note">
-            Answers draw on a curated profile today; live repositories and documents are on the way.
+            Answers draw on a curated profile and live GitHub activity; documents are on the way.
           </p>
         </section>
 
