@@ -2,6 +2,7 @@ import { resolveAnswerSet } from '@facia/core';
 import type { ComponentRecipe, DisclosureDepth } from '@facia/core';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
+import { currentWorkAnswerSet } from '../../../api/_lib/github-answer-source';
 import { tensionAnswerSet } from '../../../api/_lib/tension-answer-source';
 import {
   arokoAnswerSet,
@@ -62,5 +63,31 @@ describe('ConversationAnswer', () => {
     const aroko = render(arokoAnswerSet());
     expect(aroko).toContain('conversation-aside');
     expect(aroko).not.toMatch(/<p class="conversation-list-item"><\/p>/);
+  });
+
+  // Regression: the timeline read only the career shape (role/organization/period/focus),
+  // so the GitHub current-work card — also a temporal sequence — rendered as empty rows.
+  it('renders the GitHub current-work timeline from its own fields', () => {
+    const repo = (name: string, framing: string, at: string) => ({
+      repo: name,
+      repoId: name.length,
+      framing,
+      lastActive: at,
+      activity: [{ kind: 'pull_request' as const, at, title: 'Ship it', number: 7, state: 'merged' }],
+    });
+    const html = render(
+      currentWorkAnswerSet({
+        generated_at: '2026-09-29T06:00:00Z',
+        handle: 'jeremycapps',
+        items: [
+          repo('jeremycapps/portfolio', 'a production-grade RAG agent', '2026-09-29T05:00:00Z'),
+          repo('deeplethe/utopia', 'evaluation tooling', '2026-09-28T05:00:00Z'),
+        ],
+      })!,
+    );
+    expect(html).toContain('conversation-timeline');
+    expect(html).toContain('jeremycapps/portfolio');
+    expect(html).toContain('a production-grade RAG agent');
+    expect(html).toContain('deeplethe/utopia');
   });
 });
