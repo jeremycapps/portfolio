@@ -9,9 +9,9 @@ type CssBlock = {
   start: number;
 };
 
-const blockFor = (selector: string, source = css): CssBlock => {
+const blockFor = (selector: string, source = css, from = 0): CssBlock => {
   const marker = `${selector} {`;
-  const start = source.indexOf(marker);
+  const start = source.indexOf(marker, from);
 
   expect(start, `missing CSS block for ${selector}`).toBeGreaterThanOrEqual(0);
 
@@ -34,6 +34,9 @@ const blockFor = (selector: string, source = css): CssBlock => {
 
   throw new Error(`unterminated CSS block for ${selector}`);
 };
+
+// Dark mode is site-wide: the second :root block, inside the dark color-scheme query.
+const darkBlock = () => blockFor(':root', css, css.indexOf('@media (prefers-color-scheme: dark)'));
 
 const tokenHex = (block: string, token: string) => {
   const match = block.match(new RegExp(`${token}:\\s*(#[0-9a-fA-F]{6})\\s*;`));
@@ -59,7 +62,7 @@ const contrastRatio = (first: string, second: string) => {
 describe('homepage and shared-surface color tokens', () => {
   it('keeps literal colors inside the canonical light and dark token definitions', () => {
     const lightTokens = blockFor(':root');
-    const darkTokens = blockFor('body:has(.composer)');
+    const darkTokens = darkBlock();
     const literalColor = /#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(/;
     let offset = 0;
 
@@ -111,7 +114,7 @@ describe('homepage and shared-surface color tokens', () => {
 
   it.each([
     ['light', blockFor(':root').body],
-    ['dark', blockFor('body:has(.composer)').body],
+    ['dark', darkBlock().body],
   ])('keeps readable semantic text contrast in the %s theme', (_theme, tokens) => {
     const surface = tokenHex(tokens, '--surface');
 
