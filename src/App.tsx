@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 
 type Experience = {
   role: string;
-  org: string;
+  org?: string;
   orgHref?: string;
   // Link text when it should differ from the org name (e.g. a project page).
   linkLabel?: string;
@@ -76,8 +76,7 @@ const EXPERIENCE: readonly Experience[] = [
 // behind /pole-review; they're written out so the home bundle stays free of it.
 const PROJECTS: readonly Experience[] = [
   {
-    role: 'Pole Review Map — Telecom Poles Checked Against LiDAR',
-    org: 'Independent project',
+    role: 'Lower Manhattan Telecom Pole Audit — City Records vs. LiDAR Scan',
     orgHref: '/pole-review',
     linkLabel: 'Open the map',
     meta: '2026',
@@ -120,7 +119,7 @@ function ExperienceItem({ item }: { item: Experience }) {
       >
         <span className="home-role-headings">
           <span className="home-role-title">{item.role}</span>
-          <span className="home-role-org">{item.org}</span>
+          {item.org ? <span className="home-role-org">{item.org}</span> : null}
         </span>
         <span className="home-role-meta">{item.meta}</span>
         <ChevronDown className="home-role-chevron" aria-hidden="true" />
