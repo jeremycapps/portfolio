@@ -76,7 +76,7 @@ const EXPERIENCE: readonly Experience[] = [
 // behind /pole-review; they're written out so the home bundle stays free of it.
 const PROJECTS: readonly Experience[] = [
   {
-    role: 'Lower Manhattan Telecom Pole Audit — City Records vs. LiDAR Scan',
+    role: 'Lower Manhattan Telecom Pole Audit',
     org: 'LiDAR and City Records',
     orgHref: '/pole-review',
     linkLabel: 'Open the map',
