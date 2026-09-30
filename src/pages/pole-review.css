@@ -11,6 +11,9 @@
 .pole-map-column { min-width: 0; }
 .pole-map { height: 64vh; height: 64svh; min-height: 360px; border: 1px solid var(--line); background: var(--surface); z-index: 0; font-family: var(--app-font-sans); }
 .pole-map-placeholder { padding: 24px; color: var(--ink-soft); }
+/* Grow each tile about a pixel past its edge so neighbours overlap and sub-pixel seams close.
+   `scale` composes with the translate Leaflet writes to `transform`, so tile positions hold. */
+.pole-map .leaflet-tile { transform-origin: 0 0; scale: 1.005; }
 .pole-map .leaflet-control-attribution { background: var(--surface); color: var(--ink-soft); max-width: 100%; font-size: 10px; }
 .pole-map .leaflet-control-attribution a { color: var(--ink); }
 .pole-map .leaflet-control-zoom a { background: var(--surface); color: var(--ink); }

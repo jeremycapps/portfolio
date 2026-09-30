@@ -35,7 +35,8 @@ export function PoleMap({ filter, selected, onSelect }: {
     // Leaflet reads window at import time; this boundary also protects prerendering.
     void import('leaflet').then((leaflet) => {
       if (disposed || !container.current) return;
-      map = leaflet.map(container.current, { maxZoom: 17, scrollWheelZoom: false });
+      // Quarter-step zoom lets the fitted view fill a phone-width map instead of rounding out a level.
+      map = leaflet.map(container.current, { maxZoom: 17, zoomSnap: 0.25, scrollWheelZoom: false });
       map.fitBounds(leaflet.latLngBounds(poles.map((pole) => [pole.lat, pole.lon])).pad(0.08));
       resize = new ResizeObserver(() => map?.invalidateSize());
       resize.observe(container.current);
