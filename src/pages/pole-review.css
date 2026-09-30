@@ -1,0 +1,50 @@
+.pole-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
+.pole-header { margin-bottom: 24px; }
+.pole-header h1 { max-width: 760px; font-size: clamp(24px, 3.5vw, 38px); line-height: 1.2; letter-spacing: -0.03em; }
+.pole-header p { color: var(--ink-soft); margin: 12px 0; }
+.pole-page button { cursor: pointer; }
+.pole-page button:focus-visible, .pole-marker:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.pole-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.pole-filters button { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); padding: 10px; font-size: 13px; min-height: 44px; }
+.pole-filters button[aria-pressed='true'] { border-color: var(--ink); background: var(--surface-selected); }
+.pole-map-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; scroll-margin-top: 16px; }
+.pole-map-column { min-width: 0; }
+.pole-map { height: 64vh; height: 64svh; min-height: 360px; border: 1px solid var(--line); background: var(--surface); z-index: 0; font-family: var(--app-font-sans); }
+.pole-map-placeholder { padding: 24px; color: var(--ink-soft); }
+.pole-map .leaflet-control-attribution { background: var(--surface); color: var(--ink-soft); max-width: 100%; font-size: 10px; }
+.pole-map .leaflet-control-attribution a { color: var(--ink); }
+.pole-map .leaflet-control-zoom a { background: var(--surface); color: var(--ink); }
+.pole-marker { display: grid; place-items: center; }
+.pole-glyph { display: inline-block; flex: 0 0 auto; width: 16px; height: 16px; border: 3px solid var(--warn); border-radius: 50%; background: var(--surface); }
+.pole-glyph--matches_scan { width: 12px; height: 12px; border: 1px solid var(--surface); background: var(--good); }
+.pole-glyph--top_above_pole_range { width: 15px; height: 15px; border-radius: 0; transform: rotate(45deg); }
+.pole-legend { display: flex; gap: 10px 20px; flex-wrap: wrap; padding: 0; margin: 16px 0 0; list-style: none; font-size: 12px; color: var(--ink-soft); }
+.pole-legend li, .pole-status { display: flex; align-items: center; gap: 10px; }
+.pole-detail { border: 1px solid var(--line); background: var(--surface); padding: 20px; font-size: 14px; overflow-wrap: anywhere; }
+.pole-detail h2, .pole-review-list h2, .pole-method h2 { margin: 0 0 12px; font-size: 20px; font-weight: 600; }
+.pole-detail h3 { font-size: 14px; margin: 22px 0 10px; font-weight: 600; }
+.pole-detail p { margin: 10px 0; }
+.pole-detail dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 8px 12px; }
+.pole-detail dt { color: var(--ink-soft); }
+.pole-detail dd { margin: 0; }
+.pole-detail-close { float: right; background: none; color: var(--ink); border: 1px solid var(--line-strong); padding: 8px 10px; margin: -4px 0 8px 8px; }
+.pole-detail[data-open='false'] { display: none; }
+.pole-detail[data-open='true'] { position: fixed; bottom: 0; left: 0; right: 0; max-height: 58vh; max-height: 58svh; overflow-y: auto; z-index: 50; box-shadow: var(--shadow-lg); padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+.pole-review-list { margin-top: 36px; }
+.pole-review-list table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+.pole-review-list th, .pole-review-list td { padding: 10px 4px; text-align: left; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.pole-review-list th { color: var(--ink-soft); font-weight: 500; }
+.pole-review-list th:first-child { width: 20%; }
+.pole-review-list th:last-child { width: 20%; }
+.pole-review-list tr:has(td):hover { background: var(--surface-hover); cursor: pointer; }
+.pole-review-list button { color: var(--ink); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0; }
+.pole-method { max-width: 680px; margin: 36px 0 24px; }
+.pole-method p { margin: 8px 0; font-size: 15px; line-height: 1.6; }
+.pole-data-note { color: var(--ink-soft); font-size: 12px; border-top: 1px solid var(--line); padding-top: 16px; }
+.pole-data-note p { margin: 8px 0; }
+@media (min-width: 900px) {
+  .pole-map-layout { grid-template-columns: minmax(0, 1fr) 320px; }
+  .pole-detail[data-open] { display: block; position: static; max-height: 64vh; overflow-y: auto; box-shadow: none; align-self: start; }
+  .pole-review-list table { font-size: 14px; }
+  .pole-review-list th, .pole-review-list td { padding: 8px 12px; }
+}

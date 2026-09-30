@@ -184,6 +184,7 @@ function Home() {
 const StratosPage = lazy(() => import('@/pages/stratos'));
 const StratosV2Page = lazy(() => import('@/pages/stratos-v2'));
 const StratosFlowPage = lazy(() => import('@/pages/stratos-flow'));
+const PoleReviewPage = lazy(() => import('@/pages/pole-review'));
 const MethodPage = lazy(() => import('@/pages/method'));
 const AskPage = lazy(() => import('@/pages/ask'));
 const BlogPage = lazy(() => import('@/pages/blog'));
@@ -202,6 +203,9 @@ function Router() {
         </Route>
         <Route path="/stratos-v2">
           {() => <Suspense fallback={null}><StratosV2Page /></Suspense>}
+        </Route>
+        <Route path="/pole-review">
+          {() => <Suspense fallback={null}><PoleReviewPage /></Suspense>}
         </Route>
         {/* The Klarna flow page is retired; its URL now sends readers to the method. */}
         <Route path="/stratos-flow">

@@ -40,7 +40,7 @@ export function pageHead(metadata, canonical, structuredData) {
   return `<!--app-head-start-->
     <title>${title}</title>
     <meta name="description" content="${description}" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="${metadata.noindex ? 'noindex, follow' : 'index, follow'}" />
     <link rel="canonical" href="${escapeHtml(canonical)}" />${alternate}${agentIndex}
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />

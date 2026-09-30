@@ -16,9 +16,19 @@ export interface PageMetadata {
   // and the llms.txt index — the independent-work pages the portfolio no longer
   // leads with.
   readonly unlisted?: boolean;
+  readonly noindex?: boolean;
 }
 
 const STATIC_PAGES: readonly PageMetadata[] = [
+  {
+    path: '/pole-review',
+    title: 'Pole Review Map',
+    description: 'Telecom pole reservation records in Lower Manhattan, checked against a LiDAR scan.',
+    kind: 'application',
+    lastModified: '2026-09-30',
+    unlisted: true,
+    noindex: true,
+  },
   {
     path: '/',
     title: 'Jeremy Capps — Engineer, AI Systems',

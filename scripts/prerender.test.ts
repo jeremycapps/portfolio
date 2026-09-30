@@ -13,6 +13,14 @@ const metadata: PageMetadata = {
 const canonical = () => 'https://www.jeremycapps.com/blog/readable-page';
 
 describe('prerender', () => {
+  it('emits noindex for the pole review and excludes it from discovery', () => {
+    const page = { ...metadata, path: '/pole-review', unlisted: true, noindex: true };
+    const template = '<html><head><!--app-head-start--><!--app-head-end--></head><body><div id="root"></div></body></html>';
+    expect(pageDocument(template, '<main>72 match the scan · 34 under review</main>', page, '/pole-review', {}))
+      .toContain('<meta name="robots" content="noindex, follow" />');
+    expect(sitemapXml([page], () => '/pole-review')).not.toContain('/pole-review');
+    expect(llmsText([page], () => '/pole-review')).not.toContain('/pole-review');
+  });
   it('injects server-rendered content and route-specific head metadata', () => {
     const template = '<html><head><!--app-head-start--><title>Old</title><!--app-head-end--></head><body><div id="root"></div></body></html>';
     const document = pageDocument(
