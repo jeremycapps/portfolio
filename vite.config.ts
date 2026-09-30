@@ -91,6 +91,7 @@ function previewStaticRoutes(root: string): Plugin {
           || pathname === '/stratos'
           || pathname === '/stratos-v2'
           || pathname === '/stratos-flow'
+          || pathname === '/pole-review'
           || /^\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pathname);
         if (!isPublicRoute || pathname === '/') return next();
 

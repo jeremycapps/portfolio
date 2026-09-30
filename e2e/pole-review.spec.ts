@@ -15,8 +15,8 @@ for (const viewport of [{ width: 375, height: 812 }, { width: 1280, height: 800 
 
     await expect(page.locator('.leaflet-tile-pane img').first()).toHaveAttribute('src', /World_Light_Gray/);
     await page.screenshot({ path: testInfo.outputPath('light.png'), fullPage: true });
-    await page.getByRole('button', { name: 'Switch to dark theme' }).click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    // The basemap follows the system color scheme; the page has no theme toggle.
+    await page.emulateMedia({ colorScheme: 'dark' });
     await expect(page.locator('.leaflet-tile-pane img').first()).toHaveAttribute('src', /World_Dark_Gray/);
     await expect(page.locator('.leaflet-tile-pane img[src*="World_Light_Gray"]')).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath('dark.png'), fullPage: true });
@@ -44,8 +44,11 @@ for (const viewport of [{ width: 375, height: 812 }, { width: 1280, height: 800 
     await expect(page.getByRole('button', { name: 'Zoom in', exact: true })).toHaveAttribute('aria-disabled', 'true');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
-    for (const theme of ['dark', 'light']) {
-      if (theme === 'light') await page.getByRole('button', { name: 'Switch to light theme' }).click();
+    // Surface tokens from index.css; wait for them so axe never measures mid-transition.
+    const surface = { dark: 'rgb(33, 31, 28)', light: 'rgb(245, 242, 234)' } as const;
+    for (const theme of ['dark', 'light'] as const) {
+      await page.emulateMedia({ colorScheme: theme });
+      await expect(page.locator('.leaflet-control-attribution')).toHaveCSS('background-color', surface[theme]);
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
     }
