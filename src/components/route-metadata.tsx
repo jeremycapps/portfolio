@@ -25,7 +25,7 @@ export function RouteMetadata() {
     const canonical = canonicalUrl(metadata);
     document.title = metadata.title;
     setMeta('meta[name="description"]', { name: 'description', content: metadata.description });
-    setMeta('meta[name="robots"]', { name: 'robots', content: 'index, follow' });
+    setMeta('meta[name="robots"]', { name: 'robots', content: metadata.noindex ? 'noindex, follow' : 'index, follow' });
     setMeta('meta[property="og:title"]', { property: 'og:title', content: metadata.title });
     setMeta('meta[property="og:description"]', {
       property: 'og:description',

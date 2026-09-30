@@ -1,0 +1,2152 @@
+{
+ "source": {
+  "domain": "neara-infrastructure@0.1.2",
+  "replay_hash": "fc1bc3f05c865adafaf7de909fafe437aa7f43282ebee9e9e4e6dfb93874ed13",
+  "timpos_commit": "5f286cb",
+  "generated_at": "2026-09-30T14:30:19+00:00",
+  "gis": "NYC Office of Technology and Innovation (formerly DoITT) mobile telecommunications pole reservations (NYC Open Data)",
+  "lidar": "NYC public LiDAR tile 980195",
+  "pole_height_review_band_ft": [
+   10,
+   45
+  ]
+ },
+ "poles": [
+  {
+   "id": "10033",
+   "lat": 40.7041956,
+   "lon": -74.0077039,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Front St",
+   "cross_street": "Gouverneur Ln",
+   "base_z_ft": 8.04,
+   "top_z_ft": 25.1,
+   "height_ft": 17.060000000000002,
+   "offset_m": 0.5293711843250074,
+   "source_points": {
+    "base": 8231797,
+    "top": 7395528
+   }
+  },
+  {
+   "id": "10034",
+   "lat": 40.7048104,
+   "lon": -74.0070583,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Wall Street",
+   "cross_street": "Front Street",
+   "base_z_ft": 6.59,
+   "top_z_ft": 31.92,
+   "height_ft": 25.330000000000002,
+   "offset_m": 0.5371845928513079,
+   "source_points": {
+    "base": 10924284,
+    "top": 9267810
+   }
+  },
+  {
+   "id": "10035",
+   "lat": 40.7081701,
+   "lon": -74.0065104,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "John St",
+   "cross_street": "Gold St",
+   "base_z_ft": 8.79,
+   "top_z_ft": 41.04,
+   "height_ft": 32.25,
+   "offset_m": 0.5954543394807231,
+   "source_points": {
+    "base": 10113208,
+    "top": 10229022
+   }
+  },
+  {
+   "id": "10050",
+   "lat": 40.7086997,
+   "lon": -74.0073509,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "John St",
+   "cross_street": "William St",
+   "base_z_ft": 26.28,
+   "top_z_ft": 48.06,
+   "height_ft": 21.78,
+   "offset_m": 0.5089531336576911,
+   "source_points": {
+    "base": 11454054,
+    "top": 10712412
+   }
+  },
+  {
+   "id": "10306",
+   "lat": 40.703534,
+   "lon": -74.0130296,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Whitehall Street",
+   "cross_street": "Bridge Street",
+   "base_z_ft": 11.48,
+   "top_z_ft": 39.6,
+   "height_ft": 28.12,
+   "offset_m": 0.5663470919675693,
+   "source_points": {
+    "base": 5403241,
+    "top": 828301
+   }
+  },
+  {
+   "id": "10556",
+   "lat": 40.706306,
+   "lon": -74.0110692,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Broad St",
+   "cross_street": "Exchange Pl",
+   "base_z_ft": 13.62,
+   "top_z_ft": 34.15,
+   "height_ft": 20.53,
+   "offset_m": 0.47582098956612323,
+   "source_points": {
+    "base": 3730899,
+    "top": 14086178
+   }
+  },
+  {
+   "id": "10557",
+   "lat": 40.7049665,
+   "lon": -74.0114838,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Broad St",
+   "cross_street": "Beaver St",
+   "base_z_ft": 8.5,
+   "top_z_ft": 34.32,
+   "height_ft": 25.82,
+   "offset_m": 0.33550227049298126,
+   "source_points": {
+    "base": 18149799,
+    "top": 12557038
+   }
+  },
+  {
+   "id": "10560",
+   "lat": 40.7047877,
+   "lon": -74.0102431,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "South William St",
+   "cross_street": "Mill lane",
+   "base_z_ft": 11.58,
+   "top_z_ft": 38.06,
+   "height_ft": 26.480000000000004,
+   "offset_m": 0.6017863315203555,
+   "source_points": {
+    "base": 5017276,
+    "top": 13810347
+   }
+  },
+  {
+   "id": "10571",
+   "lat": 40.7034407,
+   "lon": -74.0077976,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Old Slip",
+   "cross_street": "South St",
+   "base_z_ft": 6.0,
+   "top_z_ft": 6.33,
+   "height_ft": 0.33000000000000007,
+   "offset_m": 0.6067446405661544,
+   "source_points": {
+    "base": 8786710,
+    "top": 3448688
+   }
+  },
+  {
+   "id": "10998",
+   "lat": 40.7059549,
+   "lon": -74.0087933,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Wall St",
+   "cross_street": "Hanover St",
+   "base_z_ft": 20.96,
+   "top_z_ft": 46.75,
+   "height_ft": 25.79,
+   "offset_m": 0.5761457191466572,
+   "source_points": {
+    "base": 6054367,
+    "top": 12184270
+   }
+  },
+  {
+   "id": "10999",
+   "lat": 40.7077988,
+   "lon": -74.014478,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Washington st",
+   "cross_street": "Joseph P Ward st",
+   "base_z_ft": 23.06,
+   "top_z_ft": 23.62,
+   "height_ft": 0.5600000000000023,
+   "offset_m": 0.5779649702219994,
+   "source_points": {
+    "base": 1176432,
+    "top": 10306331
+   }
+  },
+  {
+   "id": "11653",
+   "lat": 40.702906,
+   "lon": -74.0113527,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Water Street",
+   "cross_street": "Broad Street",
+   "base_z_ft": 5.77,
+   "top_z_ft": 26.54,
+   "height_ft": 20.77,
+   "offset_m": 0.5457378097187076,
+   "source_points": {
+    "base": 6762746,
+    "top": 17294974
+   }
+  },
+  {
+   "id": "11659",
+   "lat": 40.7076291,
+   "lon": -74.0101822,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Pine St",
+   "cross_street": "Nassau St",
+   "base_z_ft": 32.09,
+   "top_z_ft": 51.41,
+   "height_ft": 19.319999999999993,
+   "offset_m": 0.39642831772758647,
+   "source_points": {
+    "base": 16415685,
+    "top": 12605514
+   }
+  },
+  {
+   "id": "11662",
+   "lat": 40.7054472,
+   "lon": -74.007924,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Pearl Street",
+   "cross_street": "Wall Street",
+   "base_z_ft": 11.38,
+   "top_z_ft": 36.81,
+   "height_ft": 25.43,
+   "offset_m": 0.5675842405451231,
+   "source_points": {
+    "base": 9878059,
+    "top": 10847501
+   }
+  },
+  {
+   "id": "11665",
+   "lat": 40.7064353,
+   "lon": -74.0071595,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Cedar Street",
+   "cross_street": "Pearl Street",
+   "base_z_ft": 9.05,
+   "top_z_ft": 35.2,
+   "height_ft": 26.150000000000002,
+   "offset_m": 0.5867787775483377,
+   "source_points": {
+    "base": 5856251,
+    "top": 11955701
+   }
+  },
+  {
+   "id": "11695",
+   "lat": 40.7046962,
+   "lon": -74.0116164,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Broad Street",
+   "cross_street": "MarketField Street",
+   "base_z_ft": 8.53,
+   "top_z_ft": 36.38,
+   "height_ft": 27.85,
+   "offset_m": 0.5293097565737029,
+   "source_points": {
+    "base": 18147438,
+    "top": 18147957
+   }
+  },
+  {
+   "id": "11701",
+   "lat": 40.7057598,
+   "lon": -74.0113325,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Broad st",
+   "cross_street": "Exchange Pl",
+   "base_z_ft": 11.58,
+   "top_z_ft": 38.12,
+   "height_ft": 26.54,
+   "offset_m": 0.4843357454393286,
+   "source_points": {
+    "base": 4901337,
+    "top": 12614744
+   }
+  },
+  {
+   "id": "11725",
+   "lat": 40.7050984,
+   "lon": -74.0099077,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "S William st",
+   "cross_street": "Beaver st",
+   "base_z_ft": 13.88,
+   "top_z_ft": 40.09,
+   "height_ft": 26.21,
+   "offset_m": 0.6046125569395308,
+   "source_points": {
+    "base": 12285347,
+    "top": 13784347
+   }
+  },
+  {
+   "id": "11726",
+   "lat": 40.7045358,
+   "lon": -74.0095902,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Pearl st",
+   "cross_street": "Hanover Sq",
+   "base_z_ft": 10.43,
+   "top_z_ft": 36.48,
+   "height_ft": 26.049999999999997,
+   "offset_m": 0.6083273456667895,
+   "source_points": {
+    "base": 8182586,
+    "top": 7338130
+   }
+  },
+  {
+   "id": "11727",
+   "lat": 40.7033227,
+   "lon": -74.0078841,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "South st",
+   "cross_street": "Old slip",
+   "base_z_ft": 5.54,
+   "top_z_ft": 25.56,
+   "height_ft": 20.02,
+   "offset_m": 0.4816717656315918,
+   "source_points": {
+    "base": 8127981,
+    "top": 15828095
+   }
+  },
+  {
+   "id": "11728",
+   "lat": 40.703836,
+   "lon": -74.0070871,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Gouverneur Lane",
+   "cross_street": "South St",
+   "base_z_ft": 6.04,
+   "top_z_ft": 16.27,
+   "height_ft": 10.23,
+   "offset_m": 0.5531102371391818,
+   "source_points": {
+    "base": 17768964,
+    "top": 17015957
+   }
+  },
+  {
+   "id": "11729",
+   "lat": 40.7048817,
+   "lon": -74.0080141,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Water st",
+   "cross_street": "Gouverneur Lane",
+   "base_z_ft": 9.35,
+   "top_z_ft": 37.11,
+   "height_ft": 27.759999999999998,
+   "offset_m": 0.5021723015939457,
+   "source_points": {
+    "base": 11947526,
+    "top": 7464628
+   }
+  },
+  {
+   "id": "11730",
+   "lat": 40.7050602,
+   "lon": -74.007401,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Water St",
+   "cross_street": "Wall St",
+   "base_z_ft": 7.68,
+   "top_z_ft": 28.38,
+   "height_ft": 20.7,
+   "offset_m": 0.5255048915268771,
+   "source_points": {
+    "base": 8335025,
+    "top": 11881942
+   }
+  },
+  {
+   "id": "11734",
+   "lat": 40.706073,
+   "lon": -74.0073687,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Pearl St",
+   "cross_street": "Pine St",
+   "base_z_ft": 9.42,
+   "top_z_ft": 35.79,
+   "height_ft": 26.369999999999997,
+   "offset_m": 0.5505090544281461,
+   "source_points": {
+    "base": 11617669,
+    "top": 15692802
+   }
+  },
+  {
+   "id": "11735",
+   "lat": 40.7069622,
+   "lon": -74.0090604,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Pine St",
+   "cross_street": "William St",
+   "base_z_ft": 31.4,
+   "top_z_ft": 64.07,
+   "height_ft": 32.669999999999995,
+   "offset_m": 0.5646960864093441,
+   "source_points": {
+    "base": 9384218,
+    "top": 12331320
+   }
+  },
+  {
+   "id": "11736",
+   "lat": 40.7080931,
+   "lon": -74.0080073,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Maiden Ln",
+   "cross_street": "William St",
+   "base_z_ft": 14.53,
+   "top_z_ft": 18.67,
+   "height_ft": 4.140000000000002,
+   "offset_m": 0.5625615269870089,
+   "source_points": {
+    "base": 12260825,
+    "top": 5657577
+   }
+  },
+  {
+   "id": "11737",
+   "lat": 40.7041047,
+   "lon": -74.0114945,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Broad St",
+   "cross_street": "Stone St",
+   "base_z_ft": 6.76,
+   "top_z_ft": 9.55,
+   "height_ft": 2.790000000000001,
+   "offset_m": 0.5842161873581889,
+   "source_points": {
+    "base": 3315771,
+    "top": 15346432
+   }
+  },
+  {
+   "id": "11738",
+   "lat": 40.7035035,
+   "lon": -74.0117036,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Broad St",
+   "cross_street": "Pearl St",
+   "base_z_ft": 5.51,
+   "top_z_ft": 26.02,
+   "height_ft": 20.509999999999998,
+   "offset_m": 0.5815624385889365,
+   "source_points": {
+    "base": 3207700,
+    "top": 7092651
+   }
+  },
+  {
+   "id": "11740",
+   "lat": 40.7023054,
+   "lon": -74.0128577,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Whitehall Street",
+   "cross_street": "State Street",
+   "base_z_ft": 6.92,
+   "top_z_ft": 32.55,
+   "height_ft": 25.629999999999995,
+   "offset_m": 0.5429302300612098,
+   "source_points": {
+    "base": 6887402,
+    "top": 15328077
+   }
+  },
+  {
+   "id": "11741",
+   "lat": 40.7085816,
+   "lon": -74.0094754,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Nassau Street",
+   "cross_street": "Liberty Street",
+   "base_z_ft": 32.15,
+   "top_z_ft": 60.4,
+   "height_ft": 28.25,
+   "offset_m": 0.5918157329577459,
+   "source_points": {
+    "base": 14048982,
+    "top": 12580661
+   }
+  },
+  {
+   "id": "11742",
+   "lat": 40.7082082,
+   "lon": -74.0098252,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Nassau St",
+   "cross_street": "Cedar St",
+   "base_z_ft": 35.2,
+   "top_z_ft": 39.34,
+   "height_ft": 4.140000000000001,
+   "offset_m": 0.5590495210736333,
+   "source_points": {
+    "base": 15198845,
+    "top": 214838
+   }
+  },
+  {
+   "id": "11744",
+   "lat": 40.7035225,
+   "lon": -74.0142989,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "State Street",
+   "cross_street": "Bridge Street",
+   "base_z_ft": 11.75,
+   "top_z_ft": 39.47,
+   "height_ft": 27.72,
+   "offset_m": 0.5677560808072096,
+   "source_points": {
+    "base": 867064,
+    "top": 1774603
+   }
+  },
+  {
+   "id": "11745",
+   "lat": 40.7021391,
+   "lon": -74.0139214,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Peter Minuit Plaza",
+   "cross_street": "State Street",
+   "base_z_ft": 8.96,
+   "top_z_ft": 36.02,
+   "height_ft": 27.060000000000002,
+   "offset_m": 0.45821579004969704,
+   "source_points": {
+    "base": 17474401,
+    "top": 1620079
+   }
+  },
+  {
+   "id": "11785",
+   "lat": 40.7071624,
+   "lon": -74.0107845,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Wall Street",
+   "cross_street": "Broad Street",
+   "base_z_ft": 22.7,
+   "top_z_ft": 49.8,
+   "height_ft": 27.099999999999998,
+   "offset_m": 0.4398537878450253,
+   "source_points": {
+    "base": 12660366,
+    "top": 1109526
+   }
+  },
+  {
+   "id": "11790",
+   "lat": 40.7044262,
+   "lon": -74.0064199,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Wall St",
+   "cross_street": "South St",
+   "base_z_ft": 5.77,
+   "top_z_ft": 31.0,
+   "height_ft": 25.23,
+   "offset_m": 0.5090261437317785,
+   "source_points": {
+    "base": 8730385,
+    "top": 15871696
+   }
+  },
+  {
+   "id": "11798",
+   "lat": 40.7058561,
+   "lon": -74.008411,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Wall St",
+   "cross_street": "Hanover St",
+   "base_z_ft": 18.67,
+   "top_z_ft": 18.9,
+   "height_ft": 0.22999999999999687,
+   "offset_m": 0.5485225508996202,
+   "source_points": {
+    "base": 6048552,
+    "top": 13623064
+   }
+  },
+  {
+   "id": "12699",
+   "lat": 40.7031685,
+   "lon": -74.0131101,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Whitehall St",
+   "cross_street": "Pearl St",
+   "base_z_ft": 9.68,
+   "top_z_ft": 27.13,
+   "height_ft": 17.45,
+   "offset_m": 0.6047354706520754,
+   "source_points": {
+    "base": 17455951,
+    "top": 3090234
+   }
+  },
+  {
+   "id": "12706",
+   "lat": 40.7036905,
+   "lon": -74.0086091,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Old Slip",
+   "cross_street": "Front St",
+   "base_z_ft": 5.87,
+   "top_z_ft": 31.92,
+   "height_ft": 26.05,
+   "offset_m": 0.5736894856833129,
+   "source_points": {
+    "base": 7283562,
+    "top": 7282262
+   }
+  },
+  {
+   "id": "12709",
+   "lat": 40.7069047,
+   "lon": -74.0070982,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Maiden Ln",
+   "cross_street": "Pearl St",
+   "base_z_ft": 7.91,
+   "top_z_ft": 29.36,
+   "height_ft": 21.45,
+   "offset_m": 0.601392535210345,
+   "source_points": {
+    "base": 2795054,
+    "top": 11988533
+   }
+  },
+  {
+   "id": "12711",
+   "lat": 40.7055014,
+   "lon": -74.0147408,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Greenwich St",
+   "cross_street": "Battery Pl",
+   "base_z_ft": 10.99,
+   "top_z_ft": 28.77,
+   "height_ft": 17.78,
+   "offset_m": 0.5803790997996126,
+   "source_points": {
+    "base": 1404014,
+    "top": 3337855
+   }
+  },
+  {
+   "id": "12714",
+   "lat": 40.7063776,
+   "lon": -74.0080468,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Pine St",
+   "cross_street": "Pearl St",
+   "base_z_ft": 17.75,
+   "top_z_ft": 43.9,
+   "height_ft": 26.15,
+   "offset_m": 0.48375035245487125,
+   "source_points": {
+    "base": 7632903,
+    "top": 4581202
+   }
+  },
+  {
+   "id": "12715",
+   "lat": 40.7069291,
+   "lon": -74.0102722,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Wall St",
+   "cross_street": "Nassau St",
+   "base_z_ft": 24.11,
+   "top_z_ft": 24.47,
+   "height_ft": 0.35999999999999943,
+   "offset_m": 0.5553062252735049,
+   "source_points": {
+    "base": 359082,
+    "top": 3917504
+   }
+  },
+  {
+   "id": "12716",
+   "lat": 40.7051557,
+   "lon": -74.0133954,
+   "status": "review",
+   "review_reason": "top_above_pole_range",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Broadway",
+   "cross_street": "Beaver St",
+   "base_z_ft": 17.72,
+   "top_z_ft": 73.82,
+   "height_ft": 56.099999999999994,
+   "offset_m": 0.562569784129174,
+   "source_points": {
+    "base": 6501581,
+    "top": 1394484
+   }
+  },
+  {
+   "id": "12717",
+   "lat": 40.7044968,
+   "lon": -74.0143727,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Battery Pl",
+   "cross_street": "State St",
+   "base_z_ft": 15.12,
+   "top_z_ft": 36.02,
+   "height_ft": 20.900000000000006,
+   "offset_m": 0.4523080838414586,
+   "source_points": {
+    "base": 3199806,
+    "top": 18438744
+   }
+  },
+  {
+   "id": "12721",
+   "lat": 40.707769,
+   "lon": -74.0102111,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Nassau St",
+   "cross_street": "Pine St",
+   "base_z_ft": 33.37,
+   "top_z_ft": 49.47,
+   "height_ft": 16.1,
+   "offset_m": 0.2099587312052796,
+   "source_points": {
+    "base": 4076118,
+    "top": 15187820
+   }
+  },
+  {
+   "id": "12730",
+   "lat": 40.7077419,
+   "lon": -74.0067232,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Platt St",
+   "cross_street": "Gold St",
+   "base_z_ft": 13.52,
+   "top_z_ft": 39.5,
+   "height_ft": 25.98,
+   "offset_m": 0.5554149604075306,
+   "source_points": {
+    "base": 2902508,
+    "top": 11576956
+   }
+  },
+  {
+   "id": "12736",
+   "lat": 40.7058011,
+   "lon": -74.0099619,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Exchange Pl",
+   "cross_street": "William St",
+   "base_z_ft": 17.68,
+   "top_z_ft": 32.48,
+   "height_ft": 14.799999999999997,
+   "offset_m": 0.4106785280926837,
+   "source_points": {
+    "base": 13859642,
+    "top": 10653483
+   }
+  },
+  {
+   "id": "12747",
+   "lat": 40.7047306,
+   "lon": -74.0097453,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Hanover Square",
+   "cross_street": "Stone St",
+   "base_z_ft": 11.48,
+   "top_z_ft": 11.91,
+   "height_ft": 0.4299999999999997,
+   "offset_m": 0.5222062658524111,
+   "source_points": {
+    "base": 3537297,
+    "top": 12221095
+   }
+  },
+  {
+   "id": "12758",
+   "lat": 40.7076484,
+   "lon": -74.0082381,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Liberty St",
+   "cross_street": "William St",
+   "base_z_ft": 7.25,
+   "top_z_ft": 19.39,
+   "height_ft": 12.14,
+   "offset_m": 0.4480465286177584,
+   "source_points": {
+    "base": 10694913,
+    "top": 15458222
+   }
+  },
+  {
+   "id": "12764",
+   "lat": 40.7075302,
+   "lon": -74.011239,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Wall St",
+   "cross_street": "New St",
+   "base_z_ft": 48.92,
+   "top_z_ft": 49.31,
+   "height_ft": 0.39000000000000057,
+   "offset_m": 0.5635103023729169,
+   "source_points": {
+    "base": 14225399,
+    "top": 1084938
+   }
+  },
+  {
+   "id": "12773",
+   "lat": 40.7060809,
+   "lon": -74.0114299,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Broad St",
+   "cross_street": "Exchange Pl",
+   "base_z_ft": 13.03,
+   "top_z_ft": 29.36,
+   "height_ft": 16.33,
+   "offset_m": 0.5160500260683297,
+   "source_points": {
+    "base": 11256536,
+    "top": 11256051
+   }
+  },
+  {
+   "id": "12976",
+   "lat": 40.7047911,
+   "lon": -74.0089266,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Pearl Street",
+   "cross_street": "Hanover Street",
+   "base_z_ft": 12.6,
+   "top_z_ft": 38.55,
+   "height_ft": 25.949999999999996,
+   "offset_m": 0.4708750175642048,
+   "source_points": {
+    "base": 13604002,
+    "top": 11548150
+   }
+  },
+  {
+   "id": "12979",
+   "lat": 40.7037719,
+   "lon": -74.0082097,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Old Slip",
+   "cross_street": "Front St",
+   "base_z_ft": 6.0,
+   "top_z_ft": 31.79,
+   "height_ft": 25.79,
+   "offset_m": 0.6062774513803818,
+   "source_points": {
+    "base": 5080774,
+    "top": 9116670
+   }
+  },
+  {
+   "id": "13012",
+   "lat": 40.7032781,
+   "lon": -74.0145419,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "State St",
+   "cross_street": "Pearl St",
+   "base_z_ft": 10.33,
+   "top_z_ft": 36.02,
+   "height_ft": 25.690000000000005,
+   "offset_m": 0.5626275805384734,
+   "source_points": {
+    "base": 12905712,
+    "top": 6848991
+   }
+  },
+  {
+   "id": "13141",
+   "lat": 40.7070744,
+   "lon": -74.0123606,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Proposed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Broadway",
+   "cross_street": "Rector St",
+   "base_z_ft": 33.56,
+   "top_z_ft": 33.83,
+   "height_ft": 0.269999999999996,
+   "offset_m": 0.5821771433719798,
+   "source_points": {
+    "base": 4719877,
+    "top": 12917326
+   }
+  },
+  {
+   "id": "13294",
+   "lat": 40.7051837,
+   "lon": -74.0072351,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Water St",
+   "cross_street": "Wall St",
+   "base_z_ft": 7.38,
+   "top_z_ft": 33.27,
+   "height_ft": 25.890000000000004,
+   "offset_m": 0.44230759000981834,
+   "source_points": {
+    "base": 9876625,
+    "top": 16931443
+   }
+  },
+  {
+   "id": "13358",
+   "lat": 40.708697,
+   "lon": -74.0071994,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "John St",
+   "cross_street": "William St",
+   "base_z_ft": 27.82,
+   "top_z_ft": 54.36,
+   "height_ft": 26.54,
+   "offset_m": 0.5116475674302524,
+   "source_points": {
+    "base": 11469832,
+    "top": 4256978
+   }
+  },
+  {
+   "id": "13445",
+   "lat": 40.7046318,
+   "lon": -74.0104486,
+   "status": "review",
+   "review_reason": "top_above_pole_range",
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "S William St",
+   "cross_street": "Mill Ln",
+   "base_z_ft": 11.22,
+   "top_z_ft": 75.72,
+   "height_ft": 64.5,
+   "offset_m": 0.491145302596125,
+   "source_points": {
+    "base": 18034444,
+    "top": 8154885
+   }
+  },
+  {
+   "id": "13519",
+   "lat": 40.7030779,
+   "lon": -74.0133806,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Pearl St",
+   "cross_street": "Whitehall St",
+   "base_z_ft": 8.86,
+   "top_z_ft": 14.24,
+   "height_ft": 5.380000000000001,
+   "offset_m": 0.5823207470023014,
+   "source_points": {
+    "base": 15186408,
+    "top": 3068231
+   }
+  },
+  {
+   "id": "14857",
+   "lat": 40.7060456,
+   "lon": -74.0063551,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "Water St",
+   "cross_street": "Maiden Ln",
+   "base_z_ft": 6.43,
+   "top_z_ft": 6.73,
+   "height_ft": 0.3000000000000007,
+   "offset_m": 0.26657422896234767,
+   "source_points": {
+    "base": 9948098,
+    "top": 8461587
+   }
+  },
+  {
+   "id": "16962",
+   "lat": 40.7072614,
+   "lon": -74.0086348,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Proposed",
+   "franchisee": "Crown Castle Solutions",
+   "on_street": "William St",
+   "cross_street": "Cedar St",
+   "base_z_ft": 18.37,
+   "top_z_ft": 26.9,
+   "height_ft": 8.529999999999998,
+   "offset_m": 0.4665142356254149,
+   "source_points": {
+    "base": 4093110,
+    "top": 11421549
+   }
+  },
+  {
+   "id": "17297",
+   "lat": 40.7054961,
+   "lon": -74.0132909,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle Fiber",
+   "on_street": "Broadway",
+   "cross_street": "Beaver St",
+   "base_z_ft": 21.39,
+   "top_z_ft": 21.98,
+   "height_ft": 0.5899999999999999,
+   "offset_m": 0.5349663162157846,
+   "source_points": {
+    "base": 2124761,
+    "top": 16198267
+   }
+  },
+  {
+   "id": "17313",
+   "lat": 40.7058747,
+   "lon": -74.0144379,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Fiber",
+   "on_street": "Greenwich St",
+   "cross_street": "Morris St",
+   "base_z_ft": 12.63,
+   "top_z_ft": 13.32,
+   "height_ft": 0.6899999999999995,
+   "offset_m": 0.4994639535285634,
+   "source_points": {
+    "base": 3418448,
+    "top": 16040369
+   }
+  },
+  {
+   "id": "17390",
+   "lat": 40.7054385,
+   "lon": -74.0124685,
+   "status": "review",
+   "review_reason": "top_above_pole_range",
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Fiber",
+   "on_street": "New St",
+   "cross_street": "Beaver St",
+   "base_z_ft": 14.5,
+   "top_z_ft": 259.64,
+   "height_ft": 245.14,
+   "offset_m": 0.5351312698455164,
+   "source_points": {
+    "base": 12773031,
+    "top": 18291215
+   }
+  },
+  {
+   "id": "17458",
+   "lat": 40.7052495,
+   "lon": -74.0090457,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Fiber",
+   "on_street": "Hanover St",
+   "cross_street": "Beaver St",
+   "base_z_ft": 16.34,
+   "top_z_ft": 42.42,
+   "height_ft": 26.080000000000002,
+   "offset_m": 0.485102403231078,
+   "source_points": {
+    "base": 2364012,
+    "top": 10758652
+   }
+  },
+  {
+   "id": "21447",
+   "lat": 40.7046587,
+   "lon": -74.0149245,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Fiber",
+   "on_street": "Battery Pl",
+   "cross_street": "Greenwich St",
+   "base_z_ft": 12.07,
+   "top_z_ft": 32.12,
+   "height_ft": 20.049999999999997,
+   "offset_m": 0.5047649020436444,
+   "source_points": {
+    "base": 14520939,
+    "top": 5319693
+   }
+  },
+  {
+   "id": "21450",
+   "lat": 40.7052523,
+   "lon": -74.0081404,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Fiber",
+   "on_street": "Pearl St",
+   "cross_street": "Beaver St",
+   "base_z_ft": 14.63,
+   "top_z_ft": 40.78,
+   "height_ft": 26.15,
+   "offset_m": 0.564473941647076,
+   "source_points": {
+    "base": 10841054,
+    "top": 3751475
+   }
+  },
+  {
+   "id": "21582",
+   "lat": 40.7082605,
+   "lon": -74.0090353,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Liberty St",
+   "cross_street": "Nassau St",
+   "base_z_ft": 39.57,
+   "top_z_ft": 39.7,
+   "height_ft": 0.13000000000000256,
+   "offset_m": 0.5414909578084426,
+   "source_points": {
+    "base": 4329221,
+    "top": 4192466
+   }
+  },
+  {
+   "id": "21781",
+   "lat": 40.7084774,
+   "lon": -74.0068531,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Boldyn US (Mobilitie II)",
+   "on_street": "John Street",
+   "cross_street": "William Street",
+   "base_z_ft": 23.98,
+   "top_z_ft": 49.48,
+   "height_ft": 25.499999999999996,
+   "offset_m": 0.3580077466569173,
+   "source_points": {
+    "base": 9510260,
+    "top": 13620763
+   }
+  },
+  {
+   "id": "2183",
+   "lat": 40.7026141,
+   "lon": -74.0127818,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Extenet II",
+   "on_street": "Whitehall Street",
+   "cross_street": "Water Street",
+   "base_z_ft": 6.66,
+   "top_z_ft": 15.91,
+   "height_ft": 9.25,
+   "offset_m": 0.5035855862609546,
+   "source_points": {
+    "base": 6980349,
+    "top": 17395723
+   }
+  },
+  {
+   "id": "24060",
+   "lat": 40.706168,
+   "lon": -74.012011,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "New Cingular",
+   "on_street": "New Street",
+   "cross_street": "Exchange Place",
+   "base_z_ft": 17.39,
+   "top_z_ft": 17.65,
+   "height_ft": 0.259999999999998,
+   "offset_m": 0.5968329165340921,
+   "source_points": {
+    "base": 14222092,
+    "top": 2320206
+   }
+  },
+  {
+   "id": "24063",
+   "lat": 40.704394,
+   "lon": -74.0112,
+   "status": "review",
+   "review_reason": "top_above_pole_range",
+   "reservation_status": "Proposed",
+   "franchisee": "New Cingular",
+   "on_street": "South William Street",
+   "cross_street": "Broad Street",
+   "base_z_ft": 30.02,
+   "top_z_ft": 175.03,
+   "height_ft": 145.01,
+   "offset_m": 0.5416134073262833,
+   "source_points": {
+    "base": 7232817,
+    "top": 15360695
+   }
+  },
+  {
+   "id": "24215",
+   "lat": 40.7066948,
+   "lon": -74.0092713,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "New Cingular",
+   "on_street": "Williams Street",
+   "cross_street": "Pine Street",
+   "base_z_ft": 29.33,
+   "top_z_ft": 55.48,
+   "height_ft": 26.15,
+   "offset_m": 0.3783949497243011,
+   "source_points": {
+    "base": 13833326,
+    "top": 16600530
+   }
+  },
+  {
+   "id": "24217",
+   "lat": 40.706227,
+   "lon": -74.00911,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Proposed",
+   "franchisee": "New Cingular",
+   "on_street": "Wall Street",
+   "cross_street": "William Street",
+   "base_z_ft": 24.02,
+   "top_z_ft": 26.57,
+   "height_ft": 2.5500000000000007,
+   "offset_m": 0.3046709022206968,
+   "source_points": {
+    "base": 2540832,
+    "top": 13764628
+   }
+  },
+  {
+   "id": "24218",
+   "lat": 40.705102,
+   "lon": -74.011169,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "New Cingular",
+   "on_street": "Beaver Street",
+   "cross_street": "Broad Street",
+   "base_z_ft": 0.52,
+   "top_z_ft": 35.56,
+   "height_ft": 35.04,
+   "offset_m": 0.5665624226218902,
+   "source_points": {
+    "base": 7327567,
+    "top": 12514209
+   }
+  },
+  {
+   "id": "24220",
+   "lat": 40.706842,
+   "lon": -74.007935,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "New Cingular",
+   "on_street": "Cedar Street",
+   "cross_street": "William Street",
+   "base_z_ft": 16.93,
+   "top_z_ft": 35.99,
+   "height_ft": 19.060000000000002,
+   "offset_m": 0.5176030714246527,
+   "source_points": {
+    "base": 13638660,
+    "top": 13638659
+   }
+  },
+  {
+   "id": "24221",
+   "lat": 40.703731,
+   "lon": -74.010537,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "New Cingular",
+   "on_street": "Pearl Street",
+   "cross_street": "Coenties Slip",
+   "base_z_ft": 9.19,
+   "top_z_ft": 31.33,
+   "height_ft": 22.14,
+   "offset_m": 0.6016778039310237,
+   "source_points": {
+    "base": 9661886,
+    "top": 9034121
+   }
+  },
+  {
+   "id": "25239",
+   "lat": 40.7062051,
+   "lon": -74.0130631,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle Fiber",
+   "on_street": "Broadway",
+   "cross_street": "Morris St",
+   "base_z_ft": 29.13,
+   "top_z_ft": 54.99,
+   "height_ft": 25.860000000000003,
+   "offset_m": 0.531525422464169,
+   "source_points": {
+    "base": 3567215,
+    "top": 4927238
+   }
+  },
+  {
+   "id": "29150",
+   "lat": 40.7050558,
+   "lon": -74.0106252,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "NY SMSA",
+   "on_street": "TBD",
+   "cross_street": "TBD",
+   "base_z_ft": 11.58,
+   "top_z_ft": 55.02,
+   "height_ft": 43.440000000000005,
+   "offset_m": 0.6019176168781676,
+   "source_points": {
+    "base": 15375640,
+    "top": 7349783
+   }
+  },
+  {
+   "id": "29151",
+   "lat": 40.708623,
+   "lon": -74.009274,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Proposed",
+   "franchisee": "NY SMSA",
+   "on_street": "TBD",
+   "cross_street": "TBD",
+   "base_z_ft": 30.18,
+   "top_z_ft": 55.51,
+   "height_ft": 25.33,
+   "offset_m": 0.4762448808164442,
+   "source_points": {
+    "base": 189577,
+    "top": 12550061
+   }
+  },
+  {
+   "id": "5059",
+   "lat": 40.70627,
+   "lon": -74.0141855,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Trinity Place",
+   "cross_street": "Morris Street",
+   "base_z_ft": 14.5,
+   "top_z_ft": 52.49,
+   "height_ft": 37.99,
+   "offset_m": 0.27663069270352036,
+   "source_points": {
+    "base": 3500995,
+    "top": 2192583
+   }
+  },
+  {
+   "id": "5060",
+   "lat": 40.7045435,
+   "lon": -74.0144484,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Battery Pl",
+   "cross_street": "Broadway/State St",
+   "base_z_ft": 15.12,
+   "top_z_ft": 45.28,
+   "height_ft": 30.160000000000004,
+   "offset_m": 0.46085408676405903,
+   "source_points": {
+    "base": 5312678,
+    "top": 16132183
+   }
+  },
+  {
+   "id": "5061",
+   "lat": 40.7030615,
+   "lon": -74.0129153,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Whitehall St",
+   "cross_street": "Pearl St",
+   "base_z_ft": 8.27,
+   "top_z_ft": 8.53,
+   "height_ft": 0.2599999999999998,
+   "offset_m": 0.5861768230234535,
+   "source_points": {
+    "base": 18183969,
+    "top": 3086621
+   }
+  },
+  {
+   "id": "5062",
+   "lat": 40.7058066,
+   "lon": -74.0098068,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Exchange Pl",
+   "cross_street": "William St",
+   "base_z_ft": 18.5,
+   "top_z_ft": 18.83,
+   "height_ft": 0.3299999999999983,
+   "offset_m": 0.5320058679067736,
+   "source_points": {
+    "base": 10664568,
+    "top": 10664567
+   }
+  },
+  {
+   "id": "5073",
+   "lat": 40.7042366,
+   "lon": -74.008941,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Water St",
+   "cross_street": "Hanover Sq",
+   "base_z_ft": 7.28,
+   "top_z_ft": 35.24,
+   "height_ft": 27.96,
+   "offset_m": 0.5197811186579571,
+   "source_points": {
+    "base": 12031165,
+    "top": 8179838
+   }
+  },
+  {
+   "id": "7053",
+   "lat": 40.7076453,
+   "lon": -74.0124437,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Extenet II",
+   "on_street": "Rector Street",
+   "cross_street": "Broadway",
+   "base_z_ft": 28.64,
+   "top_z_ft": 56.76,
+   "height_ft": 28.119999999999997,
+   "offset_m": 0.5929919164310489,
+   "source_points": {
+    "base": 14420080,
+    "top": 1117881
+   }
+  },
+  {
+   "id": "9181",
+   "lat": 40.7051859,
+   "lon": -74.0100757,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Beaver Street",
+   "cross_street": "William Street",
+   "base_z_ft": 14.17,
+   "top_z_ft": 39.86,
+   "height_ft": 25.689999999999998,
+   "offset_m": 0.5974169702910752,
+   "source_points": {
+    "base": 16625602,
+    "top": 15436259
+   }
+  },
+  {
+   "id": "9183",
+   "lat": 40.7064554,
+   "lon": -74.0095224,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Wall Street",
+   "cross_street": "William Street",
+   "base_z_ft": 26.54,
+   "top_z_ft": 52.26,
+   "height_ft": 25.72,
+   "offset_m": 0.5687370290557915,
+   "source_points": {
+    "base": 16588192,
+    "top": 3879412
+   }
+  },
+  {
+   "id": "9186",
+   "lat": 40.707168,
+   "lon": -74.0095221,
+   "status": "review",
+   "review_reason": "top_above_pole_range",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Pine St",
+   "cross_street": "William St",
+   "base_z_ft": 35.24,
+   "top_z_ft": 129.07,
+   "height_ft": 93.82999999999998,
+   "offset_m": 0.6070431468761419,
+   "source_points": {
+    "base": 10618086,
+    "top": 12439025
+   }
+  },
+  {
+   "id": "9187",
+   "lat": 40.7050464,
+   "lon": -74.0084433,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Pearl St",
+   "cross_street": "Hanover St",
+   "base_z_ft": 16.14,
+   "top_z_ft": 57.55,
+   "height_ft": 41.41,
+   "offset_m": 0.5842718425312301,
+   "source_points": {
+    "base": 10823957,
+    "top": 16815812
+   }
+  },
+  {
+   "id": "9190",
+   "lat": 40.706567,
+   "lon": -74.0084219,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Pine St",
+   "cross_street": "William St",
+   "base_z_ft": 22.87,
+   "top_z_ft": 23.65,
+   "height_ft": 0.7799999999999976,
+   "offset_m": 0.4043866777417004,
+   "source_points": {
+    "base": 8434808,
+    "top": 5910866
+   }
+  },
+  {
+   "id": "9196",
+   "lat": 40.7076868,
+   "lon": -74.008404,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "William St",
+   "cross_street": "Liberty St",
+   "base_z_ft": 17.88,
+   "top_z_ft": 43.37,
+   "height_ft": 25.49,
+   "offset_m": 0.6001167179085075,
+   "source_points": {
+    "base": 15434292,
+    "top": 12289083
+   }
+  },
+  {
+   "id": "9222",
+   "lat": 40.7045879,
+   "lon": -74.0093017,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Pearl St",
+   "cross_street": "Hanover Sq",
+   "base_z_ft": 10.07,
+   "top_z_ft": 10.5,
+   "height_ft": 0.4299999999999997,
+   "offset_m": 0.5166347854821783,
+   "source_points": {
+    "base": 6358896,
+    "top": 8201604
+   }
+  },
+  {
+   "id": "9223",
+   "lat": 40.7040909,
+   "lon": -74.0116604,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Broad St.",
+   "cross_street": "Stone St.",
+   "base_z_ft": 6.86,
+   "top_z_ft": 34.81,
+   "height_ft": 27.950000000000003,
+   "offset_m": 0.5919256089719065,
+   "source_points": {
+    "base": 13971210,
+    "top": 15327537
+   }
+  },
+  {
+   "id": "9224",
+   "lat": 40.7028338,
+   "lon": -74.0116457,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Water St.",
+   "cross_street": "Broad St.",
+   "base_z_ft": 6.07,
+   "top_z_ft": 21.69,
+   "height_ft": 15.620000000000001,
+   "offset_m": 0.6046202397919165,
+   "source_points": {
+    "base": 12355726,
+    "top": 7919586
+   }
+  },
+  {
+   "id": "9225",
+   "lat": 40.7022192,
+   "lon": -74.0098423,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "South St",
+   "cross_street": "Broad St",
+   "base_z_ft": 5.91,
+   "top_z_ft": 31.66,
+   "height_ft": 25.75,
+   "offset_m": 0.4343595841091957,
+   "source_points": {
+    "base": 17873708,
+    "top": 11984453
+   }
+  },
+  {
+   "id": "9515",
+   "lat": 40.7025946,
+   "lon": -74.0141816,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "State Street",
+   "cross_street": "Peter Minuit Place",
+   "base_z_ft": 8.53,
+   "top_z_ft": 34.19,
+   "height_ft": 25.659999999999997,
+   "offset_m": 0.6023109927875049,
+   "source_points": {
+    "base": 15121617,
+    "top": 5560027
+   }
+  },
+  {
+   "id": "9516",
+   "lat": 40.70652,
+   "lon": -74.0119493,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "New St",
+   "cross_street": "Exchange Pl",
+   "base_z_ft": 18.6,
+   "top_z_ft": 19.03,
+   "height_ft": 0.4299999999999997,
+   "offset_m": 0.5049949157025398,
+   "source_points": {
+    "base": 6150033,
+    "top": 6150032
+   }
+  },
+  {
+   "id": "9518",
+   "lat": 40.7049609,
+   "lon": -74.0127029,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Beaver St",
+   "cross_street": "New St",
+   "base_z_ft": 13.65,
+   "top_z_ft": 18.24,
+   "height_ft": 4.589999999999998,
+   "offset_m": 0.5442888929154457,
+   "source_points": {
+    "base": 5127230,
+    "top": 2076987
+   }
+  },
+  {
+   "id": "9519",
+   "lat": 40.7066684,
+   "lon": -74.0100522,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Wall St",
+   "cross_street": "William St",
+   "base_z_ft": 24.84,
+   "top_z_ft": 25.33,
+   "height_ft": 0.48999999999999844,
+   "offset_m": 0.542579331258187,
+   "source_points": {
+    "base": 10602529,
+    "top": 7572493
+   }
+  },
+  {
+   "id": "9520",
+   "lat": 40.704761,
+   "lon": -74.0068239,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Wall Street",
+   "cross_street": "Front Street",
+   "base_z_ft": 6.33,
+   "top_z_ft": 32.09,
+   "height_ft": 25.760000000000005,
+   "offset_m": 0.5889911962774315,
+   "source_points": {
+    "base": 4802597,
+    "top": 8722898
+   }
+  },
+  {
+   "id": "9521",
+   "lat": 40.7046566,
+   "lon": -74.0083098,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Water St",
+   "cross_street": "Gouverneur Ln",
+   "base_z_ft": 8.4,
+   "top_z_ft": 8.99,
+   "height_ft": 0.5899999999999999,
+   "offset_m": 0.6076550085808669,
+   "source_points": {
+    "base": 15696315,
+    "top": 7421362
+   }
+  },
+  {
+   "id": "9522",
+   "lat": 40.7038387,
+   "lon": -74.0082232,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Approved",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Front Street",
+   "cross_street": "Old Slip",
+   "base_z_ft": 6.43,
+   "top_z_ft": 32.28,
+   "height_ft": 25.85,
+   "offset_m": 0.5668389974687532,
+   "source_points": {
+    "base": 11894438,
+    "top": 13409481
+   }
+  },
+  {
+   "id": "9524",
+   "lat": 40.7073984,
+   "lon": -74.0112317,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Wall St",
+   "cross_street": "New St",
+   "base_z_ft": 49.18,
+   "top_z_ft": 49.38,
+   "height_ft": 0.20000000000000284,
+   "offset_m": 0.5748704339296636,
+   "source_points": {
+    "base": 10490806,
+    "top": 2607124
+   }
+  },
+  {
+   "id": "9525",
+   "lat": 40.7076732,
+   "lon": -74.0067593,
+   "status": "review",
+   "review_reason": "top_near_ground",
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Gold St",
+   "cross_street": "Platt St",
+   "base_z_ft": 14.08,
+   "top_z_ft": 14.99,
+   "height_ft": 0.9100000000000001,
+   "offset_m": 0.5939937513335681,
+   "source_points": {
+    "base": 10014685,
+    "top": 8573809
+   }
+  },
+  {
+   "id": "9527",
+   "lat": 40.7067043,
+   "lon": -74.006871,
+   "status": "matches_scan",
+   "review_reason": null,
+   "reservation_status": "Installed",
+   "franchisee": "Crown Castle NG",
+   "on_street": "Pearl St",
+   "cross_street": "Maiden Ln",
+   "base_z_ft": 8.1,
+   "top_z_ft": 33.04,
+   "height_ft": 24.939999999999998,
+   "offset_m": 0.5879571367159085,
+   "source_points": {
+    "base": 7716575,
+    "top": 11937403
+   }
+  }
+ ],
+ "spans": [
+  {
+   "from": "29151",
+   "to": "21582"
+  },
+  {
+   "from": "29151",
+   "to": "11741"
+  },
+  {
+   "from": "24217",
+   "to": "10998"
+  },
+  {
+   "from": "24217",
+   "to": "9183"
+  },
+  {
+   "from": "24060",
+   "to": "9516"
+  },
+  {
+   "from": "21781",
+   "to": "13358"
+  },
+  {
+   "from": "21781",
+   "to": "10035"
+  },
+  {
+   "from": "21450",
+   "to": "11662"
+  },
+  {
+   "from": "21450",
+   "to": "9187"
+  },
+  {
+   "from": "17297",
+   "to": "12716"
+  },
+  {
+   "from": "13445",
+   "to": "10560"
+  },
+  {
+   "from": "13358",
+   "to": "10050"
+  },
+  {
+   "from": "13012",
+   "to": "11744"
+  },
+  {
+   "from": "12979",
+   "to": "9522"
+  },
+  {
+   "from": "12976",
+   "to": "9222"
+  },
+  {
+   "from": "12764",
+   "to": "9524"
+  },
+  {
+   "from": "12758",
+   "to": "9196"
+  },
+  {
+   "from": "12747",
+   "to": "11726"
+  },
+  {
+   "from": "12736",
+   "to": "5062"
+  },
+  {
+   "from": "12730",
+   "to": "9525"
+  },
+  {
+   "from": "12721",
+   "to": "11659"
+  },
+  {
+   "from": "12717",
+   "to": "5060"
+  },
+  {
+   "from": "12715",
+   "to": "9519"
+  },
+  {
+   "from": "12714",
+   "to": "9190"
+  },
+  {
+   "from": "12709",
+   "to": "9527"
+  },
+  {
+   "from": "11798",
+   "to": "10998"
+  },
+  {
+   "from": "11730",
+   "to": "10034"
+  },
+  {
+   "from": "11725",
+   "to": "10560"
+  },
+  {
+   "from": "11665",
+   "to": "9527"
+  },
+  {
+   "from": "9521",
+   "to": "9187"
+  }
+ ]
+}

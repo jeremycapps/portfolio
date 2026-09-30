@@ -11,6 +11,10 @@
   ],
   "rewrites": [
     {
+      "source": "/pole-review",
+      "destination": "/pole-review/index.html"
+    },
+    {
       "source": "/about",
       "destination": "/about/index.html"
     },
