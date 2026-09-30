@@ -4,7 +4,7 @@
   "replay_hash": "fc1bc3f05c865adafaf7de909fafe437aa7f43282ebee9e9e4e6dfb93874ed13",
   "timpos_commit": "5f286cb",
   "generated_at": "2026-09-30T14:30:19+00:00",
-  "gis": "NYC DOT mobile telecommunications pole reservations (NYC Open Data)",
+  "gis": "NYC Office of Technology and Innovation (formerly DoITT) mobile telecommunications pole reservations (NYC Open Data)",
   "lidar": "NYC public LiDAR tile 980195",
   "pole_height_review_band_ft": [
    10,

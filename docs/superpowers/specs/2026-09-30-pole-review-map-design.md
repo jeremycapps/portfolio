@@ -60,8 +60,8 @@ dark themes, using the site's existing color tokens.
    LiDAR points at its base and top; heights outside a normal pole range are flagged for a
    person to review, not discarded; building-mounted equipment is why tall readings are
    flagged rather than rejected.
-6. **Footer / data note:** "GIS: NYC DOT mobile telecommunications pole reservations (NYC Open
-   Data). LiDAR: NYC public LiDAR tile 980195." Plus the snapshot date. No repo link:
+6. **Footer / data note:** "GIS: NYC Office of Technology and Innovation (formerly DoITT) mobile
+   telecommunications pole reservations (NYC Open Data). LiDAR: NYC public LiDAR tile 980195." Plus the snapshot date. No repo link:
    `timpos` is private and the page doesn't depend on it.
 
 ## 4. Map rendering
