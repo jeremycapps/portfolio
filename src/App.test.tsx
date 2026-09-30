@@ -27,6 +27,15 @@ describe('Home', () => {
     expect(experience).not.toContain('NEW INC');
   });
 
+  it('lists the pole review map under Projects, linking in-site to /pole-review', () => {
+    const html = homeMarkup();
+    const projects = html.slice(html.indexOf('id="home-projects-title"'), html.indexOf('id="home-awards-title"'));
+    expect(projects).toContain('data-testid="project-pole-review"');
+    expect(projects).toContain('aria-expanded="false"');
+    expect(projects).toContain('href="/pole-review"');
+    expect(projects).not.toContain('target="_blank"');
+  });
+
   it('shows every role as a uniform expandable card and drops the retired Zocdoc page', () => {
     const html = homeMarkup();
     // All four roles render, each with its bullets in the DOM (collapsed panels included).

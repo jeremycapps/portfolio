@@ -15,6 +15,8 @@ type Experience = {
   role: string;
   org: string;
   orgHref?: string;
+  // Link text when it should differ from the org name (e.g. a project page).
+  linkLabel?: string;
   meta: string;
   bullets: readonly string[];
   testid: string;
@@ -70,6 +72,24 @@ const EXPERIENCE: readonly Experience[] = [
   },
 ];
 
+// Projects reuse the Experience record and card. Counts match the 0.1.2 snapshot
+// behind /pole-review; they're written out so the home bundle stays free of it.
+const PROJECTS: readonly Experience[] = [
+  {
+    role: 'Pole Review Map — Telecom Poles Checked Against LiDAR',
+    org: 'Independent project',
+    orgHref: '/pole-review',
+    linkLabel: 'Open the map',
+    meta: '2026',
+    testid: 'project-pole-review',
+    bullets: [
+      'Checks 106 Lower Manhattan telecom pole records against a LiDAR scan: 72 match the scan and 34 go to a person for review.',
+      'Matches each pole’s reservation record to the LiDAR points at its base and top; heights outside a normal pole range are flagged for review, and the records are kept.',
+      'Ships as a map with filters, a detail sheet per pole, and an under-review list that also works without the map.',
+    ],
+  },
+];
+
 // Awards use the Experience record and card so the two sections look and behave
 // identically. NEW INC is a fellowship, not a job — it belongs here, not in Experience.
 const AWARDS: readonly Experience[] = [
@@ -115,10 +135,9 @@ function ExperienceItem({ item }: { item: Experience }) {
           <a
             className="home-role-org-link"
             href={item.orgHref}
-            target="_blank"
-            rel="noreferrer noopener"
+            {...(item.orgHref.startsWith('/') ? {} : { target: '_blank', rel: 'noreferrer noopener' })}
           >
-            {item.org} <ArrowUpRight aria-hidden="true" />
+            {item.linkLabel ?? item.org} <ArrowUpRight aria-hidden="true" />
           </a>
         ) : null}
       </div>
@@ -159,6 +178,18 @@ function Home() {
             ))}
           </div>
 
+        </section>
+
+        <section className="home-now home-projects" aria-labelledby="home-projects-title">
+          <div className="home-sec-head">
+            <h2 id="home-projects-title" className="home-sec-tag">Projects</h2>
+          </div>
+
+          <div className="home-role-list">
+            {PROJECTS.map((item) => (
+              <ExperienceItem key={item.testid} item={item} />
+            ))}
+          </div>
         </section>
 
         <section className="home-now home-awards" aria-labelledby="home-awards-title">
