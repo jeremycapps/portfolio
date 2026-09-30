@@ -77,7 +77,7 @@ const EXPERIENCE: readonly Experience[] = [
 const PROJECTS: readonly Experience[] = [
   {
     role: 'Lower Manhattan Telecom Pole Audit',
-    org: 'LiDAR and City Records',
+    org: 'NYC Office of Technology and Innovation',
     orgHref: '/pole-review',
     linkLabel: 'Open the map',
     meta: '2026',

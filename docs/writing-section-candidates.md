@@ -140,7 +140,7 @@ the company's actual problem domain — infrastructure digital twins.
 
 Built first in Colab (`Drive/Colab Notebooks/Neara PoC.ipynb`, 8 cells), then landed in the repo:
 
-1. **Real public data.** NYC DOT *Mobile Telecommunications Franchise Pole Reservation
+1. **Real public data.** NYC Office of Technology and Innovation (formerly DoITT) *Mobile Telecommunications Franchise Pole Reservation
    Locations* — 10,185 rows, real franchisees (Crown Castle Fiber) — plus a real LiDAR
    tile, `980195.laz` (~18M points).
 2. **Spatial filter.** CSV rows falling inside the LiDAR tile bounds → **106 poles**.
@@ -217,7 +217,7 @@ reconciliation policy changes, not hidden heuristics"* — is now matched by its
 - **Be precise about the LiDAR.** The committed ledger records `"laz_read": false` — the
   point-cloud extraction ran in Colab and the repo replays the pre-built ledger. Frame it
   as "reconciled from LiDAR and GIS," not "reads the point cloud on every run."
-- **The data is NYC DOT open data, not Neara's.** Using the company name for a self-made
+- **The data is NYC OTI open data, not Neara's.** Using the company name for a self-made
   PoC is fine; implying access to their data is not.
 - **Lineage caveat.** This sits in the workbench that `profile.md` marks superseded and
   dormant. The demo's value is as a case study of the method, not as current tooling.

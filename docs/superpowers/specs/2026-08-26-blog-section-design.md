@@ -217,7 +217,7 @@ Explicitly **excluded from v1** (per prior decisions in this project):
 - **TIMPOS / UTID material** — held out entirely. Three-referent naming collision plus an
   open patent-disclosure question (PPAs dated May 2026). See candidates doc Appendix B.
 - **The Neara demo** — a strong FDE case study, but frame-sensitive (superseded
-  workbench lineage; NYC DOT open data, not Neara's; the ledger replays a pre-built file
+  workbench lineage; NYC OTI open data, not Neara's; the ledger replays a pre-built file
   rather than reading LiDAR live). Candidate for a *later* post, not v1. See candidates
   doc Appendix A.
 
