@@ -3,10 +3,7 @@ import { ArrowDown, ArrowLeft, ArrowRight, CornerDownLeft, RotateCcw } from 'luc
 import { SiteHeader } from '@/components/site-header';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  createDecisionExperienceViewModel,
-  type DecisionExperienceViewModel,
-} from '@/lib/stratos/decisions/presentation';
+import type { DecisionExperienceViewModel } from '@/lib/stratos/decisions/presentation';
 import type { OperationRecommendation } from '@/lib/stratos/decisions/judgment';
 import type { ResolvedDecisionInput } from '@/lib/stratos/decisions/decision-point';
 import './stratos-v2.css';

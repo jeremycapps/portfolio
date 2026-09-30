@@ -1,6 +1,6 @@
 import { BLOG_POSTS, type BlogPostMeta } from './blog/posts.generated';
 
-export const SITE_ORIGIN = 'https://www.jeremycapps.com';
+const SITE_ORIGIN = 'https://www.jeremycapps.com';
 
 export type PageKind = 'home' | 'profile' | 'blog' | 'article' | 'application';
 
@@ -107,7 +107,7 @@ function articlePage(post: BlogPostMeta): PageMetadata | null {
   };
 }
 
-export function normalizeSitePath(path: string): string {
+function normalizeSitePath(path: string): string {
   const pathname = path.split(/[?#]/, 1)[0] || '/';
   if (pathname === '/') return pathname;
   return pathname.replace(/\/+$/, '');

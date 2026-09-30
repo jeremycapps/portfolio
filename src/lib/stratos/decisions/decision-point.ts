@@ -6,7 +6,7 @@ export const DECISION_SEQUENCES = ['T0', 'T1', 'T2', 'T3', 'T4'] as const;
  * What a claim is in itself, independent of any decision: reported, derived, or
  * unplaceable. Authors write this.
  */
-export const EVIDENCE_EPISTEMIC_STATES = ['OBSERVED', 'ESTIMATED', 'FOG'] as const;
+const EVIDENCE_EPISTEMIC_STATES = ['OBSERVED', 'ESTIMATED', 'FOG'] as const;
 /**
  * How a claim reads from one decision's vantage. `HINDSIGHT` is not a property a
  * claim carries — it is the relationship between the claim's publication and a

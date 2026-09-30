@@ -68,7 +68,3 @@ export const PORTFOLIO_EVIDENCE = {
 
 export type EvidenceId = keyof typeof PORTFOLIO_EVIDENCE;
 export const EVIDENCE_IDS = Object.keys(PORTFOLIO_EVIDENCE) as EvidenceId[];
-
-export function evidencePromptIndex(): string {
-  return EVIDENCE_IDS.map((id) => `${id}: ${PORTFOLIO_EVIDENCE[id].grounding}`).join('\n');
-}

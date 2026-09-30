@@ -17,9 +17,3 @@ export const CANONICAL_SUMMARY =
   + 'and independent AI infrastructure that turns domain knowledge into reusable '
   + 'context. Strongest fit: forward-deployed engineering, AI operations, solutions '
   + 'architecture, and product/platform engineering.';
-
-/** The identity and through-line, without the fit clause — the part a tailored
- *  summary must keep. Used to anchor the model and to check tailoring preserved
- *  the spine. */
-export const SUMMARY_SPINE =
-  'systems-oriented technical operator and product-minded engineer';

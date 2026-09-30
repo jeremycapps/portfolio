@@ -16,7 +16,7 @@ const itemSchema = z.object({
   ),
 }).strict();
 
-export const modelAnswerSchema = z.object({
+const modelAnswerSchema = z.object({
   schema: z.literal(MODEL_ANSWER_PROTOCOL),
   refusal: z.string().trim().min(1).max(300).nullable(),
   items: z.array(itemSchema).max(6),
@@ -30,38 +30,6 @@ export const modelAnswerSchema = z.object({
 });
 
 export type ModelAnswer = z.infer<typeof modelAnswerSchema>;
-
-export const MODEL_ANSWER_JSON_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['schema', 'refusal', 'items'],
-  properties: {
-    schema: { type: 'string', const: MODEL_ANSWER_PROTOCOL },
-    refusal: { anyOf: [{ type: 'string', minLength: 1, maxLength: 300 }, { type: 'null' }] },
-    items: {
-      type: 'array',
-      maxItems: 6,
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['title', 'contribution', 'outcome', 'scope', 'evidenceRefs'],
-        properties: {
-          title: { type: 'string', minLength: 1, maxLength: 120 },
-          contribution: { type: 'string', minLength: 1, maxLength: 800 },
-          outcome: { anyOf: [{ type: 'string', minLength: 1, maxLength: 600 }, { type: 'null' }] },
-          scope: { anyOf: [{ type: 'string', minLength: 1, maxLength: 600 }, { type: 'null' }] },
-          evidenceRefs: {
-            type: 'array',
-            minItems: 1,
-            maxItems: 3,
-            uniqueItems: true,
-            items: { type: 'string', enum: EVIDENCE_IDS },
-          },
-        },
-      },
-    },
-  },
-} as const satisfies Record<string, unknown>;
 
 export function parseModelAnswer(raw: string): ModelAnswer {
   let parsed: unknown;

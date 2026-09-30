@@ -64,7 +64,7 @@ export type ContextSource = 'evidence' | 'transcripts';
  * Evidence (claims extracted and gated by the observation pipeline) is the default.
  * Raw transcript retrieval stays available only when CONTEXT_SOURCE=transcripts.
  */
-export function resolveContextSource(env: Record<string, string | undefined> = process.env): ContextSource {
+function resolveContextSource(env: Record<string, string | undefined> = process.env): ContextSource {
   return env.CONTEXT_SOURCE === 'transcripts' ? 'transcripts' : 'evidence';
 }
 

@@ -6,7 +6,7 @@ import {
 } from './structured-openrouter';
 import type { ChatMessage } from './types';
 
-export const CONTEXT_PLAN_PROTOCOL = 'portfolio.context-plan/1' as const;
+const CONTEXT_PLAN_PROTOCOL = 'portfolio.context-plan/1' as const;
 
 const contextPlanSchema = z.object({
   schema: z.literal(CONTEXT_PLAN_PROTOCOL),
@@ -36,7 +36,7 @@ export type ContextPlanResult =
   | { needed: false }
   | { needed: true; query: ContextQuery };
 
-export const CONTEXT_PLAN_JSON_SCHEMA = {
+const CONTEXT_PLAN_JSON_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   required: ['schema', 'needed', 'term', 'kind', 'expansion', 'limit'],

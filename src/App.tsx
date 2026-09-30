@@ -183,7 +183,6 @@ function Home() {
 // chunk, never in the homepage bundle.
 const StratosPage = lazy(() => import('@/pages/stratos'));
 const StratosV2Page = lazy(() => import('@/pages/stratos-v2'));
-const StratosFlowPage = lazy(() => import('@/pages/stratos-flow'));
 const PoleReviewPage = lazy(() => import('@/pages/pole-review'));
 const MethodPage = lazy(() => import('@/pages/method'));
 const AskPage = lazy(() => import('@/pages/ask'));
@@ -210,14 +209,6 @@ function Router() {
         {/* The Klarna flow page is retired; its URL now sends readers to the method. */}
         <Route path="/stratos-flow">
           {() => <Redirect to="/blog/method" replace />}
-        </Route>
-        {/*
-         * Unlisted preview of the flow view, reachable only by its random path.
-         * Not linked from anywhere and kept out of the sitemap; the suffix is
-         * obscurity, not a secret — the path ships in the public bundle and repo.
-         */}
-        <Route path="/stratos-flow-preview-2cebd2c17d1887106cb0">
-          {() => <Suspense fallback={null}><StratosFlowPage /></Suspense>}
         </Route>
         <Route path="/blog">
           {() => <Suspense fallback={null}><BlogPage /></Suspense>}
