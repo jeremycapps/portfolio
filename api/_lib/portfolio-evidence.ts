@@ -7,7 +7,7 @@ export const PORTFOLIO_EVIDENCE = {
   'profile.aroko': {
     tier: 'profile-grounded',
     source: 'content/profile.md#what-hes-doing-now',
-    grounding: 'At Aroko, Jeremy is Strategic Projects Lead and leads operational systems and client web delivery; the $135,000 revenue result is a company outcome, not solely his.',
+    grounding: 'At Aroko, Jeremy is Head of Operations and leads operational systems and client web delivery; the $135,000 revenue result is a company outcome, not solely his.',
   },
   'profile.zocdoc': {
     tier: 'profile-grounded',

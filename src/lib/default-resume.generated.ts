@@ -22,7 +22,7 @@ export const DEFAULT_RESUME: ResumeResponse = {
       {
         "organization": "Aroko",
         "roleContext": [
-          "Strategic Projects Lead / Lead Web Designer / Technical Director"
+          "Head of Operations / Lead Web Designer / Technical Director"
         ],
         "timePeriod": "2024–Present",
         "bullets": [

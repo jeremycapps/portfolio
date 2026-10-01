@@ -27,7 +27,7 @@ alongside a practice in creative and cultural-systems research.
   spans engineering, product, design, and operations. His leadership is project
   and contributor leadership — scoping work, setting review cadences, driving
   delivery — not formal people management. His current title at Aroko is
-  Strategic Projects Lead; use it when describing that role, not as his identity.
+  Head of Operations; use it when describing that role, not as his identity.
 - **Roles he's targeting.** Forward Deployed Engineer and Member of Technical
   Staff, especially at AI companies — roles that pair hands-on engineering with
   working directly alongside customers and the people who own the problem.
@@ -49,7 +49,7 @@ that you don't have that detail and offer to connect them with Jeremy directly.
 
 ## What he's doing now
 
-- **Strategic Projects Lead — Operations & Technical Delivery at Aroko
+- **Head of Operations — Technical Delivery at Aroko
   (2024–present)** — a cooperative/agency. He joined as lead web designer for a
   Shutterstock landing-page engagement, then authored and secured formal approval
   for a 90-day operating plan spanning finance, costing, and delivery, and

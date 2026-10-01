@@ -80,7 +80,7 @@ const DETERMINISTIC_ROUTES: RoutingCase[] = [
   },
   {
     name: 'the Aroko preset (current role) → the Aroko card',
-    question: 'What does Jeremy do at Aroko as Strategic Projects Lead — the operating plan, the systems he built, and the delivery work?',
+    question: 'What does Jeremy do at Aroko as Head of Operations — the operating plan, the systems he built, and the delivery work?',
     traceId: 'portfolio.aroko-work.v1',
     role: 'value',
   },

@@ -38,6 +38,6 @@ describe('a routed application carries its per-role titles', () => {
 
   it('titles the same role differently for a different job', () => {
     const generalist = matchSummary('Special Projects Lead, founder office. Ambiguous 0-to-1, internal AI tooling, high agency, first principles.');
-    expect(generalist?.roles.Aroko).toBe('Strategic Projects Lead');
+    expect(generalist?.roles.Aroko).toBe('Head of Operations');
   });
 });

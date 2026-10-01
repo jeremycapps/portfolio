@@ -9,7 +9,7 @@ const view: ResumeView = {
   experience: [
     {
       organization: 'Aroko',
-      roleContext: ['Strategic Projects Lead'],
+      roleContext: ['Head of Operations'],
       timePeriod: '2024–Present',
       bullets: ['Built a budgeting system.', 'Ran vendor negotiations.'],
       sourceRefs: ['aroko-1'],
@@ -80,7 +80,7 @@ describe('ResumeSurface', () => {
   it('drops optional sections that have no entries', () => {
     const html = render({ view: { ...view, skills: [], education: [], projects: [], awards: [] } });
     // Assert on the section heading, not a bare substring — a role title like
-    // "Strategic Projects Lead" legitimately contains "Projects".
+    // "Strategic Projects" legitimately contains "Projects".
     expect(html).not.toContain('<h3>Skills</h3>');
     expect(html).not.toContain('<h3>Education</h3>');
     expect(html).not.toContain('<h3>Projects</h3>');

@@ -106,7 +106,7 @@ export const CANDIDATE_TENSIONS: readonly CandidateTension[] = [
       evidence: ['profile.aroko'],
     },
     placement: 'both',
-    basis: 'The title since 2024 is Strategic Projects Lead; concurrently the independent work is ~15,700 lines of TypeScript orchestration and a 3,694-line Python runtime.',
+    basis: 'The title since 2024 is Head of Operations; concurrently the independent work is ~15,700 lines of TypeScript orchestration and a 3,694-line Python runtime.',
     caution: 'The independent engineering is single-operator with no external users; do not present it as employed engineering work.',
   },
   {

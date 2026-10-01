@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const publicRoutes = [
-  ['/', 'I build production AI systems inside real operations, and ship them end to end.'],
+  ['/', 'I build the tools operators use, inside their operation.'],
   ['/blog', 'Notes on delivery, process, and shipping under constraint'],
   ['/blog/domain-graph-harness', 'A Domain Graph, Measured Against What It Forgot'],
   ['/stratos', 'Drag each axis to set a position'],

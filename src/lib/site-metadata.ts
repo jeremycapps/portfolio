@@ -33,7 +33,7 @@ const STATIC_PAGES: readonly PageMetadata[] = [
     path: '/',
     title: 'Jeremy Capps — Engineer, AI Systems',
     description:
-      'Jeremy Capps is an engineer who builds production AI systems with the people who own the problem — from scoping to code to adoption.',
+      'Jeremy Capps builds the tools operators use, inside their operation: scoping, code, and adoption.',
     kind: 'home',
   },
   {

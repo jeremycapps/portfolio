@@ -26,7 +26,7 @@ type Experience = {
 // closed on load. Content is drawn from content/profile.md.
 const EXPERIENCE: readonly Experience[] = [
   {
-    role: 'Strategic Projects Lead — Operations & Technical Delivery',
+    role: 'Head of Operations — Technical Delivery',
     org: 'Aroko',
     orgHref: 'https://aroko.coop',
     meta: '2024 – Present',
@@ -153,13 +153,12 @@ function Home() {
       <section className="workspace home-workspace" aria-labelledby="hero-title">
         <div className="intro home-hero">
           <h1 className="home-thesis" id="hero-title">
-            I build production AI systems inside real operations, and ship them end to end.
+            I build the tools operators use, inside their operation.
           </h1>
           <p className="home-sub">
-            An engineer who works directly with the people who own the problem. Nine years across
-            engineering, product, design, and operations &mdash; I scope with the customer, write the
-            code, and stay through adoption. The assistant on this site is a production RAG agent I
-            built on my own work logs.
+            I run operations and I write the code. For nine years across engineering, product, design
+            and operations, I've scoped work with the people who own the problem, built it, and stayed
+            through adoption. The assistant on this site is a RAG agent I built on my own work logs.
           </p>
           <div className="home-hero-actions">
             <a href="/ask">Chat with my assistant <ArrowUpRight aria-hidden="true" /></a>

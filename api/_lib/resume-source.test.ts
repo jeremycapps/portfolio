@@ -25,7 +25,7 @@ const CORPUS: ResumeCorpus = {
   header: { name: 'Test', contacts: [] },
   engagements: [
     {
-      id: 'ops', organization: 'Aroko', roleContext: ['Strategic Projects Lead'], timePeriod: '2024',
+      id: 'ops', organization: 'Aroko', roleContext: ['Head of Operations'], timePeriod: '2024',
       themes: ['project_operations', 'budgeting'], roleFit: { strongest: ['Product Operations'], secondary: [] },
       caution: [],
       bullets: [{ id: 'ops.b1', text: 'Built a budgeting and operations system', evidenceRefs: [], sourceRefs: ['s'] }],
@@ -110,7 +110,7 @@ describe('prerank', () => {
       text: 'Built a budgeting and operations system',
       score: expect.any(Number),
       organization: 'Aroko',
-      roleContext: ['Strategic Projects Lead'],
+      roleContext: ['Head of Operations'],
       timePeriod: '2024',
       kind: 'experience',
       caution: [],
@@ -581,7 +581,7 @@ describe('project split', () => {
     header: { name: 'Test', contacts: [] },
     engagements: [
       {
-        id: 'aroko', organization: 'Aroko', roleContext: ['Strategic Projects Lead'], timePeriod: '2024–Present',
+        id: 'aroko', organization: 'Aroko', roleContext: ['Head of Operations'], timePeriod: '2024–Present',
         themes: ['operations'], roleFit: { strongest: [], secondary: [] }, caution: [],
         bullets: [{ id: 'aroko.b1', text: 'Built operations tooling.', evidenceRefs: [], sourceRefs: ['s'] }],
       },
@@ -620,7 +620,7 @@ describe('project split', () => {
   it('merges multiple source engagements for the same employer', async () => {
     const { view } = await assembleResume('job', CORPUS_WITH_PROJECT, { hasModel: false });
     const aroko = view.experience.find((experience) => experience.organization === 'Aroko');
-    expect(aroko?.roleContext).toEqual(['Strategic Projects Lead', 'Technical Director']);
+    expect(aroko?.roleContext).toEqual(['Head of Operations', 'Technical Director']);
     expect(aroko?.bullets).toEqual(['Built operations tooling.', 'Led client web delivery.']);
     expect(view.experience.filter((experience) => experience.organization === 'Aroko')).toHaveLength(1);
   });

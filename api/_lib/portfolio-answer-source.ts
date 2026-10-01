@@ -296,7 +296,7 @@ export function careerHistoryAnswerSet(): AnswerSetV2 {
     sequenceKind: 'temporal',
     items: [
       careerItem({
-        role: 'Strategic Projects Lead',
+        role: 'Head of Operations',
         organization: 'Aroko',
         period: '2024–present',
         focus: 'Leads operations and technical delivery at a cooperative agency.',

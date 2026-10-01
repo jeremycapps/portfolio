@@ -193,7 +193,7 @@ describe('resolvePortfolioAnswer routes questions to the right card', () => {
       ['What did Jeremy build at Zocdoc?', 'portfolio.zocdoc-work.v1'],
       ['What technologies has Jeremy worked with?', 'portfolio.technologies.v1'],
       ['What kinds of roles fit Jeremy, and why?', 'portfolio.looking-for.v1'],
-      ['What does Jeremy do at Aroko as Strategic Projects Lead?', 'portfolio.aroko-work.v1'],
+      ['What does Jeremy do at Aroko as Head of Operations?', 'portfolio.aroko-work.v1'],
       ["What is Jeremy's career history?", 'portfolio.career-history.v1'],
     ];
     for (const [question, traceId] of cases) {

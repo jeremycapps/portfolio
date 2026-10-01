@@ -79,7 +79,7 @@ export function llmsText(pages, canonicalForPage) {
     .map((page) => `- [${page.title}](${canonicalForPage(page)}): ${page.description}`)
     .join('\n');
 
-  return `# Jeremy Capps\n\n> Jeremy Capps is an engineer who builds production AI systems with the people who own the problem — from scoping to code to adoption.\n\nThis is the canonical index of public, human-authored content on Jeremy Capps's portfolio.\n\n## Core pages\n\n${links(core)}\n\n## Writing\n\n${links(articles)}\n`;
+  return `# Jeremy Capps\n\n> Jeremy Capps builds the tools operators use, inside their operation: scoping, code, and adoption.\n\nThis is the canonical index of public, human-authored content on Jeremy Capps's portfolio.\n\n## Core pages\n\n${links(core)}\n\n## Writing\n\n${links(articles)}\n`;
 }
 
 async function writeText(path, content) {

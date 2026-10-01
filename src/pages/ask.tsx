@@ -29,7 +29,7 @@ const ASK_QUESTIONS: readonly { label: string; prompt: string }[] = [
   {
     label: 'What does he do at Aroko?',
     prompt:
-      'What does Jeremy do at Aroko as Strategic Projects Lead — the operating plan, the systems he built, and the delivery work?',
+      'What does Jeremy do at Aroko as Head of Operations — the operating plan, the systems he built, and the delivery work?',
   },
   {
     label: 'Tell me about Zocdoc',

@@ -39,13 +39,13 @@ describe('ConversationAnswer', () => {
   it('renders a both-placement as prose that holds the duality', () => {
     const html = render(tensionAnswerSet('Is Jeremy currently in a hands-on engineering role or an operations role?')!);
     expect(html).toContain('Both');
-    expect(html).toContain('Strategic Projects Lead'); // the basis carries the how
+    expect(html).toContain('Head of Operations'); // the basis carries the how
   });
 
   it('renders the career answer as a structured timeline, its one genuinely structured case', () => {
     const html = render(careerHistoryAnswerSet());
     expect(html).toContain('conversation-timeline');
-    expect(html).toContain('Strategic Projects Lead');
+    expect(html).toContain('Head of Operations');
     expect(html).toContain('Aroko');
   });
 
